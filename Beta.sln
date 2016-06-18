@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta", "src\Beta\Beta.csproj", "{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cores", "Cores", "{41B60EAE-8E3B-409C-9CF4-7E3610E457F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.Famicom", "src\Beta.Famicom\Beta.Famicom.csproj", "{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.SuperFamicom", "src\Beta.SuperFamicom\Beta.SuperFamicom.csproj", "{A0F19B2E-E7D4-48C3-9D31-16D983C94952}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.GameBoy", "src\Beta.GameBoy\Beta.GameBoy.csproj", "{77D2167E-3415-48EC-AF8B-0427AEEC8AD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.GameBoyAdvance", "src\Beta.GameBoyAdvance\Beta.GameBoyAdvance.csproj", "{515C37BE-A8A6-48DE-A152-51BB3A1896F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.Platform", "src\Beta.Platform\Beta.Platform.csproj", "{5C784D99-14AF-4650-B4EB-756BBFF0E61A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0F19B2E-E7D4-48C3-9D31-16D983C94952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0F19B2E-E7D4-48C3-9D31-16D983C94952}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0F19B2E-E7D4-48C3-9D31-16D983C94952}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0F19B2E-E7D4-48C3-9D31-16D983C94952}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77D2167E-3415-48EC-AF8B-0427AEEC8AD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77D2167E-3415-48EC-AF8B-0427AEEC8AD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77D2167E-3415-48EC-AF8B-0427AEEC8AD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77D2167E-3415-48EC-AF8B-0427AEEC8AD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{515C37BE-A8A6-48DE-A152-51BB3A1896F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{515C37BE-A8A6-48DE-A152-51BB3A1896F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{515C37BE-A8A6-48DE-A152-51BB3A1896F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{515C37BE-A8A6-48DE-A152-51BB3A1896F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FDB86CEC-E032-4A45-A189-EB2FC4B4777B} = {41B60EAE-8E3B-409C-9CF4-7E3610E457F5}
+		{A0F19B2E-E7D4-48C3-9D31-16D983C94952} = {41B60EAE-8E3B-409C-9CF4-7E3610E457F5}
+		{77D2167E-3415-48EC-AF8B-0427AEEC8AD6} = {41B60EAE-8E3B-409C-9CF4-7E3610E457F5}
+		{515C37BE-A8A6-48DE-A152-51BB3A1896F6} = {41B60EAE-8E3B-409C-9CF4-7E3610E457F5}
+	EndGlobalSection
+EndGlobal

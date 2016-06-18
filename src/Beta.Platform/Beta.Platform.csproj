@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5C784D99-14AF-4650-B4EB-756BBFF0E61A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Beta.Platform</RootNamespace>
+    <AssemblyName>Beta.Platform</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.3.0.2\lib\net45\SharpDX.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.Direct3D11.3.0.2\lib\net45\SharpDX.Direct3D11.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.DXGI, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.DXGI.3.0.2\lib\net45\SharpDX.DXGI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.XAudio2, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.XAudio2.3.0.2\lib\net45\SharpDX.XAudio2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SharpDX.XInput, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SharpDX.XInput.3.0.2\lib\net45\SharpDX.XInput.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleInjector, Version=3.1.5.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SimpleInjector.3.1.5\lib\net45\SimpleInjector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Audio\AudioBackend.cs" />
+    <Compile Include="Audio\AudioParameters.cs" />
+    <Compile Include="Audio\IAudioBackend.cs" />
+    <Compile Include="Audio\IAudioParameterProvider.cs" />
+    <Compile Include="BitString.cs" />
+    <Compile Include="Core\DefaultResetButton.cs" />
+    <Compile Include="Core\IGameSystem.cs" />
+    <Compile Include="Core\IPowerButton.cs" />
+    <Compile Include="Core\IProcessor.cs" />
+    <Compile Include="Core\IResetButton.cs" />
+    <Compile Include="Core\Processor.cs" />
+    <Compile Include="Exceptions\CompilerPleasingException.cs" />
+    <Compile Include="Exceptions\ProcessorJammedException.cs" />
+    <Compile Include="FileExtension.cs" />
+    <Compile Include="Input\InputBackend.cs" />
+    <Compile Include="MathHelper.cs" />
+    <Compile Include="MemoryChip.cs" />
+    <Compile Include="Packaging\IPackage.cs" />
+    <Compile Include="Processors\ARM7.cs" />
+    <Compile Include="Processors\LR35902.cs" />
+    <Compile Include="Processors\RP6502\Access.cs" />
+    <Compile Include="Processors\RP6502\ALU.cs" />
+    <Compile Include="Processors\RP6502\Core.cs" />
+    <Compile Include="Processors\RP6502\Interrupts.cs" />
+    <Compile Include="Processors\RP6502\IRP6502Bus.cs" />
+    <Compile Include="Processors\RP6502\Registers.cs" />
+    <Compile Include="Processors\RP6502\Status.cs" />
+    <Compile Include="Processors\RP65816\Alu.cs" />
+    <Compile Include="Processors\RP65816\Codes.cs" />
+    <Compile Include="Processors\RP65816\Core.cs" />
+    <Compile Include="Processors\RP65816\IBus.cs" />
+    <Compile Include="Processors\RP65816\Modes.cs" />
+    <Compile Include="Processors\RP65816\Status.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Register.cs" />
+    <Compile Include="Timing.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="Video\IVideoBackend.cs" />
+    <Compile Include="Video\IVideoParameterProvider.cs" />
+    <Compile Include="Video\VideoBackend.cs" />
+    <Compile Include="Video\VideoParameters.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets" Condition="Exists('..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

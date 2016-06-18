@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FDB86CEC-E032-4A45-A189-EB2FC4B4777B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Beta.Famicom</RootNamespace>
+    <AssemblyName>Beta.Famicom</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SimpleInjector, Version=3.1.5.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SimpleInjector.3.1.5\lib\net45\SimpleInjector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Abstractions\IBus.cs" />
+    <Compile Include="AudioParameterProvider.cs" />
+    <Compile Include="Boards\Bandai\BandaiLZ93D50.cs" />
+    <Compile Include="Boards\Board.cs" />
+    <Compile Include="Boards\BoardManager.cs" />
+    <Compile Include="Boards\BoardNameAttribute.cs" />
+    <Compile Include="Boards\Camerica\CamericaBF9093.cs" />
+    <Compile Include="Boards\Camerica\CamericaBF9096.cs" />
+    <Compile Include="Boards\Discreet\Anrom.cs" />
+    <Compile Include="Boards\Discreet\Aorom.cs" />
+    <Compile Include="Boards\Discreet\Cnrom.cs" />
+    <Compile Include="Boards\Discreet\Cprom.cs" />
+    <Compile Include="Boards\Discreet\Nrom128.cs" />
+    <Compile Include="Boards\Discreet\Nrom256.cs" />
+    <Compile Include="Boards\Discreet\Unrom.cs" />
+    <Compile Include="Boards\Discreet\Uorom.cs" />
+    <Compile Include="Boards\IBoard.cs" />
+    <Compile Include="Boards\IBoardManager.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc1.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc2.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc3.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc4.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc6.cs" />
+    <Compile Include="Boards\Konami\KonamiVrc7.cs" />
+    <Compile Include="Boards\Namcot\Namcot163.cs" />
+    <Compile Include="Boards\Nintendo\NintendoMmc1.cs" />
+    <Compile Include="Boards\Nintendo\NintendoMmc2.cs" />
+    <Compile Include="Boards\Nintendo\NintendoMmc3.cs" />
+    <Compile Include="Boards\Nintendo\NintendoMmc4.cs" />
+    <Compile Include="Boards\Unlicensed\ColorDreams74x377.cs" />
+    <Compile Include="Boards\Unlicensed\MltAction52.cs" />
+    <Compile Include="Bus.cs" />
+    <Compile Include="CPU\R2A03.Apu.Channel.cs" />
+    <Compile Include="CPU\R2A03.Apu.ChannelDmc.cs" />
+    <Compile Include="CPU\R2A03.Apu.ChannelNoi.cs" />
+    <Compile Include="CPU\R2A03.Apu.ChannelSqr.cs" />
+    <Compile Include="CPU\R2A03.Apu.ChannelTri.cs" />
+    <Compile Include="CPU\R2A03.Apu.cs" />
+    <Compile Include="CPU\R2A03.Apu.Duration.cs" />
+    <Compile Include="CPU\R2A03.Apu.Envelope.cs" />
+    <Compile Include="CPU\R2A03.Apu.External.cs" />
+    <Compile Include="CPU\R2A03.Apu.Mixer.cs" />
+    <Compile Include="CPU\R2A03.Apu.Sequence.cs" />
+    <Compile Include="CPU\R2A03.cs" />
+    <Compile Include="Database\Board.cs" />
+    <Compile Include="Database\Cartridge.cs" />
+    <Compile Include="Database\Chip.cs" />
+    <Compile Include="Database\Cic.cs" />
+    <Compile Include="Database\DatabaseInstance.cs" />
+    <Compile Include="Database\DatabaseService.cs" />
+    <Compile Include="Database\Game.cs" />
+    <Compile Include="Database\IC.cs" />
+    <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Database\Pad.cs" />
+    <Compile Include="Database\Pin.cs" />
+    <Compile Include="Database\Ram.cs" />
+    <Compile Include="Database\Rom.cs" />
+    <Compile Include="Formats\CartridgeFactory.cs" />
+    <Compile Include="Formats\CartridgeImage.cs" />
+    <Compile Include="Formats\ICartridgeFactory.cs" />
+    <Compile Include="GameSystem.cs" />
+    <Compile Include="Memory\IMemory.cs" />
+    <Compile Include="Memory\IMemoryFactory.cs" />
+    <Compile Include="Memory\MemoryFactory.cs" />
+    <Compile Include="Memory\Ram.cs" />
+    <Compile Include="Memory\Rom.cs" />
+    <Compile Include="Package.cs" />
+    <Compile Include="PAD\Pad.cs" />
+    <Compile Include="PAD\StandardController.cs" />
+    <Compile Include="Palettes.cs" />
+    <Compile Include="PowerButton.cs" />
+    <Compile Include="PPU\R2C02.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResetButton.cs" />
+    <Compile Include="VideoParameterProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Beta.Platform\Beta.Platform.csproj">
+      <Project>{5c784d99-14af-4650-b4eb-756bbff0e61a}</Project>
+      <Name>Beta.Platform</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets" Condition="Exists('..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
