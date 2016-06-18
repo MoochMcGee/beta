@@ -1,4 +1,4 @@
-﻿using Beta.Platform.Core;
+using Beta.Platform.Core;
 
 namespace Beta.GameBoy
 {

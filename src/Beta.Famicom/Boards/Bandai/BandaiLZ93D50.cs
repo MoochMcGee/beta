@@ -1,6 +1,7 @@
 ﻿using Beta.Famicom.Abstractions;
 using Beta.Platform.Exceptions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Bandai
 {
@@ -116,7 +117,7 @@ namespace Beta.Famicom.Boards.Bandai
             return (address & 0x3fff) | prgPages[(address >> 14) & 1];
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             if (irqEnabled)
             {

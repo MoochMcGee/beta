@@ -73,6 +73,7 @@
     <Compile Include="BitString.cs" />
     <Compile Include="Core\DefaultResetButton.cs" />
     <Compile Include="Core\IGameSystem.cs" />
+    <Compile Include="Core\IGameSystemFactory.cs" />
     <Compile Include="Core\IPowerButton.cs" />
     <Compile Include="Core\IProcessor.cs" />
     <Compile Include="Core\IResetButton.cs" />
@@ -84,6 +85,11 @@
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />
     <Compile Include="Packaging\IPackage.cs" />
+    <Compile Include="Messaging\IProducer.cs" />
+    <Compile Include="Messaging\IConsumer.cs" />
+    <Compile Include="Messaging\Producer.cs">
+      <DependentUpon>IProducer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Processors\ARM7.cs" />
     <Compile Include="Processors\LR35902.cs" />
     <Compile Include="Processors\RP6502\Access.cs" />

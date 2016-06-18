@@ -5,7 +5,7 @@ namespace Beta.Famicom
 {
     public delegate void Access(ushort address, ref byte data);
 
-    public sealed class Bus : IBus
+    public class Bus : IBus
     {
         public readonly Access[] Peeks;
         public readonly Access[] Pokes;

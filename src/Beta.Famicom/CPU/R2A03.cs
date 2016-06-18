@@ -1,25 +1,30 @@
-﻿using Beta.Platform.Processors.RP6502;
-using Beta.Famicom.Abstractions;
-using Beta.Famicom.PAD;
-using Beta.Famicom.PPU;
+﻿using Beta.Famicom.Abstractions;
+using Beta.Famicom.Messaging;
+using Beta.Famicom.Input;
+using Beta.Platform.Messaging;
+using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
 {
-    public partial class R2A03 : Core
+    public partial class R2A03 : Core, IConsumer<VblNmiSignal>
     {
+        private readonly IProducer<ClockSignal> clockProducer;
+
         private GameSystem gameSystem;
-        private R2C02 ppu;
         private int strobe;
         private bool dma;
         private ushort dmaAddr;
 
-        public Pad Joypad1;
-        public Pad Joypad2;
+        public Joypad Joypad1;
+        public Joypad Joypad2;
 
-        public R2A03(IRP6502Bus bus, GameSystem gameSystem)
+        public R2A03(IRP6502Bus bus, GameSystem gameSystem, IProducer<VblNmiSignal> vblNmiProducer, IProducer<ClockSignal> clockProducer)
             : base(bus)
         {
             this.gameSystem = gameSystem;
+            this.clockProducer = clockProducer;
+
+            vblNmiProducer.Subscribe(this);
 
             Single = 264;
             Single = 132;
@@ -36,7 +41,7 @@ namespace Beta.Famicom.CPU
 
         protected override void Dispatch()
         {
-            ppu.Update(Single);
+            clockProducer.Produce(new ClockSignal(Single));
 
             apuToggle = !apuToggle;
 
@@ -81,14 +86,10 @@ namespace Beta.Famicom.CPU
                     Sample();
                 }
             }
-
-            gameSystem.Board.Clock();
         }
 
         public void Initialize()
         {
-            ppu = gameSystem.Ppu;
-
             Joypad1.Initialize();
             Joypad2.Initialize();
             InitializeSequence();
@@ -204,6 +205,11 @@ namespace Beta.Famicom.CPU
             bus.Decode("0100 0000 0001 0101").Peek(Peek4015).Poke(Poke4015);
             bus.Decode("0100 0000 0001 0110").Peek(Peek4016).Poke(Poke4016);
             bus.Decode("0100 0000 0001 0111").Peek(Peek4017).Poke(Poke4017);
+        }
+
+        public void Consume(VblNmiSignal e)
+        {
+            Nmi(e.Value);
         }
     }
 }

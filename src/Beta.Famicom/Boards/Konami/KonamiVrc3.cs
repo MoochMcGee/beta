@@ -1,5 +1,6 @@
 ﻿using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Konami
 {
@@ -85,7 +86,7 @@ namespace Beta.Famicom.Boards.Konami
             bus.Decode("1111 ---- ---- ----").Poke(PokeF000);
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             if (!irq.Enabled)
             {

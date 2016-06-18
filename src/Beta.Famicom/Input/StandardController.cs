@@ -1,6 +1,6 @@
-﻿namespace Beta.Famicom.PAD
+﻿namespace Beta.Famicom.Input
 {
-    public class StandardController : Pad
+    public class StandardController : Joypad
     {
         private byte latch;
         private byte value;

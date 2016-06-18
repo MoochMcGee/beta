@@ -3,6 +3,9 @@ using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Memory;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
+using System;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
 {
@@ -30,7 +33,7 @@ namespace Beta.Famicom.Boards
             ramChips = image.WRAM;
 
             Type = image.Mapper;
-            
+
             h = image.H;
             v = image.V;
 
@@ -104,10 +107,6 @@ namespace Beta.Famicom.Boards
             Ram?.Poke(address, ref data);
         }
 
-        public virtual void Clock()
-        {
-        }
-
         public virtual void CpuAddressUpdate(ushort address)
         {
         }
@@ -140,5 +139,7 @@ namespace Beta.Famicom.Boards
         public virtual void ResetSoft() { }
 
         public virtual void ResetHard() { }
+
+        public virtual void Consume(ClockSignal e) { }
     }
 }

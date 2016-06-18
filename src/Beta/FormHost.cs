@@ -11,8 +11,9 @@ namespace Beta
 {
     public partial class FormHost : Form
     {
-        private readonly IAudioParameterProvider audioParameters;
-        private readonly IVideoParameterProvider videoParameters;
+        private readonly IGameSystemFactory gameSystemFactory;
+        private readonly IAudioParameterProvider audioParameterProvider;
+        private readonly IVideoParameterProvider videoParameterProvider;
 
         private IAudioBackend audio;
         private IVideoBackend video;
@@ -20,15 +21,13 @@ namespace Beta
         private Thread gameThread;
 
         public FormHost(
-            IGameSystem gameSystem,
-            IPowerButton powerButton,
-            IResetButton resetButton,
-            IAudioParameterProvider audioParameters,
-            IVideoParameterProvider videoParameters)
+            IGameSystemFactory gameSystemFactory,
+            IAudioParameterProvider audioParameterProvider,
+            IVideoParameterProvider videoParameterProvider)
         {
-            this.gameSystem = gameSystem;
-            this.audioParameters = audioParameters;
-            this.videoParameters = videoParameters;
+            this.gameSystemFactory = gameSystemFactory;
+            this.audioParameterProvider = audioParameterProvider;
+            this.videoParameterProvider = videoParameterProvider;
 
             InitializeComponent();
         }
@@ -62,7 +61,7 @@ namespace Beta
 
         private void InitializeAudio()
         {
-            var parameters = audioParameters.GetValue();
+            var parameters = audioParameterProvider.GetValue();
 
             audio = new AudioBackend(Handle, parameters);
             audio.Initialize();
@@ -72,7 +71,7 @@ namespace Beta
 
         private void InitializeVideo()
         {
-            var parameters = videoParameters.GetValue();
+            var parameters = videoParameterProvider.GetValue();
 
             video = new VideoBackend(Handle, parameters);
             video.Initialize();
@@ -107,7 +106,7 @@ namespace Beta
 
         public void LoadGame(string fileName)
         {
-            gameSystem.LoadGame(File.ReadAllBytes(fileName));
+            gameSystem = gameSystemFactory.Create(File.ReadAllBytes(fileName));
         }
     }
 }

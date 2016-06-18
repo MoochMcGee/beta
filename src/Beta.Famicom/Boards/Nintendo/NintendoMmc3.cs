@@ -1,6 +1,7 @@
 ﻿using Beta.Platform.Exceptions;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
@@ -138,7 +139,7 @@ namespace Beta.Famicom.Boards.Nintendo
                 base.PokeRam(address, ref data);
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             // emulate phi2 filtering
             irqTimer++;

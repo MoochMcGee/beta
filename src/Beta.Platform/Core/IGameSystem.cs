@@ -17,6 +17,6 @@ namespace Beta.Platform.Core
 
         void Initialize();
 
-        void LoadGame(byte[] binary);
+        // void LoadGame(byte[] binary);
     }
 }

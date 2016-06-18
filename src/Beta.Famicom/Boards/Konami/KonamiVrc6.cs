@@ -4,6 +4,7 @@ using Beta.Platform.Exceptions;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Konami
 {
@@ -126,7 +127,7 @@ namespace Beta.Famicom.Boards.Konami
             throw new CompilerPleasingException();
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             if (!irq.Enabled)
                 return;

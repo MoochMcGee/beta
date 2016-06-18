@@ -1,16 +1,17 @@
 ﻿using Beta.Famicom.Abstractions;
-using Beta.Famicom.CPU;
-using Beta.Famicom.PAD;
+using Beta.Famicom.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.PPU
 {
-    public class R2C02 : Processor
+    public class R2C02 : Processor, IConsumer<ClockSignal>
     {
-        private IBus bus;
-        private GameSystem gameSystem;
-        private R2A03 cpu;
+        private readonly IBus bus;
+        private readonly IProducer<FrameSignal> frameProducer;
+        private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly GameSystem gameSystem;
 
         private Fetch fetch = new Fetch();
         private Scroll scroll = new Scroll();
@@ -19,7 +20,7 @@ namespace Beta.Famicom.PPU
         private bool field;
         private bool sprOverrun;
         private bool sprZerohit;
-        private int nmiEnabled;
+        private int vblEnabled;
         private int vblFlag;
         private int vblHold;
         private int hclock;
@@ -38,11 +39,16 @@ namespace Beta.Famicom.PPU
             get { return (bkg.Enabled || spr.Enabled) && vclock < 240; }
         }
 
-        public R2C02(IBus bus, GameSystem gameSystem)
+        public R2C02(
+            IBus bus,
+            GameSystem gameSystem,
+            IProducer<VblNmiSignal> vblNmiProducer,
+            IProducer<FrameSignal> frameProducer)
         {
-            this.gameSystem = gameSystem;
             this.bus = bus;
-            cpu = gameSystem.Cpu;
+            this.gameSystem = gameSystem;
+            this.frameProducer = frameProducer;
+            this.vblNmiProducer = vblNmiProducer;
 
             Single = 44;
 
@@ -414,8 +420,14 @@ namespace Beta.Famicom.PPU
             vblHold = 0;
             vblFlag = 0;
             scroll.Swap = false;
+            VBL();
+        }
 
-            cpu.Nmi(vblFlag & nmiEnabled);
+        private void VBL()
+        {
+            var signal = new VblNmiSignal(vblFlag & vblEnabled);
+
+            vblNmiProducer.Produce(signal);
         }
 
         private void Peek2004(ushort address, ref byte data)
@@ -470,9 +482,9 @@ namespace Beta.Famicom.PPU
             spr.Address = (ushort)((data & 0x08) != 0 ? 0x1000 : 0x0000);
             bkg.Address = (ushort)((data & 0x10) != 0 ? 0x1000 : 0x0000);
             spr.Rasters = (data & 0x20) != 0 ? 0x0010 : 0x0008;
-            nmiEnabled = (data & 0x80) >> 7;
+            vblEnabled = (data & 0x80) >> 7;
 
-            cpu.Nmi(vblFlag & nmiEnabled);
+            VBL();
         }
 
         private void Poke2001(ushort address, ref byte data)
@@ -926,7 +938,7 @@ namespace Beta.Famicom.PPU
             }
             if (vclock == 241 && hclock == 2)
             {
-                cpu.Nmi(vblFlag & nmiEnabled);
+                VBL();
             }
 
             if (vclock == 260 && hclock == 340)
@@ -944,7 +956,7 @@ namespace Beta.Famicom.PPU
             }
             if (vclock == 261 && hclock == 2)
             {
-                cpu.Nmi(vblFlag & nmiEnabled);
+                VBL();
             }
 
             hclock++;
@@ -1026,10 +1038,7 @@ namespace Beta.Famicom.PPU
                 {
                     vclock = 0;
 
-                    Pad.AutofireState = !Pad.AutofireState;
-
-                    cpu.Joypad1.Update();
-                    cpu.Joypad2.Update();
+                    frameProducer.Produce(new FrameSignal());
 
                     gameSystem.Video.Render();
                 }
@@ -1051,6 +1060,11 @@ namespace Beta.Famicom.PPU
             bus.Decode("001- ---- ---- -101").Peek(Peek____).Poke(Poke2005);
             bus.Decode("001- ---- ---- -110").Peek(Peek____).Poke(Poke2006);
             bus.Decode("001- ---- ---- -111").Peek(Peek2007).Poke(Poke2007);
+        }
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles);
         }
 
         private class Fetch

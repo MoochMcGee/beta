@@ -1,11 +1,11 @@
 ﻿using Beta.Famicom.Abstractions;
+using Beta.Famicom.Messaging;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
 {
-    public interface IBoard
+    public interface IBoard : IConsumer<ClockSignal>
     {
-        void Clock();
-
         void CpuAddressUpdate(ushort address);
 
         void PpuAddressUpdate(ushort address);

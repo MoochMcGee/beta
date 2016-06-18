@@ -2,20 +2,21 @@
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.Boards;
 using Beta.Famicom.CPU;
+using Beta.Famicom.Input;
+using Beta.Famicom.Messaging;
 using Beta.Famicom.PPU;
 using Beta.Platform;
 using Beta.Platform.Audio;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 using Beta.Platform.Video;
 
 namespace Beta.Famicom
 {
-    public sealed class GameSystem : IGameSystem
+    public sealed class GameSystem
+        : IGameSystem
+        , IConsumer<FrameSignal>
     {
-        private readonly IBoardManager boardManager;
-
-        private IBus cpuBus;
-        private IBus ppuBus;
         private byte[] vram = new byte[2048];
         private byte[] wram = new byte[2048];
 
@@ -27,16 +28,8 @@ namespace Beta.Famicom
 
         public IVideoBackend Video { get; set; }
 
-        public GameSystem(IBoardManager boardManager)
+        public GameSystem(IBus cpuBus, IBus ppuBus)
         {
-            this.boardManager = boardManager;
-
-            cpuBus = new Bus(1 << 16);
-            ppuBus = new Bus(1 << 14);
-
-            Cpu = new R2A03(cpuBus, this);
-            Ppu = new R2C02(ppuBus, this);
-
             vram.Initialize<byte>(0xff);
             wram.Initialize<byte>(0xff);
 
@@ -44,9 +37,6 @@ namespace Beta.Famicom
             cpuBus.Decode("000- ---- ---- ----").Peek(PeekWRam).Poke(PokeWRam);
             ppuBus.Decode("  -- ---- ---- ----").Peek(Peek____).Poke(Poke____);
             ppuBus.Decode("  1- ---- ---- ----").Peek(PeekVRam).Poke(PokeVRam);
-
-            Cpu.MapTo(cpuBus);
-            Ppu.MapTo(cpuBus);
         }
 
         private static void Peek____(ushort address, ref byte data)
@@ -102,11 +92,12 @@ namespace Beta.Famicom
             Board.Initialize();
         }
 
-        public void LoadGame(byte[] binary)
+        public void Consume(FrameSignal e)
         {
-            Board = boardManager.GetBoard(this, binary);
-            Board.MapToCpu(cpuBus);
-            Board.MapToPpu(ppuBus);
+            Joypad.AutofireState = !Joypad.AutofireState;
+
+            Cpu.Joypad1.Update();
+            Cpu.Joypad2.Update();
         }
     }
 }
