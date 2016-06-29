@@ -20,14 +20,15 @@ namespace Beta.Platform.Audio
         private XAudio2 engine;
         private int streamIndex;
 
-        public AudioBackend(IntPtr handle, AudioParameters parameters)
+        public AudioBackend(IHwndProvider hwndProvider, IAudioParameterProvider audioParamProvider)
         {
             engine = new XAudio2();
             engine.StartEngine();
 
+            var parameters = audioParamProvider.GetValue();
             var format = new WaveFormat(parameters.SampleRate, 16, parameters.Channels);
 
-            length = format.AverageBytesPerSecond / 5; // 200 msec
+            length = format.AverageBytesPerSecond / 30; // 33.3~ msec
 
             master = new MasteringVoice(engine, format.Channels, format.SampleRate);
             source = new SourceVoice(engine, format, VoiceFlags.None, parameters.Ratio);

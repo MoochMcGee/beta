@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Beta.Hosting;
+using Beta.Platform;
+using Beta.Platform.Core;
 using Beta.Platform.Packaging;
 using SimpleInjector;
 
@@ -13,7 +15,7 @@ namespace Beta
         private readonly IFileSelector fileSelector;
         private readonly IPackage[] packages;
 
-        private FormHost formHost;
+        private FormHost formHost = new FormHost();
 
         public FormMain(IFileSelector fileSelector, IPackageLoader loader)
         {
@@ -49,11 +51,12 @@ namespace Beta
         private void ShowHostForm(IPackage package, FileInfo file)
         {
             var container = new Container();
+            container.RegisterSingleton<IHwndProvider>(new HwndProvider(formHost.Handle));
+
             package.RegisterServices(container);
 
-            formHost = container.GetInstance<FormHost>();
             formHost.Text = package.Name;
-            formHost.LoadGame(file.FullName);
+            formHost.LoadGame(container.GetInstance<IGameSystemFactory>(), file.FullName);
             formHost.ShowDialog(this);
             formHost.Close();
             formHost = null;

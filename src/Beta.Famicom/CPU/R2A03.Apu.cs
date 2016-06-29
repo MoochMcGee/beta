@@ -51,7 +51,7 @@ namespace Beta.Famicom.CPU
 
         private void Sample()
         {
-            gameSystem.Audio.Render(ext != null
+            audio.Render(ext != null
                 ? Mixer.MixSamples(sq1.Render(), sq2.Render(), tri.Render(), noi.Render(), dmc.Render(), ext.Render())
                 : Mixer.MixSamples(sq1.Render(), sq2.Render(), tri.Render(), noi.Render(), dmc.Render()));
         }

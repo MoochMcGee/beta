@@ -39,7 +39,9 @@ namespace Beta.Famicom
             container.RegisterSingleton<IGameSystemFactory, GameSystemFactory>();
             container.RegisterSingleton<IPowerButton, PowerButton>();
             container.RegisterSingleton<IResetButton, ResetButton>();
+            container.RegisterSingleton<IAudioBackend, AudioBackend>();
             container.RegisterSingleton<IAudioParameterProvider, AudioParameterProvider>();
+            container.RegisterSingleton<IVideoBackend, VideoBackend>();
             container.RegisterSingleton<IVideoParameterProvider, VideoParameterProvider>();
 
             container.RegisterSingleton<GameSystem>();
@@ -47,6 +49,9 @@ namespace Beta.Famicom
             container.RegisterSingleton<R2C02Bus>();
 
             container.Register(typeof(IProducer<>), typeof(Producer<>), Lifestyle.Singleton);
+
+            container.RegisterInitializer<IAudioBackend>(e => e.Initialize());
+            container.RegisterInitializer<IVideoBackend>(e => e.Initialize());
         }
     }
 }

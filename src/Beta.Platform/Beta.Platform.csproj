@@ -81,6 +81,8 @@
     <Compile Include="Exceptions\CompilerPleasingException.cs" />
     <Compile Include="Exceptions\ProcessorJammedException.cs" />
     <Compile Include="FileExtension.cs" />
+    <Compile Include="HwndProvider.cs" />
+    <Compile Include="IHwndProvider.cs" />
     <Compile Include="Input\InputBackend.cs" />
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />

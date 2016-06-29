@@ -1,6 +1,7 @@
 ﻿using Beta.Famicom.Abstractions;
-using Beta.Famicom.Messaging;
 using Beta.Famicom.Input;
+using Beta.Famicom.Messaging;
+using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP6502;
 
@@ -8,9 +9,9 @@ namespace Beta.Famicom.CPU
 {
     public partial class R2A03 : Core, IConsumer<VblNmiSignal>
     {
+        private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clockProducer;
 
-        private GameSystem gameSystem;
         private int strobe;
         private bool dma;
         private ushort dmaAddr;
@@ -18,10 +19,10 @@ namespace Beta.Famicom.CPU
         public Joypad Joypad1;
         public Joypad Joypad2;
 
-        public R2A03(IRP6502Bus bus, GameSystem gameSystem, IProducer<ClockSignal> clockProducer)
+        public R2A03(IRP6502Bus bus, IAudioBackend audio, IProducer<ClockSignal> clockProducer)
             : base(bus)
         {
-            this.gameSystem = gameSystem;
+            this.audio = audio;
             this.clockProducer = clockProducer;
 
             Single = 132;

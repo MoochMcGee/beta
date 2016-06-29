@@ -3,6 +3,7 @@ using Beta.Famicom.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
+using Beta.Platform.Video;
 
 namespace Beta.Famicom.PPU
 {
@@ -11,6 +12,7 @@ namespace Beta.Famicom.PPU
         private readonly IBus bus;
         private readonly IProducer<FrameSignal> frameProducer;
         private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly IVideoBackend video;
         private readonly GameSystem gameSystem;
 
         private Fetch fetch = new Fetch();
@@ -43,12 +45,14 @@ namespace Beta.Famicom.PPU
             IBus bus,
             GameSystem gameSystem,
             IProducer<VblNmiSignal> vblNmiProducer,
-            IProducer<FrameSignal> frameProducer)
+            IProducer<FrameSignal> frameProducer,
+            IVideoBackend video)
         {
             this.bus = bus;
             this.gameSystem = gameSystem;
             this.frameProducer = frameProducer;
             this.vblNmiProducer = vblNmiProducer;
+            this.video = video;
 
             Single = 44;
 
@@ -979,7 +983,7 @@ namespace Beta.Famicom.PPU
         public void Initialize()
         {
             vclock = 261;
-            raster = gameSystem.Video.GetRaster(0);
+            raster = video.GetRaster(0);
 
             byte zero = 0;
 
@@ -1032,12 +1036,12 @@ namespace Beta.Famicom.PPU
 
                     frameProducer.Produce(new FrameSignal());
 
-                    gameSystem.Video.Render();
+                    video.Render();
                 }
 
                 if (vclock < 240)
                 {
-                    raster = gameSystem.Video.GetRaster(vclock);
+                    raster = video.GetRaster(vclock);
                 }
             }
         }
