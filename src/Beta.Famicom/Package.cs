@@ -3,6 +3,7 @@ using Beta.Famicom.Boards;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Database;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Input;
 using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
 using Beta.Platform;
@@ -33,6 +34,7 @@ namespace Beta.Famicom
             container.RegisterSingleton<IDatabase, DatabaseService>();
             container.RegisterSingleton<IMemoryFactory, MemoryFactory>();
             container.RegisterSingleton<IBoardManager, BoardManager>();
+            container.RegisterSingleton<IJoypadFactory, JoypadFactory>();
             container.RegisterSingleton<IGameSystem, GameSystem>();
             container.RegisterSingleton<IGameSystemFactory, GameSystemFactory>();
             container.RegisterSingleton<IPowerButton, PowerButton>();

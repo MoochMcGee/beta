@@ -1,5 +1,6 @@
 ﻿using Beta.Famicom.Boards;
 using Beta.Famicom.CPU;
+using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Famicom.PPU;
 using Beta.Platform.Core;
@@ -15,9 +16,11 @@ namespace Beta.Famicom
         private readonly IProducer<ClockSignal> clockProducer;
         private readonly IProducer<FrameSignal> frameProducer;
         private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly IJoypadFactory joypadFactory;
 
         public GameSystemFactory(
             IBoardManager boardManager,
+            IJoypadFactory joypadFactory,
             R2A03Bus cpuBus,
             R2C02Bus ppuBus,
             IProducer<ClockSignal> clockProducer,
@@ -25,6 +28,7 @@ namespace Beta.Famicom
             IProducer<VblNmiSignal> vblNmiProducer)
         {
             this.boardManager = boardManager;
+            this.joypadFactory = joypadFactory;
             this.cpuBus = cpuBus;
             this.ppuBus = ppuBus;
             this.clockProducer = clockProducer;
@@ -36,8 +40,11 @@ namespace Beta.Famicom
         {
             var result = new GameSystem(cpuBus, ppuBus);
 
-            result.Cpu = new R2A03(cpuBus, result, vblNmiProducer, clockProducer);
+            result.Cpu = new R2A03(cpuBus, result, clockProducer);
             result.Cpu.MapTo(cpuBus);
+
+            result.Cpu.Joypad1 = joypadFactory.Create(0);
+            result.Cpu.Joypad2 = joypadFactory.Create(1);
 
             result.Ppu = new R2C02(ppuBus, result, vblNmiProducer, frameProducer);
             result.Ppu.MapTo(cpuBus);
@@ -49,6 +56,7 @@ namespace Beta.Famicom
             clockProducer.Subscribe(result.Board);
             clockProducer.Subscribe(result.Ppu);
             frameProducer.Subscribe(result);
+            vblNmiProducer.Subscribe(result.Cpu);
 
             return result;
         }

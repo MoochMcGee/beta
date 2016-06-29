@@ -18,19 +18,13 @@ namespace Beta.Famicom.CPU
         public Joypad Joypad1;
         public Joypad Joypad2;
 
-        public R2A03(IRP6502Bus bus, GameSystem gameSystem, IProducer<VblNmiSignal> vblNmiProducer, IProducer<ClockSignal> clockProducer)
+        public R2A03(IRP6502Bus bus, GameSystem gameSystem, IProducer<ClockSignal> clockProducer)
             : base(bus)
         {
             this.gameSystem = gameSystem;
             this.clockProducer = clockProducer;
 
-            vblNmiProducer.Subscribe(this);
-
-            Single = 264;
             Single = 132;
-
-            Joypad1 = new StandardController(0);
-            Joypad2 = new StandardController(1);
 
             sq1 = new ChannelSqr();
             sq2 = new ChannelSqr();

@@ -109,6 +109,8 @@
     <Compile Include="Formats\ICartridgeFactory.cs" />
     <Compile Include="GameSystem.cs" />
     <Compile Include="GameSystemFactory.cs" />
+    <Compile Include="Input\IJoypadFactory.cs" />
+    <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\IMemoryFactory.cs" />
     <Compile Include="Memory\MemoryFactory.cs" />
