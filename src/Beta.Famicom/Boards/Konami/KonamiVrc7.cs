@@ -182,44 +182,44 @@ namespace Beta.Famicom.Boards.Konami
 
             if (pin11 == 8)
             {
-                bus.Decode("1000 ---- ---- 0---").Poke(Poke8000);
-                bus.Decode("1000 ---- ---- 1---").Poke(Poke8010);
-                bus.Decode("1001 ---- ---- 0---").Poke(Poke9000);
-                bus.Decode("1001 ---- ---- 1---").Poke(Poke9010);
-                bus.Decode("1010 ---- ---- 0---").Poke(PokeA000);
-                bus.Decode("1010 ---- ---- 1---").Poke(PokeA010);
-                bus.Decode("1011 ---- ---- 0---").Poke(PokeB000);
-                bus.Decode("1011 ---- ---- 1---").Poke(PokeB010);
-                bus.Decode("1100 ---- ---- 0---").Poke(PokeC000);
-                bus.Decode("1100 ---- ---- 1---").Poke(PokeC010);
-                bus.Decode("1101 ---- ---- 0---").Poke(PokeD000);
-                bus.Decode("1101 ---- ---- 1---").Poke(PokeD010);
-                bus.Decode("1110 ---- ---- 0---").Poke(PokeE000);
-                bus.Decode("1110 ---- ---- 1---").Poke(PokeE010);
-                bus.Decode("1111 ---- ---- 0---").Poke(PokeF000);
-                bus.Decode("1111 ---- ---- 1---").Poke(PokeF010);
+                bus.Map("1000 ---- ---- 0---", writer: Poke8000);
+                bus.Map("1000 ---- ---- 1---", writer: Poke8010);
+                bus.Map("1001 ---- ---- 0---", writer: Poke9000);
+                bus.Map("1001 ---- ---- 1---", writer: Poke9010);
+                bus.Map("1010 ---- ---- 0---", writer: PokeA000);
+                bus.Map("1010 ---- ---- 1---", writer: PokeA010);
+                bus.Map("1011 ---- ---- 0---", writer: PokeB000);
+                bus.Map("1011 ---- ---- 1---", writer: PokeB010);
+                bus.Map("1100 ---- ---- 0---", writer: PokeC000);
+                bus.Map("1100 ---- ---- 1---", writer: PokeC010);
+                bus.Map("1101 ---- ---- 0---", writer: PokeD000);
+                bus.Map("1101 ---- ---- 1---", writer: PokeD010);
+                bus.Map("1110 ---- ---- 0---", writer: PokeE000);
+                bus.Map("1110 ---- ---- 1---", writer: PokeE010);
+                bus.Map("1111 ---- ---- 0---", writer: PokeF000);
+                bus.Map("1111 ---- ---- 1---", writer: PokeF010);
             }
             else
             {
-                bus.Decode("1000 ---- ---0 ----").Poke(Poke8000);
-                bus.Decode("1000 ---- ---1 ----").Poke(Poke8010);
-                bus.Decode("1001 ---- ---0 ----").Poke(Poke9000);
-                bus.Decode("1001 ---- ---1 ----").Poke(Poke9010);
-                bus.Decode("1010 ---- ---0 ----").Poke(PokeA000);
-                bus.Decode("1010 ---- ---1 ----").Poke(PokeA010);
-                bus.Decode("1011 ---- ---0 ----").Poke(PokeB000);
-                bus.Decode("1011 ---- ---1 ----").Poke(PokeB010);
-                bus.Decode("1100 ---- ---0 ----").Poke(PokeC000);
-                bus.Decode("1100 ---- ---1 ----").Poke(PokeC010);
-                bus.Decode("1101 ---- ---0 ----").Poke(PokeD000);
-                bus.Decode("1101 ---- ---1 ----").Poke(PokeD010);
-                bus.Decode("1110 ---- ---0 ----").Poke(PokeE000);
-                bus.Decode("1110 ---- ---1 ----").Poke(PokeE010);
-                bus.Decode("1111 ---- ---0 ----").Poke(PokeF000);
-                bus.Decode("1111 ---- ---1 ----").Poke(PokeF010);
+                bus.Map("1000 ---- ---0 ----", writer: Poke8000);
+                bus.Map("1000 ---- ---1 ----", writer: Poke8010);
+                bus.Map("1001 ---- ---0 ----", writer: Poke9000);
+                bus.Map("1001 ---- ---1 ----", writer: Poke9010);
+                bus.Map("1010 ---- ---0 ----", writer: PokeA000);
+                bus.Map("1010 ---- ---1 ----", writer: PokeA010);
+                bus.Map("1011 ---- ---0 ----", writer: PokeB000);
+                bus.Map("1011 ---- ---1 ----", writer: PokeB010);
+                bus.Map("1100 ---- ---0 ----", writer: PokeC000);
+                bus.Map("1100 ---- ---1 ----", writer: PokeC010);
+                bus.Map("1101 ---- ---0 ----", writer: PokeD000);
+                bus.Map("1101 ---- ---1 ----", writer: PokeD010);
+                bus.Map("1110 ---- ---0 ----", writer: PokeE000);
+                bus.Map("1110 ---- ---1 ----", writer: PokeE010);
+                bus.Map("1111 ---- ---0 ----", writer: PokeF000);
+                bus.Map("1111 ---- ---1 ----", writer: PokeF010);
             }
 
-            bus.Decode("1001 0000 0011 0000").Poke(Poke9030); // external audio data port for lagrange point, not sure how it's wired in
+            bus.Map("1001 0000 0011 0000", writer: Poke9030); // external audio data port for lagrange point, not sure how it's wired in
         }
 
         public override int VRamA10(ushort address)

@@ -117,13 +117,13 @@ namespace Beta.Famicom.Boards
 
         public virtual void MapToCpu(IBus bus)
         {
-            bus.Decode("011- ---- ---- ----").Peek(PeekRam).Poke(PokeRam);
-            bus.Decode("1--- ---- ---- ----").Peek(PeekPrg).Poke(PokePrg);
+            bus.Map("011- ---- ---- ----", PeekRam, PokeRam);
+            bus.Map("1--- ---- ---- ----", PeekPrg, PokePrg);
         }
 
         public virtual void MapToPpu(IBus bus)
         {
-            bus.Decode("000- ---- ---- ----").Peek(PeekChr).Poke(PokeChr);
+            bus.Map("000- ---- ---- ----", PeekChr, PokeChr);
         }
 
         public virtual int VRamA10(ushort address)

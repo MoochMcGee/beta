@@ -170,14 +170,14 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             base.MapToCpu(bus);
 
-            bus.Decode("100- ---- ---- ---0").Poke(Poke8000);
-            bus.Decode("100- ---- ---- ---1").Poke(Poke8001);
-            bus.Decode("101- ---- ---- ---0").Poke(PokeA000);
-            bus.Decode("101- ---- ---- ---1").Poke(PokeA001);
-            bus.Decode("110- ---- ---- ---0").Poke(PokeC000);
-            bus.Decode("110- ---- ---- ---1").Poke(PokeC001);
-            bus.Decode("111- ---- ---- ---0").Poke(PokeE000);
-            bus.Decode("111- ---- ---- ---1").Poke(PokeE001);
+            bus.Map("100- ---- ---- ---0", writer: Poke8000);
+            bus.Map("100- ---- ---- ---1", writer: Poke8001);
+            bus.Map("101- ---- ---- ---0", writer: PokeA000);
+            bus.Map("101- ---- ---- ---1", writer: PokeA001);
+            bus.Map("110- ---- ---- ---0", writer: PokeC000);
+            bus.Map("110- ---- ---- ---1", writer: PokeC001);
+            bus.Map("111- ---- ---- ---0", writer: PokeE000);
+            bus.Map("111- ---- ---- ---1", writer: PokeE001);
         }
 
         public override void PpuAddressUpdate(ushort address)

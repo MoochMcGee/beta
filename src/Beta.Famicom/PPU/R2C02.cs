@@ -405,10 +405,6 @@ namespace Beta.Famicom.PPU
 
         #endregion
 
-        private void Peek____(ushort address, ref byte data)
-        {
-        }
-
         private void Peek2002(ushort address, ref byte data)
         {
             data &= 0x1f;
@@ -469,10 +465,6 @@ namespace Beta.Famicom.PPU
             gameSystem.Board.PpuAddressUpdate(scroll.Address);
 
             data = tmp;
-        }
-
-        private void Poke____(ushort address, ref byte data)
-        {
         }
 
         private void Poke2000(ushort address, ref byte data)
@@ -964,8 +956,8 @@ namespace Beta.Famicom.PPU
 
         private void InitializeMemory()
         {
-            bus.Decode("0011 1111 ---- ----").Peek(PeekPalN).Poke(PokePalN);
-            bus.Decode("0011 1111 ---- --00").Peek(PeekPal0).Poke(PokePal0);
+            bus.Map("0011 1111 ---- ----", reader: PeekPalN, writer: PokePalN);
+            bus.Map("0011 1111 ---- --00", reader: PeekPal0, writer: PokePal0);
         }
 
         private byte PeekByte(ushort address)
@@ -1052,14 +1044,14 @@ namespace Beta.Famicom.PPU
 
         public void MapTo(IBus bus)
         {
-            bus.Decode("001- ---- ---- -000").Peek(Peek____).Poke(Poke2000);
-            bus.Decode("001- ---- ---- -001").Peek(Peek____).Poke(Poke2001);
-            bus.Decode("001- ---- ---- -010").Peek(Peek2002).Poke(Poke____);
-            bus.Decode("001- ---- ---- -011").Peek(Peek____).Poke(Poke2003);
-            bus.Decode("001- ---- ---- -100").Peek(Peek2004).Poke(Poke2004);
-            bus.Decode("001- ---- ---- -101").Peek(Peek____).Poke(Poke2005);
-            bus.Decode("001- ---- ---- -110").Peek(Peek____).Poke(Poke2006);
-            bus.Decode("001- ---- ---- -111").Peek(Peek2007).Poke(Poke2007);
+            bus.Map("001- ---- ---- -000", writer: Poke2000);
+            bus.Map("001- ---- ---- -001", writer: Poke2001);
+            bus.Map("001- ---- ---- -010", reader: Peek2002);
+            bus.Map("001- ---- ---- -011", writer: Poke2003);
+            bus.Map("001- ---- ---- -100", reader: Peek2004, writer: Poke2004);
+            bus.Map("001- ---- ---- -101", writer: Poke2005);
+            bus.Map("001- ---- ---- -110", writer: Poke2006);
+            bus.Map("001- ---- ---- -111", reader: Peek2007, writer: Poke2007);
         }
 
         public void Consume(ClockSignal e)

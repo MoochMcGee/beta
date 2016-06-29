@@ -33,18 +33,8 @@ namespace Beta.Famicom
             vram.Initialize<byte>(0xff);
             wram.Initialize<byte>(0xff);
 
-            cpuBus.Decode("---- ---- ---- ----").Peek(Peek____).Poke(Poke____);
-            cpuBus.Decode("000- ---- ---- ----").Peek(PeekWRam).Poke(PokeWRam);
-            ppuBus.Decode("  -- ---- ---- ----").Peek(Peek____).Poke(Poke____);
-            ppuBus.Decode("  1- ---- ---- ----").Peek(PeekVRam).Poke(PokeVRam);
-        }
-
-        private static void Peek____(ushort address, ref byte data)
-        {
-        }
-
-        private static void Poke____(ushort address, ref byte data)
-        {
+            cpuBus.Map("000- ---- ---- ----", reader: PeekWRam, writer: PokeWRam);
+            ppuBus.Map("  1- ---- ---- ----", reader: PeekVRam, writer: PokeVRam);
         }
 
         private void PeekVRam(ushort address, ref byte data)

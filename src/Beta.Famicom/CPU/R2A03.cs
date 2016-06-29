@@ -170,35 +170,35 @@ namespace Beta.Famicom.CPU
 
         public void MapTo(IBus bus)
         {
-            bus.Decode("0100 0000 0000 0000").Poke(sq1.PokeReg1);
-            bus.Decode("0100 0000 0000 0001").Poke(sq1.PokeReg2);
-            bus.Decode("0100 0000 0000 0010").Poke(sq1.PokeReg3);
-            bus.Decode("0100 0000 0000 0011").Poke(sq1.PokeReg4);
+            bus.Map("0100 0000 0000 0000", writer: sq1.PokeReg1);
+            bus.Map("0100 0000 0000 0001", writer: sq1.PokeReg2);
+            bus.Map("0100 0000 0000 0010", writer: sq1.PokeReg3);
+            bus.Map("0100 0000 0000 0011", writer: sq1.PokeReg4);
 
-            bus.Decode("0100 0000 0000 0100").Poke(sq2.PokeReg1);
-            bus.Decode("0100 0000 0000 0101").Poke(sq2.PokeReg2);
-            bus.Decode("0100 0000 0000 0110").Poke(sq2.PokeReg3);
-            bus.Decode("0100 0000 0000 0111").Poke(sq2.PokeReg4);
+            bus.Map("0100 0000 0000 0100", writer: sq2.PokeReg1);
+            bus.Map("0100 0000 0000 0101", writer: sq2.PokeReg2);
+            bus.Map("0100 0000 0000 0110", writer: sq2.PokeReg3);
+            bus.Map("0100 0000 0000 0111", writer: sq2.PokeReg4);
 
-            bus.Decode("0100 0000 0000 1000").Poke(tri.PokeReg1);
-            bus.Decode("0100 0000 0000 1001").Poke(tri.PokeReg2);
-            bus.Decode("0100 0000 0000 1010").Poke(tri.PokeReg3);
-            bus.Decode("0100 0000 0000 1011").Poke(tri.PokeReg4);
+            bus.Map("0100 0000 0000 1000", writer: tri.PokeReg1);
+            bus.Map("0100 0000 0000 1001", writer: tri.PokeReg2);
+            bus.Map("0100 0000 0000 1010", writer: tri.PokeReg3);
+            bus.Map("0100 0000 0000 1011", writer: tri.PokeReg4);
 
-            bus.Decode("0100 0000 0000 1100").Poke(noi.PokeReg1);
-            bus.Decode("0100 0000 0000 1101").Poke(noi.PokeReg2);
-            bus.Decode("0100 0000 0000 1110").Poke(noi.PokeReg3);
-            bus.Decode("0100 0000 0000 1111").Poke(noi.PokeReg4);
+            bus.Map("0100 0000 0000 1100", writer: noi.PokeReg1);
+            bus.Map("0100 0000 0000 1101", writer: noi.PokeReg2);
+            bus.Map("0100 0000 0000 1110", writer: noi.PokeReg3);
+            bus.Map("0100 0000 0000 1111", writer: noi.PokeReg4);
 
-            bus.Decode("0100 0000 0001 0000").Poke(dmc.PokeReg1);
-            bus.Decode("0100 0000 0001 0001").Poke(dmc.PokeReg2);
-            bus.Decode("0100 0000 0001 0010").Poke(dmc.PokeReg3);
-            bus.Decode("0100 0000 0001 0011").Poke(dmc.PokeReg4);
+            bus.Map("0100 0000 0001 0000", writer: dmc.PokeReg1);
+            bus.Map("0100 0000 0001 0001", writer: dmc.PokeReg2);
+            bus.Map("0100 0000 0001 0010", writer: dmc.PokeReg3);
+            bus.Map("0100 0000 0001 0011", writer: dmc.PokeReg4);
 
-            bus.Decode("0100 0000 0001 0100").Poke(Poke4014);
-            bus.Decode("0100 0000 0001 0101").Peek(Peek4015).Poke(Poke4015);
-            bus.Decode("0100 0000 0001 0110").Peek(Peek4016).Poke(Poke4016);
-            bus.Decode("0100 0000 0001 0111").Peek(Peek4017).Poke(Poke4017);
+            bus.Map("0100 0000 0001 0100", writer: Poke4014);
+            bus.Map("0100 0000 0001 0101", reader: Peek4015, writer: Poke4015);
+            bus.Map("0100 0000 0001 0110", reader: Peek4016, writer: Poke4016);
+            bus.Map("0100 0000 0001 0111", reader: Peek4017, writer: Poke4017);
         }
 
         public void Consume(VblNmiSignal e)

@@ -167,68 +167,68 @@ namespace Beta.Famicom.Boards.Konami
             var pin9 = 1 << int.Parse(GetPin("VRC6", 0x9).Replace("PRG A", ""));
             var pinA = 1 << int.Parse(GetPin("VRC6", 0xA).Replace("PRG A", ""));
 
-            bus.Decode("1000 ---- ---- ----").Poke(Poke8000);
-            bus.Decode("1001 ---- ---- --00").Poke(sound.Sq1.PokeReg1);
-            bus.Decode("1010 ---- ---- --00").Poke(sound.Sq2.PokeReg1);
-            bus.Decode("1011 ---- ---- --00").Poke(sound.Saw.PokeReg1);
-            bus.Decode("1100 ---- ---- ----").Poke(PokeC000);
-            bus.Decode("1101 ---- ---- --00").Poke(PokeD000);
-            bus.Decode("1110 ---- ---- --00").Poke(PokeE000);
-            bus.Decode("1111 ---- ---- --00").Poke(PokeF000);
+            bus.Map("1000 ---- ---- ----", writer: Poke8000);
+            bus.Map("1001 ---- ---- --00", writer: sound.Sq1.PokeReg1);
+            bus.Map("1010 ---- ---- --00", writer: sound.Sq2.PokeReg1);
+            bus.Map("1011 ---- ---- --00", writer: sound.Saw.PokeReg1);
+            bus.Map("1100 ---- ---- ----", writer: PokeC000);
+            bus.Map("1101 ---- ---- --00", writer: PokeD000);
+            bus.Map("1110 ---- ---- --00", writer: PokeE000);
+            bus.Map("1111 ---- ---- --00", writer: PokeF000);
 
             if (pin9 == 2)
             {
                 // $8001
-                bus.Decode("1001 ---- ---- --01").Poke(sound.Sq1.PokeReg2);
-                bus.Decode("1010 ---- ---- --01").Poke(sound.Sq2.PokeReg2);
-                bus.Decode("1011 ---- ---- --01").Poke(sound.Saw.PokeReg2);
+                bus.Map("1001 ---- ---- --01", writer: sound.Sq1.PokeReg2);
+                bus.Map("1010 ---- ---- --01", writer: sound.Sq2.PokeReg2);
+                bus.Map("1011 ---- ---- --01", writer: sound.Saw.PokeReg2);
                 // $c001
-                bus.Decode("1101 ---- ---- --01").Poke(PokeD001);
-                bus.Decode("1110 ---- ---- --01").Poke(PokeE001);
-                bus.Decode("1111 ---- ---- --01").Poke(PokeF001);
+                bus.Map("1101 ---- ---- --01", writer: PokeD001);
+                bus.Map("1110 ---- ---- --01", writer: PokeE001);
+                bus.Map("1111 ---- ---- --01", writer: PokeF001);
             }
             else
             {
                 // $8002
-                bus.Decode("1001 ---- ---- --01").Poke(sound.Sq1.PokeReg3);
-                bus.Decode("1010 ---- ---- --01").Poke(sound.Sq2.PokeReg3);
-                bus.Decode("1011 ---- ---- --01").Poke(sound.Saw.PokeReg3);
+                bus.Map("1001 ---- ---- --01", writer: sound.Sq1.PokeReg3);
+                bus.Map("1010 ---- ---- --01", writer: sound.Sq2.PokeReg3);
+                bus.Map("1011 ---- ---- --01", writer: sound.Saw.PokeReg3);
                 // $c002
-                bus.Decode("1101 ---- ---- --01").Poke(PokeD002);
-                bus.Decode("1110 ---- ---- --01").Poke(PokeE002);
-                bus.Decode("1111 ---- ---- --01").Poke(PokeF002);
+                bus.Map("1101 ---- ---- --01", writer: PokeD002);
+                bus.Map("1110 ---- ---- --01", writer: PokeE002);
+                bus.Map("1111 ---- ---- --01", writer: PokeF002);
             }
 
             if (pinA == 1)
             {
                 // $8002
-                bus.Decode("1001 ---- ---- --10").Poke(sound.Sq1.PokeReg3);
-                bus.Decode("1010 ---- ---- --10").Poke(sound.Sq2.PokeReg3);
-                bus.Decode("1011 ---- ---- --10").Poke(sound.Saw.PokeReg3);
+                bus.Map("1001 ---- ---- --10", writer: sound.Sq1.PokeReg3);
+                bus.Map("1010 ---- ---- --10", writer: sound.Sq2.PokeReg3);
+                bus.Map("1011 ---- ---- --10", writer: sound.Saw.PokeReg3);
                 // $c002
-                bus.Decode("1101 ---- ---- --10").Poke(PokeD002);
-                bus.Decode("1110 ---- ---- --10").Poke(PokeE002);
-                bus.Decode("1111 ---- ---- --10").Poke(PokeF002);
+                bus.Map("1101 ---- ---- --10", writer: PokeD002);
+                bus.Map("1110 ---- ---- --10", writer: PokeE002);
+                bus.Map("1111 ---- ---- --10", writer: PokeF002);
             }
             else
             {
                 // $8001
-                bus.Decode("1001 ---- ---- --01").Poke(sound.Sq1.PokeReg2);
-                bus.Decode("1010 ---- ---- --01").Poke(sound.Sq2.PokeReg2);
-                bus.Decode("1011 ---- ---- --01").Poke(sound.Saw.PokeReg2);
+                bus.Map("1001 ---- ---- --01", writer: sound.Sq1.PokeReg2);
+                bus.Map("1010 ---- ---- --01", writer: sound.Sq2.PokeReg2);
+                bus.Map("1011 ---- ---- --01", writer: sound.Saw.PokeReg2);
                 // $c001
-                bus.Decode("1101 ---- ---- --01").Poke(PokeD001);
-                bus.Decode("1110 ---- ---- --01").Poke(PokeE001);
-                bus.Decode("1111 ---- ---- --01").Poke(PokeF001);
+                bus.Map("1101 ---- ---- --01", writer: PokeD001);
+                bus.Map("1110 ---- ---- --01", writer: PokeE001);
+                bus.Map("1111 ---- ---- --01", writer: PokeF001);
             }
 
             // $8003
             // $9003
             // $a003
-            bus.Decode("1011 ---- ---- --11").Poke(PokeB003);
+            bus.Map("1011 ---- ---- --11", writer: PokeB003);
             // $c003
-            bus.Decode("1101 ---- ---- --11").Poke(PokeD003);
-            bus.Decode("1110 ---- ---- --11").Poke(PokeE003);
+            bus.Map("1101 ---- ---- --11", writer: PokeD003);
+            bus.Map("1110 ---- ---- --11", writer: PokeE003);
             // $f003
         }
 
