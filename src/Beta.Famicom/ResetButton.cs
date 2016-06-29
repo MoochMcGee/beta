@@ -14,7 +14,6 @@ namespace Beta.Famicom
         public void Press()
         {
             gameSystem.Cpu.ResetSoft();
-            gameSystem.Board.ResetSoft();
         }
     }
 }

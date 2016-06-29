@@ -20,7 +20,7 @@ namespace Beta.Famicom
         private byte[] vram = new byte[2048];
         private byte[] wram = new byte[2048];
 
-        public IBoard Board;
+        public Board Board;
         public R2A03 Cpu;
         public R2C02 Ppu;
 
@@ -62,7 +62,6 @@ namespace Beta.Famicom
             Initialize();
 
             Cpu.ResetHard();
-            Board.ResetHard();
 
             try
             {

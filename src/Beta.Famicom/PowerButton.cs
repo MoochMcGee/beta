@@ -14,7 +14,6 @@ namespace Beta.Famicom
         public void Press()
         {
             gameSystem.Cpu.ResetHard();
-            gameSystem.Board.ResetHard();
         }
     }
 }

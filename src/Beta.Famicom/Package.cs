@@ -33,7 +33,7 @@ namespace Beta.Famicom
             container.RegisterSingleton<ICartridgeFactory, CartridgeFactory>();
             container.RegisterSingleton<IDatabase, DatabaseService>();
             container.RegisterSingleton<IMemoryFactory, MemoryFactory>();
-            container.RegisterSingleton<IBoardManager, BoardManager>();
+            container.RegisterSingleton<IBoardFactory, BoardFactory>();
             container.RegisterSingleton<IJoypadFactory, JoypadFactory>();
             container.RegisterSingleton<IGameSystem, GameSystem>();
             container.RegisterSingleton<IGameSystemFactory, GameSystemFactory>();

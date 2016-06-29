@@ -1,15 +1,14 @@
 ﻿using System.Linq;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
-using Beta.Famicom.Memory;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Memory;
 using Beta.Famicom.Messaging;
-using System;
 using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
 {
-    public abstract class Board : IBoard
+    public abstract class Board : IConsumer<ClockSignal>
     {
         private Database.Chip[] chips;
         private IMemory[] prgChips;
@@ -135,10 +134,6 @@ namespace Beta.Famicom.Boards
         }
 
         public virtual void Initialize() { }
-
-        public virtual void ResetSoft() { }
-
-        public virtual void ResetHard() { }
 
         public virtual void Consume(ClockSignal e) { }
     }

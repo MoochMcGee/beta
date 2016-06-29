@@ -5,16 +5,16 @@ using Beta.Famicom.Formats;
 
 namespace Beta.Famicom.Boards
 {
-    public sealed class BoardManager : IBoardManager
+    public sealed class BoardFactory : IBoardFactory
     {
         private readonly ICartridgeFactory factory;
 
-        public BoardManager(ICartridgeFactory factory)
+        public BoardFactory(ICartridgeFactory factory)
         {
             this.factory = factory;
         }
 
-        public IBoard GetBoard(GameSystem gameSystem, byte[] cart)
+        public Board GetBoard(GameSystem gameSystem, byte[] cart)
         {
             var info = factory.Create(cart);
             var type = GetBoardType(info.Mapper);
@@ -27,8 +27,8 @@ namespace Beta.Famicom.Boards
 
         private Type GetBoardType(string boardType)
         {
-            var linq = from type in typeof(IBoard).Assembly.GetTypes()
-                       where typeof(IBoard).IsAssignableFrom(type)
+            var linq = from type in typeof(Board).Assembly.GetTypes()
+                       where typeof(Board).IsAssignableFrom(type)
                        from attribute in type.GetCustomAttributes<BoardNameAttribute>()
                        where attribute.Name == boardType
                        select type;

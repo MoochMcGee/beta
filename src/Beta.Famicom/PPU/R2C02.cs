@@ -419,13 +419,6 @@ namespace Beta.Famicom.PPU
             VBL();
         }
 
-        private void VBL()
-        {
-            var signal = new VblNmiSignal(vblFlag & vblEnabled);
-
-            vblNmiProducer.Produce(signal);
-        }
-
         private void Peek2004(ushort address, ref byte data)
         {
             if ((bkg.Enabled || spr.Enabled) && vclock < 240)
@@ -569,6 +562,13 @@ namespace Beta.Famicom.PPU
         private void PokePalN(ushort address, ref byte data)
         {
             pal[address & 0x001f] = (byte)(data & 0x3f);
+        }
+
+        private void VBL()
+        {
+            var signal = new VblNmiSignal(vblFlag & vblEnabled);
+
+            vblNmiProducer.Produce(signal);
         }
 
         private void ActiveCycle()
@@ -965,7 +965,7 @@ namespace Beta.Famicom.PPU
             byte data = 0;
 
             address &= 0x3fff;
-            bus.Peek(address, ref data);
+            bus.Read(address, ref data);
 
             return data;
         }
@@ -973,7 +973,7 @@ namespace Beta.Famicom.PPU
         private void PokeByte(ushort address, byte data)
         {
             address &= 0x3fff;
-            bus.Poke(address, ref data);
+            bus.Write(address, ref data);
         }
 
         public void Initialize()

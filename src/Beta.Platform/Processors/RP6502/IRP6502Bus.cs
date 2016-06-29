@@ -2,8 +2,8 @@
 {
     public interface IRP6502Bus
     {
-        void Peek(ushort address, ref byte data);
+        void Read(ushort address, ref byte data);
 
-        void Poke(ushort address, ref byte data);
+        void Write(ushort address, ref byte data);
     }
 }

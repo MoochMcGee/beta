@@ -62,7 +62,7 @@ namespace Beta.GameBoyAdvance
             mask.h = data;
         }
 
-        public override void Initialize()
+        public void Initialize()
         {
             var mmio = gameSystem.mmio;
             mmio.Map(0x130, Peek130);

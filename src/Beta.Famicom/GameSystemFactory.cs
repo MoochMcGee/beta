@@ -10,7 +10,7 @@ namespace Beta.Famicom
 {
     public sealed class GameSystemFactory : IGameSystemFactory
     {
-        private readonly IBoardManager boardManager;
+        private readonly IBoardFactory boardManager;
         private readonly R2A03Bus cpuBus;
         private readonly R2C02Bus ppuBus;
         private readonly IProducer<ClockSignal> clockProducer;
@@ -19,7 +19,7 @@ namespace Beta.Famicom
         private readonly IJoypadFactory joypadFactory;
 
         public GameSystemFactory(
-            IBoardManager boardManager,
+            IBoardFactory boardManager,
             IJoypadFactory joypadFactory,
             R2A03Bus cpuBus,
             R2C02Bus ppuBus,
@@ -41,10 +41,9 @@ namespace Beta.Famicom
             var result = new GameSystem(cpuBus, ppuBus);
 
             result.Cpu = new R2A03(cpuBus, result, clockProducer);
-            result.Cpu.MapTo(cpuBus);
-
             result.Cpu.Joypad1 = joypadFactory.Create(0);
             result.Cpu.Joypad2 = joypadFactory.Create(1);
+            result.Cpu.MapTo(cpuBus);
 
             result.Ppu = new R2C02(ppuBus, result, vblNmiProducer, frameProducer);
             result.Ppu.MapTo(cpuBus);

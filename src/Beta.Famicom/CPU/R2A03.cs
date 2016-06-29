@@ -84,8 +84,6 @@ namespace Beta.Famicom.CPU
 
         public void Initialize()
         {
-            Joypad1.Initialize();
-            Joypad2.Initialize();
             InitializeSequence();
         }
 

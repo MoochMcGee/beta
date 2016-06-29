@@ -14,7 +14,5 @@ namespace Beta.Famicom.Input
         public abstract byte GetData(int strobe);
 
         public abstract void SetData();
-
-        public override void Initialize() { }
     }
 }

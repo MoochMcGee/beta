@@ -50,7 +50,7 @@
     <Compile Include="AudioParameterProvider.cs" />
     <Compile Include="Boards\Bandai\BandaiLZ93D50.cs" />
     <Compile Include="Boards\Board.cs" />
-    <Compile Include="Boards\BoardManager.cs" />
+    <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Camerica\CamericaBF9093.cs" />
     <Compile Include="Boards\Camerica\CamericaBF9096.cs" />
@@ -62,8 +62,7 @@
     <Compile Include="Boards\Discreet\Nrom256.cs" />
     <Compile Include="Boards\Discreet\Unrom.cs" />
     <Compile Include="Boards\Discreet\Uorom.cs" />
-    <Compile Include="Boards\IBoard.cs" />
-    <Compile Include="Boards\IBoardManager.cs" />
+    <Compile Include="Boards\IBoardFactory.cs" />
     <Compile Include="Boards\Konami\KonamiVrc1.cs" />
     <Compile Include="Boards\Konami\KonamiVrc2.cs" />
     <Compile Include="Boards\Konami\KonamiVrc3.cs" />

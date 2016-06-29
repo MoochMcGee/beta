@@ -4,6 +4,7 @@ using Beta.Platform;
 namespace Beta.Famicom
 {
     public delegate void Reader(ushort address, ref byte data);
+
     public delegate void Writer(ushort address, ref byte data);
 
     public class Bus : IBus
@@ -47,12 +48,12 @@ namespace Beta.Famicom
             }
         }
 
-        public void Peek(ushort address, ref byte data)
+        public void Read(ushort address, ref byte data)
         {
             readers[address](address, ref data);
         }
 
-        public void Poke(ushort address, ref byte data)
+        public void Write(ushort address, ref byte data)
         {
             writers[address](address, ref data);
         }
