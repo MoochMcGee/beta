@@ -3,67 +3,60 @@ using Beta.Famicom.CPU;
 using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Famicom.PPU;
-using Beta.Platform.Audio;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
-using Beta.Platform.Video;
+using SimpleInjector;
 
 namespace Beta.Famicom
 {
     public sealed class GameSystemFactory : IGameSystemFactory
     {
-        private readonly IBoardFactory boardManager;
-        private readonly R2A03Bus cpuBus;
-        private readonly R2C02Bus ppuBus;
-        private readonly IProducer<ClockSignal> clockProducer;
-        private readonly IProducer<FrameSignal> frameProducer;
-        private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly Container container;
+        private readonly IBoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
-        private readonly IVideoBackend video;
-        private readonly IAudioBackend audio;
+        private readonly ISubscriptionBroker broker;
 
         public GameSystemFactory(
-            IBoardFactory boardManager,
+            Container container,
+            IBoardFactory boardFactory,
             IJoypadFactory joypadFactory,
-            R2A03Bus cpuBus,
-            R2C02Bus ppuBus,
-            IProducer<ClockSignal> clockProducer,
-            IProducer<FrameSignal> frameProducer,
-            IProducer<VblNmiSignal> vblNmiProducer,
-            IAudioBackend audio,
-            IVideoBackend video)
+            ISubscriptionBroker broker)
         {
-            this.boardManager = boardManager;
+            this.boardFactory = boardFactory;
+            this.container = container;
             this.joypadFactory = joypadFactory;
-            this.cpuBus = cpuBus;
-            this.ppuBus = ppuBus;
-            this.clockProducer = clockProducer;
-            this.frameProducer = frameProducer;
-            this.vblNmiProducer = vblNmiProducer;
-            this.audio = audio;
-            this.video = video;
+            this.broker = broker;
         }
 
         public IGameSystem Create(byte[] binary)
         {
-            var result = new GameSystem(cpuBus, ppuBus);
+            var cpu = container.GetInstance<R2A03>();
+            var cpuBus = container.GetInstance<R2A03Bus>();
+            cpu.MapTo(cpuBus);
+            cpu.Joypad1 = joypadFactory.Create(0);
+            cpu.Joypad2 = joypadFactory.Create(1);
 
-            result.Cpu = new R2A03(cpuBus, audio, clockProducer);
-            result.Cpu.Joypad1 = joypadFactory.Create(0);
-            result.Cpu.Joypad2 = joypadFactory.Create(1);
-            result.Cpu.MapTo(cpuBus);
+            var ppu = container.GetInstance<R2C02>();
+            var ppuBus = container.GetInstance<R2C02Bus>();
+            ppu.MapTo(cpuBus);
 
-            result.Ppu = new R2C02(ppuBus, result, vblNmiProducer, frameProducer, video);
-            result.Ppu.MapTo(cpuBus);
+            var board = boardFactory.GetBoard(binary);
+            board.Cpu = cpu;
+            board.MapToCpu(cpuBus);
+            board.MapToPpu(ppuBus);
 
-            result.Board = boardManager.GetBoard(result, binary);
-            result.Board.MapToCpu(cpuBus);
-            result.Board.MapToPpu(ppuBus);
+            var result = new GameSystem(cpu, ppu, board);
 
-            clockProducer.Subscribe(result.Board);
-            clockProducer.Subscribe(result.Ppu);
-            frameProducer.Subscribe(result);
-            vblNmiProducer.Subscribe(result.Cpu);
+            broker.Subscribe<PpuAddressSignal>(board);
+            broker.Subscribe<ClockSignal>(board);
+            broker.Subscribe<ClockSignal>(ppu);
+            broker.Subscribe<FrameSignal>(result);
+            broker.Subscribe<VblNmiSignal>(cpu);
+
+            cpuBus.Map("000- ---- ---- ----", reader: result.PeekWRam, writer: result.PokeWRam);
+            ppuBus.Map("  1- ---- ---- ----", reader: result.PeekVRam, writer: result.PokeVRam);
+
+            result.Initialize();
 
             return result;
         }

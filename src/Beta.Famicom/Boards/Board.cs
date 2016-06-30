@@ -8,7 +8,9 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
 {
-    public abstract class Board : IConsumer<ClockSignal>
+    public abstract class Board
+        : IConsumer<ClockSignal>
+        , IConsumer<PpuAddressSignal>
     {
         private Database.Chip[] chips;
         private IMemory[] prgChips;
@@ -106,14 +108,6 @@ namespace Beta.Famicom.Boards
             Ram?.Poke(address, ref data);
         }
 
-        public virtual void CpuAddressUpdate(ushort address)
-        {
-        }
-
-        public virtual void PpuAddressUpdate(ushort address)
-        {
-        }
-
         public virtual void MapToCpu(IBus bus)
         {
             bus.Map("011- ---- ---- ----", PeekRam, PokeRam);
@@ -136,5 +130,7 @@ namespace Beta.Famicom.Boards
         public virtual void Initialize() { }
 
         public virtual void Consume(ClockSignal e) { }
+
+        public virtual void Consume(PpuAddressSignal e) { }
     }
 }

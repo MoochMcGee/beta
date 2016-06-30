@@ -19,7 +19,7 @@ namespace Beta.Famicom.CPU
         public Joypad Joypad1;
         public Joypad Joypad2;
 
-        public R2A03(IRP6502Bus bus, IAudioBackend audio, IProducer<ClockSignal> clockProducer)
+        public R2A03(R2A03Bus bus, IAudioBackend audio, IProducer<ClockSignal> clockProducer)
             : base(bus)
         {
             this.audio = audio;

@@ -1,6 +1,7 @@
 ﻿using Beta.Platform.Exceptions;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
@@ -84,7 +85,7 @@ namespace Beta.Famicom.Boards.Nintendo
             bus.Map("1111 ---- ---- ----", writer: PokeF000);
         }
 
-        public override void PpuAddressUpdate(ushort address)
+        public override void Consume(PpuAddressSignal e)
         {
             if (chrTimer != 0 && --chrTimer == 0)
             {
@@ -92,7 +93,7 @@ namespace Beta.Famicom.Boards.Nintendo
                 chr1 = chr1Latch | 2;
             }
 
-            switch (address & 0x1ff0)
+            switch (e.Address & 0x1ff0)
             {
             case 0x0fd0: chr0Latch = 0; chrTimer = 2; break;
             case 0x0fe0: chr0Latch = 1; chrTimer = 2; break;

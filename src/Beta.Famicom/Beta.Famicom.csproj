@@ -103,6 +103,7 @@
     <Compile Include="Database\Pin.cs" />
     <Compile Include="Database\Ram.cs" />
     <Compile Include="Database\Rom.cs" />
+    <Compile Include="EmulationLoop.cs" />
     <Compile Include="Formats\CartridgeFactory.cs" />
     <Compile Include="Formats\CartridgeImage.cs" />
     <Compile Include="Formats\ICartridgeFactory.cs" />
@@ -117,16 +118,15 @@
     <Compile Include="Memory\Rom.cs" />
     <Compile Include="Messaging\ClockSignal.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\PpuAddressSignal.cs" />
     <Compile Include="Messaging\VblNmiSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Input\Joypad.cs" />
     <Compile Include="Input\StandardController.cs" />
     <Compile Include="Palettes.cs" />
-    <Compile Include="PowerButton.cs" />
     <Compile Include="PPU\R2C02.cs" />
     <Compile Include="PPU\R2C02Bus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResetButton.cs" />
     <Compile Include="VideoParameterProvider.cs" />
   </ItemGroup>
   <ItemGroup>

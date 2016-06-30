@@ -32,24 +32,26 @@ namespace Beta.Famicom
         {
             container.RegisterSingleton<ICartridgeFactory, CartridgeFactory>();
             container.RegisterSingleton<IDatabase, DatabaseService>();
+            container.RegisterSingleton<IEmulationLoop, EmulationLoop>();
             container.RegisterSingleton<IMemoryFactory, MemoryFactory>();
             container.RegisterSingleton<IBoardFactory, BoardFactory>();
             container.RegisterSingleton<IJoypadFactory, JoypadFactory>();
             container.RegisterSingleton<IGameSystem, GameSystem>();
             container.RegisterSingleton<IGameSystemFactory, GameSystemFactory>();
-            container.RegisterSingleton<IPowerButton, PowerButton>();
-            container.RegisterSingleton<IResetButton, ResetButton>();
-            container.RegisterSingleton<IAudioBackend, AudioBackend>();
-            container.RegisterSingleton<IAudioParameterProvider, AudioParameterProvider>();
-            container.RegisterSingleton<IVideoBackend, VideoBackend>();
-            container.RegisterSingleton<IVideoParameterProvider, VideoParameterProvider>();
 
             container.RegisterSingleton<GameSystem>();
+            container.RegisterSingleton<R2A03>();
             container.RegisterSingleton<R2A03Bus>();
+            container.RegisterSingleton<R2C02>();
             container.RegisterSingleton<R2C02Bus>();
 
             container.Register(typeof(IProducer<>), typeof(Producer<>), Lifestyle.Singleton);
 
+            container.RegisterSingleton<ISubscriptionBroker, SubscriptionBroker>();
+            container.RegisterSingleton<IAudioBackend, AudioBackend>();
+            container.RegisterSingleton<IAudioParameterProvider, AudioParameterProvider>();
+            container.RegisterSingleton<IVideoBackend, VideoBackend>();
+            container.RegisterSingleton<IVideoParameterProvider, VideoParameterProvider>();
             container.RegisterInitializer<IAudioBackend>(e => e.Initialize());
             container.RegisterInitializer<IVideoBackend>(e => e.Initialize());
         }

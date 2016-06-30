@@ -2,6 +2,6 @@
 {
     public interface IBoardFactory
     {
-        Board GetBoard(GameSystem gameSystem, byte[] cart);
+        Board GetBoard(byte[] binary);
     }
 }

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Beta.Platform;
 using Beta.Platform.Core;
 
 namespace Beta
@@ -17,28 +18,26 @@ namespace Beta
             InitializeComponent();
         }
 
-        private void FormHost_Load(object sender, EventArgs e)
+        public void Start(IEmulationLoop loop)
         {
-            SetClientSize(256, 240);
-
-            gameThread = new Thread(gameSystem.Emulate);
+            gameThread = new Thread(loop.Main);
             gameThread.Start();
         }
 
-        private void FormHost_FormClosing(object sender, FormClosingEventArgs e)
+        public void Abort()
         {
             gameThread?.Abort();
             gameThread?.Join();
             gameThread = null;
         }
-        
-        private void SetClientSize(int width, int height)
+
+        private void FormHost_Load(object sender, EventArgs e)
         {
             const int scale = 4;
 
             ClientSize = new Size(
-                scale * width,
-                scale * height);
+                scale * 256,
+                scale * 240);
         }
 
         public void LoadGame(IGameSystemFactory gameSystemFactory, string fileName)

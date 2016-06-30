@@ -14,24 +14,22 @@ namespace Beta.Famicom.Boards
             this.factory = factory;
         }
 
-        public Board GetBoard(GameSystem gameSystem, byte[] cart)
+        public Board GetBoard(byte[] binary)
         {
-            var info = factory.Create(cart);
+            var info = factory.Create(binary);
             var type = GetBoardType(info.Mapper);
 
-            var board = (Board)Activator.CreateInstance(type, info);
-            board.Cpu = gameSystem.Cpu;
-
-            return board;
+            return (Board)Activator.CreateInstance(type, info);
         }
 
         private Type GetBoardType(string boardType)
         {
-            var linq = from type in typeof(Board).Assembly.GetTypes()
-                       where typeof(Board).IsAssignableFrom(type)
-                       from attribute in type.GetCustomAttributes<BoardNameAttribute>()
-                       where attribute.Name == boardType
-                       select type;
+            var linq =
+                from type in typeof(Board).Assembly.GetTypes()
+                where typeof(Board).IsAssignableFrom(type)
+                from attribute in type.GetCustomAttributes<BoardNameAttribute>()
+                where attribute.Name == boardType
+                select type;
 
             var match = linq.FirstOrDefault();
             if (match == null)

@@ -180,9 +180,9 @@ namespace Beta.Famicom.Boards.Nintendo
             bus.Map("111- ---- ---- ---1", writer: PokeE001);
         }
 
-        public override void PpuAddressUpdate(ushort address)
+        public override void Consume(PpuAddressSignal e)
         {
-            if (irqLatch < (address & 0x1000))
+            if (irqLatch < (e.Address & 0x1000))
             { // rising edge
                 if (irqTimer >= 5)
                 {
@@ -204,7 +204,7 @@ namespace Beta.Famicom.Boards.Nintendo
                 irqTimer = 0;
             }
 
-            irqLatch = (address & 0x1000);
+            irqLatch = (e.Address & 0x1000);
         }
 
         public override int VRamA10(ushort address)

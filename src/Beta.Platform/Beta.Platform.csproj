@@ -82,10 +82,13 @@
     <Compile Include="Exceptions\ProcessorJammedException.cs" />
     <Compile Include="FileExtension.cs" />
     <Compile Include="HwndProvider.cs" />
+    <Compile Include="IEmulationLoop.cs" />
     <Compile Include="IHwndProvider.cs" />
     <Compile Include="Input\InputBackend.cs" />
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />
+    <Compile Include="Messaging\ISubscriptionBroker.cs" />
+    <Compile Include="Messaging\SubscriptionBroker.cs" />
     <Compile Include="Packaging\IPackage.cs" />
     <Compile Include="Messaging\IProducer.cs" />
     <Compile Include="Messaging\IConsumer.cs" />

@@ -57,7 +57,11 @@ namespace Beta
 
             formHost.Text = package.Name;
             formHost.LoadGame(container.GetInstance<IGameSystemFactory>(), file.FullName);
+
+            formHost.Start(container.GetInstance<IEmulationLoop>());
             formHost.ShowDialog(this);
+            formHost.Abort();
+
             formHost.Close();
             formHost = null;
         }
