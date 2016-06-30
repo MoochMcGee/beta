@@ -6,7 +6,6 @@ using Beta.Hosting;
 using Beta.Platform;
 using Beta.Platform.Core;
 using Beta.Platform.Packaging;
-using SimpleInjector;
 
 namespace Beta
 {
@@ -50,8 +49,7 @@ namespace Beta
 
         private void ShowHostForm(IPackage package, FileInfo file)
         {
-            var container = new Container();
-            container.RegisterSingleton<IHwndProvider>(new HwndProvider(formHost.Handle));
+            var container = Bootstrapper.Bootstrap(formHost.Handle);
 
             package.RegisterServices(container);
 
