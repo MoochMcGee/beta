@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Beta.Famicom.Boards;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Database;
@@ -7,26 +6,14 @@ using Beta.Famicom.Input;
 using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
 using Beta.Platform;
-using Beta.Platform.Audio;
 using Beta.Platform.Core;
-using Beta.Platform.Packaging;
-using Beta.Platform.Video;
 using SimpleInjector;
+using SimpleInjector.Packaging;
 
 namespace Beta.Famicom
 {
     public sealed class Package : IPackage
     {
-        public string Name => "Famicom";
-
-        public IEnumerable<FileExtension> Extensions
-        {
-            get
-            {
-                yield return new FileExtension("nes");
-            }
-        }
-
         public void RegisterServices(Container container)
         {
             container.RegisterSingleton<IBoardFactory, BoardFactory>();
@@ -43,9 +30,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<R2A03Bus>();
             container.RegisterSingleton<R2C02>();
             container.RegisterSingleton<R2C02Bus>();
-
-            container.RegisterSingleton<IVideoParameterProvider, VideoParameterProvider>();
-            container.RegisterSingleton<IAudioParameterProvider, AudioParameterProvider>();
         }
     }
 }

@@ -1,0 +1,28 @@
+﻿{
+  "name": "Famicom",
+  "extensions": [ ".nes" ],
+  "audio": {
+    "channels": 1,
+    "sample-rate": 48000
+  },
+  "video": {
+    "width": 256,
+    "height": 240
+  },
+  "inputs": [
+    {
+      "virtual-input-id": "676a669d-9727-4da1-a00a-959f2d634e7e",
+      "host-input-id": "3f25dbe0-4da0-11e5-8003-444553540000",
+      "mapping": {
+        "a": "0",
+        "b": "2",
+        "start": "7",
+        "select": "6",
+        "up": "y+",
+        "down": "y-",
+        "left": "x-",
+        "right": "x+"
+      }
+    }
+  ]
+}

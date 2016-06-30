@@ -2,13 +2,13 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Beta.Platform.Packaging;
+using Beta.Hosting;
 
 namespace Beta
 {
     public sealed class FileSelector : IFileSelector
     {
-        public FileInfo Display(IPackage[] packages)
+        public FileInfo Display(GameSystemDefinition[] packages)
         {
             using (var openFileDialog = new OpenFileDialog())
             {
@@ -24,26 +24,31 @@ namespace Beta
             return null;
         }
 
-        private static string CreateAll(IPackage[] packages)
+        private static string CreateAll(GameSystemDefinition[] packages)
         {
-            var extensions = packages.SelectMany(e => e.Extensions);
+            var linq =
+                from package in packages
+                from extension in package.File.Extensions
+                select "*" + extension;
 
-            return $"All Files|{string.Join(";", extensions)}";
+            return $"All Files|{string.Join(";", linq)}";
         }
 
-        private static string CreateFilter(IPackage package)
+        private static string CreateFilter(GameSystemDefinition e)
         {
-            var name = package.Name;
-            var extensions = string.Join(";", package.Extensions);
+            var linq =
+                from extension in e.File.Extensions
+                select "*" + extension;
 
-            return $"{name}|{extensions}";
+            return $"{e.File.Name}|{string.Join(";", linq)}";
         }
 
-        private static string CreateFilter(IPackage[] packages)
+        private static string CreateFilter(GameSystemDefinition[] packages)
         {
             var all = CreateAll(packages);
-            var filters = from factory in packages
-                          select CreateFilter(factory);
+            var filters =
+                from package in packages
+                select CreateFilter(package);
 
             var list = new List<string>();
             list.Add(all);

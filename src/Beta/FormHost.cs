@@ -40,9 +40,11 @@ namespace Beta
                 scale * 240);
         }
 
-        public void LoadGame(IGameSystemFactory gameSystemFactory, string fileName)
+        public void LoadGame(IGameSystemFactory factory, string fileName)
         {
-            gameSystem = gameSystemFactory.Create(File.ReadAllBytes(fileName));
+            var binary = File.ReadAllBytes(fileName);
+
+            gameSystem = factory.Create(binary);
         }
     }
 }

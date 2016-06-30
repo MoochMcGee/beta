@@ -1,10 +1,10 @@
 ﻿using System.IO;
-using Beta.Platform.Packaging;
+using Beta.Hosting;
 
 namespace Beta
 {
     public interface IFileSelector
     {
-        FileInfo Display(IPackage[] packages);
+        FileInfo Display(GameSystemDefinition[] packages);
     }
 }

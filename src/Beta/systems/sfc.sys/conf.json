@@ -1,0 +1,32 @@
+﻿{
+  "name": "Super Famicom",
+  "extensions": [ ".sfc" ],
+  "audio": {
+    "channels": 2,
+    "sample-rate": 32000
+  },
+  "video": {
+    "width": 256,
+    "height": 240
+  },
+  "inputs": [
+    {
+      "virtual-input-id": "{676a669d-9727-4da1-a00a-959f2d634e7e}",
+      "host-input-id": "{3f25dbe0-4da0-11e5-8003-444553540000}",
+      "mapping": {
+        "b": "0",
+        "y": "2",
+        "select": "6",
+        "start": "7",
+        "up": "y+",
+        "down": "y-",
+        "left": "x-",
+        "right": "x+",
+        "a": "1",
+        "x": "3",
+        "l": "4",
+        "r": "5"
+      }
+    }
+  ]
+}

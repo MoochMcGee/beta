@@ -10,14 +10,12 @@ namespace Beta
         [STAThread]
         private static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
             var container = new Container();
             container.RegisterSingleton<IFileSelector, FileSelector>();
-
             container.RegisterSingleton<IPackageLoader, PackageLoader>();
 
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(container.GetInstance<FormMain>());
         }
     }

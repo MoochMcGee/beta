@@ -1,9 +1,7 @@
-﻿using Beta.Platform.Packaging;
-
-namespace Beta.Hosting
+﻿namespace Beta.Hosting
 {
     public interface IPackageLoader
     {
-        IPackage[] Load();
+        GameSystemDefinition[] Load();
     }
 }

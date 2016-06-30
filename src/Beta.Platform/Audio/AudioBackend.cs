@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Beta.Platform.Configuration;
 using SharpDX;
 using SharpDX.Multimedia;
 using SharpDX.XAudio2;
@@ -20,18 +21,17 @@ namespace Beta.Platform.Audio
         private XAudio2 engine;
         private int streamIndex;
 
-        public AudioBackend(IHwndProvider hwndProvider, IAudioParameterProvider audioParamProvider)
+        public AudioBackend(IHwndProvider hwndProvider, ConfigurationFile config)
         {
             engine = new XAudio2();
             engine.StartEngine();
 
-            var parameters = audioParamProvider.GetValue();
-            var format = new WaveFormat(parameters.SampleRate, 16, parameters.Channels);
+            var format = new WaveFormat(config.Audio.SampleRate, 16, config.Audio.Channels);
 
             length = format.AverageBytesPerSecond / 30; // 33.3~ msec
 
             master = new MasteringVoice(engine, format.Channels, format.SampleRate);
-            source = new SourceVoice(engine, format, VoiceFlags.None, parameters.Ratio);
+            source = new SourceVoice(engine, format, VoiceFlags.None, 1f);
             source.Start();
 
             streams = new DataStream[STREAM_COUNT];

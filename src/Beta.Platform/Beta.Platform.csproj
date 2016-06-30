@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SharpDX.3.0.2\lib\net45\SharpDX.dll</HintPath>
       <Private>True</Private>
@@ -52,8 +56,12 @@
       <HintPath>..\..\packages\SharpDX.XInput.3.0.2\lib\net45\SharpDX.XInput.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SimpleInjector, Version=3.1.5.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SimpleInjector.3.1.5\lib\net45\SimpleInjector.dll</HintPath>
+    <Reference Include="SimpleInjector, Version=3.2.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SimpleInjector.3.2.0\lib\net45\SimpleInjector.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleInjector.Packaging, Version=3.2.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SimpleInjector.Packaging.3.2.0\lib\net40-client\SimpleInjector.Packaging.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -72,6 +80,11 @@
     <Compile Include="Audio\IAudioParameterProvider.cs" />
     <Compile Include="BitString.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Configuration\AudioConfiguration.cs" />
+    <Compile Include="Configuration\ConfigurationFile.cs" />
+    <Compile Include="Configuration\ConfigurationLoader.cs" />
+    <Compile Include="Configuration\InputConfiguration.cs" />
+    <Compile Include="Configuration\VideoConfiguration.cs" />
     <Compile Include="Core\DefaultResetButton.cs" />
     <Compile Include="Core\IGameSystem.cs" />
     <Compile Include="Core\IGameSystemFactory.cs" />
@@ -90,7 +103,6 @@
     <Compile Include="MemoryChip.cs" />
     <Compile Include="Messaging\ISubscriptionBroker.cs" />
     <Compile Include="Messaging\SubscriptionBroker.cs" />
-    <Compile Include="Packaging\IPackage.cs" />
     <Compile Include="Messaging\IProducer.cs" />
     <Compile Include="Messaging\IConsumer.cs" />
     <Compile Include="Messaging\Producer.cs">
