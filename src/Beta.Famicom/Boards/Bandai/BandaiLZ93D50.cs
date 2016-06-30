@@ -1,6 +1,7 @@
 ﻿using Beta.Famicom.Abstractions;
 using Beta.Platform.Exceptions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Bandai
 {
@@ -116,7 +117,7 @@ namespace Beta.Famicom.Boards.Bandai
             return (address & 0x3fff) | prgPages[(address >> 14) & 1];
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             if (irqEnabled)
             {
@@ -147,39 +148,39 @@ namespace Beta.Famicom.Boards.Bandai
         {
             base.MapToCpu(bus);
 
-            bus.Decode("011- ---- ---- 0000").Peek(Peek800D).Poke(Poke8000);
-            bus.Decode("011- ---- ---- 0001").Peek(Peek800D).Poke(Poke8001);
-            bus.Decode("011- ---- ---- 0010").Peek(Peek800D).Poke(Poke8002);
-            bus.Decode("011- ---- ---- 0011").Peek(Peek800D).Poke(Poke8003);
-            bus.Decode("011- ---- ---- 0100").Peek(Peek800D).Poke(Poke8004);
-            bus.Decode("011- ---- ---- 0101").Peek(Peek800D).Poke(Poke8005);
-            bus.Decode("011- ---- ---- 0110").Peek(Peek800D).Poke(Poke8006);
-            bus.Decode("011- ---- ---- 0111").Peek(Peek800D).Poke(Poke8007);
-            bus.Decode("011- ---- ---- 1000").Peek(Peek800D).Poke(Poke8008);
-            bus.Decode("011- ---- ---- 1001").Peek(Peek800D).Poke(Poke8009);
-            bus.Decode("011- ---- ---- 1010").Peek(Peek800D).Poke(Poke800A);
-            bus.Decode("011- ---- ---- 1011").Peek(Peek800D).Poke(Poke800B);
-            bus.Decode("011- ---- ---- 1100").Peek(Peek800D).Poke(Poke800C);
-            bus.Decode("011- ---- ---- 1101").Peek(Peek800D).Poke(Poke800D);
-            // .decode("011- ---- ---- 1110"); // open bus?
-            // .decode("011- ---- ---- 1111"); // open bus?
+            bus.Map("011- ---- ---- 0000", Peek800D, Poke8000);
+            bus.Map("011- ---- ---- 0001", Peek800D, Poke8001);
+            bus.Map("011- ---- ---- 0010", Peek800D, Poke8002);
+            bus.Map("011- ---- ---- 0011", Peek800D, Poke8003);
+            bus.Map("011- ---- ---- 0100", Peek800D, Poke8004);
+            bus.Map("011- ---- ---- 0101", Peek800D, Poke8005);
+            bus.Map("011- ---- ---- 0110", Peek800D, Poke8006);
+            bus.Map("011- ---- ---- 0111", Peek800D, Poke8007);
+            bus.Map("011- ---- ---- 1000", Peek800D, Poke8008);
+            bus.Map("011- ---- ---- 1001", Peek800D, Poke8009);
+            bus.Map("011- ---- ---- 1010", Peek800D, Poke800A);
+            bus.Map("011- ---- ---- 1011", Peek800D, Poke800B);
+            bus.Map("011- ---- ---- 1100", Peek800D, Poke800C);
+            bus.Map("011- ---- ---- 1101", Peek800D, Poke800D);
+            // .Map("011- ---- ---- 1110"); // open bus?
+            // .Map("011- ---- ---- 1111"); // open bus?
 
-            bus.Decode("1--- ---- ---- 0000").Peek(Peek800D).Peek(Poke8000);
-            bus.Decode("1--- ---- ---- 0001").Peek(Peek800D).Peek(Poke8001);
-            bus.Decode("1--- ---- ---- 0010").Peek(Peek800D).Peek(Poke8002);
-            bus.Decode("1--- ---- ---- 0011").Peek(Peek800D).Peek(Poke8003);
-            bus.Decode("1--- ---- ---- 0100").Peek(Peek800D).Peek(Poke8004);
-            bus.Decode("1--- ---- ---- 0101").Peek(Peek800D).Peek(Poke8005);
-            bus.Decode("1--- ---- ---- 0110").Peek(Peek800D).Peek(Poke8006);
-            bus.Decode("1--- ---- ---- 0111").Peek(Peek800D).Peek(Poke8007);
-            bus.Decode("1--- ---- ---- 1000").Peek(Peek800D).Peek(Poke8008);
-            bus.Decode("1--- ---- ---- 1001").Peek(Peek800D).Peek(Poke8009);
-            bus.Decode("1--- ---- ---- 1010").Peek(Peek800D).Peek(Poke800A);
-            bus.Decode("1--- ---- ---- 1011").Peek(Peek800D).Peek(Poke800B);
-            bus.Decode("1--- ---- ---- 1100").Peek(Peek800D).Peek(Poke800C);
-            bus.Decode("1--- ---- ---- 1101").Peek(Peek800D).Peek(Poke800D);
-            // .decode("1--- ---- ---- 1110"); // open bus?
-            // .decode("1--- ---- ---- 1111"); // open bus?
+            bus.Map("1--- ---- ---- 0000", Peek800D, Poke8000);
+            bus.Map("1--- ---- ---- 0001", Peek800D, Poke8001);
+            bus.Map("1--- ---- ---- 0010", Peek800D, Poke8002);
+            bus.Map("1--- ---- ---- 0011", Peek800D, Poke8003);
+            bus.Map("1--- ---- ---- 0100", Peek800D, Poke8004);
+            bus.Map("1--- ---- ---- 0101", Peek800D, Poke8005);
+            bus.Map("1--- ---- ---- 0110", Peek800D, Poke8006);
+            bus.Map("1--- ---- ---- 0111", Peek800D, Poke8007);
+            bus.Map("1--- ---- ---- 1000", Peek800D, Poke8008);
+            bus.Map("1--- ---- ---- 1001", Peek800D, Poke8009);
+            bus.Map("1--- ---- ---- 1010", Peek800D, Poke800A);
+            bus.Map("1--- ---- ---- 1011", Peek800D, Poke800B);
+            bus.Map("1--- ---- ---- 1100", Peek800D, Poke800C);
+            bus.Map("1--- ---- ---- 1101", Peek800D, Poke800D);
+            // .Map("1--- ---- ---- 1110"); // open bus?
+            // .Map("1--- ---- ---- 1111"); // open bus?
         }
 
         public override int VRamA10(ushort address)

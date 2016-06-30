@@ -50,7 +50,7 @@
     <Compile Include="AudioParameterProvider.cs" />
     <Compile Include="Boards\Bandai\BandaiLZ93D50.cs" />
     <Compile Include="Boards\Board.cs" />
-    <Compile Include="Boards\BoardManager.cs" />
+    <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Camerica\CamericaBF9093.cs" />
     <Compile Include="Boards\Camerica\CamericaBF9096.cs" />
@@ -62,8 +62,7 @@
     <Compile Include="Boards\Discreet\Nrom256.cs" />
     <Compile Include="Boards\Discreet\Unrom.cs" />
     <Compile Include="Boards\Discreet\Uorom.cs" />
-    <Compile Include="Boards\IBoard.cs" />
-    <Compile Include="Boards\IBoardManager.cs" />
+    <Compile Include="Boards\IBoardFactory.cs" />
     <Compile Include="Boards\Konami\KonamiVrc1.cs" />
     <Compile Include="Boards\Konami\KonamiVrc2.cs" />
     <Compile Include="Boards\Konami\KonamiVrc3.cs" />
@@ -90,6 +89,7 @@
     <Compile Include="CPU\R2A03.Apu.Mixer.cs" />
     <Compile Include="CPU\R2A03.Apu.Sequence.cs" />
     <Compile Include="CPU\R2A03.cs" />
+    <Compile Include="CPU\R2A03Bus.cs" />
     <Compile Include="Database\Board.cs" />
     <Compile Include="Database\Cartridge.cs" />
     <Compile Include="Database\Chip.cs" />
@@ -103,23 +103,30 @@
     <Compile Include="Database\Pin.cs" />
     <Compile Include="Database\Ram.cs" />
     <Compile Include="Database\Rom.cs" />
+    <Compile Include="EmulationLoop.cs" />
     <Compile Include="Formats\CartridgeFactory.cs" />
     <Compile Include="Formats\CartridgeImage.cs" />
     <Compile Include="Formats\ICartridgeFactory.cs" />
     <Compile Include="GameSystem.cs" />
+    <Compile Include="GameSystemFactory.cs" />
+    <Compile Include="Input\IJoypadFactory.cs" />
+    <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\IMemoryFactory.cs" />
     <Compile Include="Memory\MemoryFactory.cs" />
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
+    <Compile Include="Messaging\ClockSignal.cs" />
+    <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\PpuAddressSignal.cs" />
+    <Compile Include="Messaging\VblNmiSignal.cs" />
     <Compile Include="Package.cs" />
-    <Compile Include="PAD\Pad.cs" />
-    <Compile Include="PAD\StandardController.cs" />
+    <Compile Include="Input\Joypad.cs" />
+    <Compile Include="Input\StandardController.cs" />
     <Compile Include="Palettes.cs" />
-    <Compile Include="PowerButton.cs" />
     <Compile Include="PPU\R2C02.cs" />
+    <Compile Include="PPU\R2C02Bus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResetButton.cs" />
     <Compile Include="VideoParameterProvider.cs" />
   </ItemGroup>
   <ItemGroup>

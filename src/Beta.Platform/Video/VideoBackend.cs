@@ -20,10 +20,10 @@ namespace Beta.Platform.Video
         private SwapChain swapChain;
         private Texture2D texture;
 
-        public VideoBackend(IntPtr handle, VideoParameters parameters)
+        public VideoBackend(IHwndProvider hwndProvider, IVideoParameterProvider videoParamProvider)
         {
-            this.handle = handle;
-            this.parameters = parameters;
+            this.handle = hwndProvider.GetHandle();
+            this.parameters = videoParamProvider.GetValue();
             this.screen = Utility.CreateArray<int>(parameters.Height, parameters.Width);
         }
 

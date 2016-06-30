@@ -1,16 +1,20 @@
 ﻿using Beta.Famicom.Abstractions;
-using Beta.Famicom.CPU;
-using Beta.Famicom.PAD;
+using Beta.Famicom.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
+using Beta.Platform.Video;
 
 namespace Beta.Famicom.PPU
 {
-    public class R2C02 : Processor
+    public class R2C02 : Processor, IConsumer<ClockSignal>
     {
-        private IBus bus;
-        private GameSystem gameSystem;
-        private R2A03 cpu;
+        private readonly IBus bus;
+        private readonly IProducer<FrameSignal> frameProducer;
+        private readonly IProducer<PpuAddressSignal> addressProducer;
+        private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly IVideoBackend video;
+        //private readonly GameSystem gameSystem;
 
         private Fetch fetch = new Fetch();
         private Scroll scroll = new Scroll();
@@ -19,7 +23,7 @@ namespace Beta.Famicom.PPU
         private bool field;
         private bool sprOverrun;
         private bool sprZerohit;
-        private int nmiEnabled;
+        private int vblEnabled;
         private int vblFlag;
         private int vblHold;
         private int hclock;
@@ -38,11 +42,18 @@ namespace Beta.Famicom.PPU
             get { return (bkg.Enabled || spr.Enabled) && vclock < 240; }
         }
 
-        public R2C02(IBus bus, GameSystem gameSystem)
+        public R2C02(
+            R2C02Bus bus,
+            IProducer<FrameSignal> frameProducer,
+            IProducer<PpuAddressSignal> addressProducer,
+            IProducer<VblNmiSignal> vblNmiProducer,
+            IVideoBackend video)
         {
-            this.gameSystem = gameSystem;
             this.bus = bus;
-            cpu = gameSystem.Cpu;
+            this.frameProducer = frameProducer;
+            this.addressProducer = addressProducer;
+            this.vblNmiProducer = vblNmiProducer;
+            this.video = video;
 
             Single = 44;
 
@@ -74,7 +85,7 @@ namespace Beta.Famicom.PPU
         private void PointBgName()
         {
             fetch.Address = (ushort)(0x2000 | (scroll.Address & 0xfff));
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void PointBgAttr()
@@ -82,19 +93,19 @@ namespace Beta.Famicom.PPU
             fetch.Address =
                 (ushort)
                     (0x23c0 | (scroll.Address & 0xc00) | ((scroll.Address >> 4) & 0x38) | ((scroll.Address >> 2) & 7));
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void PointBgBit0()
         {
             fetch.Address = (ushort)(bkg.Address | (fetch.Name << 4) | 0 | ((scroll.Address >> 12) & 7));
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void PointBgBit1()
         {
             fetch.Address = (ushort)(bkg.Address | (fetch.Name << 4) | 8 | ((scroll.Address >> 12) & 7));
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void SynthesizeBg()
@@ -320,13 +331,13 @@ namespace Beta.Famicom.PPU
             }
 
             fetch.Address |= 0;
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void PointSpBit1()
         {
             fetch.Address |= 8;
-            gameSystem.Board.PpuAddressUpdate(fetch.Address);
+            AddressUpdate(fetch.Address);
         }
 
         private void FetchSpBit0()
@@ -399,11 +410,7 @@ namespace Beta.Famicom.PPU
 
         #endregion
 
-        private void Peek____(ushort address, ref byte data)
-        {
-        }
-
-        private void Peek2002(ushort address, ref byte data)
+        private void Read2002(ushort address, ref byte data)
         {
             data &= 0x1f;
 
@@ -414,11 +421,10 @@ namespace Beta.Famicom.PPU
             vblHold = 0;
             vblFlag = 0;
             scroll.Swap = false;
-
-            cpu.Nmi(vblFlag & nmiEnabled);
+            VBL();
         }
 
-        private void Peek2004(ushort address, ref byte data)
+        private void Read2004(ushort address, ref byte data)
         {
             if ((bkg.Enabled || spr.Enabled) && vclock < 240)
             {
@@ -430,7 +436,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void Peek2007(ushort address, ref byte data)
+        private void Read2007(ushort address, ref byte data)
         {
             byte tmp;
 
@@ -454,28 +460,24 @@ namespace Beta.Famicom.PPU
                 scroll.Address = (ushort)((scroll.Address + scroll.Step) & 0x7fff);
             }
 
-            gameSystem.Board.PpuAddressUpdate(scroll.Address);
+            AddressUpdate(scroll.Address);
 
             data = tmp;
         }
 
-        private void Poke____(ushort address, ref byte data)
-        {
-        }
-
-        private void Poke2000(ushort address, ref byte data)
+        private void Write2000(ushort address, ref byte data)
         {
             scroll.Temp = (ushort)((scroll.Temp & 0x73ff) | ((data << 10) & 0x0c00));
             scroll.Step = (ushort)((data & 0x04) != 0 ? 0x0020 : 0x0001);
             spr.Address = (ushort)((data & 0x08) != 0 ? 0x1000 : 0x0000);
             bkg.Address = (ushort)((data & 0x10) != 0 ? 0x1000 : 0x0000);
             spr.Rasters = (data & 0x20) != 0 ? 0x0010 : 0x0008;
-            nmiEnabled = (data & 0x80) >> 7;
+            vblEnabled = (data & 0x80) >> 7;
 
-            cpu.Nmi(vblFlag & nmiEnabled);
+            VBL();
         }
 
-        private void Poke2001(ushort address, ref byte data)
+        private void Write2001(ushort address, ref byte data)
         {
             bkg.Clipped = (data & 0x02) == 0;
             spr.Clipped = (data & 0x04) == 0;
@@ -486,13 +488,13 @@ namespace Beta.Famicom.PPU
             emphasis = (data & 0xe0) << 1;
         }
 
-        private void Poke2003(ushort address, ref byte data)
+        private void Write2003(ushort address, ref byte data)
         {
             oamAddress = data;
             oamAddressLatch = data;
         }
 
-        private void Poke2004(ushort address, ref byte data)
+        private void Write2004(ushort address, ref byte data)
         {
             if ((oamAddress & 3) == 2)
                 data &= 0xe3;
@@ -500,7 +502,7 @@ namespace Beta.Famicom.PPU
             oam[oamAddress++] = data;
         }
 
-        private void Poke2005(ushort address, ref byte data)
+        private void Write2005(ushort address, ref byte data)
         {
             scroll.Swap = !scroll.Swap;
 
@@ -515,7 +517,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void Poke2006(ushort address, ref byte data)
+        private void Write2006(ushort address, ref byte data)
         {
             scroll.Swap = !scroll.Swap;
             if (scroll.Swap)
@@ -527,11 +529,11 @@ namespace Beta.Famicom.PPU
                 scroll.Temp = (ushort)((scroll.Temp & ~0x00ff) | ((data & 0xff) << 0));
                 scroll.Address = (scroll.Temp);
 
-                gameSystem.Board.PpuAddressUpdate(scroll.Address);
+                AddressUpdate(scroll.Address);
             }
         }
 
-        private void Poke2007(ushort address, ref byte data)
+        private void Write2007(ushort address, ref byte data)
         {
             PokeByte(scroll.Address, data);
 
@@ -544,27 +546,39 @@ namespace Beta.Famicom.PPU
                 scroll.Address = (ushort)((scroll.Address + scroll.Step) & 0x7fff);
             }
 
-            gameSystem.Board.PpuAddressUpdate(scroll.Address);
+            AddressUpdate(scroll.Address);
         }
 
-        private void PeekPal0(ushort address, ref byte data)
+        private void ReadPal0(ushort address, ref byte data)
         {
             data = pal[address & 0x000c];
         }
 
-        private void PeekPalN(ushort address, ref byte data)
+        private void ReadPalN(ushort address, ref byte data)
         {
             data = pal[address & 0x001f];
         }
 
-        private void PokePal0(ushort address, ref byte data)
+        private void WritePal0(ushort address, ref byte data)
         {
             pal[address & 0x000c] = (byte)(data & 0x3f);
         }
 
-        private void PokePalN(ushort address, ref byte data)
+        private void WritePalN(ushort address, ref byte data)
         {
             pal[address & 0x001f] = (byte)(data & 0x3f);
+        }
+
+        private void AddressUpdate(ushort address)
+        {
+            addressProducer.Produce(new PpuAddressSignal(address));
+        }
+
+        private void VBL()
+        {
+            var signal = new VblNmiSignal(vblFlag & vblEnabled);
+
+            vblNmiProducer.Produce(signal);
         }
 
         private void ActiveCycle()
@@ -742,21 +756,10 @@ namespace Beta.Famicom.PPU
             {
                 switch (hclock & 7)
                 {
-                case 0:
-                    gameSystem.Board.PpuAddressUpdate(0x2000);
-                    break;
-
-                case 2:
-                    gameSystem.Board.PpuAddressUpdate(0x23c0);
-                    break;
-
-                case 4:
-                    gameSystem.Board.PpuAddressUpdate(bkg.Address);
-                    break;
-
-                case 6:
-                    gameSystem.Board.PpuAddressUpdate(bkg.Address);
-                    break;
+                case 0: AddressUpdate(0x2000); break;
+                case 2: AddressUpdate(0x23c0); break;
+                case 4: AddressUpdate(bkg.Address); break;
+                case 6: AddressUpdate(bkg.Address); break;
 
                 case 7:
                     if (hclock != 0xff)
@@ -780,73 +783,32 @@ namespace Beta.Famicom.PPU
 
                 switch (hclock & 7)
                 {
-                case 0:
-                    gameSystem.Board.PpuAddressUpdate(0x2000);
-                    break;
-
-                case 2:
-                    gameSystem.Board.PpuAddressUpdate(0x23c0);
-                    break;
-
-                case 4:
-                    gameSystem.Board.PpuAddressUpdate(spr.Address);
-                    break;
-
-                case 6:
-                    gameSystem.Board.PpuAddressUpdate(spr.Address);
-                    break;
+                case 0: AddressUpdate(0x2000); break;
+                case 2: AddressUpdate(0x23c0); break;
+                case 4: AddressUpdate(spr.Address); break;
+                case 6: AddressUpdate(spr.Address); break;
                 }
             }
             else if (hclock < 336)
             {
                 switch (hclock & 7)
                 {
-                case 0:
-                    PointBgName();
-                    break;
-
-                case 1:
-                    FetchBgName();
-                    break;
-
-                case 2:
-                    PointBgAttr();
-                    break;
-
-                case 3:
-                    FetchBgAttr();
-                    scroll.ClockX();
-                    break;
-
-                case 4:
-                    PointBgBit0();
-                    break;
-
-                case 5:
-                    FetchBgBit0();
-                    break;
-
-                case 6:
-                    PointBgBit1();
-                    break;
-
-                case 7:
-                    FetchBgBit1();
-                    SynthesizeBg();
-                    break;
+                case 0: PointBgName(); break;
+                case 1: FetchBgName(); break;
+                case 2: PointBgAttr(); break;
+                case 3: FetchBgAttr(); scroll.ClockX(); break;
+                case 4: PointBgBit0(); break;
+                case 5: FetchBgBit0(); break;
+                case 6: PointBgBit1(); break;
+                case 7: FetchBgBit1(); SynthesizeBg(); break;
                 }
             }
             else if (hclock < 340)
             {
                 switch (hclock)
                 {
-                case 336:
-                    gameSystem.Board.PpuAddressUpdate(0x2000);
-                    break;
-
-                case 338:
-                    gameSystem.Board.PpuAddressUpdate(0x2000);
-                    break;
+                case 336: AddressUpdate(0x2000); break;
+                case 338: AddressUpdate(0x2000); break;
                 }
             }
 
@@ -926,7 +888,7 @@ namespace Beta.Famicom.PPU
             }
             if (vclock == 241 && hclock == 2)
             {
-                cpu.Nmi(vblFlag & nmiEnabled);
+                VBL();
             }
 
             if (vclock == 260 && hclock == 340)
@@ -944,7 +906,7 @@ namespace Beta.Famicom.PPU
             }
             if (vclock == 261 && hclock == 2)
             {
-                cpu.Nmi(vblFlag & nmiEnabled);
+                VBL();
             }
 
             hclock++;
@@ -952,8 +914,8 @@ namespace Beta.Famicom.PPU
 
         private void InitializeMemory()
         {
-            bus.Decode("0011 1111 ---- ----").Peek(PeekPalN).Poke(PokePalN);
-            bus.Decode("0011 1111 ---- --00").Peek(PeekPal0).Poke(PokePal0);
+            bus.Map("0011 1111 ---- ----", reader: ReadPalN, writer: WritePalN);
+            bus.Map("0011 1111 ---- --00", reader: ReadPal0, writer: WritePal0);
         }
 
         private byte PeekByte(ushort address)
@@ -961,7 +923,7 @@ namespace Beta.Famicom.PPU
             byte data = 0;
 
             address &= 0x3fff;
-            bus.Peek(address, ref data);
+            bus.Read(address, ref data);
 
             return data;
         }
@@ -969,24 +931,24 @@ namespace Beta.Famicom.PPU
         private void PokeByte(ushort address, byte data)
         {
             address &= 0x3fff;
-            bus.Poke(address, ref data);
+            bus.Write(address, ref data);
         }
 
         public void Initialize()
         {
             vclock = 261;
-            raster = gameSystem.Video.GetRaster(0);
+            raster = video.GetRaster(0);
 
             byte zero = 0;
 
-            Poke2000(0x2000, ref zero);
-            Poke2001(0x2001, ref zero);
-            //   Poke2002(0x2002, ref zero); // $2002: Unimplemented/Invalid
-            Poke2003(0x2003, ref zero);
-            //   Poke2004(0x2004, ref zero); // $2004: ORAM Data Port (Writing will modify public registers in an undesired manner)
-            Poke2005(0x2005, ref zero);
-            Poke2006(0x2006, ref zero);
-            //   Poke2007(0x2007, ref zero); // $2007: VRAM Data Port (Writing will modify public registers in an undesired manner)
+            Write2000(0x2000, ref zero);
+            Write2001(0x2001, ref zero);
+            //  $2002: Unimplemented/Invalid
+            Write2003(0x2003, ref zero);
+            //  $2004: ORAM Data Port (Writing will modify public registers in an undesired manner)
+            Write2005(0x2005, ref zero);
+            Write2006(0x2006, ref zero);
+            //  $2007: VRAM Data Port (Writing will modify public registers in an undesired manner)
 
             InitializeMemory();
             InitializeSprite();
@@ -1026,31 +988,33 @@ namespace Beta.Famicom.PPU
                 {
                     vclock = 0;
 
-                    Pad.AutofireState = !Pad.AutofireState;
+                    frameProducer.Produce(new FrameSignal());
 
-                    cpu.Joypad1.Update();
-                    cpu.Joypad2.Update();
-
-                    gameSystem.Video.Render();
+                    video.Render();
                 }
 
                 if (vclock < 240)
                 {
-                    raster = gameSystem.Video.GetRaster(vclock);
+                    raster = video.GetRaster(vclock);
                 }
             }
         }
 
         public void MapTo(IBus bus)
         {
-            bus.Decode("001- ---- ---- -000").Peek(Peek____).Poke(Poke2000);
-            bus.Decode("001- ---- ---- -001").Peek(Peek____).Poke(Poke2001);
-            bus.Decode("001- ---- ---- -010").Peek(Peek2002).Poke(Poke____);
-            bus.Decode("001- ---- ---- -011").Peek(Peek____).Poke(Poke2003);
-            bus.Decode("001- ---- ---- -100").Peek(Peek2004).Poke(Poke2004);
-            bus.Decode("001- ---- ---- -101").Peek(Peek____).Poke(Poke2005);
-            bus.Decode("001- ---- ---- -110").Peek(Peek____).Poke(Poke2006);
-            bus.Decode("001- ---- ---- -111").Peek(Peek2007).Poke(Poke2007);
+            bus.Map("001- ---- ---- -000", writer: Write2000);
+            bus.Map("001- ---- ---- -001", writer: Write2001);
+            bus.Map("001- ---- ---- -010", reader: Read2002);
+            bus.Map("001- ---- ---- -011", writer: Write2003);
+            bus.Map("001- ---- ---- -100", reader: Read2004, writer: Write2004);
+            bus.Map("001- ---- ---- -101", writer: Write2005);
+            bus.Map("001- ---- ---- -110", writer: Write2006);
+            bus.Map("001- ---- ---- -111", reader: Read2007, writer: Write2007);
+        }
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles);
         }
 
         private class Fetch

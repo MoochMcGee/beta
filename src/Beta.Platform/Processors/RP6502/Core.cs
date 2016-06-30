@@ -885,7 +885,7 @@ namespace Beta.Platform.Processors.RP6502
 
             Dispatch();
 
-            bus.Peek(address, ref open);
+            bus.Read(address, ref open);
 
             return open;
         }
@@ -903,7 +903,7 @@ namespace Beta.Platform.Processors.RP6502
             Dispatch();
 
             open = data;
-            bus.Poke(address, ref open);
+            bus.Write(address, ref open);
         }
     }
 }

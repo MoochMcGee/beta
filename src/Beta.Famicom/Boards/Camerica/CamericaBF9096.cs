@@ -42,8 +42,8 @@ namespace Beta.Famicom.Boards.Camerica
         {
             base.MapToCpu(bus);
 
-            bus.Decode("10-- ---- ---- ----").Poke(Poke8000);
-            bus.Decode("11-- ---- ---- ----").Poke(PokeC000);
+            bus.Map("10-- ---- ---- ----", writer: Poke8000);
+            bus.Map("11-- ---- ---- ----", writer: PokeC000);
         }
     }
 }

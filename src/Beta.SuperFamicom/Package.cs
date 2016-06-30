@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Beta.Platform;
 using Beta.Platform.Audio;
 using Beta.Platform.Core;

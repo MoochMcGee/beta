@@ -75,10 +75,10 @@ namespace Beta.Famicom.Boards.Unlicensed
         {
             base.MapToCpu(bus);
 
-            bus.Decode("0100 001- ---- ----").Peek(PeekRam4).Poke(PokeRam4); // $4200-$43ff
-            bus.Decode("0100 01-- ---- ----").Peek(PeekRam4).Poke(PokeRam4); // $4400-$47ff
-            bus.Decode("0100 1--- ---- ----").Peek(PeekRam4).Poke(PokeRam4); // $4800-$4fff
-            bus.Decode("0101 ---- ---- ----").Peek(PeekRam4).Poke(PokeRam4); // $5000-5ffff
+            bus.Map("0100 001- ---- ----", reader: PeekRam4, writer: PokeRam4); // $4200-$43ff
+            bus.Map("0100 01-- ---- ----", reader: PeekRam4, writer: PokeRam4); // $4400-$47ff
+            bus.Map("0100 1--- ---- ----", reader: PeekRam4, writer: PokeRam4); // $4800-$4fff
+            bus.Map("0101 ---- ---- ----", reader: PeekRam4, writer: PokeRam4); // $5000-5ffff
         }
 
         public override int VRamA10(ushort address)

@@ -42,8 +42,6 @@ namespace Beta.Platform.Input
             return (state.Gamepad.Buttons & buttons[index]) != 0;
         }
 
-        public virtual void Initialize() { }
-
         public virtual void Update()
         {
             if (controller.IsConnected)

@@ -68,7 +68,7 @@ namespace Beta.GameBoy
             }
         }
 
-        public override void Initialize()
+        public void Initialize()
         {
             gameSystem.Hook(0xff00, Peek, Poke);
         }

@@ -1,12 +1,12 @@
 ﻿using Beta.Platform.Input;
 
-namespace Beta.Famicom.PAD
+namespace Beta.Famicom.Input
 {
-    public abstract class Pad : InputBackend
+    public abstract class Joypad : InputBackend
     {
         public static bool AutofireState;
 
-        protected Pad(int index, int buttons)
+        protected Joypad(int index, int buttons)
             : base(index, buttons)
         {
         }
@@ -14,7 +14,5 @@ namespace Beta.Famicom.PAD
         public abstract byte GetData(int strobe);
 
         public abstract void SetData();
-
-        public override void Initialize() { }
     }
 }

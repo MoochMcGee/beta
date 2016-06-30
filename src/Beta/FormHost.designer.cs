@@ -33,7 +33,6 @@
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Name = "FormHost";
             this.Text = "FormHost";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormHost_FormClosing);
             this.Load += new System.EventHandler(this.FormHost_Load);
             this.ResumeLayout(false);
 

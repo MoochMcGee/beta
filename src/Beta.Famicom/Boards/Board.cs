@@ -1,12 +1,16 @@
 ﻿using System.Linq;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
-using Beta.Famicom.Memory;
 using Beta.Famicom.Formats;
+using Beta.Famicom.Memory;
+using Beta.Famicom.Messaging;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
 {
-    public abstract class Board : IBoard
+    public abstract class Board
+        : IConsumer<ClockSignal>
+        , IConsumer<PpuAddressSignal>
     {
         private Database.Chip[] chips;
         private IMemory[] prgChips;
@@ -30,7 +34,7 @@ namespace Beta.Famicom.Boards
             ramChips = image.WRAM;
 
             Type = image.Mapper;
-            
+
             h = image.H;
             v = image.V;
 
@@ -104,27 +108,15 @@ namespace Beta.Famicom.Boards
             Ram?.Poke(address, ref data);
         }
 
-        public virtual void Clock()
-        {
-        }
-
-        public virtual void CpuAddressUpdate(ushort address)
-        {
-        }
-
-        public virtual void PpuAddressUpdate(ushort address)
-        {
-        }
-
         public virtual void MapToCpu(IBus bus)
         {
-            bus.Decode("011- ---- ---- ----").Peek(PeekRam).Poke(PokeRam);
-            bus.Decode("1--- ---- ---- ----").Peek(PeekPrg).Poke(PokePrg);
+            bus.Map("011- ---- ---- ----", PeekRam, PokeRam);
+            bus.Map("1--- ---- ---- ----", PeekPrg, PokePrg);
         }
 
         public virtual void MapToPpu(IBus bus)
         {
-            bus.Decode("000- ---- ---- ----").Peek(PeekChr).Poke(PokeChr);
+            bus.Map("000- ---- ---- ----", PeekChr, PokeChr);
         }
 
         public virtual int VRamA10(ushort address)
@@ -137,8 +129,8 @@ namespace Beta.Famicom.Boards
 
         public virtual void Initialize() { }
 
-        public virtual void ResetSoft() { }
+        public virtual void Consume(ClockSignal e) { }
 
-        public virtual void ResetHard() { }
+        public virtual void Consume(PpuAddressSignal e) { }
     }
 }

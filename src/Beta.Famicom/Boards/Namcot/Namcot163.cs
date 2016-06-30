@@ -3,6 +3,7 @@ using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Memory;
+using Beta.Famicom.Messaging;
 
 namespace Beta.Famicom.Boards.Namcot
 {
@@ -233,7 +234,7 @@ namespace Beta.Famicom.Boards.Namcot
             return (address & 0x1fff) | prgPages[(address >> 13) & 3];
         }
 
-        public override void Clock()
+        public override void Consume(ClockSignal e)
         {
             if (irqEnabled)
             {
@@ -271,39 +272,39 @@ namespace Beta.Famicom.Boards.Namcot
         {
             base.MapToCpu(bus);
 
-            bus.Decode("0100 1--- ---- ----").Peek(Peek4800).Poke(Poke4800);
-            bus.Decode("0101 0--- ---- ----").Peek(Peek5000).Poke(Poke5000);
-            bus.Decode("0101 1--- ---- ----").Peek(Peek5800).Poke(Poke5800);
+            bus.Map("0100 1--- ---- ----", reader: Peek4800, writer: Poke4800);
+            bus.Map("0101 0--- ---- ----", reader: Peek5000, writer: Poke5000);
+            bus.Map("0101 1--- ---- ----", reader: Peek5800, writer: Poke5800);
             // $6000
             // $6800
             // $7000
             // $7800
-            bus.Decode("1000 0--- ---- ----").Poke(Poke8000);
-            bus.Decode("1000 1--- ---- ----").Poke(Poke8800);
-            bus.Decode("1001 0--- ---- ----").Poke(Poke9000);
-            bus.Decode("1001 1--- ---- ----").Poke(Poke9800);
-            bus.Decode("1010 0--- ---- ----").Poke(PokeA000);
-            bus.Decode("1010 1--- ---- ----").Poke(PokeA800);
-            bus.Decode("1011 0--- ---- ----").Poke(PokeB000);
-            bus.Decode("1011 1--- ---- ----").Poke(PokeB800);
-            bus.Decode("1100 0--- ---- ----").Poke(PokeC000);
-            bus.Decode("1100 1--- ---- ----").Poke(PokeC800);
-            bus.Decode("1101 0--- ---- ----").Poke(PokeD000);
-            bus.Decode("1101 1--- ---- ----").Poke(PokeD800);
-            bus.Decode("1110 0--- ---- ----").Poke(PokeE000);
-            bus.Decode("1110 1--- ---- ----").Poke(PokeE800); //  $E800
-            bus.Decode("1111 0--- ---- ----").Poke(PokeF000);
-            bus.Decode("1111 1--- ---- ----").Poke(PokeF800);
+            bus.Map("1000 0--- ---- ----", writer: Poke8000);
+            bus.Map("1000 1--- ---- ----", writer: Poke8800);
+            bus.Map("1001 0--- ---- ----", writer: Poke9000);
+            bus.Map("1001 1--- ---- ----", writer: Poke9800);
+            bus.Map("1010 0--- ---- ----", writer: PokeA000);
+            bus.Map("1010 1--- ---- ----", writer: PokeA800);
+            bus.Map("1011 0--- ---- ----", writer: PokeB000);
+            bus.Map("1011 1--- ---- ----", writer: PokeB800);
+            bus.Map("1100 0--- ---- ----", writer: PokeC000);
+            bus.Map("1100 1--- ---- ----", writer: PokeC800);
+            bus.Map("1101 0--- ---- ----", writer: PokeD000);
+            bus.Map("1101 1--- ---- ----", writer: PokeD800);
+            bus.Map("1110 0--- ---- ----", writer: PokeE000);
+            bus.Map("1110 1--- ---- ----", writer: PokeE800); //  $E800
+            bus.Map("1111 0--- ---- ----", writer: PokeF000);
+            bus.Map("1111 1--- ---- ----", writer: PokeF800);
         }
 
         public override void MapToPpu(IBus bus)
         {
             base.MapToPpu(bus);
 
-            bus.Decode("001- 00-- ---- ----").Peek(PeekNmtA).Poke(PokeNmtA);
-            bus.Decode("001- 01-- ---- ----").Peek(PeekNmtB).Poke(PokeNmtB);
-            bus.Decode("001- 10-- ---- ----").Peek(PeekNmtC).Poke(PokeNmtC);
-            bus.Decode("001- 11-- ---- ----").Peek(PeekNmtD).Poke(PokeNmtD);
+            bus.Map("001- 00-- ---- ----", reader: PeekNmtA, writer: PokeNmtA);
+            bus.Map("001- 01-- ---- ----", reader: PeekNmtB, writer: PokeNmtB);
+            bus.Map("001- 10-- ---- ----", reader: PeekNmtC, writer: PokeNmtC);
+            bus.Map("001- 11-- ---- ----", reader: PeekNmtD, writer: PokeNmtD);
         }
 
         private class Sound : R2A03.ChannelExt

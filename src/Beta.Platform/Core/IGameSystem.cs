@@ -1,7 +1,4 @@
-﻿using Beta.Platform.Audio;
-using Beta.Platform.Video;
-
-namespace Beta.Platform.Core
+﻿namespace Beta.Platform.Core
 {
     public delegate byte Peek(uint address);
 
@@ -9,14 +6,6 @@ namespace Beta.Platform.Core
 
     public interface IGameSystem
     {
-        IAudioBackend Audio { get; set; }
-
-        IVideoBackend Video { get; set; }
-
-        void Emulate();
-
         void Initialize();
-
-        void LoadGame(byte[] binary);
     }
 }
