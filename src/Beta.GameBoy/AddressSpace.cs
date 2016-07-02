@@ -1,4 +1,6 @@
-﻿namespace Beta.GameBoy
+﻿using Beta.GameBoy.Memory;
+
+namespace Beta.GameBoy
 {
     public delegate byte Reader(ushort address);
 
@@ -9,13 +11,18 @@
         private readonly Reader[] readers = new Reader[65536];
         private readonly Writer[] writers = new Writer[65536];
 
-        public AddressSpace()
+        public AddressSpace(MMIO mmio)
         {
             for (int i = 0; i < 65536; i++)
             {
                 readers[i] = NullReader;
                 writers[i] = NullWriter;
             }
+
+            Map(0xff00, mmio.Read, mmio.Write);
+            Map(0xff04, 0xff07, mmio.Read, mmio.Write);
+            Map(0xff0f, mmio.Read, mmio.Write);
+            Map(0xffff, mmio.Read, mmio.Write);
         }
 
         private static byte NullReader(ushort address)

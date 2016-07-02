@@ -35,9 +35,9 @@ namespace Beta.GameBoy
 
             broker.Subscribe(result.Apu);
             broker.Subscribe(result.Cpu);
+            broker.Subscribe(result.Pad);
             broker.Subscribe(result.Ppu);
             broker.Subscribe(result.Tma);
-            broker.Subscribe(result);
 
             var addressSpace = container.GetInstance<IAddressSpace>();
             var bios = container.GetInstance<Bios>();

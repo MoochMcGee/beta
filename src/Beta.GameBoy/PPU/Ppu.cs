@@ -3,7 +3,6 @@ using Beta.GameBoy.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
-using Beta.Platform.Processors;
 using Beta.Platform.Video;
 
 namespace Beta.GameBoy.PPU

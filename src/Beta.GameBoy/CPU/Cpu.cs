@@ -1,4 +1,5 @@
-﻿using Beta.GameBoy.Messaging;
+﻿using Beta.GameBoy.Memory;
+using Beta.GameBoy.Messaging;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors;
 
@@ -12,17 +13,14 @@ namespace Beta.GameBoy.CPU
         public const byte INT_SERIAL = (1 << 3);
         public const byte INT_JOYPAD = (1 << 4);
 
-        private IAddressSpace addressSpace;
-        private byte ef;
-        private byte rf;
+        private readonly IAddressSpace addressSpace;
+        private readonly Registers regs;
 
-        public Cpu(IAddressSpace addressSpace, IProducer<ClockSignal> clockProducer)
+        public Cpu(Registers regs, IAddressSpace addressSpace, IProducer<ClockSignal> clockProducer)
             : base(clockProducer)
         {
+            this.regs = regs;
             this.addressSpace = addressSpace;
-
-            addressSpace.Map(0xff0f, a => rf, (a, data) => rf = data);
-            addressSpace.Map(0xffff, a => ef, (a, data) => ef = data);
 
             Single = 4;
         }
@@ -56,24 +54,24 @@ namespace Beta.GameBoy.CPU
         {
             base.Update();
 
-            var flags = (rf & ef) & -interrupt.ff1;
+            var flags = (regs.cpu.irf & regs.cpu.ief) & -interrupt.ff1;
             if (flags != 0)
             {
                 interrupt.ff1 = 0;
 
-                if ((flags & 0x01) != 0) { rf ^= 0x01; Rst(0x40); return; }
-                if ((flags & 0x02) != 0) { rf ^= 0x02; Rst(0x48); return; }
-                if ((flags & 0x04) != 0) { rf ^= 0x04; Rst(0x50); return; }
-                if ((flags & 0x08) != 0) { rf ^= 0x08; Rst(0x58); return; }
-                if ((flags & 0x10) != 0) { rf ^= 0x10; Rst(0x60); return; }
+                if ((flags & 0x01) != 0) { regs.cpu.irf ^= 0x01; Rst(0x40); return; }
+                if ((flags & 0x02) != 0) { regs.cpu.irf ^= 0x02; Rst(0x48); return; }
+                if ((flags & 0x04) != 0) { regs.cpu.irf ^= 0x04; Rst(0x50); return; }
+                if ((flags & 0x08) != 0) { regs.cpu.irf ^= 0x08; Rst(0x58); return; }
+                if ((flags & 0x10) != 0) { regs.cpu.irf ^= 0x10; Rst(0x60); return; }
             }
         }
 
         public void Consume(InterruptSignal e)
         {
-            rf |= e.Flag;
+            regs.cpu.irf |= e.Flag;
 
-            if ((ef & e.Flag) != 0)
+            if ((regs.cpu.ief & e.Flag) != 0)
             {
                 Halt = false;
 

@@ -1,14 +1,12 @@
 ﻿using Beta.GameBoy.APU;
 using Beta.GameBoy.Boards;
 using Beta.GameBoy.CPU;
-using Beta.GameBoy.Messaging;
 using Beta.GameBoy.PPU;
 using Beta.Platform.Core;
-using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public partial class Driver : IDriver, IConsumer<FrameSignal>
+    public partial class Driver : IDriver
     {
         public Board Board;
         public Pad Pad;
@@ -23,13 +21,6 @@ namespace Beta.GameBoy
             {
                 Cpu.Update();
             }
-        }
-
-        public void Consume(FrameSignal e)
-        {
-            Pad.AutofireState = !Pad.AutofireState;
-
-            Pad.Update();
         }
     }
 }
