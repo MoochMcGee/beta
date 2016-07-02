@@ -14,7 +14,7 @@ namespace Beta.GameBoyAdvance
             1U, ~0U, 0U, 1U
         };
 
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private ushort interruptType;
 
         private Register16 controlRegister;
@@ -34,7 +34,7 @@ namespace Beta.GameBoyAdvance
         public bool Enabled { get { return (controlRegister.w & 0x8000u) != 0; } }
         public uint Type { get { return (controlRegister.w & 0x3000u); } }
 
-        public Dma(GameSystem gameSystem, ushort interruptType)
+        public Dma(Driver gameSystem, ushort interruptType)
         {
             this.gameSystem = gameSystem;
             this.interruptType = interruptType;

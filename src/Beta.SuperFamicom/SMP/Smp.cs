@@ -50,7 +50,7 @@ namespace Beta.SuperFamicom.SMP
         private int timerCycles1;
         private int timerCycles2;
 
-        public Smp(GameSystem gameSystem)
+        public Smp(Driver gameSystem)
         {
             Single = 1;
 

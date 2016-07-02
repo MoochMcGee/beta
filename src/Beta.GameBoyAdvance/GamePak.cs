@@ -34,7 +34,7 @@ namespace Beta.GameBoyAdvance
         private int[] romAccess1 = new int[3];
         private int[] romAccess2 = new int[3];
 
-        public GamePak(GameSystem gameSystem, byte[] binary)
+        public GamePak(Driver gameSystem, byte[] binary)
         {
             cpu = gameSystem.Cpu;
             this.binary = binary;

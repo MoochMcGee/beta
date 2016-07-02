@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Beta\bin\Debug\systems\sfc.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Debug\drivers\sfc.sys\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Beta\bin\Release\systems\sfc.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Release\drivers\sfc.sys\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -54,7 +54,7 @@
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="CPU\Dma.cs" />
     <Compile Include="CPU\DmaChannel.cs" />
-    <Compile Include="GameSystem.cs" />
+    <Compile Include="Driver.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="PAD\Pad.cs" />
     <Compile Include="PowerButton.cs" />

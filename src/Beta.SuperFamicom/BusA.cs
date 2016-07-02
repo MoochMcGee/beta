@@ -11,7 +11,7 @@ namespace Beta.SuperFamicom
         private const int SpeedNorm = 8;
         private const int SpeedFast = 6;
 
-        private readonly GameSystem gameSystem;
+        private readonly Driver gameSystem;
         private readonly byte[] cart;
         private readonly byte[] wram;
 
@@ -40,7 +40,7 @@ namespace Beta.SuperFamicom
         private byte wrdivb;
         private ushort rddiv;
 
-        public BusA(GameSystem gameSystem, byte[] cart)
+        public BusA(Driver gameSystem, byte[] cart)
         {
             this.gameSystem = gameSystem;
             this.cart = cart;

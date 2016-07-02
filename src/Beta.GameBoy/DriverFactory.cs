@@ -9,22 +9,22 @@ using SimpleInjector;
 
 namespace Beta.GameBoy
 {
-    public sealed class GameSystemFactory : IGameSystemFactory
+    public sealed class DriverFactory : IDriverFactory
     {
         private readonly Container container;
         private readonly IBoardFactory boardFactory;
         private readonly ISubscriptionBroker broker;
 
-        public GameSystemFactory(Container container, IBoardFactory boardFactory, ISubscriptionBroker broker)
+        public DriverFactory(Container container, IBoardFactory boardFactory, ISubscriptionBroker broker)
         {
             this.container = container;
             this.boardFactory = boardFactory;
             this.broker = broker;
         }
 
-        public IGameSystem Create(byte[] binary)
+        public IDriver Create(byte[] binary)
         {
-            var result = new GameSystem();
+            var result = new Driver();
 
             result.Board = boardFactory.Create(binary);
             result.Apu = container.GetInstance<Apu>();

@@ -8,7 +8,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public partial class GameSystem : IGameSystem, IConsumer<FrameSignal>
+    public partial class Driver : IDriver, IConsumer<FrameSignal>
     {
         public Board Board;
         public Pad Pad;

@@ -9,14 +9,14 @@ using SimpleInjector;
 
 namespace Beta.Famicom
 {
-    public sealed class GameSystemFactory : IGameSystemFactory
+    public sealed class DriverFactory : IDriverFactory
     {
         private readonly Container container;
         private readonly IBoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
         private readonly ISubscriptionBroker broker;
 
-        public GameSystemFactory(
+        public DriverFactory(
             Container container,
             IBoardFactory boardFactory,
             IJoypadFactory joypadFactory,
@@ -28,7 +28,7 @@ namespace Beta.Famicom
             this.broker = broker;
         }
 
-        public IGameSystem Create(byte[] binary)
+        public IDriver Create(byte[] binary)
         {
             var cpu = container.GetInstance<R2A03>();
             var cpuBus = container.GetInstance<R2A03Bus>();
@@ -45,7 +45,7 @@ namespace Beta.Famicom
             board.MapToCpu(cpuBus);
             board.MapToPpu(ppuBus);
 
-            var result = new GameSystem(cpu, ppu, board);
+            var result = new Driver(cpu, ppu, board);
 
             broker.Subscribe<PpuAddressSignal>(board);
             broker.Subscribe<ClockSignal>(board);

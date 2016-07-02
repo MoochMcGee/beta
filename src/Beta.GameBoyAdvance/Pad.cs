@@ -8,13 +8,13 @@ namespace Beta.GameBoyAdvance
     {
         public static bool AutofireState;
 
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Cpu cpu;
 
         private Register16 data;
         private Register16 mask;
 
-        public Pad(GameSystem gameSystem)
+        public Pad(Driver gameSystem)
             : base(0, 10)
         {
             this.gameSystem = gameSystem;

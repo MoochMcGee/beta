@@ -29,7 +29,7 @@ namespace Beta.GameBoyAdvance.APU
                 get { return active; }
             }
 
-            public ChannelSquare1(GameSystem gameSystem, Timing timing)
+            public ChannelSquare1(Driver gameSystem, Timing timing)
                 : base(gameSystem, timing)
             {
                 this.timing.Cycles = timing.Period = (2048 - frequency) * 16 * timing.Single;

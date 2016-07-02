@@ -12,7 +12,7 @@ namespace Beta
         {
             var container = new Container();
             container.RegisterSingleton<IFileSelector, FileSelector>();
-            container.RegisterSingleton<IPackageLoader, PackageLoader>();
+            container.RegisterSingleton<IDriverDefinitionLoader, DriverDefinitionLoader>();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

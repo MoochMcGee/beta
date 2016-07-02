@@ -4,7 +4,7 @@
 
     public delegate void Writer(uint address, byte data);
 
-    public interface IGameSystem
+    public interface IDriver
     {
         void Main();
     }

@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Beta\bin\Debug\systems\gba.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Debug\drivers\gba.sys\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Beta\bin\Release\systems\gba.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Release\drivers\gba.sys\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -63,8 +63,8 @@
     <Compile Include="Dma.cs" />
     <Compile Include="DmaController.cs" />
     <Compile Include="GamePak.cs" />
-    <Compile Include="GameSystem.cs" />
-    <Compile Include="GameSystem.Memory.cs" />
+    <Compile Include="Driver.cs" />
+    <Compile Include="Driver.Memory.cs" />
     <Compile Include="Memory\BIOS.cs" />
     <Compile Include="Memory\ERAM.cs" />
     <Compile Include="Memory\IRAM.cs" />

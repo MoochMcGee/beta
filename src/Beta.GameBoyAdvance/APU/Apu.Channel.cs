@@ -6,7 +6,7 @@ namespace Beta.GameBoyAdvance.APU
     {
         public abstract class Channel
         {
-            protected GameSystem gameSystem;
+            protected Driver gameSystem;
             protected Duration duration = new Duration();
             protected Envelope envelope = new Envelope();
             protected byte[] registers = new byte[8];
@@ -24,7 +24,7 @@ namespace Beta.GameBoyAdvance.APU
                 set { active = value; }
             }
 
-            protected Channel(GameSystem gameSystem, Timing timing)
+            protected Channel(Driver gameSystem, Timing timing)
             {
                 this.gameSystem = gameSystem;
                 this.timing = timing;

@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Beta\bin\Debug\systems\gb.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Debug\drivers\gb.sys\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Beta\bin\Release\systems\gb.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Release\drivers\gb.sys\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -68,8 +68,8 @@
     <Compile Include="Boards\NintendoMBC3.cs" />
     <Compile Include="Boards\NintendoMBC5.cs" />
     <Compile Include="CPU\Cpu.cs" />
-    <Compile Include="GameSystem.cs" />
-    <Compile Include="GameSystemFactory.cs" />
+    <Compile Include="Driver.cs" />
+    <Compile Include="DriverFactory.cs" />
     <Compile Include="IAddressSpace.cs" />
     <Compile Include="Memory\Bios.cs" />
     <Compile Include="Memory\Hram.cs" />

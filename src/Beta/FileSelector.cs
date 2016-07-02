@@ -8,12 +8,12 @@ namespace Beta
 {
     public sealed class FileSelector : IFileSelector
     {
-        public FileInfo Display(GameSystemDefinition[] packages)
+        public FileInfo Display(DriverDefinition[] drivers)
         {
             using (var openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Title = "Open file...";
-                openFileDialog.Filter = CreateFilter(packages);
+                openFileDialog.Filter = CreateFilter(drivers);
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -24,31 +24,31 @@ namespace Beta
             return null;
         }
 
-        private static string CreateAll(GameSystemDefinition[] packages)
+        private static string CreateAll(DriverDefinition[] drivers)
         {
             var linq =
-                from package in packages
-                from extension in package.File.Extensions
+                from driver in drivers
+                from extension in driver.Configuration.Extensions
                 select "*" + extension;
 
             return $"All Files|{string.Join(";", linq)}";
         }
 
-        private static string CreateFilter(GameSystemDefinition e)
+        private static string CreateFilter(DriverDefinition e)
         {
             var linq =
-                from extension in e.File.Extensions
+                from extension in e.Configuration.Extensions
                 select "*" + extension;
 
-            return $"{e.File.Name}|{string.Join(";", linq)}";
+            return $"{e.Configuration.Name}|{string.Join(";", linq)}";
         }
 
-        private static string CreateFilter(GameSystemDefinition[] packages)
+        private static string CreateFilter(DriverDefinition[] drivers)
         {
-            var all = CreateAll(packages);
+            var all = CreateAll(drivers);
             var filters =
-                from package in packages
-                select CreateFilter(package);
+                from driver in drivers
+                select CreateFilter(driver);
 
             var list = new List<string>();
             list.Add(all);

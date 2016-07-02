@@ -8,7 +8,7 @@ using Beta.SuperFamicom.SMP;
 
 namespace Beta.SuperFamicom
 {
-    public class GameSystem : IGameSystem
+    public class Driver : IDriver
     {
         public BusA Bus;
         public Dma DMA;
@@ -22,7 +22,7 @@ namespace Beta.SuperFamicom
 
         public IVideoBackend Video { get; set; }
 
-        public GameSystem()
+        public Driver()
         {
             Ppu = new Ppu(this);
             Smp = new Smp(this);

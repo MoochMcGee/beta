@@ -18,7 +18,7 @@ namespace Beta.SuperFamicom.PPU
             new[] { new[] { 5,  8 }, new[] { 4,  7 }, new[] { 1, 10 }, new[] { 0, 0 }, new[] { 2, 3, 6,  9 } }  // mode 1 priority
         };
 
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Register32 hLatch;
         private Register32 vLatch;
         private Register32 product;
@@ -65,7 +65,7 @@ namespace Beta.SuperFamicom.PPU
             }
         }
 
-        public Ppu(GameSystem gameSystem)
+        public Ppu(Driver gameSystem)
         {
             Single = 4;
 

@@ -8,7 +8,7 @@ namespace Beta.GameBoy.Memory
 
         public Bios()
         {
-            bios = File.ReadAllBytes("systems/gb.sys/boot.rom");
+            bios = File.ReadAllBytes("drivers/gb.sys/boot.rom");
         }
 
         public byte Read(ushort address)

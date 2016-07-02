@@ -12,7 +12,7 @@ namespace Beta
     {
         private readonly ConfigurationFile config;
 
-        private IGameSystem gameSystem;
+        private IDriver gameSystem;
         private Thread gameThread;
 
         public FormHost(ConfigurationFile config)
@@ -53,7 +53,7 @@ namespace Beta
                 scale * config.Video.Height);
         }
 
-        public void LoadGame(IGameSystemFactory factory, string fileName)
+        public void LoadGame(IDriverFactory factory, string fileName)
         {
             var binary = File.ReadAllBytes(fileName);
 

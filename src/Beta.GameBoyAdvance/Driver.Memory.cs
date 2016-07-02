@@ -3,7 +3,7 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.GameBoyAdvance
 {
-    public partial class GameSystem
+    public partial class Driver
     {
         private static int[][] timingTable = new[]
         {

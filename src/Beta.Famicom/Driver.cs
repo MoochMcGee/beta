@@ -9,8 +9,8 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom
 {
-    public sealed class GameSystem
-        : IGameSystem
+    public sealed class Driver
+        : IDriver
         , IConsumer<FrameSignal>
     {
         private readonly Board board;
@@ -19,7 +19,7 @@ namespace Beta.Famicom
         private readonly byte[] vram = new byte[2048];
         private readonly byte[] wram = new byte[2048];
 
-        public GameSystem(R2A03 r2a03, R2C02 r2c02, Board board)
+        public Driver(R2A03 r2a03, R2C02 r2c02, Board board)
         {
             this.r2a03 = r2a03;
             this.r2c02 = r2c02;

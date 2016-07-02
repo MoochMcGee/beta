@@ -9,7 +9,7 @@ namespace Beta.GameBoyAdvance.PPU
             public static int MosaicH;
             public static int MosaicV;
 
-            private GameSystem gameSystem;
+            private Driver gameSystem;
             private Register16 controlRegister;
             private Register16 offsetXRegister;
             private Register16 offsetYRegister;
@@ -40,7 +40,7 @@ namespace Beta.GameBoyAdvance.PPU
             public short Dy { get { return (short)pcRegister.w; } }
             public short Dmy { get { return (short)pdRegister.w; } }
 
-            public Bg(GameSystem gameSystem)
+            public Bg(Driver gameSystem)
             {
                 this.gameSystem = gameSystem;
             }

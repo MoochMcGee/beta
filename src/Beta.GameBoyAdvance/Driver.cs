@@ -10,7 +10,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance
 {
-    public partial class GameSystem : IGameSystem
+    public partial class Driver : IDriver
     {
         private byte[] ioMemory = new byte[1024];
 
@@ -25,7 +25,7 @@ namespace Beta.GameBoyAdvance
 
         public IVideoBackend Video { get; set; }
 
-        public GameSystem()
+        public Driver()
         {
             Cpu = new Cpu(this);
             Ppu = new Ppu(this);

@@ -86,8 +86,8 @@
     <Compile Include="Configuration\InputConfiguration.cs" />
     <Compile Include="Configuration\VideoConfiguration.cs" />
     <Compile Include="Core\DefaultResetButton.cs" />
-    <Compile Include="Core\IGameSystem.cs" />
-    <Compile Include="Core\IGameSystemFactory.cs" />
+    <Compile Include="Core\IDriver.cs" />
+    <Compile Include="Core\IDriverFactory.cs" />
     <Compile Include="Core\IPowerButton.cs" />
     <Compile Include="Core\IProcessor.cs" />
     <Compile Include="Core\IResetButton.cs" />
