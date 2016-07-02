@@ -1,4 +1,5 @@
-﻿using Beta.GameBoy.Messaging;
+﻿using Beta.GameBoy.CPU;
+using Beta.GameBoy.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
@@ -229,7 +230,7 @@ namespace Beta.GameBoy.PPU
 
             if (vclock == vcheck && (control & V_CHECK_INT) != 0)
             {
-                Interrupt(LR35902.Interrupt.STATUS);
+                Interrupt(Cpu.INT_STATUS);
             }
         }
 
@@ -260,7 +261,7 @@ namespace Beta.GameBoy.PPU
 
             if (vclock == vcheck && (control & V_CHECK_INT) != 0)
             {
-                Interrupt(LR35902.Interrupt.STATUS);
+                Interrupt(Cpu.INT_STATUS);
             }
         }
 
@@ -331,21 +332,21 @@ namespace Beta.GameBoy.PPU
             case H_BLANK_SEQ:
                 if ((control & H_BLANK_INT) != 0)
                 {
-                    Interrupt(LR35902.Interrupt.STATUS);
+                    Interrupt(Cpu.INT_STATUS);
                 }
                 break;
 
             case V_BLANK_SEQ:
                 if ((control & V_BLANK_INT) != 0)
                 {
-                    Interrupt(LR35902.Interrupt.STATUS);
+                    Interrupt(Cpu.INT_STATUS);
                 }
                 break;
 
             case SPRITE_SEQ:
                 if ((control & SPRITE_INT) != 0)
                 {
-                    Interrupt(LR35902.Interrupt.STATUS);
+                    Interrupt(Cpu.INT_STATUS);
                 }
                 break;
             }
@@ -573,12 +574,12 @@ namespace Beta.GameBoy.PPU
                 {
                     if (vclock == 144)
                     {
-                        Interrupt(LR35902.Interrupt.V_BLANK);
+                        Interrupt(Cpu.INT_VBLANK);
                     }
 
                     if (vclock == vcheck && (control & V_CHECK_INT) != 0)
                     {
-                        Interrupt(LR35902.Interrupt.STATUS);
+                        Interrupt(Cpu.INT_STATUS);
                     }
                 }
             }

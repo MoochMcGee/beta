@@ -658,12 +658,6 @@ namespace Beta.Platform.Processors
 
         public struct Interrupt
         {
-            public const byte V_BLANK = (1 << 0);
-            public const byte STATUS = (1 << 1);
-            public const byte ELAPSE = (1 << 2);
-            public const byte SERIAL = (1 << 3);
-            public const byte JOYPAD = (1 << 4);
-
             public int ff1;
             public int ff2;
         }

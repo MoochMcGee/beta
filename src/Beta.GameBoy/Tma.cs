@@ -1,49 +1,53 @@
-﻿using Beta.GameBoy.Messaging;
-using Beta.Platform;
+﻿using Beta.GameBoy.CPU;
+using Beta.GameBoy.Memory;
+using Beta.GameBoy.Messaging;
 using Beta.Platform.Messaging;
-using Beta.Platform.Processors;
 
 namespace Beta.GameBoy
 {
     public sealed class Tma : IConsumer<ClockSignal>
     {
-        private static byte[] lut =
+        private static int[] lut = new[]
         {
-            0x01, // (1.048576MHz / 256) =   4.096KHz
-            0x40, // (1.048576MHz /   4) = 262.144KHz
-            0x10, // (1.048576MHz /  16) =  65.536KHz
-            0x04  // (1.048576MHz /  64) =  16.384KHz
+            0x400, // (4,194,304 Hz / 1024) =   4,096 Hz
+            0x010, // (4,194,304 Hz /   16) = 262,144 Hz
+            0x040, // (4,194,304 Hz /   64) =  65,536 Hz
+            0x100  // (4,194,304 Hz /  256) =  16,384 Hz
         };
 
-        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly IProducer<InterruptSignal> ints;
+        private readonly Registers regs;
 
-        private Register16 div;
-        private Register16 tma;
-        private byte cnt;
-        private byte mod;
-
-        public Tma(IAddressSpace addressSpace, IProducer<InterruptSignal> interrupt)
+        public Tma(Registers regs, IProducer<InterruptSignal> ints)
         {
-            this.interrupt = interrupt;
-
-            addressSpace.Map(0xff04, a => div.h, (a, d) => div.h = 0);
-            addressSpace.Map(0xff05, a => tma.h, (a, d) => tma.h = d);
-            addressSpace.Map(0xff06, a => mod, (a, d) => mod = d);
-            addressSpace.Map(0xff07, a => cnt, (a, d) => cnt = d);
+            this.ints = ints;
+            this.regs = regs;
         }
 
         public void Consume(ClockSignal e)
         {
-            div.w += lut[3];
+            regs.tma.counter_prescaler += e.Cycles;
+            regs.tma.divider_prescaler += e.Cycles;
 
-            if ((cnt & 0x4) != 0)
+            if (regs.tma.divider_prescaler >= lut[3])
             {
-                tma.w += lut[cnt & 3];
+                regs.tma.divider_prescaler -= lut[3];
+                regs.tma.divider++;
+            }
 
-                if (tma.w < lut[cnt & 3])
+            if (regs.tma.counter_prescaler >= lut[regs.tma.control & 3])
+            {
+                regs.tma.counter_prescaler -= lut[regs.tma.counter & 3];
+
+                if ((regs.tma.control & 4) != 0)
                 {
-                    tma.h = mod;
-                    interrupt.Produce(new InterruptSignal(LR35902.Interrupt.ELAPSE));
+                    regs.tma.counter++;
+
+                    if (regs.tma.counter == 0)
+                    {
+                        regs.tma.counter = regs.tma.modulus;
+                        ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
+                    }
                 }
             }
         }

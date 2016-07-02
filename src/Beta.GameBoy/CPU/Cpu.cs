@@ -6,6 +6,12 @@ namespace Beta.GameBoy.CPU
 {
     public class Cpu : LR35902, IConsumer<InterruptSignal>
     {
+        public const byte INT_VBLANK = (1 << 0);
+        public const byte INT_STATUS = (1 << 1);
+        public const byte INT_ELAPSE = (1 << 2);
+        public const byte INT_SERIAL = (1 << 3);
+        public const byte INT_JOYPAD = (1 << 4);
+
         private IAddressSpace addressSpace;
         private byte ef;
         private byte rf;
@@ -71,7 +77,7 @@ namespace Beta.GameBoy.CPU
             {
                 Halt = false;
 
-                if (e.Flag == Interrupt.JOYPAD)
+                if (e.Flag == INT_JOYPAD)
                 {
                     Stop = false;
                 }
