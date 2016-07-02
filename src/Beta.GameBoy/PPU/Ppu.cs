@@ -1,11 +1,13 @@
-﻿using Beta.GameBoy.CPU;
+﻿using Beta.GameBoy.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 using Beta.Platform.Processors;
+using Beta.Platform.Video;
 
 namespace Beta.GameBoy.PPU
 {
-    public sealed class Ppu : Processor
+    public sealed class Ppu : Processor, IConsumer<ClockSignal>
     {
         private const int PRIORITY_CLR = 0;
         private const int PRIORITY_BKG = 1;
@@ -47,8 +49,11 @@ namespace Beta.GameBoy.PPU
             MODE_3
         };
 
-        private GameSystem gameSystem;
-        private Cpu cpu;
+        private readonly IAddressSpace addressSpace;
+        private readonly IProducer<FrameSignal> frame;
+        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly IVideoBackend video;
+
         private bool bgEnabled;
         private bool lcdEnabled;
         private bool spEnabled;
@@ -66,7 +71,6 @@ namespace Beta.GameBoy.PPU
         private int sequence = SPRITE_SEQ;
         private int sequenceDelay = timingTable[SPRITE_SEQ];
         private int sequenceTimer;
-        private int renderCycles;
         private int[] priority = new int[160];
         private int[] raster;
         private int[][] bgPalettes = Utility.CreateArray<int>(2, 4);
@@ -76,14 +80,33 @@ namespace Beta.GameBoy.PPU
         private byte[] oram = new byte[0x00a0];
         private byte[] vram = new byte[0x2000];
 
-        public Ppu(GameSystem gameSystem)
+        public Ppu(IAddressSpace addressSpace, IProducer<FrameSignal> frame, IProducer<InterruptSignal> interrupt, IVideoBackend video)
         {
-            this.gameSystem = gameSystem;
-            cpu = gameSystem.cpu;
+            this.frame = frame;
+            this.addressSpace = addressSpace;
+            this.interrupt = interrupt;
+            this.video = video;
+
+            addressSpace.Map(0x8000, 0x9fff, ReadVRam, WriteVRam);
+            addressSpace.Map(0xfe00, 0xfe9f, ReadORam, WriteORam);
+
+            addressSpace.Map(0xff40, ReadFF40, WriteFF40);
+            addressSpace.Map(0xff41, ReadFF41, WriteFF41);
+            addressSpace.Map(0xff42, ReadFF42, WriteFF42);
+            addressSpace.Map(0xff43, ReadFF43, WriteFF43);
+            addressSpace.Map(0xff44, ReadFF44, WriteFF44);
+            addressSpace.Map(0xff45, ReadFF45, WriteFF45);
+            addressSpace.Map(0xff46, ReadFF46, WriteFF46);
+            addressSpace.Map(0xff47, ReadFF47, WriteFF47);
+            addressSpace.Map(0xff48, ReadFF48, WriteFF48);
+            addressSpace.Map(0xff49, ReadFF49, WriteFF49);
+            addressSpace.Map(0xff4a, ReadFF4A, WriteFF4A);
+            addressSpace.Map(0xff4b, ReadFF4B, WriteFF4B);
+
             Single = 1;
         }
 
-        private byte PeekORam(uint address)
+        private byte ReadORam(ushort address)
         {
             if (lcdEnabled && spEnabled && sequence >= SPRITE_SEQ)
                 return 0xFF;
@@ -91,7 +114,7 @@ namespace Beta.GameBoy.PPU
             return oram[address ^ 0xFE00];
         }
 
-        private byte PeekVRam(uint address)
+        private byte ReadVRam(ushort address)
         {
             if (lcdEnabled && bgEnabled && sequence == ACTIVE_SEQ)
                 return 0xFF;
@@ -99,7 +122,7 @@ namespace Beta.GameBoy.PPU
             return vram[address & 0x1FFF];
         }
 
-        private void PokeORam(uint address, byte data)
+        private void WriteORam(ushort address, byte data)
         {
             if (lcdEnabled && spEnabled && sequence >= SPRITE_SEQ)
                 return;
@@ -107,7 +130,7 @@ namespace Beta.GameBoy.PPU
             oram[address ^ 0xFE00] = data;
         }
 
-        private void PokeVRam(uint address, byte data)
+        private void WriteVRam(ushort address, byte data)
         {
             if (lcdEnabled && bgEnabled && sequence == ACTIVE_SEQ)
                 return;
@@ -115,67 +138,67 @@ namespace Beta.GameBoy.PPU
             vram[address & 0x1FFF] = data;
         }
 
-        private byte PeekFF40(uint address)
+        private byte ReadFF40(ushort address)
         {
             return registers[0];
         }
 
-        private byte PeekFF41(uint address)
+        private byte ReadFF41(ushort address)
         {
             return (byte)(0x80 | control | (vclock == vcheck ? 0x04 : 0x00) | (sequence & 0x03));
         }
 
-        private byte PeekFF42(uint address)
+        private byte ReadFF42(ushort address)
         {
             return scy;
         }
 
-        private byte PeekFF43(uint address)
+        private byte ReadFF43(ushort address)
         {
             return scx;
         }
 
-        private byte PeekFF44(uint address)
+        private byte ReadFF44(ushort address)
         {
             return (byte)vclock;
         }
 
-        private byte PeekFF45(uint address)
+        private byte ReadFF45(ushort address)
         {
             return (byte)vcheck;
         }
 
-        private byte PeekFF46(uint address)
+        private byte ReadFF46(ushort address)
         {
             return registers[6];
         }
 
-        private byte PeekFF47(uint address)
+        private byte ReadFF47(ushort address)
         {
             return registers[7];
         }
 
-        private byte PeekFF48(uint address)
+        private byte ReadFF48(ushort address)
         {
             return registers[8];
         }
 
-        private byte PeekFF49(uint address)
+        private byte ReadFF49(ushort address)
         {
             return registers[9];
         }
 
-        private byte PeekFF4A(uint address)
+        private byte ReadFF4A(ushort address)
         {
             return wny;
         }
 
-        private byte PeekFF4B(uint address)
+        private byte ReadFF4B(ushort address)
         {
             return wnx;
         }
 
-        private void PokeFF40(uint address, byte data)
+        private void WriteFF40(ushort address, byte data)
         {
             if ((registers[0] & 0x80) < (data & 0x80))
             {
@@ -200,25 +223,27 @@ namespace Beta.GameBoy.PPU
             bgNtAddr = (data & 0x08) != 0 ? 0x1C00 : 0x1800; // Bit 3 - Bkg Tile Map Display Select    (0=9800-9BFF, 1=9C00-9FFF)
         }
 
-        private void PokeFF41(uint address, byte data)
+        private void WriteFF41(ushort address, byte data)
         {
             control = (data & 0x78);
 
             if (vclock == vcheck && (control & V_CHECK_INT) != 0)
-                cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
+            {
+                Interrupt(LR35902.Interrupt.STATUS);
+            }
         }
 
-        private void PokeFF42(uint address, byte data)
+        private void WriteFF42(ushort address, byte data)
         {
             scy = data;
         }
 
-        private void PokeFF43(uint address, byte data)
+        private void WriteFF43(ushort address, byte data)
         {
             scx = data;
         }
 
-        private void PokeFF44(uint address, byte data)
+        private void WriteFF44(ushort address, byte data)
         {
             hclock = 0x00;
             vclock = 0x00;
@@ -229,27 +254,29 @@ namespace Beta.GameBoy.PPU
             sequenceDelay = timingTable[sequence];
         }
 
-        private void PokeFF45(uint address, byte data)
+        private void WriteFF45(ushort address, byte data)
         {
             vcheck = data;
 
             if (vclock == vcheck && (control & V_CHECK_INT) != 0)
-                cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
-        }
-
-        private void PokeFF46(uint address, byte data)
-        {
-            registers[6] = data;
-
-            var addr = (uint)(data << 8);
-
-            for (var i = 0; i < 160; i++)
             {
-                oram[i] = gameSystem.PeekByteFree(addr++);
+                Interrupt(LR35902.Interrupt.STATUS);
             }
         }
 
-        private void PokeFF47(uint address, byte data)
+        private void WriteFF46(ushort address, byte data)
+        {
+            registers[6] = data;
+
+            var addr = (ushort)(data << 8);
+
+            for (var i = 0; i < 160; i++)
+            {
+                oram[i] = addressSpace.Read(addr++);
+            }
+        }
+
+        private void WriteFF47(ushort address, byte data)
         {
             registers[7] = data;
 
@@ -259,7 +286,7 @@ namespace Beta.GameBoy.PPU
             bgPalettes[0][3] = colourTable[data >> 6 & 0x03];
         }
 
-        private void PokeFF48(uint address, byte data)
+        private void WriteFF48(ushort address, byte data)
         {
             registers[8] = data;
 
@@ -269,7 +296,7 @@ namespace Beta.GameBoy.PPU
             spPalettes[0][3] = colourTable[data >> 6 & 0x03];
         }
 
-        private void PokeFF49(uint address, byte data)
+        private void WriteFF49(ushort address, byte data)
         {
             registers[9] = data;
 
@@ -279,14 +306,19 @@ namespace Beta.GameBoy.PPU
             spPalettes[1][3] = colourTable[data >> 6 & 0x03];
         }
 
-        private void PokeFF4A(uint address, byte data)
+        private void WriteFF4A(ushort address, byte data)
         {
             wny = data;
         }
 
-        private void PokeFF4B(uint address, byte data)
+        private void WriteFF4B(ushort address, byte data)
         {
             wnx = data;
+        }
+
+        private void Interrupt(byte flag)
+        {
+            interrupt.Produce(new InterruptSignal(flag));
         }
 
         private void ChangeSequence(int sequence)
@@ -297,24 +329,24 @@ namespace Beta.GameBoy.PPU
             switch (sequence)
             {
             case H_BLANK_SEQ:
-
                 if ((control & H_BLANK_INT) != 0)
-                    cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
-
+                {
+                    Interrupt(LR35902.Interrupt.STATUS);
+                }
                 break;
 
             case V_BLANK_SEQ:
-
                 if ((control & V_BLANK_INT) != 0)
-                    cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
-
+                {
+                    Interrupt(LR35902.Interrupt.STATUS);
+                }
                 break;
 
             case SPRITE_SEQ:
-
                 if ((control & SPRITE_INT) != 0)
-                    cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
-
+                {
+                    Interrupt(LR35902.Interrupt.STATUS);
+                }
                 break;
             }
 
@@ -492,93 +524,63 @@ namespace Beta.GameBoy.PPU
             }
         }
 
-        public void Initialize()
+        public void Consume(ClockSignal e)
         {
-            gameSystem.Hook(0x8000, 0x9fff, PeekVRam, PokeVRam);
-            gameSystem.Hook(0xfe00, 0xfe9f, PeekORam, PokeORam);
-
-            gameSystem.Hook(0xff40, PeekFF40, PokeFF40);
-            gameSystem.Hook(0xff41, PeekFF41, PokeFF41);
-            gameSystem.Hook(0xff42, PeekFF42, PokeFF42);
-            gameSystem.Hook(0xff43, PeekFF43, PokeFF43);
-            gameSystem.Hook(0xff44, PeekFF44, PokeFF44);
-            gameSystem.Hook(0xff45, PeekFF45, PokeFF45);
-            gameSystem.Hook(0xff46, PeekFF46, PokeFF46);
-            gameSystem.Hook(0xff47, PeekFF47, PokeFF47);
-            gameSystem.Hook(0xff48, PeekFF48, PokeFF48);
-            gameSystem.Hook(0xff49, PeekFF49, PokeFF49);
-            gameSystem.Hook(0xff4a, PeekFF4A, PokeFF4A);
-            gameSystem.Hook(0xff4b, PeekFF4B, PokeFF4B);
+            Update(e.Cycles);
         }
 
         public override void Update()
         {
             hclock++;
-            renderCycles++;
 
-            if (lcdEnabled)
+            if (hclock == 252 && vclock < 144)
             {
-                if (hclock == 252 && vclock < 144)
+                raster = video.GetRaster(vclock);
+
+                if (lcdEnabled)
                 {
-                    raster = gameSystem.Video.GetRaster(vclock);
                     RenderScanline();
                 }
-
-                if (hclock == 456)
+                else
                 {
-                    hclock = 0;
-                    vclock++;
-
-                    if (vclock == 144)
-                    {
-                        cpu.RequestInterrupt(LR35902.Interrupt.V_BLANK);
-                    }
-
-                    if (vclock == 154)
-                    {
-                        vclock = 0;
-                    }
-
-                    if (vclock == vcheck && (control & V_CHECK_INT) != 0)
-                    {
-                        cpu.RequestInterrupt(LR35902.Interrupt.STATUS);
-                    }
-                }
-
-                ClockSequencer();
-            }
-            else
-            {
-                if (hclock == 252 && vclock < 144)
-                {
-                    raster = gameSystem.Video.GetRaster(vclock);
-
                     for (var i = 0; i < 160; i++)
                     {
                         raster[i] = colourTable[0];
                     }
                 }
-
-                if (hclock == 456)
-                {
-                    hclock = 0;
-                    vclock++;
-
-                    if (vclock == 154)
-                    {
-                        vclock = 0;
-                    }
-                }
             }
 
-            if (renderCycles == 70224)
+            if (lcdEnabled)
             {
-                renderCycles = 0;
+                ClockSequencer();
+            }
 
-                Pad.AutofireState = !Pad.AutofireState;
+            if (hclock == 456)
+            {
+                hclock = 0;
+                vclock++;
 
-                gameSystem.pad.Update();
-                gameSystem.Video.Render();
+                if (vclock == 154)
+                {
+                    vclock = 0;
+
+                    frame.Produce(new FrameSignal());
+
+                    video.Render();
+                }
+
+                if (lcdEnabled)
+                {
+                    if (vclock == 144)
+                    {
+                        Interrupt(LR35902.Interrupt.V_BLANK);
+                    }
+
+                    if (vclock == vcheck && (control & V_CHECK_INT) != 0)
+                    {
+                        Interrupt(LR35902.Interrupt.STATUS);
+                    }
+                }
             }
         }
     }

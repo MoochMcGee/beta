@@ -23,15 +23,15 @@ namespace Beta.GameBoy.APU
             private int count;
             private int shift = volumeTable[0];
 
-            public ChannelWav(GameSystem gameboy)
-                : base(gameboy, 2)
+            public ChannelWav(IAddressSpace addressSpace)
+                : base(addressSpace, 2)
             {
                 Timing.Cycles =
                 Timing.Single = PHASE * 2048;
                 Timing.Period = DELAY;
             }
 
-            protected override void OnPokeReg1(byte data)
+            protected override void OnWriteReg1(byte data)
             {
                 if ((data & 0x80) == 0)
                 {
@@ -39,24 +39,24 @@ namespace Beta.GameBoy.APU
                 }
             }
 
-            protected override void OnPokeReg2(byte data)
+            protected override void OnWriteReg2(byte data)
             {
                 Duration.Refresh = data;
                 Duration.Counter = 256 - Duration.Refresh;
             }
 
-            protected override void OnPokeReg3(byte data)
+            protected override void OnWriteReg3(byte data)
             {
                 shift = volumeTable[data >> 5 & 0x3];
             }
 
-            protected override void OnPokeReg4(byte data)
+            protected override void OnWriteReg4(byte data)
             {
                 Frequency = (Frequency & ~0x0FF) | (data << 0 & 0x0FF);
                 Timing.Single = (2048 - Frequency) * PHASE / 2;
             }
 
-            protected override void OnPokeReg5(byte data)
+            protected override void OnWriteReg5(byte data)
             {
                 Frequency = (Frequency & ~0x700) | (data << 8 & 0x700);
                 Timing.Single = (2048 - Frequency) * PHASE / 2;
@@ -82,16 +82,16 @@ namespace Beta.GameBoy.APU
                 }
             }
 
-            public byte Peek(uint address)
+            public byte Read(ushort address)
             {
                 return ram[address & 0x0F];
             }
 
-            public void Poke(uint address, byte data)
+            public void Write(ushort address, byte data)
             {
                 ram[address & 0x0F] = data;
 
-                address = (address << 1) & 0x1E;
+                address = (ushort)((address << 1) & 0x1E);
 
                 amp[address | 0x00] = (byte)(data >> 4 & 0xF);
                 amp[address | 0x01] = (byte)(data >> 0 & 0xF);

@@ -3,24 +3,28 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using Beta.Platform;
+using Beta.Platform.Configuration;
 using Beta.Platform.Core;
 
 namespace Beta
 {
     public partial class FormHost : Form
     {
+        private readonly ConfigurationFile config;
+
         private IGameSystem gameSystem;
         private Thread gameThread;
 
-        public FormHost()
+        public FormHost(ConfigurationFile config)
         {
+            this.config = config;
+
             InitializeComponent();
         }
 
-        public void Start(IEmulationLoop loop)
+        public void Start()
         {
-            gameThread = new Thread(loop.Main);
+            gameThread = new Thread(EmulationLoop);
             gameThread.Start();
         }
 
@@ -31,13 +35,22 @@ namespace Beta
             gameThread = null;
         }
 
+        private void EmulationLoop()
+        {
+            try
+            {
+                gameSystem.Main();
+            }
+            catch (ThreadAbortException) { }
+        }
+
         private void FormHost_Load(object sender, EventArgs e)
         {
             const int scale = 4;
 
             ClientSize = new Size(
-                scale * 256,
-                scale * 240);
+                scale * config.Video.Width,
+                scale * config.Video.Height);
         }
 
         public void LoadGame(IGameSystemFactory factory, string fileName)

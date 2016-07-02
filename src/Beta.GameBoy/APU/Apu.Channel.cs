@@ -17,7 +17,7 @@ namespace Beta.GameBoy.APU
                 new byte[] { 0xff, 0xff, 0x00, 0x00, 0xbf }
             };
 
-            private GameSystem gameSystem;
+            private IAddressSpace addressSpace;
             private byte[] emptyBits;
             private bool power;
 
@@ -30,29 +30,29 @@ namespace Beta.GameBoy.APU
 
             public bool Enabled { get { return Active; } }
 
-            protected Channel(GameSystem gameSystem, int channel)
+            protected Channel(IAddressSpace addressSpace, int channel)
             {
-                this.gameSystem = gameSystem;
+                this.addressSpace = addressSpace;
                 emptyBits = registerTable[channel];
             }
 
-            protected virtual void OnPokeReg1(byte data)
+            protected virtual void OnWriteReg1(byte data)
             {
             }
 
-            protected virtual void OnPokeReg2(byte data)
+            protected virtual void OnWriteReg2(byte data)
             {
             }
 
-            protected virtual void OnPokeReg3(byte data)
+            protected virtual void OnWriteReg3(byte data)
             {
             }
 
-            protected virtual void OnPokeReg4(byte data)
+            protected virtual void OnWriteReg4(byte data)
             {
             }
 
-            protected virtual void OnPokeReg5(byte data)
+            protected virtual void OnWriteReg5(byte data)
             {
             }
 
@@ -68,11 +68,11 @@ namespace Beta.GameBoy.APU
             {
                 power = true;
 
-                PokeReg1(0x0000, 0x00);
-                PokeReg2(0x0000, 0x00);
-                PokeReg3(0x0000, 0x00);
-                PokeReg4(0x0000, 0x00);
-                PokeReg5(0x0000, 0x00);
+                WriteReg1(0x0000, 0x00);
+                WriteReg2(0x0000, 0x00);
+                WriteReg3(0x0000, 0x00);
+                WriteReg4(0x0000, 0x00);
+                WriteReg5(0x0000, 0x00);
 
                 Active = false;
                 power = false;
@@ -83,68 +83,68 @@ namespace Beta.GameBoy.APU
                 power = true;
             }
 
-            private byte PeekReg1(uint address)
+            private byte ReadReg1(ushort address)
             {
                 return (byte)(Registers[0] | emptyBits[0]);
             }
 
-            private byte PeekReg2(uint address)
+            private byte ReadReg2(ushort address)
             {
                 return (byte)(Registers[1] | emptyBits[1]);
             }
 
-            private byte PeekReg3(uint address)
+            private byte ReadReg3(ushort address)
             {
                 return (byte)(Registers[2] | emptyBits[2]);
             }
 
-            private byte PeekReg4(uint address)
+            private byte ReadReg4(ushort address)
             {
                 return (byte)(Registers[3] | emptyBits[3]);
             }
 
-            private byte PeekReg5(uint address)
+            private byte ReadReg5(ushort address)
             {
                 return (byte)(Registers[4] | emptyBits[4]);
             }
 
-            private void PokeReg1(uint address, byte data)
+            private void WriteReg1(ushort address, byte data)
             {
                 if (power)
                 {
-                    OnPokeReg1(Registers[0] = data);
+                    OnWriteReg1(Registers[0] = data);
                 }
             }
 
-            private void PokeReg2(uint address, byte data)
+            private void WriteReg2(ushort address, byte data)
             {
                 if (power)
                 {
-                    OnPokeReg2(Registers[1] = data);
+                    OnWriteReg2(Registers[1] = data);
                 }
             }
 
-            private void PokeReg3(uint address, byte data)
+            private void WriteReg3(ushort address, byte data)
             {
                 if (power)
                 {
-                    OnPokeReg3(Registers[2] = data);
+                    OnWriteReg3(Registers[2] = data);
                 }
             }
 
-            private void PokeReg4(uint address, byte data)
+            private void WriteReg4(ushort address, byte data)
             {
                 if (power)
                 {
-                    OnPokeReg4(Registers[3] = data);
+                    OnWriteReg4(Registers[3] = data);
                 }
             }
 
-            private void PokeReg5(uint address, byte data)
+            private void WriteReg5(ushort address, byte data)
             {
                 if (power)
                 {
-                    OnPokeReg5(Registers[4] = data);
+                    OnWriteReg5(Registers[4] = data);
                 }
             }
 
@@ -156,11 +156,11 @@ namespace Beta.GameBoy.APU
             {
                 Initialize();
 
-                gameSystem.Hook(address + 0U, PeekReg1, PokeReg1);
-                gameSystem.Hook(address + 1U, PeekReg2, PokeReg2);
-                gameSystem.Hook(address + 2U, PeekReg3, PokeReg3);
-                gameSystem.Hook(address + 3U, PeekReg4, PokeReg4);
-                gameSystem.Hook(address + 4U, PeekReg5, PokeReg5);
+                addressSpace.Map((ushort)(address + 0), ReadReg1, WriteReg1);
+                addressSpace.Map((ushort)(address + 1), ReadReg2, WriteReg2);
+                addressSpace.Map((ushort)(address + 2), ReadReg3, WriteReg3);
+                addressSpace.Map((ushort)(address + 3), ReadReg4, WriteReg4);
+                addressSpace.Map((ushort)(address + 4), ReadReg5, WriteReg5);
             }
         }
     }

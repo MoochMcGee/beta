@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Beta.Platform;
-using Beta.Platform.Exceptions;
 using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
-using Beta.Famicom.Messaging;
+using Beta.Platform;
+using Beta.Platform.Exceptions;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Konami
 {

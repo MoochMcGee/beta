@@ -4,37 +4,37 @@ namespace Beta.GameBoy.Boards
 {
     public class Board
     {
-        protected GameSystem GameSystem;
+        protected IAddressSpace AddressSpace;
         protected byte[] Ram;
         protected byte[] Rom;
         protected int RamMask;
         protected int RomMask = 0x7fff;
 
-        public Board(GameSystem gameSystem, byte[] rom)
+        public Board(IAddressSpace addressSpace, byte[] rom)
         {
-            GameSystem = gameSystem;
+            AddressSpace = addressSpace;
             Rom = (byte[])rom.Clone();
 
             SetRomSize(Rom[0x148]);
             SetRamSize(Rom[0x149]);
         }
 
-        private byte PeekRam(uint address)
+        private byte ReadRam(ushort address)
         {
             return Ram[address & RamMask];
         }
 
-        private byte PeekRom(uint address)
+        private byte ReadRom(ushort address)
         {
             return Rom[address & RomMask];
         }
 
-        private void PokeRam(uint address, byte data)
+        private void WriteRam(ushort address, byte data)
         {
             Ram[address & RamMask] = data;
         }
 
-        private void PokeRom(uint address, byte data)
+        private void WriteRom(ushort address, byte data)
         {
         }
 
@@ -112,22 +112,22 @@ namespace Beta.GameBoy.Boards
                 HookRam();
             }
 
-            GameSystem.Hook(0xff50, DisableBios);
+            AddressSpace.Map(0xff50, writer: DisableBios);
         }
 
-        protected virtual void DisableBios(uint address, byte data)
+        protected virtual void DisableBios(ushort address, byte data)
         {
-            GameSystem.Hook(0x0000, 0x00ff, PeekRom, PokeRom);
+            AddressSpace.Map(0x0000, 0x00ff, ReadRom, WriteRom);
         }
 
         protected virtual void HookRam()
         {
-            GameSystem.Hook(0xa000, 0xbfff, PeekRam, PokeRam);
+            AddressSpace.Map(0xa000, 0xbfff, ReadRam, WriteRam);
         }
 
         protected virtual void HookRom()
         {
-            GameSystem.Hook(0x0000, 0x7fff, PeekRom, PokeRom);
+            AddressSpace.Map(0x0000, 0x7fff, ReadRom, WriteRom);
         }
     }
 }

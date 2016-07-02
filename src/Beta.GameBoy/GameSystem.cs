@@ -1,73 +1,35 @@
-﻿using System.Threading;
-using Beta.GameBoy.APU;
+﻿using Beta.GameBoy.APU;
 using Beta.GameBoy.Boards;
 using Beta.GameBoy.CPU;
+using Beta.GameBoy.Messaging;
 using Beta.GameBoy.PPU;
-using Beta.Platform.Audio;
 using Beta.Platform.Core;
-using Beta.Platform.Video;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public partial class GameSystem : IGameSystem
+    public partial class GameSystem : IGameSystem, IConsumer<FrameSignal>
     {
-        private Board board;
-        public Pad pad;
-        private Tma tma;
-        public Cpu cpu;
-        private Ppu ppu;
-        private Apu apu;
+        public Board Board;
+        public Pad Pad;
+        public Tma Tma;
+        public Cpu Cpu;
+        public Ppu Ppu;
+        public Apu Apu;
 
-        public IAudioBackend Audio { get; set; }
-
-        public IVideoBackend Video { get; set; }
-
-        public GameSystem()
+        public void Main()
         {
-            cpu = new Cpu(this);
-            ppu = new Ppu(this);
-            apu = new Apu(this);
-            pad = new Pad(this);
-            tma = new Tma(this);
-
-            Hook(0x0000, 0xffff,
-                delegate { return 0; },
-                delegate { });
-        }
-
-        public void Emulate()
-        {
-            Initialize();
-
             while (true)
             {
-                try
-                {
-                    cpu.Update();
-                }
-                catch (ThreadAbortException)
-                {
-                    break;
-                }
+                Cpu.Update();
             }
         }
 
-        public void Initialize()
+        public void Consume(FrameSignal e)
         {
-            board.Initialize();
+            Pad.AutofireState = !Pad.AutofireState;
 
-            InitializeMemory();
-
-            cpu.Initialize();
-            ppu.Initialize();
-            apu.Initialize();
-            pad.Initialize();
-            tma.Initialize();
-        }
-
-        public void LoadGame(byte[] binary)
-        {
-            board = BoardManager.GetBoard(this, binary);
+            Pad.Update();
         }
     }
 }

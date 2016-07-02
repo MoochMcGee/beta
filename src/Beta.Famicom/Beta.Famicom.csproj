@@ -106,7 +106,6 @@
     <Compile Include="Database\Pin.cs" />
     <Compile Include="Database\Ram.cs" />
     <Compile Include="Database\Rom.cs" />
-    <Compile Include="EmulationLoop.cs" />
     <Compile Include="Formats\CartridgeFactory.cs" />
     <Compile Include="Formats\CartridgeImage.cs" />
     <Compile Include="Formats\ICartridgeFactory.cs" />
@@ -119,7 +118,6 @@
     <Compile Include="Memory\MemoryFactory.cs" />
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
-    <Compile Include="Messaging\ClockSignal.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\PpuAddressSignal.cs" />
     <Compile Include="Messaging\VblNmiSignal.cs" />

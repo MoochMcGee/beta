@@ -5,7 +5,6 @@ using Beta.Famicom.Formats;
 using Beta.Famicom.Input;
 using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
-using Beta.Platform;
 using Beta.Platform.Core;
 using SimpleInjector;
 using SimpleInjector.Packaging;
@@ -19,7 +18,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<IBoardFactory, BoardFactory>();
             container.RegisterSingleton<ICartridgeFactory, CartridgeFactory>();
             container.RegisterSingleton<IDatabase, DatabaseService>();
-            container.RegisterSingleton<IEmulationLoop, EmulationLoop>();
             container.RegisterSingleton<IGameSystem, GameSystem>();
             container.RegisterSingleton<IGameSystemFactory, GameSystemFactory>();
             container.RegisterSingleton<IJoypadFactory, JoypadFactory>();

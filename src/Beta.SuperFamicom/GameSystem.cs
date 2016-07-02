@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Beta.Platform.Audio;
+﻿using Beta.Platform.Audio;
 using Beta.Platform.Core;
 using Beta.Platform.Video;
 using Beta.SuperFamicom.CPU;
@@ -31,19 +30,15 @@ namespace Beta.SuperFamicom
             Joypad2 = new Pad(1);
         }
 
-        public void Emulate()
+        public void Main()
         {
             Initialize();
             ResetHard();
 
-            try
+            while (true)
             {
-                while (true)
-                {
-                    Cpu.Update();
-                }
+                Cpu.Update();
             }
-            catch (ThreadAbortException) { }
         }
 
         public void Initialize()

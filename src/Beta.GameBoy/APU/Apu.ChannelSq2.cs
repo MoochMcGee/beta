@@ -24,22 +24,22 @@ namespace Beta.GameBoy.APU
             private int form;
             private int step = 7;
 
-            public ChannelSq2(GameSystem gameboy)
-                : base(gameboy, 1)
+            public ChannelSq2(IAddressSpace addressSpace)
+                : base(addressSpace, 1)
             {
                 Timing.Cycles =
                 Timing.Single = PHASE * 2048;
                 Timing.Period = DELAY;
             }
 
-            protected override void OnPokeReg2(byte data)
+            protected override void OnWriteReg2(byte data)
             {
                 form = data >> 6;
                 Duration.Refresh = (data & 0x3F);
                 Duration.Counter = 64 - Duration.Refresh;
             }
 
-            protected override void OnPokeReg3(byte data)
+            protected override void OnWriteReg3(byte data)
             {
                 Envelope.Level = (data >> 4 & 0xF);
                 Envelope.Delta = (data >> 2 & 0x2) - 1;
@@ -49,13 +49,13 @@ namespace Beta.GameBoy.APU
                     Active = false;
             }
 
-            protected override void OnPokeReg4(byte data)
+            protected override void OnWriteReg4(byte data)
             {
                 Frequency = (Frequency & 0x700) | (data << 0 & 0x0FF);
                 Timing.Single = (2048 - Frequency) * PHASE;
             }
 
-            protected override void OnPokeReg5(byte data)
+            protected override void OnWriteReg5(byte data)
             {
                 Frequency = (Frequency & 0x0FF) | (data << 8 & 0x700);
                 Timing.Single = (2048 - Frequency) * PHASE;

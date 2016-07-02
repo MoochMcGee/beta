@@ -31,8 +31,8 @@ namespace Beta.GameBoy.APU
             private int sweepShift;
             private int sweepShadow;
 
-            public ChannelSq1(GameSystem gameboy)
-                : base(gameboy, 0)
+            public ChannelSq1(IAddressSpace addressSpace)
+                : base(addressSpace, 0)
             {
                 Timing.Cycles =
                 Timing.Single = PHASE * 2048;
@@ -41,21 +41,21 @@ namespace Beta.GameBoy.APU
                 sweepTiming.Single = 1;
             }
 
-            protected override void OnPokeReg1(byte data)
+            protected override void OnWriteReg1(byte data)
             {
                 sweepTiming.Period = (data >> 4 & 0x7);
                 sweepDelta = 1 - (data >> 2 & 0x2);
                 sweepShift = (data >> 0 & 0x7);
             }
 
-            protected override void OnPokeReg2(byte data)
+            protected override void OnWriteReg2(byte data)
             {
                 form = data >> 6;
                 Duration.Refresh = (data & 0x3F);
                 Duration.Counter = 64 - Duration.Refresh;
             }
 
-            protected override void OnPokeReg3(byte data)
+            protected override void OnWriteReg3(byte data)
             {
                 Envelope.Level = (data >> 4 & 0xF);
                 Envelope.Delta = (data >> 2 & 0x2) - 1;
@@ -65,13 +65,13 @@ namespace Beta.GameBoy.APU
                     Active = false;
             }
 
-            protected override void OnPokeReg4(byte data)
+            protected override void OnWriteReg4(byte data)
             {
                 Frequency = (Frequency & 0x700) | (data << 0 & 0x0FF);
                 Timing.Single = (2048 - Frequency) * PHASE;
             }
 
-            protected override void OnPokeReg5(byte data)
+            protected override void OnWriteReg5(byte data)
             {
                 Frequency = (Frequency & 0x0FF) | (data << 8 & 0x700);
                 Timing.Single = (2048 - Frequency) * PHASE;

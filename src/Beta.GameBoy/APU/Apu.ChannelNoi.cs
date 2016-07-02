@@ -21,21 +21,21 @@ namespace Beta.GameBoy.APU
             private int shift = 14;
             private int value = 0x0001;
 
-            public ChannelNoi(GameSystem gameboy)
-                : base(gameboy, 3)
+            public ChannelNoi(IAddressSpace addressSpace)
+                : base(addressSpace, 3)
             {
                 Timing.Cycles =
                 Timing.Single = divisorTable[0] * PHASE / 4;
                 Timing.Period = DELAY;
             }
 
-            protected override void OnPokeReg2(byte data)
+            protected override void OnWriteReg2(byte data)
             {
                 Duration.Refresh = (data & 0x3F);
                 Duration.Counter = 64 - Duration.Refresh;
             }
 
-            protected override void OnPokeReg3(byte data)
+            protected override void OnWriteReg3(byte data)
             {
                 Envelope.Level = (data >> 4 & 0xF);
                 Envelope.Delta = (data >> 2 & 0x2) - 1;
@@ -45,13 +45,13 @@ namespace Beta.GameBoy.APU
                     Active = false;
             }
 
-            protected override void OnPokeReg4(byte data)
+            protected override void OnWriteReg4(byte data)
             {
                 shift = 14 - (data & 0x08);
                 Timing.Single = (divisorTable[data & 0x7] << (data >> 4)) * PHASE / 4;
             }
 
-            protected override void OnPokeReg5(byte data)
+            protected override void OnWriteReg5(byte data)
             {
                 if ((data & 0x80) != 0)
                 {

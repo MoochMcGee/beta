@@ -56,6 +56,16 @@ namespace Beta.Famicom
             board.Initialize();
         }
 
+        public void Main()
+        {
+            r2a03.ResetHard();
+
+            while (true)
+            {
+                r2a03.Update();
+            }
+        }
+
         public void Consume(FrameSignal e)
         {
             Joypad.AutofireState = !Joypad.AutofireState;

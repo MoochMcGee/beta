@@ -6,16 +6,15 @@ namespace Beta.GameBoy
     {
         public static bool AutofireState;
 
-        private GameSystem gameSystem;
         private bool p14;
         private bool p15;
         private byte p14Latch;
         private byte p15Latch;
 
-        public Pad(GameSystem gameSystem)
+        public Pad(IAddressSpace addressSpace)
             : base(0, 10)
         {
-            this.gameSystem = gameSystem;
+            addressSpace.Map(0xff00, Read, Write);
 
             Map(0, "A");
             Map(1, "X");
@@ -29,7 +28,7 @@ namespace Beta.GameBoy
             Map(9, "Y");
         }
 
-        private byte Peek(uint address)
+        private byte Read(ushort address)
         {
             if (p15) { return p15Latch; }
             if (p14) { return p14Latch; }
@@ -37,7 +36,7 @@ namespace Beta.GameBoy
             return 0xff;
         }
 
-        private void Poke(uint address, byte data)
+        private void Write(ushort address, byte data)
         {
             p15 = (data & 0x20) == 0;
             p14 = (data & 0x10) == 0;
@@ -66,11 +65,6 @@ namespace Beta.GameBoy
                 if (Pressed(8)) p15Latch ^= 0x1;
                 if (Pressed(9)) p15Latch ^= 0x2;
             }
-        }
-
-        public void Initialize()
-        {
-            gameSystem.Hook(0xff00, Peek, Poke);
         }
     }
 }

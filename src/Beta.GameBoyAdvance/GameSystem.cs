@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading;
 using Beta.GameBoyAdvance.APU;
 using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
@@ -68,20 +67,13 @@ namespace Beta.GameBoyAdvance
             //  7    Game Pak Type Flag  (Read Only) (0=GBA, 1=CGB) (IN35 signal)
         }
 
-        public void Emulate()
+        public void Main()
         {
             Initialize();
 
             while (true)
             {
-                try
-                {
-                    Cpu.Update();
-                }
-                catch (ThreadAbortException)
-                {
-                    break;
-                }
+                Cpu.Update();
             }
         }
 

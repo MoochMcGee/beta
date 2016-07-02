@@ -1,4 +1,4 @@
-﻿namespace Beta.Famicom.Messaging
+﻿namespace Beta.Platform.Messaging
 {
     public sealed class ClockSignal
     {

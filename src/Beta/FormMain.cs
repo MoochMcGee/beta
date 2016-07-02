@@ -13,7 +13,7 @@ namespace Beta
         private readonly GameSystemDefinition[] definitions;
         private readonly IFileSelector fileSelector;
 
-        private FormHost formHost = new FormHost();
+        private FormHost formHost;
 
         public FormMain(IFileSelector fileSelector, IPackageLoader loader)
         {
@@ -49,15 +49,17 @@ namespace Beta
 
         private void ShowHostForm(GameSystemDefinition definition, FileInfo file)
         {
+            formHost = new FormHost(definition.File);
+
             var container = Bootstrapper.Bootstrap(formHost.Handle);
             container.RegisterSingleton(definition.File);
 
             definition.Package.RegisterServices(container);
 
-            formHost.Text = definition.File.Name;
+            formHost.Text = $"{definition.File.Name} - {file.Name}";
             formHost.LoadGame(container.GetInstance<IGameSystemFactory>(), file.FullName);
 
-            formHost.Start(container.GetInstance<IEmulationLoop>());
+            formHost.Start();
             formHost.ShowDialog(this);
             formHost.Abort();
 

@@ -1,7 +1,7 @@
-﻿using Beta.Platform.Exceptions;
-using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
-using Beta.Famicom.Messaging;
+using Beta.Platform.Exceptions;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Konami
 {

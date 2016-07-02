@@ -6,26 +6,26 @@ namespace Beta.GameBoy.Boards
     {
         private DateTime rtc;
         private bool ramEnable;
-        private uint ramPage;
-        private uint romPage = (1U << 14);
-        private uint rtcLatch;
+        private int ramPage;
+        private int romPage = (1 << 14);
+        private int rtcLatch;
 
-        public NintendoMbc3(GameSystem gameboy, byte[] rom)
-            : base(gameboy, rom)
+        public NintendoMbc3(IAddressSpace addressSpace, byte[] rom)
+            : base(addressSpace, rom)
         {
         }
 
-        private byte Peek_0000_3FFF(uint address)
+        private byte Read_0000_3FFF(ushort address)
         {
             return Rom[((address & 0x3FFF)) & RomMask];
         }
 
-        private byte Peek_4000_7FFF(uint address)
+        private byte Read_4000_7FFF(ushort address)
         {
             return Rom[((address & 0x3FFF) | romPage) & RomMask];
         }
 
-        private byte Peek_A000_BFFF(uint address)
+        private byte Read_A000_BFFF(ushort address)
         {
             if (!ramEnable)
                 return 0;
@@ -48,25 +48,27 @@ namespace Beta.GameBoy.Boards
             return 0;
         }
 
-        private void Poke_0000_1FFF(uint address, byte data)
+        private void Write_0000_1FFF(ushort address, byte data)
         {
             ramEnable = (data == 0x0A);
         }
 
-        private void Poke_2000_3FFF(uint address, byte data)
+        private void Write_2000_3FFF(ushort address, byte data)
         {
-            romPage = (data & 0x7FU) << 14;
+            romPage = (data & 0x7F) << 14;
 
             if (romPage == 0)
-                romPage += (1U << 14);
+            {
+                romPage += (1 << 14);
+            }
         }
 
-        private void Poke_4000_5FFF(uint address, byte data)
+        private void Write_4000_5FFF(ushort address, byte data)
         {
-            ramPage = (data & 0xFFU);
+            ramPage = data;
         }
 
-        private void Poke_6000_7FFF(uint address, byte data)
+        private void Write_6000_7FFF(ushort address, byte data)
         {
             if (rtcLatch < (data & 0x01))
             {
@@ -75,10 +77,12 @@ namespace Beta.GameBoy.Boards
             }
         }
 
-        private void Poke_A000_BFFF(uint address, byte data)
+        private void Write_A000_BFFF(ushort address, byte data)
         {
             if (!ramEnable)
+            {
                 return;
+            }
 
             switch (ramPage)
             {
@@ -96,23 +100,23 @@ namespace Beta.GameBoy.Boards
             }
         }
 
-        protected override void DisableBios(uint address, byte data)
+        protected override void DisableBios(ushort address, byte data)
         {
-            GameSystem.Hook(0x0000, 0x00FF, Peek_0000_3FFF, Poke_0000_1FFF);
-            GameSystem.Hook(0x0200, 0x08FF, Peek_0000_3FFF, Poke_0000_1FFF);
+            AddressSpace.Map(0x0000, 0x00FF, Read_0000_3FFF, Write_0000_1FFF);
+            AddressSpace.Map(0x0200, 0x08FF, Read_0000_3FFF, Write_0000_1FFF);
         }
 
         protected override void HookRam()
         {
-            GameSystem.Hook(0xA000, 0xBFFF, Peek_A000_BFFF, Poke_A000_BFFF);
+            AddressSpace.Map(0xA000, 0xBFFF, Read_A000_BFFF, Write_A000_BFFF);
         }
 
         protected override void HookRom()
         {
-            GameSystem.Hook(0x0000, 0x1FFF, Peek_0000_3FFF, Poke_0000_1FFF);
-            GameSystem.Hook(0x2000, 0x3FFF, Peek_0000_3FFF, Poke_2000_3FFF);
-            GameSystem.Hook(0x4000, 0x5FFF, Peek_4000_7FFF, Poke_4000_5FFF);
-            GameSystem.Hook(0x6000, 0x7FFF, Peek_4000_7FFF, Poke_6000_7FFF);
+            AddressSpace.Map(0x0000, 0x1FFF, Read_0000_3FFF, Write_0000_1FFF);
+            AddressSpace.Map(0x2000, 0x3FFF, Read_0000_3FFF, Write_2000_3FFF);
+            AddressSpace.Map(0x4000, 0x5FFF, Read_4000_7FFF, Write_4000_5FFF);
+            AddressSpace.Map(0x6000, 0x7FFF, Read_4000_7FFF, Write_6000_7FFF);
         }
     }
 }

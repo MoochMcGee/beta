@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddressSpace.cs" />
     <Compile Include="APU\Apu.Channel.cs" />
     <Compile Include="APU\Apu.ChannelNoi.cs" />
     <Compile Include="APU\Apu.ChannelSq1.cs" />
@@ -60,17 +61,23 @@
     <Compile Include="APU\Apu.Envelope.cs" />
     <Compile Include="APU\Apu.Mixer.cs" />
     <Compile Include="Boards\Board.cs" />
-    <Compile Include="Boards\BoardManager.cs" />
+    <Compile Include="Boards\BoardFactory.cs" />
+    <Compile Include="Boards\IBoardFactory.cs" />
     <Compile Include="Boards\NintendoMBC1.cs" />
     <Compile Include="Boards\NintendoMBC2.cs" />
     <Compile Include="Boards\NintendoMBC3.cs" />
     <Compile Include="Boards\NintendoMBC5.cs" />
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="GameSystem.cs" />
-    <Compile Include="GameSystem.Memory.cs" />
+    <Compile Include="GameSystemFactory.cs" />
+    <Compile Include="IAddressSpace.cs" />
+    <Compile Include="Memory\Bios.cs" />
+    <Compile Include="Memory\Hram.cs" />
+    <Compile Include="Memory\Wram.cs" />
+    <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\InterruptSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Pad.cs" />
-    <Compile Include="PowerButton.cs" />
     <Compile Include="PPU\Ppu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tma.cs" />

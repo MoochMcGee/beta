@@ -1,5 +1,7 @@
 ﻿using Beta.Platform;
+using Beta.Platform.Audio;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy.APU
 {
@@ -15,9 +17,11 @@ namespace Beta.GameBoy.APU
     //      ....
     //      FF3F 0000 1111 Samples $1E and $1F
 
-    public partial class Apu : Processor
+    public partial class Apu : Processor, IConsumer<ClockSignal>
     {
-        private GameSystem gameSystem;
+        private readonly IAddressSpace addressSpace;
+        private readonly IAudioBackend audio;
+
         private ChannelSq1 sq1;
         private ChannelSq2 sq2;
         private ChannelNoi noi;
@@ -27,9 +31,10 @@ namespace Beta.GameBoy.APU
         private byte[] reg;
         private int course;
 
-        public Apu(GameSystem gameSystem)
+        public Apu(IAddressSpace addressSpace, IAudioBackend audio)
         {
-            this.gameSystem = gameSystem;
+            this.addressSpace = addressSpace;
+            this.audio = audio;
             Single = 4;
 
             courseTiming.Period = 4194304 / 512;
@@ -38,29 +43,40 @@ namespace Beta.GameBoy.APU
             sampleTiming.Period = DELAY;
             sampleTiming.Single = PHASE;
 
-            sq1 = new ChannelSq1(gameSystem);
-            sq2 = new ChannelSq2(gameSystem);
-            noi = new ChannelNoi(gameSystem);
-            wav = new ChannelWav(gameSystem);
+            sq1 = new ChannelSq1(addressSpace);
+            sq2 = new ChannelSq2(addressSpace);
+            noi = new ChannelNoi(addressSpace);
+            wav = new ChannelWav(addressSpace);
             reg = new byte[3];
+
+            sq1.Initialize(0xff10);
+            sq2.Initialize(0xff15);
+            wav.Initialize(0xff1a);
+            noi.Initialize(0xff1f);
+
+            addressSpace.Map(0xff24, /*   */ ReadNR50, WriteNR50);
+            addressSpace.Map(0xff25, /*   */ ReadNR51, WriteNR51);
+            addressSpace.Map(0xff26, /*   */ ReadNR52, WriteNR52);
+            addressSpace.Map(0xff27, 0xff2f, ReadNull, WriteNull);
+            addressSpace.Map(0xff30, 0xff3f, wav.Read, wav.Write);
         }
 
-        private byte PeekNull(uint address)
+        private byte ReadNull(ushort address)
         {
             return 0xff;
         }
 
-        private byte PeekNR50(uint address)
+        private byte ReadNR50(ushort address)
         {
             return reg[0];
         }
 
-        private byte PeekNR51(uint address)
+        private byte ReadNR51(ushort address)
         {
             return reg[1];
         }
 
-        private byte PeekNR52(uint address)
+        private byte ReadNR52(ushort address)
         {
             return (byte)(
                 (reg[2] & 0x80) |
@@ -70,11 +86,11 @@ namespace Beta.GameBoy.APU
                 (sq1.Enabled ? 1 : 0) | 0x70);
         }
 
-        private void PokeNull(uint address, byte data)
+        private void WriteNull(ushort address, byte data)
         {
         }
 
-        private void PokeNR50(uint address, byte data)
+        private void WriteNR50(ushort address, byte data)
         {
             if ((reg[2] & 0x80) == 0)
                 return;
@@ -85,7 +101,7 @@ namespace Beta.GameBoy.APU
             Mixer.Level[1] = (data >> 0) & 0x7;
         }
 
-        private void PokeNR51(uint address, byte data)
+        private void WriteNR51(ushort address, byte data)
         {
             if ((reg[2] & 0x80) == 0)
                 return;
@@ -96,15 +112,15 @@ namespace Beta.GameBoy.APU
             Mixer.Flags[1] = (data >> 0) & 0xf;
         }
 
-        private void PokeNR52(uint address, byte data)
+        private void WriteNR52(ushort address, byte data)
         {
             if (((reg[2] ^ data) & 0x80) != 0)
             {
                 switch (data & 0x80)
                 {
                 case 0x00:
-                    PokeNR50(0x0000, 0x00);
-                    PokeNR51(0x0000, 0x00);
+                    WriteNR50(0x0000, 0x00);
+                    WriteNR51(0x0000, 0x00);
 
                     sq1.PowerOff();
                     sq2.PowerOff();
@@ -132,22 +148,13 @@ namespace Beta.GameBoy.APU
                 wav.Sample(),
                 noi.Sample());
 
-            gameSystem.Audio.Render(samples[0]);
-            gameSystem.Audio.Render(samples[1]);
+            audio.Render(samples[0]);
+            audio.Render(samples[1]);
         }
 
-        public void Initialize()
+        public void Consume(ClockSignal e)
         {
-            sq1.Initialize(0xff10);
-            sq2.Initialize(0xff15);
-            wav.Initialize(0xff1a);
-            noi.Initialize(0xff1f);
-
-            gameSystem.Hook(0xff24, /*   */ PeekNR50, PokeNR50);
-            gameSystem.Hook(0xff25, /*   */ PeekNR51, PokeNR51);
-            gameSystem.Hook(0xff26, /*   */ PeekNR52, PokeNR52);
-            gameSystem.Hook(0xff27, 0xff2f, PeekNull, PokeNull);
-            gameSystem.Hook(0xff30, 0xff3f, wav.Peek, wav.Poke);
+            Update(e.Cycles);
         }
 
         public override void Update()

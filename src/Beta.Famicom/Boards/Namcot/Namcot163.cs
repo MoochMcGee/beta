@@ -1,9 +1,9 @@
-﻿using Beta.Platform;
-using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Memory;
-using Beta.Famicom.Messaging;
+using Beta.Platform;
+using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Namcot
 {
