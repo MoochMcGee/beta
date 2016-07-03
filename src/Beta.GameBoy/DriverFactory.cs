@@ -40,14 +40,18 @@ namespace Beta.GameBoy
 
             var addressSpace = container.GetInstance<IAddressSpace>();
             var bios = container.GetInstance<Bios>();
+            var vram = container.GetInstance<VRAM>();
             var wram = container.GetInstance<Wram>();
             var hram = container.GetInstance<Hram>();
+            var  oam = container.GetInstance< OAM>();
 
             addressSpace.Map(0x0000, 0x7fff, cartridgeConnector.Read, cartridgeConnector.Write);
             addressSpace.Map(0xa000, 0xbfff, cartridgeConnector.Read, cartridgeConnector.Write);
 
+            addressSpace.Map(0x8000, 0x9fff, vram.Read, vram.Write);
             addressSpace.Map(0xc000, 0xfdff, wram.Read, wram.Write);
             addressSpace.Map(0xff80, 0xfffe, hram.Read, hram.Write);
+            addressSpace.Map(0xfe00, 0xfe9f,  oam.Read,  oam.Write);
 
             return result;
         }

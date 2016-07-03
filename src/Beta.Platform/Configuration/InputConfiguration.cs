@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Beta.Platform.Configuration
@@ -13,6 +12,6 @@ namespace Beta.Platform.Configuration
         public Guid HostInputId { get; set; }
 
         [JsonProperty("mapping")]
-        public Dictionary<string, string> Mapping { get; set; }
+        public dynamic Mapping { get; set; }
     }
 }

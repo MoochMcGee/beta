@@ -148,8 +148,8 @@ namespace Beta.GameBoy.APU
                 wav.Sample(),
                 noi.Sample());
 
-            audio.Render(samples[0]);
-            audio.Render(samples[1]);
+            // audio.Render(samples[0]);
+            // audio.Render(samples[1]);
         }
 
         public void Consume(ClockSignal e)

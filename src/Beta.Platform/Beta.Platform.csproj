@@ -80,6 +80,7 @@
     <Compile Include="Audio\IAudioParameterProvider.cs" />
     <Compile Include="BitString.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ColorHelper.cs" />
     <Compile Include="Configuration\AudioConfiguration.cs" />
     <Compile Include="Configuration\ConfigurationFile.cs" />
     <Compile Include="Configuration\ConfigurationLoader.cs" />

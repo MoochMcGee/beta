@@ -77,7 +77,9 @@
     <Compile Include="Memory\ICartridgeConnector.cs" />
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\MMIO.cs" />
+    <Compile Include="Memory\OAM.cs" />
     <Compile Include="Memory\Registers.cs" />
+    <Compile Include="Memory\VRAM.cs" />
     <Compile Include="Memory\Wram.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\InterruptSignal.cs" />
