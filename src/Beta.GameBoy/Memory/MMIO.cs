@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class MMIO
+    public sealed class MMIO : IMemory
     {
         private readonly Registers regs;
 
@@ -46,6 +46,8 @@
             case 0xff07: regs.tma.control = data; break;
 
             case 0xff0f: regs.cpu.irf = data; break;
+
+            case 0xff50: regs.boot_rom_enabled = false; break;
 
             case 0xffff: regs.cpu.ief = data; break;
             }

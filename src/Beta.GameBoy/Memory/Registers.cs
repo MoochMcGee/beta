@@ -5,6 +5,8 @@
         public CpuRegisters cpu = new CpuRegisters();
         public PadRegisters pad = new PadRegisters();
         public TmaRegisters tma = new TmaRegisters();
+
+        public bool boot_rom_enabled = true;
     }
 
     public sealed class CpuRegisters

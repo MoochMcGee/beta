@@ -72,7 +72,10 @@
     <Compile Include="DriverFactory.cs" />
     <Compile Include="IAddressSpace.cs" />
     <Compile Include="Memory\Bios.cs" />
+    <Compile Include="Memory\CartridgeConnector.cs" />
     <Compile Include="Memory\Hram.cs" />
+    <Compile Include="Memory\ICartridgeConnector.cs" />
+    <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\MMIO.cs" />
     <Compile Include="Memory\Registers.cs" />
     <Compile Include="Memory\Wram.cs" />

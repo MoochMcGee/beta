@@ -7,11 +7,11 @@ namespace Beta.GameBoy.Boards
         private DateTime rtc;
         private bool ramEnable;
         private int ramPage;
-        private int romPage = (1 << 14);
+        private int romPage = 1 << 14;
         private int rtcLatch;
 
-        public NintendoMbc3(IAddressSpace addressSpace, byte[] rom)
-            : base(addressSpace, rom)
+        public NintendoMbc3(byte[] rom)
+            : base(rom)
         {
         }
 
@@ -59,7 +59,7 @@ namespace Beta.GameBoy.Boards
 
             if (romPage == 0)
             {
-                romPage += (1 << 14);
+                romPage += 1 << 14;
             }
         }
 
@@ -100,23 +100,21 @@ namespace Beta.GameBoy.Boards
             }
         }
 
-        protected override void DisableBios(ushort address, byte data)
+        public override byte Read(ushort address)
         {
-            AddressSpace.Map(0x0000, 0x00FF, Read_0000_3FFF, Write_0000_1FFF);
-            AddressSpace.Map(0x0200, 0x08FF, Read_0000_3FFF, Write_0000_1FFF);
+            if (address >= 0x0000 && address <= 0x3FFF) return Read_0000_3FFF(address);
+            if (address >= 0x4000 && address <= 0x7FFF) return Read_4000_7FFF(address);
+            if (address >= 0xA000 && address <= 0xBFFF) return Read_A000_BFFF(address);
+            return 0xff;
         }
 
-        protected override void HookRam()
+        public override void Write(ushort address, byte data)
         {
-            AddressSpace.Map(0xA000, 0xBFFF, Read_A000_BFFF, Write_A000_BFFF);
-        }
-
-        protected override void HookRom()
-        {
-            AddressSpace.Map(0x0000, 0x1FFF, Read_0000_3FFF, Write_0000_1FFF);
-            AddressSpace.Map(0x2000, 0x3FFF, Read_0000_3FFF, Write_2000_3FFF);
-            AddressSpace.Map(0x4000, 0x5FFF, Read_4000_7FFF, Write_4000_5FFF);
-            AddressSpace.Map(0x6000, 0x7FFF, Read_4000_7FFF, Write_6000_7FFF);
+            if (address >= 0x0000 && address <= 0x1FFF) Write_0000_1FFF(address, data);
+            if (address >= 0x2000 && address <= 0x3FFF) Write_2000_3FFF(address, data);
+            if (address >= 0x4000 && address <= 0x5FFF) Write_4000_5FFF(address, data);
+            if (address >= 0x6000 && address <= 0x7FFF) Write_6000_7FFF(address, data);
+            if (address >= 0xA000 && address <= 0xBFFF) Write_A000_BFFF(address, data);
         }
     }
 }

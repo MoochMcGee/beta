@@ -15,6 +15,7 @@ namespace Beta.GameBoy
         {
             container.RegisterSingleton<IAddressSpace, AddressSpace>();
             container.RegisterSingleton<IBoardFactory, BoardFactory>();
+            container.RegisterSingleton<ICartridgeConnector, CartridgeConnector>();
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
             container.RegisterSingleton<IResetButton, DefaultResetButton>();
