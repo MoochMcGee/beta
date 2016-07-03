@@ -5,12 +5,12 @@ namespace Beta.GameBoy.Memory
     public sealed class CartridgeConnector : ICartridgeConnector
     {
         private readonly IBoardFactory boardFactory;
-        private readonly Bios boot;
+        private readonly BIOS boot;
         private readonly Registers regs;
 
         private Board cart;
 
-        public CartridgeConnector(IBoardFactory boardFactory, Bios boot, Registers regs)
+        public CartridgeConnector(IBoardFactory boardFactory, BIOS boot, Registers regs)
         {
             this.boardFactory = boardFactory;
             this.boot = boot;

@@ -23,37 +23,29 @@ namespace Beta.GameBoy
 
         public IDriver Create(byte[] binary)
         {
-            var result = new Driver();
-            result.Apu = container.GetInstance<Apu>();
-            result.Cpu = container.GetInstance<Cpu>();
-            result.Ppu = container.GetInstance<Ppu>();
-            result.Pad = container.GetInstance<Pad>();
-            result.Tma = container.GetInstance<Tma>();
-
-            broker.Subscribe(result.Apu);
-            broker.Subscribe(result.Cpu);
-            broker.Subscribe(result.Pad);
-            broker.Subscribe(result.Ppu);
-            broker.Subscribe(result.Tma);
+            broker.Subscribe(container.GetInstance<Apu>());
+            broker.Subscribe(container.GetInstance<Cpu>());
+            broker.Subscribe(container.GetInstance<Pad>());
+            broker.Subscribe(container.GetInstance<Ppu>());
+            broker.Subscribe(container.GetInstance<Tma>());
 
             cartridgeConnector.InsertCartridge(binary);
 
             var addressSpace = container.GetInstance<IAddressSpace>();
-            var bios = container.GetInstance<Bios>();
+            var bios = container.GetInstance<BIOS>();
             var vram = container.GetInstance<VRAM>();
-            var wram = container.GetInstance<Wram>();
-            var hram = container.GetInstance<Hram>();
+            var wram = container.GetInstance<WRAM>();
+            var hram = container.GetInstance<HRAM>();
             var  oam = container.GetInstance< OAM>();
 
             addressSpace.Map(0x0000, 0x7fff, cartridgeConnector.Read, cartridgeConnector.Write);
-            addressSpace.Map(0xa000, 0xbfff, cartridgeConnector.Read, cartridgeConnector.Write);
-
             addressSpace.Map(0x8000, 0x9fff, vram.Read, vram.Write);
+            addressSpace.Map(0xa000, 0xbfff, cartridgeConnector.Read, cartridgeConnector.Write);
             addressSpace.Map(0xc000, 0xfdff, wram.Read, wram.Write);
-            addressSpace.Map(0xff80, 0xfffe, hram.Read, hram.Write);
             addressSpace.Map(0xfe00, 0xfe9f,  oam.Read,  oam.Write);
+            addressSpace.Map(0xff80, 0xfffe, hram.Read, hram.Write);
 
-            return result;
+            return container.GetInstance<Driver>();
         }
     }
 }

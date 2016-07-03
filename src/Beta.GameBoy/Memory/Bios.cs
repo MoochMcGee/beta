@@ -2,11 +2,11 @@
 
 namespace Beta.GameBoy.Memory
 {
-    public sealed class Bios
+    public sealed class BIOS : IMemory
     {
-        private byte[] bios;
+        private readonly byte[] bios;
 
-        public Bios()
+        public BIOS()
         {
             bios = File.ReadAllBytes("drivers/gb.sys/boot.rom");
         }

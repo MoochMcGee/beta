@@ -1,8 +1,8 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class Wram
+    public sealed class WRAM : IMemory
     {
-        private byte[] wram = new byte[0x2000];
+        private readonly byte[] wram = new byte[0x2000];
 
         public byte Read(ushort address)
         {

@@ -30,12 +30,12 @@ namespace Beta.GameBoy
             // 
 
             container.RegisterSingleton<Registers>();
-            container.RegisterSingleton<Bios>();
-            container.RegisterSingleton<Hram>();
+            container.RegisterSingleton<BIOS>();
+            container.RegisterSingleton<HRAM>();
             container.RegisterSingleton<MMIO>();
             container.RegisterSingleton<OAM>();
             container.RegisterSingleton<VRAM>();
-            container.RegisterSingleton<Wram>();
+            container.RegisterSingleton<WRAM>();
         }
     }
 }

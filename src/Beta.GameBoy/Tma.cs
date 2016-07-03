@@ -16,36 +16,36 @@ namespace Beta.GameBoy
         };
 
         private readonly IProducer<InterruptSignal> ints;
-        private readonly Registers regs;
+        private readonly TmaRegisters regs;
 
         public Tma(Registers regs, IProducer<InterruptSignal> ints)
         {
             this.ints = ints;
-            this.regs = regs;
+            this.regs = regs.tma;
         }
 
         public void Consume(ClockSignal e)
         {
-            regs.tma.counter_prescaler += e.Cycles;
-            regs.tma.divider_prescaler += e.Cycles;
+            regs.counter_prescaler += e.Cycles;
+            regs.divider_prescaler += e.Cycles;
 
-            if (regs.tma.divider_prescaler >= lut[3])
+            if (regs.divider_prescaler >= lut[3])
             {
-                regs.tma.divider_prescaler -= lut[3];
-                regs.tma.divider++;
+                regs.divider_prescaler -= lut[3];
+                regs.divider++;
             }
 
-            if (regs.tma.counter_prescaler >= lut[regs.tma.control & 3])
+            if (regs.counter_prescaler >= lut[regs.control & 3])
             {
-                regs.tma.counter_prescaler -= lut[regs.tma.counter & 3];
+                regs.counter_prescaler -= lut[regs.counter & 3];
 
-                if ((regs.tma.control & 4) != 0)
+                if ((regs.control & 4) != 0)
                 {
-                    regs.tma.counter++;
+                    regs.counter++;
 
-                    if (regs.tma.counter == 0)
+                    if (regs.counter == 0)
                     {
-                        regs.tma.counter = regs.tma.modulus;
+                        regs.counter = regs.modulus;
                         ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
                     }
                 }
