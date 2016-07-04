@@ -35,14 +35,16 @@ namespace Beta.GameBoy
             var bios = container.GetInstance<BIOS>();
             var vram = container.GetInstance<VRAM>();
             var wram = container.GetInstance<WRAM>();
-            var hram = container.GetInstance<HRAM>();
             var  oam = container.GetInstance< OAM>();
+            var wave = container.GetInstance<Wave>();
+            var hram = container.GetInstance<HRAM>();
 
             addressSpace.Map(0x0000, 0x7fff, cartridgeConnector.Read, cartridgeConnector.Write);
             addressSpace.Map(0x8000, 0x9fff, vram.Read, vram.Write);
             addressSpace.Map(0xa000, 0xbfff, cartridgeConnector.Read, cartridgeConnector.Write);
             addressSpace.Map(0xc000, 0xfdff, wram.Read, wram.Write);
             addressSpace.Map(0xfe00, 0xfe9f,  oam.Read,  oam.Write);
+            addressSpace.Map(0xff30, 0xff3f, wave.Read, wave.Write);
             addressSpace.Map(0xff80, 0xfffe, hram.Read, hram.Write);
 
             return container.GetInstance<Driver>();

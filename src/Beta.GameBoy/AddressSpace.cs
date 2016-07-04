@@ -23,6 +23,12 @@ namespace Beta.GameBoy
             Map(0xff04, 0xff07, mmio.Read, mmio.Write);
             Map(0xff0f, mmio.Read, mmio.Write);
 
+            Map(0xff10, 0xff14, mmio.Read, mmio.Write);
+            Map(0xff16, 0xff19, mmio.Read, mmio.Write);
+            Map(0xff1a, 0xff1e, mmio.Read, mmio.Write);
+            Map(0xff20, 0xff23, mmio.Read, mmio.Write);
+            Map(0xff24, 0xff26, mmio.Read, mmio.Write);
+
             Map(0xff40, 0xff4b, mmio.Read, mmio.Write);
 
             Map(0xff50, mmio.Read, mmio.Write);

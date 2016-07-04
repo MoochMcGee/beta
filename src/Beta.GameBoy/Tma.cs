@@ -22,22 +22,34 @@ namespace Beta.GameBoy
         {
             this.ints = ints;
             this.regs = regs.tma;
+
+            this.regs.divider_prescaler = lut[3];
+            this.regs.counter_prescaler = lut[0];
         }
 
         public void Consume(ClockSignal e)
         {
-            regs.counter_prescaler += e.Cycles;
-            regs.divider_prescaler += e.Cycles;
-
-            if (regs.divider_prescaler >= lut[3])
+            for (int i = 0; i < e.Cycles; i++)
             {
-                regs.divider_prescaler -= lut[3];
+                Tick();
+            }
+        }
+
+        private void Tick()
+        {
+            regs.divider_prescaler--;
+
+            if (regs.divider_prescaler == 0)
+            {
+                regs.divider_prescaler = lut[3];
                 regs.divider++;
             }
 
-            if (regs.counter_prescaler >= lut[regs.control & 3])
+            regs.counter_prescaler--;
+
+            if (regs.counter_prescaler == 0)
             {
-                regs.counter_prescaler -= lut[regs.counter & 3];
+                regs.counter_prescaler = lut[regs.control & 3];
 
                 if ((regs.control & 4) != 0)
                 {

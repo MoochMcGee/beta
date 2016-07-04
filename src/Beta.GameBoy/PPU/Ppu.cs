@@ -171,12 +171,12 @@ namespace Beta.GameBoy.PPU
                 return;
             }
 
-            var x = (regs.window_x - 8);
+            var x = (regs.window_x - 7);
             var y = (regs.v - regs.window_y) & 0xff;
 
             var name_address = regs.wnd_name_address | ((y & ~7) << 2);
 
-            var tx = (168 - regs.window_x) / 8;
+            var tx = (168 - x) / 8;
 
             for (var i = 0; i < tx; i++)
             {

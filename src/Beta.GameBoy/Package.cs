@@ -35,6 +35,7 @@ namespace Beta.GameBoy
             container.RegisterSingleton<MMIO>();
             container.RegisterSingleton<OAM>();
             container.RegisterSingleton<VRAM>();
+            container.RegisterSingleton<Wave>();
             container.RegisterSingleton<WRAM>();
         }
     }

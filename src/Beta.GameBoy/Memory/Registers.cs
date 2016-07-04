@@ -1,11 +1,19 @@
-﻿namespace Beta.GameBoy.Memory
+﻿using Beta.GameBoy.APU;
+
+namespace Beta.GameBoy.Memory
 {
     public sealed class Registers
     {
+        public ApuRegisters apu = new ApuRegisters();
         public CpuRegisters cpu = new CpuRegisters();
         public PadRegisters pad = new PadRegisters();
         public PpuRegisters ppu = new PpuRegisters();
         public TmaRegisters tma = new TmaRegisters();
+
+        public NoiRegisters noi = new NoiRegisters();
+        public Sq1Registers sq1 = new Sq1Registers();
+        public Sq2Registers sq2 = new Sq2Registers();
+        public WavRegisters wav = new WavRegisters();
 
         public bool boot_rom_enabled = true;
     }
