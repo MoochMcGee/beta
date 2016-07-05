@@ -5,17 +5,17 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class Eram : MemoryChip
+    public sealed class ERAM : MemoryChip, IMemory
     {
         private const int SIZE = (1 << 18);
         private const int MASK = (SIZE - 1);
 
-        public Eram()
+        public ERAM()
             : base(SIZE)
         {
         }
 
-        public word Peek(int size, word address)
+        public word Read(int size, word address)
         {
             if (size == 2) return w[(address & MASK) >> 2];
             if (size == 1) return h[(address & MASK) >> 1];
@@ -23,7 +23,7 @@ namespace Beta.GameBoyAdvance.Memory
             throw new CompilerPleasingException();
         }
 
-        public void Poke(int size, word address, word data)
+        public void Write(int size, word address, word data)
         {
             if (size == 0) { b[(address & MASK) >> 0] = (byte)data; return; }
             if (size == 1) { h[(address & MASK) >> 1] = (half)data; return; }

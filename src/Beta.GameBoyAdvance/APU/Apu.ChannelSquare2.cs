@@ -31,35 +31,35 @@ namespace Beta.GameBoyAdvance.APU
                 this.timing.Single = timing.Single;
             }
 
-            protected override void PokeRegister1(uint address, byte data)
+            protected override void WriteRegister1(uint address, byte data)
             {
-                base.PokeRegister1(address, data);
+                base.WriteRegister1(address, data);
 
                 form = data >> 6;
                 duration.Refresh = (data & 0x3F);
                 duration.Counter = 64 - duration.Refresh;
             }
 
-            protected override void PokeRegister2(uint address, byte data)
+            protected override void WriteRegister2(uint address, byte data)
             {
-                base.PokeRegister2(address, data);
+                base.WriteRegister2(address, data);
 
                 envelope.Level = (data >> 4 & 0xF);
                 envelope.Delta = (data >> 2 & 0x2) - 1;
                 envelope.Timing.Period = (data & 0x7);
             }
 
-            protected override void PokeRegister5(uint address, byte data)
+            protected override void WriteRegister5(uint address, byte data)
             {
-                base.PokeRegister5(address, data);
+                base.WriteRegister5(address, data);
 
                 frequency = (frequency & 0x700) | (data << 0 & 0x0FF);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;
             }
 
-            protected override void PokeRegister6(uint address, byte data)
+            protected override void WriteRegister6(uint address, byte data)
             {
-                base.PokeRegister6(address, data);
+                base.WriteRegister6(address, data);
 
                 frequency = (frequency & 0x0FF) | (data << 8 & 0x700);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;

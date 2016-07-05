@@ -32,32 +32,32 @@ namespace Beta.GameBoyAdvance
             Map(9, "L-Shoulder"); // 9 - Button L (etc.)
         }
 
-        private byte Peek130(uint address)
+        private byte Read130(uint address)
         {
             return data.l;
         }
 
-        private byte Peek131(uint address)
+        private byte Read131(uint address)
         {
             return data.h;
         }
 
-        private byte Peek132(uint address)
+        private byte Read132(uint address)
         {
             return mask.l;
         }
 
-        private byte Peek133(uint address)
+        private byte Read133(uint address)
         {
             return mask.h;
         }
 
-        private void Poke132(uint address, byte data)
+        private void Write132(uint address, byte data)
         {
             mask.l = data;
         }
 
-        private void Poke133(uint address, byte data)
+        private void Write133(uint address, byte data)
         {
             mask.h = data;
         }
@@ -65,10 +65,10 @@ namespace Beta.GameBoyAdvance
         public void Initialize()
         {
             var mmio = gameSystem.mmio;
-            mmio.Map(0x130, Peek130);
-            mmio.Map(0x131, Peek131);
-            mmio.Map(0x132, Peek132, Poke132);
-            mmio.Map(0x133, Peek133, Poke133);
+            mmio.Map(0x130, Read130);
+            mmio.Map(0x131, Read131);
+            mmio.Map(0x132, Read132, Write132);
+            mmio.Map(0x133, Read133, Write133);
         }
 
         public override void Update()
@@ -92,17 +92,17 @@ namespace Beta.GameBoyAdvance
             {
                 if ((mask.w & 0x8000) != 0)
                 {
-                    //if ((data.w & mask.w) != 0)
-                    //{
-                    //    cpu.Interrupt(Cpu.Source.JOYPAD);
-                    //}
+                    // if ((data.w & mask.w) != 0)
+                    // {
+                    //     cpu.Interrupt(Cpu.Source.JOYPAD);
+                    // }
                 }
                 else
                 {
-                    //if ((data.w & mask.w) == mask.w)
-                    //{
-                    //    cpu.Interrupt(Cpu.Source.JOYPAD);
-                    //}
+                    // if ((data.w & mask.w) == mask.w)
+                    // {
+                    //     cpu.Interrupt(Cpu.Source.JOYPAD);
+                    // }
                 }
             }
 

@@ -47,62 +47,62 @@ namespace Beta.GameBoyAdvance.CPU
             timer[3].NextTimer = null;
         }
 
-        private byte Peek200(uint address)
+        private byte Read200(uint address)
         {
             return ief.l;
         }
 
-        private byte Peek201(uint address)
+        private byte Read201(uint address)
         {
             return ief.h;
         }
 
-        private byte Peek202(uint address)
+        private byte Read202(uint address)
         {
             return irf.l;
         }
 
-        private byte Peek203(uint address)
+        private byte Read203(uint address)
         {
             return irf.h;
         }
 
-        private void Poke200(uint address, byte data)
+        private void Write200(uint address, byte data)
         {
             ief.l = data;
         }
 
-        private void Poke201(uint address, byte data)
+        private void Write201(uint address, byte data)
         {
             ief.h = data;
         }
 
-        private void Poke202(uint address, byte data)
+        private void Write202(uint address, byte data)
         {
             irf.l &= (byte)~data;
         }
 
-        private void Poke203(uint address, byte data)
+        private void Write203(uint address, byte data)
         {
             irf.h &= (byte)~data;
         }
 
-        private byte Peek208(uint address)
+        private byte Read208(uint address)
         {
             return (byte)(ime ? 1 : 0);
         }
 
-        private byte Peek209(uint address)
+        private byte Read209(uint address)
         {
             return 0;
         }
 
-        private void Poke208(uint address, byte data)
+        private void Write208(uint address, byte data)
         {
             ime = (data & 1) != 0;
         }
 
-        private void Poke209(uint address, byte data)
+        private void Write209(uint address, byte data)
         {
         }
 
@@ -119,12 +119,17 @@ namespace Beta.GameBoyAdvance.CPU
             if (timer[3].Enabled) { timer[3].Update(Cycles); }
         }
 
-        protected override uint Peek(int size, uint address)
+        protected override uint Read(int size, uint address)
         {
-            return gameSystem.Read(size, address);
+            int cycles;
+            var data = gameSystem.Read(size, address, out cycles);
+
+            this.Cycles += cycles;
+
+            return data;
         }
 
-        protected override void Poke(int size, uint address, uint data)
+        protected override void Write(int size, uint address, uint data)
         {
             if (size == 0)
             {
@@ -138,7 +143,8 @@ namespace Beta.GameBoyAdvance.CPU
                 data |= (data << 16);
             }
 
-            gameSystem.Write(size, address, data);
+            int cycles;
+            gameSystem.Write(size, address, data, out cycles);
         }
 
         public override void Initialize()
@@ -159,12 +165,12 @@ namespace Beta.GameBoyAdvance.CPU
             timer[3].Initialize(0x10c);
 
             var mmio = gameSystem.mmio;
-            mmio.Map(0x200, Peek200, Poke200);
-            mmio.Map(0x201, Peek201, Poke201);
-            mmio.Map(0x202, Peek202, Poke202);
-            mmio.Map(0x203, Peek203, Poke203);
-            mmio.Map(0x208, Peek208, Poke208);
-            mmio.Map(0x209, Peek209, Poke209);
+            mmio.Map(0x200, Read200, Write200);
+            mmio.Map(0x201, Read201, Write201);
+            mmio.Map(0x202, Read202, Write202);
+            mmio.Map(0x203, Read203, Write203);
+            mmio.Map(0x208, Read208, Write208);
+            mmio.Map(0x209, Read209, Write209);
         }
 
         public override void Update()

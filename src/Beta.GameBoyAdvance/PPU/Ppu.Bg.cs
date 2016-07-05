@@ -47,17 +47,17 @@ namespace Beta.GameBoyAdvance.PPU
 
             #region Registers
 
-            private byte PeekControl_0(uint address)
+            private byte ReadControl_0(uint address)
             {
                 return controlRegister.l;
             }
 
-            private byte PeekControl_1(uint address)
+            private byte ReadControl_1(uint address)
             {
                 return controlRegister.h;
             }
 
-            private void PokeControl_0(uint address, byte data)
+            private void WriteControl_0(uint address, byte data)
             {
                 controlRegister.l = data &= 0xCF;
 
@@ -67,7 +67,7 @@ namespace Beta.GameBoyAdvance.PPU
                 Depth = (data & 0x80) != 0;
             }
 
-            private void PokeControl_1(uint address, byte data)
+            private void WriteControl_1(uint address, byte data)
             {
                 controlRegister.h = data &= 0xFF;
 
@@ -76,103 +76,103 @@ namespace Beta.GameBoyAdvance.PPU
                 Size = (data & 0xC0) >> 6;
             }
 
-            private void PokeScrollX_0(uint address, byte data)
+            private void WriteScrollX_0(uint address, byte data)
             {
                 offsetXRegister.l = data;
             }
 
-            private void PokeScrollX_1(uint address, byte data)
+            private void WriteScrollX_1(uint address, byte data)
             {
                 offsetXRegister.h = data &= 0x01;
             }
 
-            private void PokeScrollY_0(uint address, byte data)
+            private void WriteScrollY_0(uint address, byte data)
             {
                 offsetYRegister.l = data;
             }
 
-            private void PokeScrollY_1(uint address, byte data)
+            private void WriteScrollY_1(uint address, byte data)
             {
                 offsetYRegister.h = data &= 0x01;
             }
 
             // Affine Registers (Bg2, Bg3)
-            private void PokePA_0(uint address, byte data)
+            private void WritePA_0(uint address, byte data)
             {
                 paRegister.l = data;
             }
 
-            private void PokePA_1(uint address, byte data)
+            private void WritePA_1(uint address, byte data)
             {
                 paRegister.h = data;
             }
 
-            private void PokePB_0(uint address, byte data)
+            private void WritePB_0(uint address, byte data)
             {
                 pbRegister.l = data;
             }
 
-            private void PokePB_1(uint address, byte data)
+            private void WritePB_1(uint address, byte data)
             {
                 pbRegister.h = data;
             }
 
-            private void PokePC_0(uint address, byte data)
+            private void WritePC_0(uint address, byte data)
             {
                 pcRegister.l = data;
             }
 
-            private void PokePC_1(uint address, byte data)
+            private void WritePC_1(uint address, byte data)
             {
                 pcRegister.h = data;
             }
 
-            private void PokePD_0(uint address, byte data)
+            private void WritePD_0(uint address, byte data)
             {
                 pdRegister.l = data;
             }
 
-            private void PokePD_1(uint address, byte data)
+            private void WritePD_1(uint address, byte data)
             {
                 pdRegister.h = data;
             }
 
-            private void PokeRX_0(uint address, byte data)
+            private void WriteRX_0(uint address, byte data)
             {
                 rxRegister.ub0 = data;
             }
 
-            private void PokeRX_1(uint address, byte data)
+            private void WriteRX_1(uint address, byte data)
             {
                 rxRegister.ub1 = data;
             }
 
-            private void PokeRX_2(uint address, byte data)
+            private void WriteRX_2(uint address, byte data)
             {
                 rxRegister.ub2 = data;
             }
 
-            private void PokeRX_3(uint address, byte data)
+            private void WriteRX_3(uint address, byte data)
             {
                 rxRegister.ub3 = data; Rx = (int)rxRegister.ud0;
             }
 
-            private void PokeRY_0(uint address, byte data)
+            private void WriteRY_0(uint address, byte data)
             {
                 ryRegister.ub0 = data;
             }
 
-            private void PokeRY_1(uint address, byte data)
+            private void WriteRY_1(uint address, byte data)
             {
                 ryRegister.ub1 = data;
             }
 
-            private void PokeRY_2(uint address, byte data)
+            private void WriteRY_2(uint address, byte data)
             {
                 ryRegister.ub2 = data;
             }
 
-            private void PokeRY_3(uint address, byte data)
+            private void WriteRY_3(uint address, byte data)
             {
                 ryRegister.ub3 = data; Ry = (int)ryRegister.ud0;
             }
@@ -185,31 +185,31 @@ namespace Beta.GameBoyAdvance.PPU
 
                 Index = (int)index;
 
-                gameSystem.mmio.Map(0x008 + (index * 2), PeekControl_0, PokeControl_0);
-                gameSystem.mmio.Map(0x009 + (index * 2), PeekControl_1, PokeControl_1);
-                gameSystem.mmio.Map(0x010 + (index * 4), /*          */ PokeScrollX_0);
-                gameSystem.mmio.Map(0x011 + (index * 4), /*          */ PokeScrollX_1);
-                gameSystem.mmio.Map(0x012 + (index * 4), /*          */ PokeScrollY_0);
-                gameSystem.mmio.Map(0x013 + (index * 4), /*          */ PokeScrollY_1);
+                gameSystem.mmio.Map(0x008 + (index * 2), ReadControl_0, WriteControl_0);
+                gameSystem.mmio.Map(0x009 + (index * 2), ReadControl_1, WriteControl_1);
+                gameSystem.mmio.Map(0x010 + (index * 4), /*          */ WriteScrollX_0);
+                gameSystem.mmio.Map(0x011 + (index * 4), /*          */ WriteScrollX_1);
+                gameSystem.mmio.Map(0x012 + (index * 4), /*          */ WriteScrollY_0);
+                gameSystem.mmio.Map(0x013 + (index * 4), /*          */ WriteScrollY_1);
 
                 if (index >= 2)
                 {
-                    gameSystem.mmio.Map(0x020 + ((index - 2) * 16), PokePA_0);
-                    gameSystem.mmio.Map(0x021 + ((index - 2) * 16), PokePA_1);
-                    gameSystem.mmio.Map(0x022 + ((index - 2) * 16), PokePB_0);
-                    gameSystem.mmio.Map(0x023 + ((index - 2) * 16), PokePB_1);
-                    gameSystem.mmio.Map(0x024 + ((index - 2) * 16), PokePC_0);
-                    gameSystem.mmio.Map(0x025 + ((index - 2) * 16), PokePC_1);
-                    gameSystem.mmio.Map(0x026 + ((index - 2) * 16), PokePD_0);
-                    gameSystem.mmio.Map(0x027 + ((index - 2) * 16), PokePD_1);
-                    gameSystem.mmio.Map(0x028 + ((index - 2) * 16), PokeRX_0);
-                    gameSystem.mmio.Map(0x029 + ((index - 2) * 16), PokeRX_1);
-                    gameSystem.mmio.Map(0x02A + ((index - 2) * 16), PokeRX_2);
-                    gameSystem.mmio.Map(0x02B + ((index - 2) * 16), PokeRX_3);
-                    gameSystem.mmio.Map(0x02C + ((index - 2) * 16), PokeRY_0);
-                    gameSystem.mmio.Map(0x02D + ((index - 2) * 16), PokeRY_1);
-                    gameSystem.mmio.Map(0x02E + ((index - 2) * 16), PokeRY_2);
-                    gameSystem.mmio.Map(0x02F + ((index - 2) * 16), PokeRY_3);
+                    gameSystem.mmio.Map(0x020 + ((index - 2) * 16), WritePA_0);
+                    gameSystem.mmio.Map(0x021 + ((index - 2) * 16), WritePA_1);
+                    gameSystem.mmio.Map(0x022 + ((index - 2) * 16), WritePB_0);
+                    gameSystem.mmio.Map(0x023 + ((index - 2) * 16), WritePB_1);
+                    gameSystem.mmio.Map(0x024 + ((index - 2) * 16), WritePC_0);
+                    gameSystem.mmio.Map(0x025 + ((index - 2) * 16), WritePC_1);
+                    gameSystem.mmio.Map(0x026 + ((index - 2) * 16), WritePD_0);
+                    gameSystem.mmio.Map(0x027 + ((index - 2) * 16), WritePD_1);
+                    gameSystem.mmio.Map(0x028 + ((index - 2) * 16), WriteRX_0);
+                    gameSystem.mmio.Map(0x029 + ((index - 2) * 16), WriteRX_1);
+                    gameSystem.mmio.Map(0x02A + ((index - 2) * 16), WriteRX_2);
+                    gameSystem.mmio.Map(0x02B + ((index - 2) * 16), WriteRX_3);
+                    gameSystem.mmio.Map(0x02C + ((index - 2) * 16), WriteRY_0);
+                    gameSystem.mmio.Map(0x02D + ((index - 2) * 16), WriteRY_1);
+                    gameSystem.mmio.Map(0x02E + ((index - 2) * 16), WriteRY_2);
+                    gameSystem.mmio.Map(0x02F + ((index - 2) * 16), WriteRY_3);
                 }
             }
 

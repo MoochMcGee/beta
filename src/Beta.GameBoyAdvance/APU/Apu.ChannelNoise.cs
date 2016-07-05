@@ -54,43 +54,43 @@ namespace Beta.GameBoyAdvance.APU
             // 400007Eh - Not Used
             // 400007Fh - Not Used
 
-            protected override void PokeRegister1(uint address, byte data)
+            protected override void WriteRegister1(uint address, byte data)
             {
-                base.PokeRegister1(address, data);
+                base.WriteRegister1(address, data);
 
                 duration.Refresh = (data & 0x3F);
                 duration.Counter = 64 - duration.Refresh;
             }
 
-            protected override void PokeRegister2(uint address, byte data)
+            protected override void WriteRegister2(uint address, byte data)
             {
-                base.PokeRegister2(address, data);
+                base.WriteRegister2(address, data);
 
                 envelope.Level = (data >> 4 & 0xF);
                 envelope.Delta = (data >> 2 & 0x2) - 1;
                 envelope.Timing.Period = (data & 0x7);
             }
 
-            protected override void PokeRegister3(uint address, byte data)
+            protected override void WriteRegister3(uint address, byte data)
             {
             }
 
-            protected override void PokeRegister4(uint address, byte data)
+            protected override void WriteRegister4(uint address, byte data)
             {
             }
 
-            protected override void PokeRegister5(uint address, byte data)
+            protected override void WriteRegister5(uint address, byte data)
             {
-                base.PokeRegister5(address, data);
+                base.WriteRegister5(address, data);
 
                 shift = data & 0x8;
 
                 timing.Period = (divisorTable[data & 0x7] << (data >> 4)) * 4 * timing.Single;
             }
 
-            protected override void PokeRegister6(uint address, byte data)
+            protected override void WriteRegister6(uint address, byte data)
             {
-                base.PokeRegister6(address, data);
+                base.WriteRegister6(address, data);
 
                 if (data >= 0x80)
                 {
@@ -110,11 +110,11 @@ namespace Beta.GameBoyAdvance.APU
                     active = false;
             }
 
-            protected override void PokeRegister7(uint address, byte data)
+            protected override void WriteRegister7(uint address, byte data)
             {
             }
 
-            protected override void PokeRegister8(uint address, byte data)
+            protected override void WriteRegister8(uint address, byte data)
             {
             }
 

@@ -16,34 +16,35 @@ namespace Beta.GameBoyAdvance
 
         private GamePak gamePak;
 
+        public IAudioBackend Audio;
+        public IVideoBackend Video;
         public Apu Apu;
         public Cpu Cpu;
         public Ppu Ppu;
         public Pad Pad;
 
-        public IAudioBackend Audio { get; set; }
-
-        public IVideoBackend Video { get; set; }
-
-        public Driver()
+        public Driver(IAudioBackend audio, IVideoBackend video)
         {
+            this.Audio = audio;
+            this.Video = video;
+
             Cpu = new Cpu(this);
             Ppu = new Ppu(this);
             Apu = new Apu(this);
             Pad = new Pad(this);
         }
 
-        private byte PeekOpenBus(word address)
+        private byte ReadOpenBus(word address)
         {
             return ioMemory[address & 0x3ff];
         }
 
-        private void PokeOpenBus(word address, byte data)
+        private void WriteOpenBus(word address, byte data)
         {
             ioMemory[address & 0x3ff] = data;
         }
 
-        private void Poke204(word address, byte data)
+        private void Write204(word address, byte data)
         {
             ioMemory[0x204] = data;
 
@@ -54,7 +55,7 @@ namespace Beta.GameBoyAdvance
             gamePak.Set2ndAccessTiming((data >> 7) & 1, GamePak.WAIT_STATE_1);
         }
 
-        private void Poke205(word address, byte data)
+        private void Write205(word address, byte data)
         {
             ioMemory[0x205] = data;
 
@@ -79,7 +80,7 @@ namespace Beta.GameBoyAdvance
 
         public void Initialize()
         {
-            mmio.Map(0x000, 0x3ff, PeekOpenBus, PokeOpenBus);
+            mmio.Map(0x000, 0x3ff, ReadOpenBus, WriteOpenBus);
 
             Cpu.Initialize();
             Ppu.Initialize();
@@ -88,14 +89,14 @@ namespace Beta.GameBoyAdvance
 
             gamePak.Initialize();
 
-            mmio.Map(0x204, Poke204);
-            mmio.Map(0x205, Poke205);
+            mmio.Map(0x204, Write204);
+            mmio.Map(0x205, Write205);
             // 20a - 20f
         }
 
         public void LoadGame(byte[] binary)
         {
-            bios = new Bios(Cpu, File.ReadAllBytes("systems/agb.sys/bios.rom"));
+            bios = new BIOS(Cpu, File.ReadAllBytes("drivers/gba.sys/bios.rom"));
             gamePak = new GamePak(this, binary);
         }
     }

@@ -41,42 +41,42 @@ namespace Beta.GameBoyAdvance
 
         #region Registers
 
-        private byte PeekCounter_0(uint address)
+        private byte ReadCounter_0(uint address)
         {
             return (byte)(counter);
         }
 
-        private byte PeekCounter_1(uint address)
+        private byte ReadCounter_1(uint address)
         {
             return (byte)(counter >> 8);
         }
 
-        private byte PeekControl_0(uint address)
+        private byte ReadControl_0(uint address)
         {
             return (byte)(control);
         }
 
-        private byte PeekControl_1(uint address)
+        private byte ReadControl_1(uint address)
         {
             return (byte)(control >> 8);
         }
 
-        private void PokeCounter_0(uint address, byte value)
+        private void WriteCounter_0(uint address, byte value)
         {
             refresh = (refresh & ~0x00ff) | (value << 0);
         }
 
-        private void PokeCounter_1(uint address, byte value)
+        private void WriteCounter_1(uint address, byte value)
         {
             refresh = (refresh & ~0xff00) | (value << 8);
         }
 
-        private void PokeControl_0(uint address, byte value)
+        private void WriteControl_0(uint address, byte value)
         {
             control = (control & ~0x00ff) | (value << 0);
         }
 
-        private void PokeControl_1(uint address, byte value)
+        private void WriteControl_1(uint address, byte value)
         {
             control = (control & ~0xff00) | (value << 8);
         }
@@ -114,10 +114,10 @@ namespace Beta.GameBoyAdvance
             apu = gameSystem.Apu;
             cpu = gameSystem.Cpu;
 
-            gameSystem.mmio.Map(address + 0u, PeekCounter_0, PokeCounter_0);
-            gameSystem.mmio.Map(address + 1u, PeekCounter_1, PokeCounter_1);
-            gameSystem.mmio.Map(address + 2u, PeekControl_0, PokeControl_0);
-            gameSystem.mmio.Map(address + 3u, PeekControl_1, PokeControl_1);
+            gameSystem.mmio.Map(address + 0u, ReadCounter_0, WriteCounter_0);
+            gameSystem.mmio.Map(address + 1u, ReadCounter_1, WriteCounter_1);
+            gameSystem.mmio.Map(address + 2u, ReadControl_0, WriteControl_0);
+            gameSystem.mmio.Map(address + 3u, ReadControl_1, WriteControl_1);
         }
 
         public void Update()

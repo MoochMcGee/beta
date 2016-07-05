@@ -38,44 +38,44 @@ namespace Beta.GameBoyAdvance.APU
                 sweepTiming.Single = 1;
             }
 
-            protected override void PokeRegister1(uint address, byte data)
+            protected override void WriteRegister1(uint address, byte data)
             {
-                base.PokeRegister1(address, data);
+                base.WriteRegister1(address, data);
 
                 sweepTiming.Period = (data >> 4 & 0x7);
                 sweepDelta = 1 - (data >> 2 & 0x2);
                 sweepShift = (data >> 0 & 0x7);
             }
 
-            protected override void PokeRegister3(uint address, byte data)
+            protected override void WriteRegister3(uint address, byte data)
             {
-                base.PokeRegister3(address, data);
+                base.WriteRegister3(address, data);
 
                 form = data >> 6;
                 duration.Refresh = (data & 0x3F);
                 duration.Counter = 64 - duration.Refresh;
             }
 
-            protected override void PokeRegister4(uint address, byte data)
+            protected override void WriteRegister4(uint address, byte data)
             {
-                base.PokeRegister4(address, data);
+                base.WriteRegister4(address, data);
 
                 envelope.Level = (data >> 4 & 0xF);
                 envelope.Delta = (data >> 2 & 0x2) - 1;
                 envelope.Timing.Period = (data & 0x7);
             }
 
-            protected override void PokeRegister5(uint address, byte data)
+            protected override void WriteRegister5(uint address, byte data)
             {
-                base.PokeRegister5(address, data);
+                base.WriteRegister5(address, data);
 
                 frequency = (frequency & 0x700) | (data << 0 & 0x0FF);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;
             }
 
-            protected override void PokeRegister6(uint address, byte data)
+            protected override void WriteRegister6(uint address, byte data)
             {
-                base.PokeRegister6(address, data);
+                base.WriteRegister6(address, data);
 
                 frequency = (frequency & 0x0FF) | (data << 8 & 0x700);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;

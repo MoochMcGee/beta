@@ -47,7 +47,14 @@ namespace Beta.GameBoyAdvance
 
             do
             {
-                gameSystem.Write(size, target, gameSystem.Read(size, source));
+                int cycles;
+
+                var data = gameSystem.Read(size, source, out cycles);
+                gameSystem.Cpu.Cycles += cycles;
+
+                gameSystem.Write(size, target, data, out cycles);
+                gameSystem.Cpu.Cycles += cycles;
+
                 target += targetStep;
                 source += sourceStep;
             }
@@ -56,22 +63,22 @@ namespace Beta.GameBoyAdvance
 
         #region Registers
 
-        private byte PeekControl_0(uint address)
+        private byte ReadControl_0(uint address)
         {
             return controlRegister.l;
         }
 
-        private byte PeekControl_1(uint address)
+        private byte ReadControl_1(uint address)
         {
             return controlRegister.h;
         }
 
-        private void PokeControl_0(uint address, byte data)
+        private void WriteControl_0(uint address, byte data)
         {
             controlRegister.l = data;
         }
 
-        private void PokeControl_1(uint address, byte data)
+        private void WriteControl_1(uint address, byte data)
         {
             if (controlRegister.h < (data & 0x80))
             {
@@ -85,52 +92,52 @@ namespace Beta.GameBoyAdvance
             controlRegister.h = data;
         }
 
-        private void PokeCounter_0(uint address, byte data)
+        private void WriteCounter_0(uint address, byte data)
         {
             lengthRegister.l = data;
         }
 
-        private void PokeCounter_1(uint address, byte data)
+        private void WriteCounter_1(uint address, byte data)
         {
             lengthRegister.h = data;
         }
 
-        private void PokeDstAddr_0(uint address, byte data)
+        private void WriteDstAddr_0(uint address, byte data)
         {
             targetRegister.ub0 = data;
         }
 
-        private void PokeDstAddr_1(uint address, byte data)
+        private void WriteDstAddr_1(uint address, byte data)
         {
             targetRegister.ub1 = data;
         }
 
-        private void PokeDstAddr_2(uint address, byte data)
+        private void WriteDstAddr_2(uint address, byte data)
         {
             targetRegister.ub2 = data;
         }
 
-        private void PokeDstAddr_3(uint address, byte data)
+        private void WriteDstAddr_3(uint address, byte data)
         {
             targetRegister.ub3 = data;
         }
 
-        private void PokeSrcAddr_0(uint address, byte data)
+        private void WriteSrcAddr_0(uint address, byte data)
         {
             sourceRegister.ub0 = data;
         }
 
-        private void PokeSrcAddr_1(uint address, byte data)
+        private void WriteSrcAddr_1(uint address, byte data)
         {
             sourceRegister.ub1 = data;
         }
 
-        private void PokeSrcAddr_2(uint address, byte data)
+        private void WriteSrcAddr_2(uint address, byte data)
         {
             sourceRegister.ub2 = data;
         }
 
-        private void PokeSrcAddr_3(uint address, byte data)
+        private void WriteSrcAddr_3(uint address, byte data)
         {
             sourceRegister.ub3 = data;
         }
@@ -139,18 +146,18 @@ namespace Beta.GameBoyAdvance
 
         public void Initialize(uint address)
         {
-            gameSystem.mmio.Map(address + 0x0u, PokeSrcAddr_0); // $40000B0 - 32 - DMA0SAD
-            gameSystem.mmio.Map(address + 0x1u, PokeSrcAddr_1);
-            gameSystem.mmio.Map(address + 0x2u, PokeSrcAddr_2);
-            gameSystem.mmio.Map(address + 0x3u, PokeSrcAddr_3);
-            gameSystem.mmio.Map(address + 0x4u, PokeDstAddr_0); // $40000B4 - 32 - DMA0DAD
-            gameSystem.mmio.Map(address + 0x5u, PokeDstAddr_1);
-            gameSystem.mmio.Map(address + 0x6u, PokeDstAddr_2);
-            gameSystem.mmio.Map(address + 0x7u, PokeDstAddr_3);
-            gameSystem.mmio.Map(address + 0x8u, PokeCounter_0); // $40000B8 - 16 - DMA0CNT_L
-            gameSystem.mmio.Map(address + 0x9u, PokeCounter_1);
-            gameSystem.mmio.Map(address + 0xau, PeekControl_0, PokeControl_0); // $40000BA - 16 - DMA0CNT_H
-            gameSystem.mmio.Map(address + 0xbu, PeekControl_1, PokeControl_1);
+            gameSystem.mmio.Map(address + 0x0u, WriteSrcAddr_0); // $40000B0 - 32 - DMA0SAD
+            gameSystem.mmio.Map(address + 0x1u, WriteSrcAddr_1);
+            gameSystem.mmio.Map(address + 0x2u, WriteSrcAddr_2);
+            gameSystem.mmio.Map(address + 0x3u, WriteSrcAddr_3);
+            gameSystem.mmio.Map(address + 0x4u, WriteDstAddr_0); // $40000B4 - 32 - DMA0DAD
+            gameSystem.mmio.Map(address + 0x5u, WriteDstAddr_1);
+            gameSystem.mmio.Map(address + 0x6u, WriteDstAddr_2);
+            gameSystem.mmio.Map(address + 0x7u, WriteDstAddr_3);
+            gameSystem.mmio.Map(address + 0x8u, WriteCounter_0); // $40000B8 - 16 - DMA0CNT_L
+            gameSystem.mmio.Map(address + 0x9u, WriteCounter_1);
+            gameSystem.mmio.Map(address + 0xau, ReadControl_0, WriteControl_0); // $40000BA - 16 - DMA0CNT_H
+            gameSystem.mmio.Map(address + 0xbu, ReadControl_1, WriteControl_1);
         }
 
         public void Transfer()

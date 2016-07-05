@@ -22,7 +22,7 @@ namespace Beta.GameBoyAdvance.APU
                 array = new sbyte[32];
             }
 
-            private void PokeFifo(uint address, byte data)
+            private void WriteFifo(uint address, byte data)
             {
                 if (count < 32)
                 {
@@ -38,10 +38,10 @@ namespace Beta.GameBoyAdvance.APU
 
                 channel = dma;
 
-                gameSystem.mmio.Map(address + 0, PokeFifo);
-                gameSystem.mmio.Map(address + 1, PokeFifo);
-                gameSystem.mmio.Map(address + 2, PokeFifo);
-                gameSystem.mmio.Map(address + 3, PokeFifo);
+                gameSystem.mmio.Map(address + 0, WriteFifo);
+                gameSystem.mmio.Map(address + 1, WriteFifo);
+                gameSystem.mmio.Map(address + 2, WriteFifo);
+                gameSystem.mmio.Map(address + 3, WriteFifo);
             }
 
             public void Clear()

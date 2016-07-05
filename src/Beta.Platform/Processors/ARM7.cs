@@ -162,7 +162,7 @@ namespace Beta.Platform.Processors
 
         private uint LoadWord(uint address)
         {
-            var data = Peek(2, address & ~3u);
+            var data = Read(2, address & ~3u);
 
             switch (address & 3)
             {
@@ -314,7 +314,7 @@ namespace Beta.Platform.Processors
             {
                 pipeline.refresh = false;
                 pipeline.fetch.address = pc.value & ~3U;
-                pipeline.fetch.data = Peek(2, pipeline.fetch.address);
+                pipeline.fetch.data = Read(2, pipeline.fetch.address);
 
                 Armv4Step();
             }
@@ -399,7 +399,7 @@ namespace Beta.Platform.Processors
             pipeline.execute = pipeline.decode;
             pipeline.decode = pipeline.fetch;
             pipeline.fetch.address = pc.value & ~3U;
-            pipeline.fetch.data = Peek(2, pipeline.fetch.address);
+            pipeline.fetch.data = Read(2, pipeline.fetch.address);
         }
 
         #region Opcodes
@@ -550,8 +550,8 @@ namespace Beta.Platform.Processors
             var nn = (ih << 4) + (il << 0);
 
             if (p == 1) rn = u != 0 ? rn + nn : rn - nn;
-            if (l == 1) registers[d].value = Peek(1, rn); // todo: load half
-            if (l == 0) Poke(1, rn, (half)registers[d].value); // todo: store half
+            if (l == 1) registers[d].value = Read(1, rn); // todo: load half
+            if (l == 0) Write(1, rn, (half)registers[d].value); // todo: store half
             if (p == 0) rn = u != 0 ? rn + nn : rn - nn;
             if (p == 0 || w == 1 && n != d) registers[n].value = rn;
 
@@ -572,8 +572,8 @@ namespace Beta.Platform.Processors
             var rm = registers[m].value;
 
             if (p == 1) rn = u != 0 ? rn + rm : rn - rm;
-            if (l == 1) registers[d].value = Peek(1, rn); // todo: load half
-            if (l == 0) Poke(1, rn, (half)registers[d].value); // todo: store half
+            if (l == 1) registers[d].value = Read(1, rn); // todo: load half
+            if (l == 0) Write(1, rn, (half)registers[d].value); // todo: store half
             if (p == 0) rn = u != 0 ? rn + rm : rn - rm;
             if (p == 0 || w == 1 && n != d) registers[n].value = rn;
 
@@ -598,11 +598,11 @@ namespace Beta.Platform.Processors
 
             if (h != 0)
             {
-                registers[d].value = (uint)(short)Peek(1, rn); // todo: load half
+                registers[d].value = (uint)(short)Read(1, rn); // todo: load half
             }
             else
             {
-                registers[d].value = (uint)(sbyte)Peek(0, rn); // todo: load byte
+                registers[d].value = (uint)(sbyte)Read(0, rn); // todo: load byte
             }
 
             if (p == 0) rn = u != 0 ? rn + nn : rn - nn;
@@ -628,11 +628,11 @@ namespace Beta.Platform.Processors
 
             if (h != 0)
             {
-                registers[d].value = (uint)(short)Peek(1, rn); // todo: load half
+                registers[d].value = (uint)(short)Read(1, rn); // todo: load half
             }
             else
             {
-                registers[d].value = (uint)(sbyte)Peek(0, rn); // todo: load byte
+                registers[d].value = (uint)(sbyte)Read(0, rn); // todo: load byte
             }
 
             if (p == 0) rn = u != 0 ? rn + rm : rn - rm;
@@ -652,13 +652,13 @@ namespace Beta.Platform.Processors
             {
             case 0:
                 tmp = LoadWord(registers[rn].value);
-                Poke(2, registers[rn].value, registers[rm].value);
+                Write(2, registers[rn].value, registers[rm].value);
                 registers[rd].value = tmp;
                 break;
 
             case 1:
-                tmp = Peek(0, registers[rn].value);
-                Poke(0, registers[rn].value, registers[rm].value);
+                tmp = Read(0, registers[rn].value);
+                Write(0, registers[rn].value, registers[rm].value);
                 registers[rd].value = tmp;
                 break;
             }
@@ -795,7 +795,7 @@ namespace Beta.Platform.Processors
             if (u == 0) { offset = 0 - offset; }
             if (p == 1) { address += offset; }
 
-            Poke(b, address, data);
+            Write(b, address, data);
 
             if (p == 0) { address += offset; }
             if (p == 0 || w == 1) { registers[n].value = address; }
@@ -819,7 +819,7 @@ namespace Beta.Platform.Processors
             if (u == 0) { offset = 0 - offset; }
             if (p == 1) { address += offset; }
 
-            registers[d].value = b == 1 ? Peek(0, address) : LoadWord(address);
+            registers[d].value = b == 1 ? Read(0, address) : LoadWord(address);
 
             if (d == 15)
             {
@@ -936,7 +936,7 @@ namespace Beta.Platform.Processors
             {
                 if ((code & (1 << i)) != 0)
                 {
-                    Poke(2, address, registers[i].value);
+                    Write(2, address, registers[i].value);
                     address += 4;
 
                     if (w)
@@ -969,7 +969,7 @@ namespace Beta.Platform.Processors
             {
                 pipeline.refresh = false;
                 pipeline.fetch.address = pc.value & ~1u;
-                pipeline.fetch.data = Peek(1, pipeline.fetch.address);
+                pipeline.fetch.data = Read(1, pipeline.fetch.address);
 
                 ThumbStep();
             }
@@ -1049,7 +1049,7 @@ namespace Beta.Platform.Processors
             pipeline.execute = pipeline.decode;
             pipeline.decode = pipeline.fetch;
             pipeline.fetch.address = pc.value & ~1u;
-            pipeline.fetch.data = Peek(1, pipeline.fetch.address);
+            pipeline.fetch.data = Read(1, pipeline.fetch.address);
         }
 
         #region Opcodes
@@ -1203,22 +1203,22 @@ namespace Beta.Platform.Processors
 
         private void ThumbOpStrReg()
         {
-            Poke(2, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, registers[code & 0x7].value);
+            Write(2, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, registers[code & 0x7].value);
         }
 
         private void ThumbOpStrhReg()
         {
-            Poke(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, (ushort)(registers[code & 0x7].value & 0xFFFF));
+            Write(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, (ushort)(registers[code & 0x7].value & 0xFFFF));
         }
 
         private void ThumbOpStrbReg()
         {
-            Poke(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, (byte)(registers[code & 0x7].value & 0xFF));
+            Write(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value, (byte)(registers[code & 0x7].value & 0xFF));
         }
 
         private void ThumbOpLdrsbReg()
         {
-            registers[code & 0x7].value = Peek(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
+            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
             if ((registers[code & 0x7].value & (1 << 7)) != 0)
             {
@@ -1237,21 +1237,21 @@ namespace Beta.Platform.Processors
 
         private void ThumbOpLdrhReg()
         {
-            registers[code & 0x7].value = Peek(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
+            registers[code & 0x7].value = Read(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
             Cycles++;
         }
 
         private void ThumbOpLdrbReg()
         {
-            registers[code & 0x7].value = Peek(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
+            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
             Cycles++;
         }
 
         private void ThumbOpLdrshReg()
         {
-            registers[code & 0x7].value = Peek(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
+            registers[code & 0x7].value = Read(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
             if ((registers[code & 0x7].value & (1 << 15)) != 0)
             {
@@ -1263,7 +1263,7 @@ namespace Beta.Platform.Processors
 
         private void ThumbOpStrImm()
         {
-            Poke(2, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4, registers[code & 0x7].value);
+            Write(2, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4, registers[code & 0x7].value);
         }
 
         private void ThumbOpLdrImm()
@@ -1275,31 +1275,31 @@ namespace Beta.Platform.Processors
 
         private void ThumbOpStrbImm()
         {
-            Poke(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F), (byte)(registers[code & 0x7].value & 0xFF));
+            Write(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F), (byte)(registers[code & 0x7].value & 0xFF));
         }
 
         private void ThumbOpLdrbImm()
         {
-            registers[code & 0x7].value = Peek(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F));
+            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F));
 
             Cycles++;
         }
 
         private void ThumbOpStrhImm()
         {
-            Poke(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1F) * 2, (ushort)(registers[code & 0x7].value & 0xFFFF));
+            Write(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1F) * 2, (ushort)(registers[code & 0x7].value & 0xFFFF));
         }
 
         private void ThumbOpLdrhImm()
         {
-            registers[code & 7].value = Peek(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1f) * 2);
+            registers[code & 7].value = Read(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1f) * 2);
 
             Cycles++;
         }
 
         private void ThumbOpStrSp()
         {
-            Poke(2, sp.value + ((code << 2) & 0x3fc), registers[(code >> 8) & 7].value);
+            Write(2, sp.value + ((code << 2) & 0x3fc), registers[(code >> 8) & 7].value);
         }
 
         private void ThumbOpLdrSp()
@@ -1330,7 +1330,7 @@ namespace Beta.Platform.Processors
             if ((code & 0x100) != 0)
             {
                 sp.value -= 4u;
-                Poke(2, sp.value, lr.value);
+                Write(2, sp.value, lr.value);
             }
 
             for (var i = 7; i >= 0; i--)
@@ -1338,7 +1338,7 @@ namespace Beta.Platform.Processors
                 if (((code >> i) & 1U) != 0)
                 {
                     sp.value -= 4U;
-                    Poke(2, sp.value, registers[i].value);
+                    Write(2, sp.value, registers[i].value);
                 }
             }
         }
@@ -1372,7 +1372,7 @@ namespace Beta.Platform.Processors
             {
                 if (((code >> i) & 1) != 0)
                 {
-                    Poke(2, registers[rn].value & ~3u, registers[i].value);
+                    Write(2, registers[rn].value & ~3u, registers[i].value);
                     registers[rn].value += 4;
                 }
             }
@@ -1388,7 +1388,7 @@ namespace Beta.Platform.Processors
             {
                 if (((code >> i) & 1) != 0)
                 {
-                    registers[i].value = Peek(2, address & ~3u);
+                    registers[i].value = Read(2, address & ~3u);
                     address += 4;
                 }
             }
@@ -1439,9 +1439,9 @@ namespace Beta.Platform.Processors
 
         protected abstract void Dispatch();
 
-        protected abstract uint Peek(int size, uint address);
+        protected abstract uint Read(int size, uint address);
 
-        protected abstract void Poke(int size, uint address, uint data);
+        protected abstract void Write(int size, uint address, uint data);
 
         public virtual void Initialize()
         {

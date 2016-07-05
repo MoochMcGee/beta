@@ -4,18 +4,18 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class Bios : MemoryChip
+    public sealed class BIOS : MemoryChip, IMemory
     {
         private Cpu cpu;
         private word openBus;
 
-        public Bios(Cpu cpu, byte[] binary)
+        public BIOS(Cpu cpu, byte[] binary)
             : base(binary)
         {
             this.cpu = cpu;
         }
 
-        public word Peek(int size, word address)
+        public word Read(int size, word address)
         {
             if (cpu.GetProgramCursor() < 0x4000 && address < 0x4000)
             {
@@ -27,7 +27,7 @@ namespace Beta.GameBoyAdvance.Memory
             return openBus;
         }
 
-        public void Poke(int size, word address, word data)
+        public void Write(int size, word address, word data)
         {
         }
     }

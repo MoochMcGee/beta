@@ -5,11 +5,11 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class Vram : MemoryChip
+    public sealed class VRAM : MemoryChip, IMemory
     {
         private const int SIZE = (3 << 15);
 
-        public Vram()
+        public VRAM()
             : base(SIZE)
         {
         }
@@ -24,7 +24,7 @@ namespace Beta.GameBoyAdvance.Memory
             throw new CompilerPleasingException();
         }
 
-        public word Peek(int size, word address)
+        public word Read(int size, word address)
         {
             address = MaskAddress(address);
 
@@ -34,7 +34,7 @@ namespace Beta.GameBoyAdvance.Memory
             throw new CompilerPleasingException();
         }
 
-        public void Poke(int size, word address, word data)
+        public void Write(int size, word address, word data)
         {
             address = MaskAddress(address);
 

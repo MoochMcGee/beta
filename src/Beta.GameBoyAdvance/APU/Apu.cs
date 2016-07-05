@@ -77,17 +77,17 @@ namespace Beta.GameBoyAdvance.APU
         //  14-15  Amplitude Resolution/Sampling Cycle (Default=0, see below)
         //  16-31  Not used
 
-        private byte PeekReg(uint address)
+        private byte ReadReg(uint address)
         {
             return registers[address & 15];
         }
 
-        private void PokeReg(uint address, byte data)
+        private void WriteReg(uint address, byte data)
         {
             registers[address & 15] = data;
         }
 
-        private byte Peek084(uint address)
+        private byte Read084(uint address)
         {
             var data = registers[4];
 
@@ -101,7 +101,7 @@ namespace Beta.GameBoyAdvance.APU
             return data;
         }
 
-        private void Poke080(uint address, byte data)
+        private void Write080(uint address, byte data)
         {
             registers[0] = data;
 
@@ -114,7 +114,7 @@ namespace Beta.GameBoyAdvance.APU
             lvolume = ((data >> 4) & 7) + 1;
         }
 
-        private void Poke081(uint address, byte data)
+        private void Write081(uint address, byte data)
         {
             registers[1] = data;
 
@@ -132,7 +132,7 @@ namespace Beta.GameBoyAdvance.APU
             noise.lenable = (data & 0x80) != 0;
         }
 
-        private void Poke082(uint address, byte data)
+        private void Write082(uint address, byte data)
         {
             //  0-1   Sound # 1-4 Volume   (0=25%, 1=50%, 2=100%, 3=Prohibited)
             //  2     DMA Sound A Volume   (0=50%, 1=100%)
@@ -145,7 +145,7 @@ namespace Beta.GameBoyAdvance.APU
             DirectSound2.Shift = (~data >> 3) & 1;
         }
 
-        private void Poke083(uint address, byte data)
+        private void Write083(uint address, byte data)
         {
             registers[3] = data;
 
@@ -162,7 +162,7 @@ namespace Beta.GameBoyAdvance.APU
             if ((data & 0x80) != 0) DirectSound2.Clear(); //  7     DMA Sound B Reset FIFO   (1=Reset)
         }
 
-        private void Poke084(uint address, byte data)
+        private void Write084(uint address, byte data)
         {
             registers[4] = data;
 
@@ -170,14 +170,14 @@ namespace Beta.GameBoyAdvance.APU
             DirectSound2.Enabled = (data & 0x80) != 0;
         }
 
-        private void Poke088(uint address, byte data)
+        private void Write088(uint address, byte data)
         {
             registers[8] = data;
 
             bias = (bias & ~0x0ff) | ((data << 0) & 0x0ff);
         }
 
-        private void Poke089(uint address, byte data)
+        private void Write089(uint address, byte data)
         {
             registers[9] = data;
 
@@ -241,24 +241,24 @@ namespace Beta.GameBoyAdvance.APU
             waveRam.Initialize(0x070);
             noise.Initialize(0x078);
 
-            gameSystem.mmio.Map(0x080, PeekReg, Poke080);
-            gameSystem.mmio.Map(0x081, PeekReg, Poke081);
-            gameSystem.mmio.Map(0x082, PeekReg, Poke082);
-            gameSystem.mmio.Map(0x083, PeekReg, Poke083);
-            gameSystem.mmio.Map(0x084, Peek084, Poke084);
-            gameSystem.mmio.Map(0x085, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x086, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x087, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x088, PeekReg, Poke088);
-            gameSystem.mmio.Map(0x089, PeekReg, Poke089);
-            gameSystem.mmio.Map(0x08a, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x08b, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x08c, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x08d, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x08e, PeekReg, PokeReg);
-            gameSystem.mmio.Map(0x08f, PeekReg, PokeReg);
+            gameSystem.mmio.Map(0x080, ReadReg, Write080);
+            gameSystem.mmio.Map(0x081, ReadReg, Write081);
+            gameSystem.mmio.Map(0x082, ReadReg, Write082);
+            gameSystem.mmio.Map(0x083, ReadReg, Write083);
+            gameSystem.mmio.Map(0x084, Read084, Write084);
+            gameSystem.mmio.Map(0x085, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x086, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x087, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x088, ReadReg, Write088);
+            gameSystem.mmio.Map(0x089, ReadReg, Write089);
+            gameSystem.mmio.Map(0x08a, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x08b, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x08c, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x08d, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x08e, ReadReg, WriteReg);
+            gameSystem.mmio.Map(0x08f, ReadReg, WriteReg);
 
-            gameSystem.mmio.Map(0x090, 0x09f, waveRam.Peek, waveRam.Poke);
+            gameSystem.mmio.Map(0x090, 0x09f, waveRam.Read, waveRam.Write);
 
             DirectSound1.Initialize(cpu.Dma.Channels[1], 0x0a0);
             DirectSound2.Initialize(cpu.Dma.Channels[2], 0x0a4);

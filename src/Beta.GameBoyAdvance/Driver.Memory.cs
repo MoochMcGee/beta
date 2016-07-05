@@ -13,67 +13,67 @@ namespace Beta.GameBoyAdvance
             new[] { 1, 1, 6, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
         };
 
-        public Bios bios;
-        public Eram eram = new Eram();
-        public Iram iram = new Iram();
-        public Mmio mmio = new Mmio();
-        public Oram oram = new Oram();
-        public Pram pram = new Pram();
-        public Vram vram = new Vram();
+        public BIOS bios;
+        public ERAM eram = new ERAM();
+        public IRAM iram = new IRAM();
+        public MMIO mmio = new MMIO();
+        public ORAM oram = new ORAM();
+        public PRAM pram = new PRAM();
+        public VRAM vram = new VRAM();
 
-        public uint Read(int size, uint address)
+        public uint Read(int size, uint address, out int cycles)
         {
             var area = (address >> 24) & 15;
 
-            Cpu.Cycles += timingTable[size][area];
+            cycles = timingTable[size][area];
 
             switch (area)
             {
             case 0x0:
-            case 0x1: return bios.Peek(size, address);
-            case 0x2: return eram.Peek(size, address);
-            case 0x3: return iram.Peek(size, address);
-            case 0x4: return mmio.Peek(size, address);
-            case 0x5: return pram.Peek(size, address);
-            case 0x6: return vram.Peek(size, address);
-            case 0x7: return oram.Peek(size, address);
+            case 0x1: return bios.Read(size, address);
+            case 0x2: return eram.Read(size, address);
+            case 0x3: return iram.Read(size, address);
+            case 0x4: return mmio.Read(size, address);
+            case 0x5: return pram.Read(size, address);
+            case 0x6: return vram.Read(size, address);
+            case 0x7: return oram.Read(size, address);
             case 0x8:
             case 0x9:
             case 0xa:
             case 0xb:
             case 0xc:
-            case 0xd: return gamePak.PeekRom(size, address);
+            case 0xd: return gamePak.ReadRom(size, address);
             case 0xe:
-            case 0xf: return gamePak.PeekRam(size, address);
+            case 0xf: return gamePak.ReadRam(size, address);
             }
 
             throw new CompilerPleasingException();
         }
 
-        public void Write(int size, uint address, uint data)
+        public void Write(int size, uint address, uint data, out int cycles)
         {
             var area = (address >> 24) & 15;
 
-            Cpu.Cycles += timingTable[size][area];
+            cycles = timingTable[size][area];
 
             switch (area)
             {
             case 0x0:
-            case 0x1: bios.Poke(size, address, data); break;
-            case 0x2: eram.Poke(size, address, data); break;
-            case 0x3: iram.Poke(size, address, data); break;
-            case 0x4: mmio.Poke(size, address, data); break;
-            case 0x5: pram.Poke(size, address, data); break;
-            case 0x6: vram.Poke(size, address, data); break;
-            case 0x7: oram.Poke(size, address, data); break;
+            case 0x1: bios.Write(size, address, data); break;
+            case 0x2: eram.Write(size, address, data); break;
+            case 0x3: iram.Write(size, address, data); break;
+            case 0x4: mmio.Write(size, address, data); break;
+            case 0x5: pram.Write(size, address, data); break;
+            case 0x6: vram.Write(size, address, data); break;
+            case 0x7: oram.Write(size, address, data); break;
             case 0x8:
             case 0x9:
             case 0xa:
             case 0xb:
             case 0xc:
-            case 0xd: gamePak.PokeRom(size, address, data); break;
+            case 0xd: gamePak.WriteRom(size, address, data); break;
             case 0xe:
-            case 0xf: gamePak.PokeRam(size, address, data); break;
+            case 0xf: gamePak.WriteRam(size, address, data); break;
             }
         }
     }

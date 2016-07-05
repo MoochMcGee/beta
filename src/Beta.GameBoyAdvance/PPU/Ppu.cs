@@ -221,12 +221,12 @@ namespace Beta.GameBoyAdvance.PPU
 
         #region Registers
 
-        private byte PeekReg(word address)
+        private byte ReadReg(word address)
         {
             return registers[address & 0xff];
         }
 
-        private byte Peek004(word address)
+        private byte Read004(word address)
         {
             var data = registers[0x04];
 
@@ -237,22 +237,22 @@ namespace Beta.GameBoyAdvance.PPU
             return data;
         }
 
-        private byte Peek005(word address)
+        private byte Read005(word address)
         {
             return vcheck;
         }
 
-        private byte Peek006(word address)
+        private byte Read006(word address)
         {
             return (byte)(vclock >> 0);
         }
 
-        private byte Peek007(word address)
+        private byte Read007(word address)
         {
             return (byte)(vclock >> 8);
         }
 
-        private void Poke000(word address, byte data)
+        private void Write000(word address, byte data)
         {
             registers[0x00] = data;
             bgMode = (data & 0x07);
@@ -263,7 +263,7 @@ namespace Beta.GameBoyAdvance.PPU
             forcedBlank = (data & 0x80) != 0;
         }
 
-        private void Poke001(word address, byte data)
+        private void Write001(word address, byte data)
         {
             registers[0x01] = data;
             bg0.MasterEnable = (data & 0x01) != 0;
@@ -276,17 +276,17 @@ namespace Beta.GameBoyAdvance.PPU
             windowObjEnabled = (data & 0x80) != 0;
         }
 
-        private void Poke002(word address, byte data)
+        private void Write002(word address, byte data)
         {
             registers[0x02] = data &= 0x01;
         }
 
-        private void Poke003(word address, byte data)
+        private void Write003(word address, byte data)
         {
             registers[0x03] = 0;
         }
 
-        private void Poke004(word address, byte data)
+        private void Write004(word address, byte data)
         {
             registers[0x04] = data &= 0x38;
             vblankIrq = (data & 0x08) != 0;
@@ -294,51 +294,51 @@ namespace Beta.GameBoyAdvance.PPU
             vmatchIrq = (data & 0x20) != 0;
         }
 
-        private void Poke005(word address, byte data)
+        private void Write005(word address, byte data)
         {
             vcheck = data;
         }
 
         //           006-04B
-        private void Poke04C(word address, byte data)
+        private void Write04C(word address, byte data)
         {
             Bg.MosaicH = (data >> 0) & 15;
             Bg.MosaicV = (data >> 4) & 15;
         }
 
-        private void Poke04D(word address, byte data)
+        private void Write04D(word address, byte data)
         {
             Sp.MosaicH = (data >> 0) & 15;
             Sp.MosaicV = (data >> 4) & 15;
         }
 
         //           04E-04F
-        private void Poke050(word address, byte data)
+        private void Write050(word address, byte data)
         {
             registers[0x50] = data;
             blend.Target1 = (data & 0x3f);
             blend.Type = (data & 0xc0) >> 6;
         }
 
-        private void Poke051(word address, byte data)
+        private void Write051(word address, byte data)
         {
             registers[0x51] = data;
             blend.Target2 = (data & 0x3f);
         }
 
-        private void Poke052(word address, byte data)
+        private void Write052(word address, byte data)
         {
             registers[0x52] = data;
             blend.Eva = Math.Min(data & 31, 16);
         }
 
-        private void Poke053(word address, byte data)
+        private void Write053(word address, byte data)
         {
             registers[0x53] = data;
             blend.Evb = Math.Min(data & 31, 16);
         }
 
-        private void Poke054(word address, byte data)
+        private void Write054(word address, byte data)
         {
             registers[0x54] = data;
             blend.Evy = Math.Min(data & 31, 16);
@@ -357,15 +357,15 @@ namespace Beta.GameBoyAdvance.PPU
 
             var mmio = gameSystem.mmio;
 
-            mmio.Map(0x000, PeekReg, Poke000);
-            mmio.Map(0x001, PeekReg, Poke001);
-            mmio.Map(0x002, PeekReg, Poke002);
-            mmio.Map(0x003, PeekReg, Poke003);
-            mmio.Map(0x004, Peek004, Poke004);
-            mmio.Map(0x005, Peek005, Poke005);
+            mmio.Map(0x000, ReadReg, Write000);
+            mmio.Map(0x001, ReadReg, Write001);
+            mmio.Map(0x002, ReadReg, Write002);
+            mmio.Map(0x003, ReadReg, Write003);
+            mmio.Map(0x004, Read004, Write004);
+            mmio.Map(0x005, Read005, Write005);
             // vertical counter
-            mmio.Map(0x006, Peek006);
-            mmio.Map(0x007, Peek007);
+            mmio.Map(0x006, Read006);
+            mmio.Map(0x007, Read007);
             // window feature
             mmio.Map(0x040, (a, data) => window0.X2 = data);
             mmio.Map(0x041, (a, data) => window0.X1 = data);
@@ -379,14 +379,14 @@ namespace Beta.GameBoyAdvance.PPU
             mmio.Map(0x049, a => window1.Flags, (a, data) => window1.Flags = data);
             mmio.Map(0x04a, a => windowOutFlags, (a, data) => windowOutFlags = data);
             mmio.Map(0x04b, a => windowObjFlags, (a, data) => windowObjFlags = data);
-            mmio.Map(0x04c, PeekReg, Poke04C);
-            mmio.Map(0x04d, PeekReg, Poke04D);
+            mmio.Map(0x04c, ReadReg, Write04C);
+            mmio.Map(0x04d, ReadReg, Write04D);
             // 04e - 04f
-            mmio.Map(0x050, PeekReg, Poke050);
-            mmio.Map(0x051, PeekReg, Poke051);
-            mmio.Map(0x052, PeekReg, Poke052);
-            mmio.Map(0x053, PeekReg, Poke053);
-            mmio.Map(0x054, PeekReg, Poke054);
+            mmio.Map(0x050, ReadReg, Write050);
+            mmio.Map(0x051, ReadReg, Write051);
+            mmio.Map(0x052, ReadReg, Write052);
+            mmio.Map(0x053, ReadReg, Write053);
+            mmio.Map(0x054, ReadReg, Write054);
             // 054 - 05f
         }
 

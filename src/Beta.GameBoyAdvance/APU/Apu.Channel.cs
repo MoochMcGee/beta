@@ -30,82 +30,82 @@ namespace Beta.GameBoyAdvance.APU
                 this.timing = timing;
             }
 
-            protected virtual byte PeekRegister1(uint address)
+            protected virtual byte ReadRegister1(uint address)
             {
                 return registers[0];
             }
 
-            protected virtual byte PeekRegister2(uint address)
+            protected virtual byte ReadRegister2(uint address)
             {
                 return registers[1];
             }
 
-            protected virtual byte PeekRegister3(uint address)
+            protected virtual byte ReadRegister3(uint address)
             {
                 return registers[2];
             }
 
-            protected virtual byte PeekRegister4(uint address)
+            protected virtual byte ReadRegister4(uint address)
             {
                 return registers[3];
             }
 
-            protected virtual byte PeekRegister5(uint address)
+            protected virtual byte ReadRegister5(uint address)
             {
                 return registers[4];
             }
 
-            protected virtual byte PeekRegister6(uint address)
+            protected virtual byte ReadRegister6(uint address)
             {
                 return registers[5];
             }
 
-            protected virtual byte PeekRegister7(uint address)
+            protected virtual byte ReadRegister7(uint address)
             {
                 return registers[6];
             }
 
-            protected virtual byte PeekRegister8(uint address)
+            protected virtual byte ReadRegister8(uint address)
             {
                 return registers[7];
             }
 
-            protected virtual void PokeRegister1(uint address, byte data)
+            protected virtual void WriteRegister1(uint address, byte data)
             {
                 registers[0] = data;
             }
 
-            protected virtual void PokeRegister2(uint address, byte data)
+            protected virtual void WriteRegister2(uint address, byte data)
             {
                 registers[1] = data;
             }
 
-            protected virtual void PokeRegister3(uint address, byte data)
+            protected virtual void WriteRegister3(uint address, byte data)
             {
                 registers[2] = data;
             }
 
-            protected virtual void PokeRegister4(uint address, byte data)
+            protected virtual void WriteRegister4(uint address, byte data)
             {
                 registers[3] = data;
             }
 
-            protected virtual void PokeRegister5(uint address, byte data)
+            protected virtual void WriteRegister5(uint address, byte data)
             {
                 registers[4] = data;
             }
 
-            protected virtual void PokeRegister6(uint address, byte data)
+            protected virtual void WriteRegister6(uint address, byte data)
             {
                 registers[5] = data;
             }
 
-            protected virtual void PokeRegister7(uint address, byte data)
+            protected virtual void WriteRegister7(uint address, byte data)
             {
                 registers[6] = data;
             }
 
-            protected virtual void PokeRegister8(uint address, byte data)
+            protected virtual void WriteRegister8(uint address, byte data)
             {
                 registers[7] = data;
             }
@@ -126,14 +126,14 @@ namespace Beta.GameBoyAdvance.APU
             {
                 Initialize();
 
-                gameSystem.mmio.Map(address + 0, PeekRegister1, PokeRegister1);
-                gameSystem.mmio.Map(address + 1, PeekRegister2, PokeRegister2);
-                gameSystem.mmio.Map(address + 2, PeekRegister3, PokeRegister3);
-                gameSystem.mmio.Map(address + 3, PeekRegister4, PokeRegister4);
-                gameSystem.mmio.Map(address + 4, PeekRegister5, PokeRegister5);
-                gameSystem.mmio.Map(address + 5, PeekRegister6, PokeRegister6);
-                gameSystem.mmio.Map(address + 6, PeekRegister7, PokeRegister7);
-                gameSystem.mmio.Map(address + 7, PeekRegister8, PokeRegister8);
+                gameSystem.mmio.Map(address + 0, ReadRegister1, WriteRegister1);
+                gameSystem.mmio.Map(address + 1, ReadRegister2, WriteRegister2);
+                gameSystem.mmio.Map(address + 2, ReadRegister3, WriteRegister3);
+                gameSystem.mmio.Map(address + 3, ReadRegister4, WriteRegister4);
+                gameSystem.mmio.Map(address + 4, ReadRegister5, WriteRegister5);
+                gameSystem.mmio.Map(address + 5, ReadRegister6, WriteRegister6);
+                gameSystem.mmio.Map(address + 6, ReadRegister7, WriteRegister7);
+                gameSystem.mmio.Map(address + 7, ReadRegister8, WriteRegister8);
             }
         }
     }

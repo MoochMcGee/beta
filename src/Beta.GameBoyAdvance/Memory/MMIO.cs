@@ -4,16 +4,16 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class Mmio
+    public sealed class MMIO : IMemory
     {
         private const uint SIZE = (1u << 10);
         private const uint MASK = (SIZE - 1u);
 
-        private Reader[] peek = new Reader[SIZE];
-        private Writer[] poke = new Writer[SIZE];
+        private Reader[] readers = new Reader[SIZE];
+        private Writer[] writers = new Writer[SIZE];
         private Register32 latch;
 
-        public uint Peek(int size, uint address)
+        public uint Read(int size, uint address)
         {
             if (address > 0x040003ff)
             {
@@ -22,15 +22,15 @@ namespace Beta.GameBoyAdvance.Memory
 
             address = (address & 0x3ff);
 
-            latch.ub0 = peek[address | 0](address | 0); if (size == 0) return latch.ub0;
-            latch.ub1 = peek[address | 1](address | 1); if (size == 1) return latch.uw0;
-            latch.ub2 = peek[address | 2](address | 2);
-            latch.ub3 = peek[address | 3](address | 3); if (size == 2) return latch.ud0;
+            latch.ub0 = readers[address | 0](address | 0); if (size == 0) return latch.ub0;
+            latch.ub1 = readers[address | 1](address | 1); if (size == 1) return latch.uw0;
+            latch.ub2 = readers[address | 2](address | 2);
+            latch.ub3 = readers[address | 3](address | 3); if (size == 2) return latch.ud0;
 
             throw new CompilerPleasingException();
         }
 
-        public void Poke(int size, uint address, uint data)
+        public void Write(int size, uint address, uint data)
         {
             if (address > 0x040003ff)
             {
@@ -39,35 +39,35 @@ namespace Beta.GameBoyAdvance.Memory
 
             address = address & MASK;
 
-            poke[address | 0](address | 0, (byte)(data >> 0)); if (size == 0) return;
-            poke[address | 1](address | 1, (byte)(data >> 8)); if (size == 1) return;
-            poke[address | 2](address | 2, (byte)(data >> 16));
-            poke[address | 3](address | 3, (byte)(data >> 24)); if (size == 2) return;
+            writers[address | 0](address | 0, (byte)(data >> 0)); if (size == 0) return;
+            writers[address | 1](address | 1, (byte)(data >> 8)); if (size == 1) return;
+            writers[address | 2](address | 2, (byte)(data >> 16));
+            writers[address | 3](address | 3, (byte)(data >> 24)); if (size == 2) return;
 
             throw new CompilerPleasingException();
         }
 
-        public void Map(uint address, Reader peekFunction)
+        public void Map(uint address, Reader reader)
         {
-            peek[address] = peekFunction;
+            readers[address] = reader;
         }
 
-        public void Map(uint address, Writer pokeFunction)
+        public void Map(uint address, Writer writer)
         {
-            poke[address] = pokeFunction;
+            writers[address] = writer;
         }
 
-        public void Map(uint address, Reader peekFunction, Writer pokeFunction)
+        public void Map(uint address, Reader reader, Writer writer)
         {
-            Map(address, peekFunction);
-            Map(address, pokeFunction);
+            Map(address, reader);
+            Map(address, writer);
         }
 
-        public void Map(uint address, uint last, Reader peekFunction, Writer pokeFunction)
+        public void Map(uint address, uint last, Reader reader, Writer writer)
         {
             for (; address <= last; address++)
             {
-                Map(address, peekFunction, pokeFunction);
+                Map(address, reader, writer);
             }
         }
     }

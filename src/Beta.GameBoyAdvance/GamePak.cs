@@ -64,18 +64,18 @@ namespace Beta.GameBoyAdvance
             mask = (length - 1U);
         }
 
-        private byte PeekRomByte(word address)
+        private byte ReadRomByte(word address)
         {
             switch (address & 1)
             {
-            case 0: return (byte)(PeekRomHalf(address));
-            case 1: return (byte)(PeekRomHalf(address) >> 8);
+            case 0: return (byte)(ReadRomHalf(address));
+            case 1: return (byte)(ReadRomHalf(address) >> 8);
             }
 
             throw new CompilerPleasingException();
         }
 
-        private half PeekRomHalf(word address)
+        private half ReadRomHalf(word address)
         {
             var region = (address >> 25) & 3u;
             var compare = (address >>= 1) & 0xffffu;
@@ -92,35 +92,35 @@ namespace Beta.GameBoyAdvance
             return buffer[address & mask];
         }
 
-        private word PeekRomWord(word address)
+        private word ReadRomWord(word address)
         {
-            latch.uw0 = PeekRomHalf(address & ~2u);
-            latch.uw1 = PeekRomHalf(address | 2u);
+            latch.uw0 = ReadRomHalf(address & ~2u);
+            latch.uw1 = ReadRomHalf(address | 2u);
 
             return latch.ud0;
         }
 
-        public word PeekRam(int size, word address)
+        public word ReadRam(int size, word address)
         {
             cpu.Cycles += ramAccess;
             return 0;
         }
 
-        public word PeekRom(int size, word address)
+        public word ReadRom(int size, word address)
         {
-            if (size == 2) return PeekRomWord(address);
-            if (size == 1) return PeekRomHalf(address);
-            if (size == 0) return PeekRomByte(address);
+            if (size == 2) return ReadRomWord(address);
+            if (size == 1) return ReadRomHalf(address);
+            if (size == 0) return ReadRomByte(address);
 
             throw new CompilerPleasingException();
         }
 
-        public void PokeRam(int size, word address, word data)
+        public void WriteRam(int size, word address, word data)
         {
             cpu.Cycles += ramAccess;
         }
 
-        public void PokeRom(int size, word address, word data)
+        public void WriteRom(int size, word address, word data)
         {
         }
 
