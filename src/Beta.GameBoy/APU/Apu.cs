@@ -15,7 +15,7 @@ namespace Beta.GameBoy.APU
             new[] { 0, 1, 1, 1, 1, 1, 1, 0 }
         };
 
-        private readonly IAddressSpace memory;
+        private readonly IMemoryMap memory;
         private readonly ApuRegisters regs;
         private readonly NoiRegisters noi;
         private readonly Sq1Registers sq1;
@@ -26,7 +26,7 @@ namespace Beta.GameBoy.APU
         private int sample_timer;
         private int sample_period = 1048576;
 
-        public Apu(IAddressSpace memory, Registers regs, IAudioBackend audio)
+        public Apu(IMemoryMap memory, Registers regs, IAudioBackend audio)
         {
             this.memory = memory;
             this.regs = regs.apu;

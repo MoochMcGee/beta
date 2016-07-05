@@ -3,14 +3,28 @@
     public sealed class MMIO : IMemory
     {
         private readonly Registers regs;
+        private readonly HRAM hram;
+        private readonly Wave wave;
 
-        public MMIO(Registers regs)
+        public MMIO(Registers regs, HRAM hram, Wave wave)
         {
             this.regs = regs;
+            this.hram = hram;
+            this.wave = wave;
         }
 
         public byte Read(ushort address)
         {
+            if (address >= 0xff30 && address <= 0xff3f)
+            {
+                return wave.Read(address);
+            }
+
+            if (address >= 0xff80 && address <= 0xfffe)
+            {
+                return hram.Read(address);
+            }
+
             switch (address)
             {
             case 0xff00:
@@ -54,6 +68,18 @@
 
         public void Write(ushort address, byte data)
         {
+            if (address >= 0xff30 && address <= 0xff3f)
+            {
+                wave.Write(address, data);
+                return;
+            }
+
+            if (address >= 0xff80 && address <= 0xfffe)
+            {
+                hram.Write(address, data);
+                return;
+            }
+
             switch (address)
             {
             case 0xff00:

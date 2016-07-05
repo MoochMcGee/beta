@@ -13,12 +13,11 @@ namespace Beta.GameBoy
     {
         public void RegisterServices(Container container)
         {
-            container.RegisterSingleton<IAddressSpace, AddressSpace>();
             container.RegisterSingleton<IBoardFactory, BoardFactory>();
             container.RegisterSingleton<ICartridgeConnector, CartridgeConnector>();
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
-            container.RegisterSingleton<IResetButton, DefaultResetButton>();
+            container.RegisterSingleton<IMemoryMap, MemoryMap>();
 
             container.RegisterSingleton<Apu>();
             container.RegisterSingleton<Cpu>();

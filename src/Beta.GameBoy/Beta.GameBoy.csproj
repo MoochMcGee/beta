@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddressSpace.cs" />
     <Compile Include="APU\Apu.cs" />
     <Compile Include="APU\ApuRegisters.cs" />
     <Compile Include="APU\NoiRegisters.cs" />
@@ -67,12 +66,13 @@
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
-    <Compile Include="IAddressSpace.cs" />
     <Compile Include="Memory\BIOS.cs" />
     <Compile Include="Memory\CartridgeConnector.cs" />
     <Compile Include="Memory\HRAM.cs" />
     <Compile Include="Memory\ICartridgeConnector.cs" />
     <Compile Include="Memory\IMemory.cs" />
+    <Compile Include="Memory\IMemoryMap.cs" />
+    <Compile Include="Memory\MemoryMap.cs" />
     <Compile Include="Memory\MMIO.cs" />
     <Compile Include="Memory\OAM.cs" />
     <Compile Include="Memory\Registers.cs" />

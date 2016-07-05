@@ -13,14 +13,14 @@ namespace Beta.GameBoy.CPU
         public const byte INT_SERIAL = (1 << 3);
         public const byte INT_JOYPAD = (1 << 4);
 
-        private readonly IAddressSpace addressSpace;
+        private readonly IMemoryMap memory;
         private readonly Registers regs;
 
-        public Cpu(Registers regs, IAddressSpace addressSpace, IProducer<ClockSignal> clockProducer)
+        public Cpu(Registers regs, IMemoryMap memory, IProducer<ClockSignal> clockProducer)
             : base(clockProducer)
         {
             this.regs = regs;
-            this.addressSpace = addressSpace;
+            this.memory = memory;
 
             Single = 4;
         }
@@ -40,14 +40,14 @@ namespace Beta.GameBoy.CPU
         {
             Dispatch();
 
-            return addressSpace.Read(address);
+            return memory.Read(address);
         }
 
         protected override void Write(ushort address, byte data)
         {
             Dispatch();
 
-            addressSpace.Write(address, data);
+            memory.Write(address, data);
         }
 
         public override void Update()

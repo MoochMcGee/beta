@@ -34,7 +34,7 @@ namespace Beta.GameBoy.PPU
         };
 
         private readonly PpuRegisters regs;
-        private readonly IAddressSpace addressSpace;
+        private readonly IMemoryMap memory;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<InterruptSignal> interrupt;
         private readonly IVideoBackend video;
@@ -44,13 +44,13 @@ namespace Beta.GameBoy.PPU
 
         public Ppu(
             Registers regs,
-            IAddressSpace addressSpace,
+            IMemoryMap memory,
             IProducer<FrameSignal> frame,
             IProducer<InterruptSignal> interrupt,
             IVideoBackend video)
         {
             this.regs = regs.ppu;
-            this.addressSpace = addressSpace;
+            this.memory = memory;
             this.frame = frame;
             this.interrupt = interrupt;
             this.video = video;
@@ -132,15 +132,15 @@ namespace Beta.GameBoy.PPU
 
             for (var tx = 0; tx < 21; tx++)
             {
-                var name = addressSpace.Read((ushort)(ntaddr));
+                var name = memory.Read((ushort)(ntaddr));
                 var chaddr = (regs.bkg_char_address == 0x9000 && (name & 0x80) == 0)
                     ? 0x9000 | (name << 4) | ((yPos & 7) << 1)
                     : 0x8000 | (name << 4) | ((yPos & 7) << 1)
                     ;
 
                 var palette = regs.bkg_palette;
-                var bit0 = addressSpace.Read((ushort)(chaddr | 0));
-                var bit1 = addressSpace.Read((ushort)(chaddr | 1));
+                var bit0 = memory.Read((ushort)(chaddr | 0));
+                var bit1 = memory.Read((ushort)(chaddr | 1));
 
                 bit0 <<= fine;
                 bit1 <<= fine;
@@ -180,15 +180,15 @@ namespace Beta.GameBoy.PPU
 
             for (var i = 0; i < tx; i++)
             {
-                var name = addressSpace.Read((ushort)(name_address));
+                var name = memory.Read((ushort)(name_address));
                 var char_address = (regs.bkg_char_address == 0x9000 && name < 0x80)
                     ? 0x9000 | (name << 4) | ((y & 7) << 1)
                     : 0x8000 | (name << 4) | ((y & 7) << 1)
                     ;
 
                 var palette = regs.bkg_palette;
-                var bit0 = addressSpace.Read((ushort)(char_address | 0));
-                var bit1 = addressSpace.Read((ushort)(char_address | 1));
+                var bit0 = memory.Read((ushort)(char_address | 0));
+                var bit1 = memory.Read((ushort)(char_address | 1));
 
                 for (var j = 0; j < 8; j++)
                 {
@@ -215,10 +215,10 @@ namespace Beta.GameBoy.PPU
 
             for (var i = 0; i < 160 && count < 10; i += 4)
             {
-                var yPos = addressSpace.Read((ushort)(0xfe00 + i + 0)) - 16;
-                var xPos = addressSpace.Read((ushort)(0xfe00 + i + 1)) - 8;
-                var name = addressSpace.Read((ushort)(0xfe00 + i + 2));
-                var attr = addressSpace.Read((ushort)(0xfe00 + i + 3));
+                var yPos = memory.Read((ushort)(0xfe00 + i + 0)) - 16;
+                var xPos = memory.Read((ushort)(0xfe00 + i + 1)) - 8;
+                var name = memory.Read((ushort)(0xfe00 + i + 2));
+                var attr = memory.Read((ushort)(0xfe00 + i + 3));
 
                 var line = (regs.v - yPos) & 0xFFFF;
                 if (line < regs.obj_rasters)
@@ -237,8 +237,8 @@ namespace Beta.GameBoy.PPU
                     }
 
                     var addr = 0x8000 | (name << 4) | ((line << 1) & 0x000E);
-                    var bit0 = addressSpace.Read((ushort)(addr | 0));
-                    var bit1 = addressSpace.Read((ushort)(addr | 1));
+                    var bit0 = memory.Read((ushort)(addr | 0));
+                    var bit1 = memory.Read((ushort)(addr | 1));
 
                     if ((attr & 0x20) != 0)
                     {
@@ -297,8 +297,8 @@ namespace Beta.GameBoy.PPU
 
                 for (var i = 0; i < 160; i++)
                 {
-                    var data = addressSpace.Read(src_address);
-                    addressSpace.Write(dst_address, data);
+                    var data = memory.Read(src_address);
+                    memory.Write(dst_address, data);
 
                     dst_address++;
                     src_address++;
