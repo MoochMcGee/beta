@@ -16,7 +16,7 @@ namespace Beta.GameBoyAdvance.APU
             public int Shift;
             public int Timer;
 
-            public ChannelDirectSound(GameSystem gameSystem, Timing timing)
+            public ChannelDirectSound(Driver gameSystem, Timing timing)
                 : base(gameSystem, timing)
             {
                 array = new sbyte[32];

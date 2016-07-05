@@ -8,7 +8,7 @@ namespace Beta.SuperFamicom
     {
         public void RegisterServices(Container container)
         {
-            container.RegisterSingleton<IGameSystem, GameSystem>();
+            container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IPowerButton, PowerButton>();
             container.RegisterSingleton<IResetButton, ResetButton>();
         }

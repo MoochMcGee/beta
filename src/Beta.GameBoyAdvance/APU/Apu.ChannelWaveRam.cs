@@ -19,7 +19,7 @@ namespace Beta.GameBoyAdvance.APU
             private int dimension;
             private int shift = volumeTable[0];
 
-            public ChannelWaveRam(GameSystem gameSystem, Timing timing)
+            public ChannelWaveRam(Driver gameSystem, Timing timing)
                 : base(gameSystem, timing)
             {
                 this.timing.Cycles =

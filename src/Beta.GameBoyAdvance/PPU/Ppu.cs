@@ -7,7 +7,7 @@ namespace Beta.GameBoyAdvance.PPU
 {
     public partial class Ppu : Processor
     {
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Cpu cpu;
 
         private Blend blend;
@@ -53,7 +53,7 @@ namespace Beta.GameBoyAdvance.PPU
             }
         }
 
-        public Ppu(GameSystem gameSystem)
+        public Ppu(Driver gameSystem)
         {
             this.gameSystem = gameSystem;
             cpu = gameSystem.Cpu;

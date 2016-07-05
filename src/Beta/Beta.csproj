@@ -69,9 +69,9 @@
     <Compile Include="FormMain.designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Hosting\GameSystemDefinition.cs" />
-    <Compile Include="Hosting\IPackageLoader.cs" />
-    <Compile Include="Hosting\PackageLoader.cs" />
+    <Compile Include="Hosting\DriverDefinition.cs" />
+    <Compile Include="Hosting\IDriverDefinitionLoader.cs" />
+    <Compile Include="Hosting\DriverDefinitionLoader.cs" />
     <Compile Include="IFileSelector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,15 +89,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
-    <None Include="systems\fc.sys\conf.json">
+    <None Include="drivers\fc.sys\conf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="systems\gb.sys\conf.json">
+    <None Include="drivers\gb.sys\conf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="systems\gba.sys\conf.json">
+    <None Include="drivers\gba.sys\conf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -110,7 +111,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="systems\sfc.sys\conf.json">
+    <None Include="drivers\sfc.sys\conf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -9,8 +9,8 @@ namespace Beta.GameBoyAdvance.Memory
         private const uint SIZE = (1u << 10);
         private const uint MASK = (SIZE - 1u);
 
-        private Peek[] peek = new Peek[SIZE];
-        private Poke[] poke = new Poke[SIZE];
+        private Reader[] peek = new Reader[SIZE];
+        private Writer[] poke = new Writer[SIZE];
         private Register32 latch;
 
         public uint Peek(int size, uint address)
@@ -47,23 +47,23 @@ namespace Beta.GameBoyAdvance.Memory
             throw new CompilerPleasingException();
         }
 
-        public void Map(uint address, Peek peekFunction)
+        public void Map(uint address, Reader peekFunction)
         {
             peek[address] = peekFunction;
         }
 
-        public void Map(uint address, Poke pokeFunction)
+        public void Map(uint address, Writer pokeFunction)
         {
             poke[address] = pokeFunction;
         }
 
-        public void Map(uint address, Peek peekFunction, Poke pokeFunction)
+        public void Map(uint address, Reader peekFunction, Writer pokeFunction)
         {
             Map(address, peekFunction);
             Map(address, pokeFunction);
         }
 
-        public void Map(uint address, uint last, Peek peekFunction, Poke pokeFunction)
+        public void Map(uint address, uint last, Reader peekFunction, Writer pokeFunction)
         {
             for (; address <= last; address++)
             {

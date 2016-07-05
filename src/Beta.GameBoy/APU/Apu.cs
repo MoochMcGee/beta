@@ -1,192 +1,275 @@
-﻿using Beta.Platform;
-using Beta.Platform.Core;
+﻿using System;
+using Beta.GameBoy.Memory;
+using Beta.Platform.Audio;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy.APU
 {
-    // Name Addr 7654 3210 Function
-    // -----------------------------------------------------------------
-    //        Control/Status
-    // NR50 FF24 ALLL BRRR Vin L enable, Left vol, Vin R enable, Right vol
-    // NR51 FF25 NW21 NW21 Left enables, Right enables
-    // NR52 FF26 P--- NW21 Power control/status, Channel length statuses
-
-    //        Wave Table
-    //      FF30 0000 1111 Samples $00 and $01
-    //      ....
-    //      FF3F 0000 1111 Samples $1E and $1F
-
-    public partial class Apu : Processor
+    public sealed class Apu : IConsumer<ClockSignal>
     {
-        private GameSystem gameSystem;
-        private ChannelSq1 sq1;
-        private ChannelSq2 sq2;
-        private ChannelNoi noi;
-        private ChannelWav wav;
-        private Timing courseTiming;
-        private Timing sampleTiming;
-        private byte[] reg;
-        private int course;
-
-        public Apu(GameSystem gameSystem)
+        private static int[][] square_lut = new[]
         {
-            this.gameSystem = gameSystem;
-            Single = 4;
+            new[] { 0, 0, 0, 0, 0, 0, 0, 1 },
+            new[] { 1, 0, 0, 0, 0, 0, 0, 1 },
+            new[] { 1, 0, 0, 0, 0, 1, 1, 1 },
+            new[] { 0, 1, 1, 1, 1, 1, 1, 0 }
+        };
 
-            courseTiming.Period = 4194304 / 512;
-            courseTiming.Single = 4;
+        private readonly IMemoryMap memory;
+        private readonly ApuRegisters regs;
+        private readonly NoiRegisters noi;
+        private readonly Sq1Registers sq1;
+        private readonly Sq2Registers sq2;
+        private readonly WavRegisters wav;
+        private readonly IAudioBackend audio;
 
-            sampleTiming.Period = DELAY;
-            sampleTiming.Single = PHASE;
+        private int sample_timer;
+        private int sample_period = 1048576;
 
-            sq1 = new ChannelSq1(gameSystem);
-            sq2 = new ChannelSq2(gameSystem);
-            noi = new ChannelNoi(gameSystem);
-            wav = new ChannelWav(gameSystem);
-            reg = new byte[3];
+        public Apu(IMemoryMap memory, Registers regs, IAudioBackend audio)
+        {
+            this.memory = memory;
+            this.regs = regs.apu;
+            this.noi = regs.noi;
+            this.sq1 = regs.sq1;
+            this.sq2 = regs.sq2;
+            this.wav = regs.wav;
+            this.audio = audio;
         }
 
-        private byte PeekNull(uint address)
+        public void Consume(ClockSignal e)
         {
-            return 0xff;
-        }
-
-        private byte PeekNR50(uint address)
-        {
-            return reg[0];
-        }
-
-        private byte PeekNR51(uint address)
-        {
-            return reg[1];
-        }
-
-        private byte PeekNR52(uint address)
-        {
-            return (byte)(
-                (reg[2] & 0x80) |
-                (noi.Enabled ? 8 : 0) |
-                (wav.Enabled ? 4 : 0) |
-                (sq2.Enabled ? 2 : 0) |
-                (sq1.Enabled ? 1 : 0) | 0x70);
-        }
-
-        private void PokeNull(uint address, byte data)
-        {
-        }
-
-        private void PokeNR50(uint address, byte data)
-        {
-            if ((reg[2] & 0x80) == 0)
-                return;
-
-            reg[0] = data;
-
-            Mixer.Level[0] = (data >> 4) & 0x7;
-            Mixer.Level[1] = (data >> 0) & 0x7;
-        }
-
-        private void PokeNR51(uint address, byte data)
-        {
-            if ((reg[2] & 0x80) == 0)
-                return;
-
-            reg[1] = data;
-
-            Mixer.Flags[0] = (data >> 4) & 0xf;
-            Mixer.Flags[1] = (data >> 0) & 0xf;
-        }
-
-        private void PokeNR52(uint address, byte data)
-        {
-            if (((reg[2] ^ data) & 0x80) != 0)
+            for (int i = 0; i < e.Cycles / 4; i++)
             {
-                switch (data & 0x80)
+                Tick(e);
+            }
+        }
+
+        private void Tick(ClockSignal e)
+        {
+            if (regs.sequence_timer != 0 && --regs.sequence_timer == 0)
+            {
+                regs.sequence_timer = 4194304 / 2048;
+
+                switch (regs.sequence_step)
                 {
-                case 0x00:
-                    PokeNR50(0x0000, 0x00);
-                    PokeNR51(0x0000, 0x00);
+                case 0: DurationTick(); break;
+                case 1: break;
+                case 2: DurationTick(); SweepTick(); break;
+                case 3: break;
+                case 4: DurationTick(); break;
+                case 5: break;
+                case 6: DurationTick(); SweepTick(); break;
+                case 7: EnvelopeTick(); break;
+                }
 
-                    sq1.PowerOff();
-                    sq2.PowerOff();
-                    wav.PowerOff();
-                    noi.PowerOff();
-                    break;
+                regs.sequence_step = (regs.sequence_step + 1) & 7;
+            }
 
-                case 0x80:
-                    sq1.PowerOn();
-                    sq2.PowerOn();
-                    wav.PowerOn();
-                    noi.PowerOn();
-                    break;
+            if (sq1.enabled && sq1.timer != 0 && --sq1.timer == 0)
+            {
+                sq1.timer = 2048 - sq1.period;
+                sq1.duty_step = (sq1.duty_step + 1) & 7;
+            }
+
+            if (sq2.enabled && sq2.timer != 0 && --sq2.timer == 0)
+            {
+                sq2.timer = 2048 - sq2.period;
+                sq2.duty_step = (sq2.duty_step + 1) & 7;
+            }
+
+            if (wav.enabled && wav.timer != 0 && --wav.timer == 0)
+            {
+                wav.timer = (2048 - wav.period) / 2;
+
+                if (wav.wave_ram_shift == 0)
+                {
+                    wav.wave_ram_shift = 4;
+                    wav.wave_ram_cursor = (wav.wave_ram_cursor + 1) & 15;
+
+                    var address = (ushort)(0xff30 | wav.wave_ram_cursor);
+                    wav.wave_ram_sample = memory.Read(address);
+                }
+                else
+                {
+                    wav.wave_ram_shift = 0;
                 }
             }
 
-            reg[2] = data;
-        }
-
-        private void Sample()
-        {
-            var samples = Mixer.MixSamples(
-                sq1.Sample(),
-                sq2.Sample(),
-                wav.Sample(),
-                noi.Sample());
-
-            gameSystem.Audio.Render(samples[0]);
-            gameSystem.Audio.Render(samples[1]);
-        }
-
-        public void Initialize()
-        {
-            sq1.Initialize(0xff10);
-            sq2.Initialize(0xff15);
-            wav.Initialize(0xff1a);
-            noi.Initialize(0xff1f);
-
-            gameSystem.Hook(0xff24, /*   */ PeekNR50, PokeNR50);
-            gameSystem.Hook(0xff25, /*   */ PeekNR51, PokeNR51);
-            gameSystem.Hook(0xff26, /*   */ PeekNR52, PokeNR52);
-            gameSystem.Hook(0xff27, 0xff2f, PeekNull, PokeNull);
-            gameSystem.Hook(0xff30, 0xff3f, wav.Peek, wav.Poke);
-        }
-
-        public override void Update()
-        {
-            if (courseTiming.Clock())
+            if (noi.enabled && noi.timer != 0 && --noi.timer == 0)
             {
-                switch (course)
+                noi.timer = noi.period;
+
+                int feedback = (noi.lfsr ^ (noi.lfsr >> 1)) & 1;
+                noi.lfsr = noi.lfsr >> 1;
+
+                if (noi.lfsr_mode == 1)
                 {
-                case 0:
-                case 4:
-                    sq1.ClockDuration();
-                    sq2.ClockDuration();
-                    wav.ClockDuration();
-                    noi.ClockDuration();
-                    break;
-
-                case 2:
-                case 6:
-                    sq1.ClockDuration();
-                    sq2.ClockDuration();
-                    wav.ClockDuration();
-                    noi.ClockDuration();
-
-                    sq1.ClockSweep();
-                    break;
-
-                case 7:
-                    sq1.ClockEnvelope();
-                    sq2.ClockEnvelope();
-                    noi.ClockEnvelope();
-                    break;
+                    // the documentation says this is correct, but it sounds
+                    // wrong.
+                    // 
+                    // noi.lfsr |= feedback << 14;
+                    noi.lfsr |= feedback << 6;
                 }
-
-                course = (course + 1) & 0x7;
+                else
+                {
+                    noi.lfsr |= feedback << 14;
+                }
             }
 
-            if (sampleTiming.Clock())
+            sample_timer -= 48000;
+            if (sample_timer <= 0)
             {
-                Sample();
+                sample_timer += sample_period;
+                RenderSample();
+            }
+        }
+
+        private void DurationTick()
+        {
+            if (sq1.duration != 0 && --sq1.duration == 0)
+            {
+                if (sq1.duration_loop)
+                {
+                    sq1.duration = 64 - sq1.duration_latch;
+                }
+                else
+                {
+                    sq1.enabled = false;
+                }
+            }
+
+            if (sq2.duration != 0 && --sq2.duration == 0)
+            {
+                if (sq2.duration_loop)
+                {
+                    sq2.duration = 64 - sq2.duration_latch;
+                }
+                else
+                {
+                    sq2.enabled = false;
+                }
+            }
+
+            if (wav.duration != 0 && --wav.duration == 0)
+            {
+                if (wav.duration_loop)
+                {
+                    wav.duration = 256 - wav.duration_latch;
+                }
+                else
+                {
+                    wav.enabled = false;
+                }
+            }
+
+            if (noi.duration != 0 && --noi.duration == 0)
+            {
+                if (noi.duration_loop)
+                {
+                    noi.duration = 64 - noi.duration_latch;
+                }
+                else
+                {
+                    noi.enabled = false;
+                }
+            }
+        }
+
+        private void EnvelopeTick()
+        {
+            if (sq1.volume_period != 0 && sq1.volume_timer != 0 && --sq1.volume_timer == 0)
+            {
+                sq1.volume_timer = sq1.volume_period;
+                sq1.volume = sq1.volume_direction == 0
+                    ? Math.Max(sq1.volume - 1, 0)
+                    : Math.Min(sq1.volume + 1, 15)
+                    ;
+            }
+
+            if (sq2.volume_period != 0 && sq2.volume_timer != 0 && --sq2.volume_timer == 0)
+            {
+                sq2.volume_timer = sq2.volume_period;
+                sq2.volume = sq2.volume_direction == 0
+                    ? Math.Max(sq2.volume - 1, 0)
+                    : Math.Min(sq2.volume + 1, 15)
+                    ;
+            }
+
+            if (noi.volume_period != 0 && noi.volume_timer != 0 && --noi.volume_timer == 0)
+            {
+                noi.volume_timer = noi.volume_period;
+                noi.volume = noi.volume_direction == 0
+                    ? Math.Max(noi.volume - 1, 0)
+                    : Math.Min(noi.volume + 1, 15)
+                    ;
+            }
+        }
+
+        private void SweepTick()
+        {
+            if (sq1.sweep_enabled)
+            {
+                if (sq1.sweep_timer != 0 && --sq1.sweep_timer == 0)
+                {
+                    sq1.sweep_timer = sq1.sweep_period;
+
+                    int period = sq1.sweep_direction == 0
+                        ? sq1.period + (sq1.period >> sq1.sweep_shift)
+                        : sq1.period - (sq1.period >> sq1.sweep_shift)
+                        ;
+
+                    if (period < 0)
+                    {
+                        period = 0;
+                    }
+
+                    if (period > 0x7ff)
+                    {
+                        period = 0x7ff;
+                        sq1.enabled = false;
+                    }
+
+                    sq1.period = period;
+                }
+            }
+        }
+
+        private void RenderSample()
+        {
+            int sq1_out = sq1.enabled
+                ? square_lut[sq1.duty_form][sq1.duty_step] * sq1.volume
+                : 0
+                ;
+
+            int sq2_out = sq2.enabled
+                ? square_lut[sq2.duty_form][sq2.duty_step] * sq2.volume
+                : 0
+                ;
+
+            int noi_out = noi.enabled
+                ? (~noi.lfsr & 1) * noi.volume
+                : 0
+                ;
+
+            int wav_out = wav.enabled
+                ? ((wav.wave_ram_sample >> wav.wave_ram_shift) & 0xf) >> wav.volume_shift
+                : 0
+                ;
+
+            for (int i = 0; i < 2; i++)
+            {
+                int sample = 0;
+
+                if ((regs.speaker_select[i] & 8) != 0) sample += noi_out;
+                if ((regs.speaker_select[i] & 4) != 0) sample += wav_out;
+                if ((regs.speaker_select[i] & 2) != 0) sample += sq2_out;
+                if ((regs.speaker_select[i] & 1) != 0) sample += sq1_out;
+
+                // apply volume correction
+
+                sample = (sample * 32767 * regs.speaker_volume[i]) / 16 / 4 / 8;
+                audio.Render(sample);
             }
         }
     }

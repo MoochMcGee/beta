@@ -1,3 +1,8 @@
+using Beta.GameBoy.APU;
+using Beta.GameBoy.Boards;
+using Beta.GameBoy.CPU;
+using Beta.GameBoy.Memory;
+using Beta.GameBoy.PPU;
 using Beta.Platform.Core;
 using SimpleInjector;
 using SimpleInjector.Packaging;
@@ -8,9 +13,29 @@ namespace Beta.GameBoy
     {
         public void RegisterServices(Container container)
         {
-            container.RegisterSingleton<IGameSystem, GameSystem>();
-            container.RegisterSingleton<IPowerButton, PowerButton>();
-            container.RegisterSingleton<IResetButton, DefaultResetButton>();
+            container.RegisterSingleton<IBoardFactory, BoardFactory>();
+            container.RegisterSingleton<ICartridgeConnector, CartridgeConnector>();
+            container.RegisterSingleton<IDriver, Driver>();
+            container.RegisterSingleton<IDriverFactory, DriverFactory>();
+            container.RegisterSingleton<IMemoryMap, MemoryMap>();
+
+            container.RegisterSingleton<Apu>();
+            container.RegisterSingleton<Cpu>();
+            container.RegisterSingleton<Ppu>();
+            container.RegisterSingleton<Pad>();
+            container.RegisterSingleton<Tma>();
+
+            // Memory
+            // 
+
+            container.RegisterSingleton<Registers>();
+            container.RegisterSingleton<BIOS>();
+            container.RegisterSingleton<HRAM>();
+            container.RegisterSingleton<MMIO>();
+            container.RegisterSingleton<OAM>();
+            container.RegisterSingleton<VRAM>();
+            container.RegisterSingleton<Wave>();
+            container.RegisterSingleton<WRAM>();
         }
     }
 }

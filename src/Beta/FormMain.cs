@@ -10,12 +10,12 @@ namespace Beta
 {
     public partial class FormMain : Form
     {
-        private readonly GameSystemDefinition[] definitions;
+        private readonly DriverDefinition[] definitions;
         private readonly IFileSelector fileSelector;
 
-        private FormHost formHost = new FormHost();
+        private FormHost formHost;
 
-        public FormMain(IFileSelector fileSelector, IPackageLoader loader)
+        public FormMain(IFileSelector fileSelector, IDriverDefinitionLoader loader)
         {
             this.fileSelector = fileSelector;
             this.definitions = loader.Load();
@@ -35,7 +35,7 @@ namespace Beta
             var extension = file.Name.Substring(dotIndex, file.Name.Length - dotIndex);
             var linq =
                 from d in definitions
-                where d.File.Extensions.Any(o => o == extension)
+                where d.Configuration.Extensions.Any(o => o == extension)
                 select d;
 
             var definition = linq.SingleOrDefault();
@@ -47,17 +47,19 @@ namespace Beta
             ShowHostForm(definition, file);
         }
 
-        private void ShowHostForm(GameSystemDefinition definition, FileInfo file)
+        private void ShowHostForm(DriverDefinition definition, FileInfo file)
         {
+            formHost = new FormHost(definition.Configuration);
+
             var container = Bootstrapper.Bootstrap(formHost.Handle);
-            container.RegisterSingleton(definition.File);
+            container.RegisterSingleton(definition.Configuration);
 
             definition.Package.RegisterServices(container);
 
-            formHost.Text = definition.File.Name;
-            formHost.LoadGame(container.GetInstance<IGameSystemFactory>(), file.FullName);
+            formHost.Text = $"{definition.Configuration.Name} - {file.Name}";
+            formHost.LoadGame(container.GetInstance<IDriverFactory>(), file.FullName);
 
-            formHost.Start(container.GetInstance<IEmulationLoop>());
+            formHost.Start();
             formHost.ShowDialog(this);
             formHost.Abort();
 

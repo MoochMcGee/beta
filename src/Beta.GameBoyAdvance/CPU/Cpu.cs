@@ -8,7 +8,7 @@ namespace Beta.GameBoyAdvance.CPU
 {
     public class Cpu : Arm7
     {
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Apu apu;
         private Ppu ppu;
         private Timer[] timer;
@@ -18,7 +18,7 @@ namespace Beta.GameBoyAdvance.CPU
         public Register16 irf;
         public bool ime;
 
-        public Cpu(GameSystem gameSystem)
+        public Cpu(Driver gameSystem)
         {
             this.gameSystem = gameSystem;
 

@@ -15,7 +15,7 @@ namespace Beta.GameBoyAdvance.APU
             private int shift = 8;
             private int value = 0x6000;
 
-            public ChannelNoise(GameSystem gameSystem, Timing timing)
+            public ChannelNoise(Driver gameSystem, Timing timing)
                 : base(gameSystem, timing)
             {
                 this.timing.Cycles =

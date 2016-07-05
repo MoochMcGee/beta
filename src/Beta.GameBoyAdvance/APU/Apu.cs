@@ -6,7 +6,7 @@ namespace Beta.GameBoyAdvance.APU
 {
     public partial class Apu : Processor
     {
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Cpu cpu;
         private ChannelNoise noise;
         private ChannelWaveRam waveRam;
@@ -25,7 +25,7 @@ namespace Beta.GameBoyAdvance.APU
         public ChannelDirectSound DirectSound1;
         public ChannelDirectSound DirectSound2;
 
-        public Apu(GameSystem gameSystem)
+        public Apu(Driver gameSystem)
         {
             this.gameSystem = gameSystem;
             cpu = gameSystem.Cpu;

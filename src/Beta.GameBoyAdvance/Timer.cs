@@ -16,7 +16,7 @@ namespace Beta.GameBoyAdvance
              0  // Log2( 1024 ) - Log2( 1024 )
         };
 
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private Apu apu;
         private Cpu cpu;
 
@@ -32,7 +32,7 @@ namespace Beta.GameBoyAdvance
         public bool Countup { get { return (control & 0x0084) == 0x0084; } }
         public bool Enabled { get { return (control & 0x0084) == 0x0080; } }
 
-        public Timer(GameSystem gameSystem, ushort interruptType, int number)
+        public Timer(Driver gameSystem, ushort interruptType, int number)
         {
             this.gameSystem = gameSystem;
             this.interruptType = interruptType;

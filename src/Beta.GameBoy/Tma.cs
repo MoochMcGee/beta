@@ -1,53 +1,65 @@
 ﻿using Beta.GameBoy.CPU;
-using Beta.Platform;
-using Beta.Platform.Processors;
+using Beta.GameBoy.Memory;
+using Beta.GameBoy.Messaging;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public class Tma
+    public sealed class Tma : IConsumer<ClockSignal>
     {
-        private static byte[] lut =
+        private static int[] lut = new[]
         {
-            0x01, // (1.048576MHz / 256) =   4.096KHz
-            0x40, // (1.048576MHz /   4) = 262.144KHz
-            0x10, // (1.048576MHz /  16) =  65.536KHz
-            0x04  // (1.048576MHz /  64) =  16.384KHz
+            0x400, // (4,194,304 Hz / 1024) =   4,096 Hz
+            0x010, // (4,194,304 Hz /   16) = 262,144 Hz
+            0x040, // (4,194,304 Hz /   64) =  65,536 Hz
+            0x100  // (4,194,304 Hz /  256) =  16,384 Hz
         };
 
-        private Cpu cpu;
-        private GameSystem gameSystem;
+        private readonly IProducer<InterruptSignal> ints;
+        private readonly TmaRegisters regs;
 
-        private Register16 div;
-        private Register16 tma;
-        private byte cnt;
-        private byte mod;
-
-        public Tma(GameSystem gameSystem)
+        public Tma(Registers regs, IProducer<InterruptSignal> ints)
         {
-            this.gameSystem = gameSystem;
-            cpu = gameSystem.cpu;
+            this.ints = ints;
+            this.regs = regs.tma;
+
+            this.regs.divider_prescaler = lut[3];
+            this.regs.counter_prescaler = lut[0];
         }
 
-        public void Initialize()
+        public void Consume(ClockSignal e)
         {
-            gameSystem.Hook(0xff04, a => div.h, (a, d) => div.h = 0);
-            gameSystem.Hook(0xff05, a => tma.h, (a, d) => tma.h = d);
-            gameSystem.Hook(0xff06, a => mod, (a, d) => mod = d);
-            gameSystem.Hook(0xff07, a => cnt, (a, d) => cnt = d);
-        }
-
-        public void Update()
-        {
-            div.w += lut[3];
-
-            if ((cnt & 0x4) != 0)
+            for (int i = 0; i < e.Cycles; i++)
             {
-                tma.w += lut[cnt & 3];
+                Tick();
+            }
+        }
 
-                if (tma.w < lut[cnt & 3])
+        private void Tick()
+        {
+            regs.divider_prescaler--;
+
+            if (regs.divider_prescaler == 0)
+            {
+                regs.divider_prescaler = lut[3];
+                regs.divider++;
+            }
+
+            regs.counter_prescaler--;
+
+            if (regs.counter_prescaler == 0)
+            {
+                regs.counter_prescaler = lut[regs.control & 3];
+
+                if ((regs.control & 4) != 0)
                 {
-                    tma.h = mod;
-                    cpu.RequestInterrupt(LR35902.Interrupt.ELAPSE);
+                    regs.counter++;
+
+                    if (regs.counter == 0)
+                    {
+                        regs.counter = regs.modulus;
+                        ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
+                    }
                 }
             }
         }

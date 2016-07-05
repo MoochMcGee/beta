@@ -112,14 +112,14 @@ namespace Beta.SuperFamicom.SMP
                    0x000
         };
 
-        private GameSystem gameSystem;
+        private Driver gameSystem;
         private State state = new State();
         private Voice[] voice = new Voice[8];
 
         private byte[] ram;
         private int step;
 
-        public Dsp(GameSystem gameSystem, byte[] ram)
+        public Dsp(Driver gameSystem, byte[] ram)
         {
             Single = 1;
 

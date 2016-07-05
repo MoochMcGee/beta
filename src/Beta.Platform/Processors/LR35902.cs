@@ -1,11 +1,14 @@
 ﻿using System.Runtime.InteropServices;
 using Beta.Platform.Core;
 using Beta.Platform.Exceptions;
+using Beta.Platform.Messaging;
 
 namespace Beta.Platform.Processors
 {
     public abstract class LR35902 : Processor
     {
+        protected readonly IProducer<ClockSignal> clockProducer;
+
         private Status sr;
         private Registers registers;
         private byte code;
@@ -18,6 +21,11 @@ namespace Beta.Platform.Processors
         private static int CarryBits(int a, int b, int r)
         {
             return (a & b) | ((a ^ b) & ~r);
+        }
+
+        public LR35902(IProducer<ClockSignal> clockProducer)
+        {
+            this.clockProducer = clockProducer;
         }
 
         private bool Flag()
@@ -41,7 +49,7 @@ namespace Beta.Platform.Processors
             case 3: return registers.e;
             case 4: return registers.h;
             case 5: return registers.l;
-            case 6: return Peek(registers.hl);
+            case 6: return Read(registers.hl);
             case 7: return registers.a;
             }
 
@@ -58,14 +66,14 @@ namespace Beta.Platform.Processors
             case 3: registers.e = data; break;
             case 4: registers.h = data; break;
             case 5: registers.l = data; break;
-            case 6: Poke(registers.hl, data); break;
+            case 6: Write(registers.hl, data); break;
             case 7: registers.a = data; break;
             }
         }
 
         private void ExtCode()
         {
-            var op = Operand(code = Peek(registers.pc++));
+            var op = Operand(code = Read(registers.pc++));
 
             switch (code >> 3)
             {
@@ -85,7 +93,7 @@ namespace Beta.Platform.Processors
 
         private void StdCode()
         {
-            switch (code = Peek(registers.pc++))
+            switch (code = Read(registers.pc++))
             {
             case 0x00: break;
             case 0x10: /*stop = true;
@@ -118,48 +126,48 @@ namespace Beta.Platform.Processors
             case 0x21: Ld(ref registers.hl); break;
             case 0x31: Ld(ref registers.sp); break;
 
-            case 0x02: Poke(registers.bc, registers.a); break;
-            case 0x12: Poke(registers.de, registers.a); break;
-            case 0x22: Poke(registers.hl, registers.a); registers.hl++; break;
-            case 0x32: Poke(registers.hl, registers.a); registers.hl--; break;
+            case 0x02: Write(registers.bc, registers.a); break;
+            case 0x12: Write(registers.de, registers.a); break;
+            case 0x22: Write(registers.hl, registers.a); registers.hl++; break;
+            case 0x32: Write(registers.hl, registers.a); registers.hl--; break;
 
-            case 0x0a: registers.a = Peek(registers.bc); break;
-            case 0x1a: registers.a = Peek(registers.de); break;
-            case 0x2a: registers.a = Peek(registers.hl); registers.hl++; break;
-            case 0x3a: registers.a = Peek(registers.hl); registers.hl--; break;
+            case 0x0a: registers.a = Read(registers.bc); break;
+            case 0x1a: registers.a = Read(registers.de); break;
+            case 0x2a: registers.a = Read(registers.hl); registers.hl++; break;
+            case 0x3a: registers.a = Read(registers.hl); registers.hl--; break;
 
-            case 0xe0: Poke((ushort)(0xff00 + Peek(registers.pc++)), registers.a); break;
-            case 0xe2: Poke((ushort)(0xff00 + registers.c), registers.a); break;
-            case 0xf0: registers.a = Peek((ushort)(0xff00 + Peek(registers.pc++))); break;
-            case 0xf2: registers.a = Peek((ushort)(0xff00 + registers.c)); break;
+            case 0xe0: Write((ushort)(0xff00 + Read(registers.pc++)), registers.a); break;
+            case 0xe2: Write((ushort)(0xff00 + registers.c), registers.a); break;
+            case 0xf0: registers.a = Read((ushort)(0xff00 + Read(registers.pc++))); break;
+            case 0xf2: registers.a = Read((ushort)(0xff00 + registers.c)); break;
 
             case 0xea: // ld ($nnnn),a
-                registers.aal = Peek(registers.pc++);
-                registers.aah = Peek(registers.pc++);
+                registers.aal = Read(registers.pc++);
+                registers.aah = Read(registers.pc++);
 
-                Poke(registers.aa, registers.a);
+                Write(registers.aa, registers.a);
                 break;
 
             case 0xfa: // ld a,($nnnn)
-                registers.aal = Peek(registers.pc++);
-                registers.aah = Peek(registers.pc++);
+                registers.aal = Read(registers.pc++);
+                registers.aah = Read(registers.pc++);
 
-                registers.a = Peek(registers.aa);
+                registers.a = Read(registers.aa);
                 break;
 
             case 0x08: // ld ($nnnn),sp
-                registers.aal = Peek(registers.pc++);
-                registers.aah = Peek(registers.pc++);
+                registers.aal = Read(registers.pc++);
+                registers.aah = Read(registers.pc++);
 
-                Poke(registers.aa, registers.spl); registers.aa++;
-                Poke(registers.aa, registers.sph);
+                Write(registers.aa, registers.spl); registers.aa++;
+                Write(registers.aa, registers.sph);
                 break;
 
             case 0xd9: Reti(); break;
 
             case 0xe8: // add sp,sp,#$nn
                 {
-                    var data = Peek(registers.pc++);
+                    var data = Read(registers.pc++);
                     var temp = (ushort)(registers.sp + (sbyte)data);
                     var bits = CarryBits(registers.sp, data, temp);
 
@@ -177,7 +185,7 @@ namespace Beta.Platform.Processors
 
             case 0xf8: // add hl,sp,#$nn
                 {
-                    var data = Peek(registers.pc++);
+                    var data = Read(registers.pc++);
                     var temp = (ushort)(registers.sp + (sbyte)data);
                     var bits = CarryBits(registers.sp, data, temp);
 
@@ -212,7 +220,7 @@ namespace Beta.Platform.Processors
 
             case 0x04: case 0x0c: case 0x14: case 0x1c: case 0x24: case 0x2c: case 0x34: case 0x3c: Operand(code >> 3, Inc(Operand(code >> 3))); break;
             case 0x05: case 0x0d: case 0x15: case 0x1d: case 0x25: case 0x2d: case 0x35: case 0x3d: Operand(code >> 3, Dec(Operand(code >> 3))); break;
-            case 0x06: case 0x0e: case 0x16: case 0x1e: case 0x26: case 0x2e: case 0x36: case 0x3e: Operand(code >> 3, Peek(registers.pc++)); break;
+            case 0x06: case 0x0e: case 0x16: case 0x1e: case 0x26: case 0x2e: case 0x36: case 0x3e: Operand(code >> 3, Read(registers.pc++)); break;
             case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: case 0x46: case 0x47: Ld(); break;
             case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: case 0x4d: case 0x4e: case 0x4f: Ld(); break;
             case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x56: case 0x57: Ld(); break;
@@ -248,14 +256,14 @@ namespace Beta.Platform.Processors
             case 0xe5: /*                    */ Push(ref registers.hl); break;
             case 0xf5: registers.f = sr.Save(); Push(ref registers.af); break;
 
-            case 0xc6: Add(Peek(registers.pc++)); break;
-            case 0xce: Add(Peek(registers.pc++), sr.C); break;
-            case 0xd6: Sub(Peek(registers.pc++)); break;
-            case 0xde: Sub(Peek(registers.pc++), sr.C); break;
-            case 0xe6: And(Peek(registers.pc++)); break;
-            case 0xee: Xor(Peek(registers.pc++)); break;
-            case 0xf6: Or(Peek(registers.pc++)); break;
-            case 0xfe: Cp(Peek(registers.pc++)); break;
+            case 0xc6: Add(Read(registers.pc++)); break;
+            case 0xce: Add(Read(registers.pc++), sr.C); break;
+            case 0xd6: Sub(Read(registers.pc++)); break;
+            case 0xde: Sub(Read(registers.pc++), sr.C); break;
+            case 0xe6: And(Read(registers.pc++)); break;
+            case 0xee: Xor(Read(registers.pc++)); break;
+            case 0xf6: Or(Read(registers.pc++)); break;
+            case 0xfe: Cp(Read(registers.pc++)); break;
 
             case 0xd3:
             case 0xdb:
@@ -341,15 +349,15 @@ namespace Beta.Platform.Processors
         // -- 8-bit instructions --
         private void Call()
         {
-            var lo = Peek(registers.pc++);
-            var hi = Peek(registers.pc++);
+            var lo = Read(registers.pc++);
+            var hi = Read(registers.pc++);
 
             if (code == 0xcd || Flag())
             {
                 Dispatch();
 
-                Poke(--registers.sp, registers.pch);
-                Poke(--registers.sp, registers.pcl);
+                Write(--registers.sp, registers.pch);
+                Write(--registers.sp, registers.pcl);
 
                 registers.pcl = lo;
                 registers.pch = hi;
@@ -394,8 +402,8 @@ namespace Beta.Platform.Processors
 
         private void Jp()
         {
-            var lo = Peek(registers.pc++);
-            var hi = Peek(registers.pc++);
+            var lo = Read(registers.pc++);
+            var hi = Read(registers.pc++);
 
             if (code == 0xc3 || Flag())
             {
@@ -408,7 +416,7 @@ namespace Beta.Platform.Processors
 
         private void Jr()
         {
-            var data = Peek(registers.pc++);
+            var data = Read(registers.pc++);
 
             if (code == 0x18 || Flag())
             {
@@ -429,15 +437,15 @@ namespace Beta.Platform.Processors
             if (code == 0xc9 || Flag())
             {
                 if (code != 0xc9) Dispatch();
-                registers.pcl = Peek(registers.sp++);
-                registers.pch = Peek(registers.sp++);
+                registers.pcl = Read(registers.sp++);
+                registers.pch = Read(registers.sp++);
             }
         }
 
         private void Reti()
         {
-            registers.pcl = Peek(registers.sp++);
-            registers.pch = Peek(registers.sp++);
+            registers.pcl = Read(registers.sp++);
+            registers.pch = Read(registers.sp++);
 
             Dispatch();
 
@@ -558,8 +566,8 @@ namespace Beta.Platform.Processors
         {
             Dispatch();
 
-            Poke(--registers.sp, registers.pch);
-            Poke(--registers.sp, registers.pcl);
+            Write(--registers.sp, registers.pch);
+            Write(--registers.sp, registers.pcl);
 
             registers.pcl = addr;
             registers.pch = 0;
@@ -582,15 +590,15 @@ namespace Beta.Platform.Processors
 
         private void Ld(ref ushort data)
         {
-            var l = Peek(registers.pc++);
-            var h = Peek(registers.pc++);
+            var l = Read(registers.pc++);
+            var h = Read(registers.pc++);
             data = (ushort)((h << 8) | l);
         }
 
         private void Pop(ref ushort data)
         {
-            var l = Peek(registers.sp++);
-            var h = Peek(registers.sp++);
+            var l = Read(registers.sp++);
+            var h = Read(registers.sp++);
             data = (ushort)((h << 8) | l);
         }
 
@@ -598,8 +606,8 @@ namespace Beta.Platform.Processors
         {
             Dispatch();
 
-            Poke(--registers.sp, (byte)(data >> 8));
-            Poke(--registers.sp, (byte)(data >> 0));
+            Write(--registers.sp, (byte)(data >> 8));
+            Write(--registers.sp, (byte)(data >> 0));
         }
 
         #endregion
@@ -614,9 +622,9 @@ namespace Beta.Platform.Processors
 
         protected abstract void Dispatch();
 
-        protected abstract byte Peek(ushort address);
+        protected abstract byte Read(ushort address);
 
-        protected abstract void Poke(ushort address, byte data);
+        protected abstract void Write(ushort address, byte data);
 
         public override void Update()
         {
@@ -650,12 +658,6 @@ namespace Beta.Platform.Processors
 
         public struct Interrupt
         {
-            public const byte V_BLANK = (1 << 0);
-            public const byte STATUS = (1 << 1);
-            public const byte ELAPSE = (1 << 2);
-            public const byte SERIAL = (1 << 3);
-            public const byte JOYPAD = (1 << 4);
-
             public int ff1;
             public int ff2;
         }

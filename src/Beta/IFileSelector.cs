@@ -5,6 +5,6 @@ namespace Beta
 {
     public interface IFileSelector
     {
-        FileInfo Display(GameSystemDefinition[] packages);
+        FileInfo Display(DriverDefinition[] drivers);
     }
 }

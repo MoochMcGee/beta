@@ -11,7 +11,7 @@
             public static int[][] XSizeLut;
             public static int[][] YSizeLut;
 
-            private GameSystem gameSystem;
+            private Driver gameSystem;
             private int[] raster0 = new int[240];
             private int[] raster1 = new int[240];
             private int[] raster2 = new int[240];
@@ -38,7 +38,7 @@
                 };
             }
 
-            public Sp(GameSystem gameSystem)
+            public Sp(Driver gameSystem)
             {
                 this.gameSystem = gameSystem;
                 Index = 4;

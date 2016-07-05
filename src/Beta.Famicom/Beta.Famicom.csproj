@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Beta\bin\Debug\systems\fc.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Debug\drivers\fc.sys\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Beta\bin\Release\systems\fc.sys\</OutputPath>
+    <OutputPath>..\Beta\bin\Release\drivers\fc.sys\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -106,12 +106,11 @@
     <Compile Include="Database\Pin.cs" />
     <Compile Include="Database\Ram.cs" />
     <Compile Include="Database\Rom.cs" />
-    <Compile Include="EmulationLoop.cs" />
     <Compile Include="Formats\CartridgeFactory.cs" />
     <Compile Include="Formats\CartridgeImage.cs" />
     <Compile Include="Formats\ICartridgeFactory.cs" />
-    <Compile Include="GameSystem.cs" />
-    <Compile Include="GameSystemFactory.cs" />
+    <Compile Include="Driver.cs" />
+    <Compile Include="DriverFactory.cs" />
     <Compile Include="Input\IJoypadFactory.cs" />
     <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\IMemory.cs" />
@@ -119,7 +118,6 @@
     <Compile Include="Memory\MemoryFactory.cs" />
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
-    <Compile Include="Messaging\ClockSignal.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\PpuAddressSignal.cs" />
     <Compile Include="Messaging\VblNmiSignal.cs" />

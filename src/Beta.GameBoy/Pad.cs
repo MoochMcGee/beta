@@ -1,21 +1,18 @@
-﻿using Beta.Platform.Input;
+﻿using Beta.GameBoy.Memory;
+using Beta.GameBoy.Messaging;
+using Beta.Platform.Input;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public class Pad : InputBackend
+    public class Pad : InputBackend, IConsumer<FrameSignal>
     {
-        public static bool AutofireState;
+        private readonly Registers regs;
 
-        private GameSystem gameSystem;
-        private bool p14;
-        private bool p15;
-        private byte p14Latch;
-        private byte p15Latch;
-
-        public Pad(GameSystem gameSystem)
+        public Pad(Registers regs)
             : base(0, 10)
         {
-            this.gameSystem = gameSystem;
+            this.regs = regs;
 
             Map(0, "A");
             Map(1, "X");
@@ -29,48 +26,23 @@ namespace Beta.GameBoy
             Map(9, "Y");
         }
 
-        private byte Peek(uint address)
-        {
-            if (p15) { return p15Latch; }
-            if (p14) { return p14Latch; }
-
-            return 0xff;
-        }
-
-        private void Poke(uint address, byte data)
-        {
-            p15 = (data & 0x20) == 0;
-            p14 = (data & 0x10) == 0;
-        }
-
-        public override void Update()
+        public void Consume(FrameSignal e)
         {
             base.Update();
 
-            p15Latch = 0xff ^ 0x20;
+            regs.pad.p15_latch = 0xff ^ 0x20;
 
-            if (Pressed(0)) p15Latch ^= 0x1;
-            if (Pressed(1)) p15Latch ^= 0x2;
-            if (Pressed(2)) p15Latch ^= 0x4;
-            if (Pressed(3)) p15Latch ^= 0x8;
+            if (Pressed(0)) regs.pad.p15_latch ^= 0x1;
+            if (Pressed(1)) regs.pad.p15_latch ^= 0x2;
+            if (Pressed(2)) regs.pad.p15_latch ^= 0x4;
+            if (Pressed(3)) regs.pad.p15_latch ^= 0x8;
 
-            p14Latch = 0xff ^ 0x10;
+            regs.pad.p14_latch = 0xff ^ 0x10;
 
-            if (Pressed(4)) p14Latch ^= 0x1;
-            if (Pressed(5)) p14Latch ^= 0x2;
-            if (Pressed(6)) p14Latch ^= 0x4;
-            if (Pressed(7)) p14Latch ^= 0x8;
-
-            if (AutofireState)
-            {
-                if (Pressed(8)) p15Latch ^= 0x1;
-                if (Pressed(9)) p15Latch ^= 0x2;
-            }
-        }
-
-        public void Initialize()
-        {
-            gameSystem.Hook(0xff00, Peek, Poke);
+            if (Pressed(4)) regs.pad.p14_latch ^= 0x1;
+            if (Pressed(5)) regs.pad.p14_latch ^= 0x2;
+            if (Pressed(6)) regs.pad.p14_latch ^= 0x4;
+            if (Pressed(7)) regs.pad.p14_latch ^= 0x8;
         }
     }
 }
