@@ -1,10 +1,33 @@
-﻿namespace Beta.GameBoyAdvance
+﻿using Beta.GameBoyAdvance.CPU;
+using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
+using Beta.Platform.Messaging;
+
+namespace Beta.GameBoyAdvance
 {
     public sealed class DmaController
+        : IConsumer<HBlankSignal>
+        , IConsumer<VBlankSignal>
     {
         public Dma[] Channels;
 
-        public void VBlank()
+        public DmaController(Driver driver, MMIO mmio, IProducer<InterruptSignal> interrupt)
+        {
+            Channels = new[]
+            {
+                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_0),
+                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_1),
+                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_2),
+                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_3)
+            };
+
+            Channels[0].Initialize(0x0b0);
+            Channels[1].Initialize(0x0bc);
+            Channels[2].Initialize(0x0c8);
+            Channels[3].Initialize(0x0d4);
+        }
+
+        public void Consume(VBlankSignal e)
         {
             foreach (var channel in Channels)
             {
@@ -15,7 +38,7 @@
             }
         }
 
-        public void HBlank()
+        public void Consume(HBlankSignal e)
         {
             foreach (var channel in Channels)
             {

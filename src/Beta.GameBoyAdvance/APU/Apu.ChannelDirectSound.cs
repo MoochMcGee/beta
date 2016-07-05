@@ -1,4 +1,5 @@
-﻿using Beta.Platform;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
 {
@@ -16,8 +17,8 @@ namespace Beta.GameBoyAdvance.APU
             public int Shift;
             public int Timer;
 
-            public ChannelDirectSound(Driver gameSystem, Timing timing)
-                : base(gameSystem, timing)
+            public ChannelDirectSound(MMIO mmio, Timing timing)
+                : base(mmio, timing)
             {
                 array = new sbyte[32];
             }
@@ -38,10 +39,10 @@ namespace Beta.GameBoyAdvance.APU
 
                 channel = dma;
 
-                gameSystem.mmio.Map(address + 0, WriteFifo);
-                gameSystem.mmio.Map(address + 1, WriteFifo);
-                gameSystem.mmio.Map(address + 2, WriteFifo);
-                gameSystem.mmio.Map(address + 3, WriteFifo);
+                mmio.Map(address + 0, WriteFifo);
+                mmio.Map(address + 1, WriteFifo);
+                mmio.Map(address + 2, WriteFifo);
+                mmio.Map(address + 3, WriteFifo);
             }
 
             public void Clear()

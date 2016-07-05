@@ -1,6 +1,7 @@
 ﻿using Beta.Platform;
 using Beta.Platform.Core;
 using Beta.Platform.Exceptions;
+using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
@@ -12,6 +13,26 @@ namespace Beta.GameBoyAdvance.Memory
         private Reader[] readers = new Reader[SIZE];
         private Writer[] writers = new Writer[SIZE];
         private Register32 latch;
+        private byte[] ioMemory = new byte[1024];
+
+        public MMIO()
+        {
+            for (int i = 0; i < 1024; i++)
+            {
+                readers[i] = ReadOpenBus;
+                writers[i] = WriteOpenBus;
+            }
+        }
+
+        private byte ReadOpenBus(word address)
+        {
+            return ioMemory[address & 0x3ff];
+        }
+
+        private void WriteOpenBus(word address, byte data)
+        {
+            ioMemory[address & 0x3ff] = data;
+        }
 
         public uint Read(int size, uint address)
         {

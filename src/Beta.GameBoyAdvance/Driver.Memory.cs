@@ -13,13 +13,13 @@ namespace Beta.GameBoyAdvance
             new[] { 1, 1, 6, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
         };
 
-        public BIOS bios;
-        public ERAM eram = new ERAM();
-        public IRAM iram = new IRAM();
-        public MMIO mmio = new MMIO();
-        public ORAM oram = new ORAM();
-        public PRAM pram = new PRAM();
-        public VRAM vram = new VRAM();
+        private BIOS bios;
+        private ERAM eram;
+        private IRAM iram;
+        private MMIO mmio;
+        private ORAM oram;
+        private PRAM pram;
+        private VRAM vram;
 
         public uint Read(int size, uint address, out int cycles)
         {

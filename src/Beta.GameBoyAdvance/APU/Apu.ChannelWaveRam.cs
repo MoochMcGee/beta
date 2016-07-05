@@ -1,4 +1,5 @@
 ﻿using System;
+using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
@@ -19,8 +20,8 @@ namespace Beta.GameBoyAdvance.APU
             private int dimension;
             private int shift = volumeTable[0];
 
-            public ChannelWaveRam(Driver gameSystem, Timing timing)
-                : base(gameSystem, timing)
+            public ChannelWaveRam(MMIO mmio, Timing timing)
+                : base(mmio, timing)
             {
                 this.timing.Cycles =
                 this.timing.Period = (2048 - frequency) * 8 * timing.Single;

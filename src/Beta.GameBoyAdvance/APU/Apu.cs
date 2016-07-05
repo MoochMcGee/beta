@@ -1,12 +1,17 @@
 ﻿using Beta.GameBoyAdvance.CPU;
+using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
+using Beta.Platform.Audio;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance.APU
 {
-    public partial class Apu : Processor
+    public partial class Apu : Processor, IConsumer<ClockSignal>
     {
-        private Driver gameSystem;
+        private readonly IAudioBackend audio;
+        private readonly MMIO mmio;
+
         private Cpu cpu;
         private ChannelNoise noise;
         private ChannelWaveRam waveRam;
@@ -25,10 +30,12 @@ namespace Beta.GameBoyAdvance.APU
         public ChannelDirectSound DirectSound1;
         public ChannelDirectSound DirectSound2;
 
-        public Apu(Driver gameSystem)
+        public Apu(Driver driver, MMIO mmio, IAudioBackend audio)
         {
-            this.gameSystem = gameSystem;
-            cpu = gameSystem.Cpu;
+            this.audio = audio;
+            this.mmio = mmio;
+
+            cpu = driver.Cpu;
             Single = 1;
 
             courseTiming.Period = 16777216 / 512;
@@ -39,12 +46,12 @@ namespace Beta.GameBoyAdvance.APU
 
             MathHelper.Reduce(ref sampleTiming.Period, ref sampleTiming.Single);
 
-            DirectSound1 = new ChannelDirectSound(gameSystem, sampleTiming);
-            DirectSound2 = new ChannelDirectSound(gameSystem, sampleTiming);
-            noise = new ChannelNoise(gameSystem, sampleTiming);
-            waveRam = new ChannelWaveRam(gameSystem, sampleTiming);
-            square1 = new ChannelSquare1(gameSystem, sampleTiming);
-            square2 = new ChannelSquare2(gameSystem, sampleTiming);
+            DirectSound1 = new ChannelDirectSound(mmio, sampleTiming);
+            DirectSound2 = new ChannelDirectSound(mmio, sampleTiming);
+            noise = new ChannelNoise(mmio, sampleTiming);
+            waveRam = new ChannelWaveRam(mmio, sampleTiming);
+            square1 = new ChannelSquare1(mmio, sampleTiming);
+            square2 = new ChannelSquare2(mmio, sampleTiming);
         }
 
         #region Registers
@@ -230,8 +237,8 @@ namespace Beta.GameBoyAdvance.APU
             lsample = (lsample << 6) | ((lsample >> 3) & 0x3f);
             rsample = (rsample << 6) | ((rsample >> 3) & 0x3f);
 
-            gameSystem.Audio.Render(lsample);
-            gameSystem.Audio.Render(rsample);
+            audio.Render(lsample);
+            audio.Render(rsample);
         }
 
         public void Initialize()
@@ -241,24 +248,24 @@ namespace Beta.GameBoyAdvance.APU
             waveRam.Initialize(0x070);
             noise.Initialize(0x078);
 
-            gameSystem.mmio.Map(0x080, ReadReg, Write080);
-            gameSystem.mmio.Map(0x081, ReadReg, Write081);
-            gameSystem.mmio.Map(0x082, ReadReg, Write082);
-            gameSystem.mmio.Map(0x083, ReadReg, Write083);
-            gameSystem.mmio.Map(0x084, Read084, Write084);
-            gameSystem.mmio.Map(0x085, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x086, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x087, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x088, ReadReg, Write088);
-            gameSystem.mmio.Map(0x089, ReadReg, Write089);
-            gameSystem.mmio.Map(0x08a, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x08b, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x08c, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x08d, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x08e, ReadReg, WriteReg);
-            gameSystem.mmio.Map(0x08f, ReadReg, WriteReg);
+            mmio.Map(0x080, ReadReg, Write080);
+            mmio.Map(0x081, ReadReg, Write081);
+            mmio.Map(0x082, ReadReg, Write082);
+            mmio.Map(0x083, ReadReg, Write083);
+            mmio.Map(0x084, Read084, Write084);
+            mmio.Map(0x085, ReadReg, WriteReg);
+            mmio.Map(0x086, ReadReg, WriteReg);
+            mmio.Map(0x087, ReadReg, WriteReg);
+            mmio.Map(0x088, ReadReg, Write088);
+            mmio.Map(0x089, ReadReg, Write089);
+            mmio.Map(0x08a, ReadReg, WriteReg);
+            mmio.Map(0x08b, ReadReg, WriteReg);
+            mmio.Map(0x08c, ReadReg, WriteReg);
+            mmio.Map(0x08d, ReadReg, WriteReg);
+            mmio.Map(0x08e, ReadReg, WriteReg);
+            mmio.Map(0x08f, ReadReg, WriteReg);
 
-            gameSystem.mmio.Map(0x090, 0x09f, waveRam.Read, waveRam.Write);
+            mmio.Map(0x090, 0x09f, waveRam.Read, waveRam.Write);
 
             DirectSound1.Initialize(cpu.Dma.Channels[1], 0x0a0);
             DirectSound2.Initialize(cpu.Dma.Channels[2], 0x0a4);
@@ -309,6 +316,11 @@ namespace Beta.GameBoyAdvance.APU
                 sampleTiming.Cycles -= sampleTiming.Period;
                 Sample();
             }
+        }
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Beta.Platform;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
 {
@@ -6,7 +7,7 @@ namespace Beta.GameBoyAdvance.APU
     {
         public abstract class Channel
         {
-            protected Driver gameSystem;
+            protected readonly MMIO mmio;
             protected Duration duration = new Duration();
             protected Envelope envelope = new Envelope();
             protected byte[] registers = new byte[8];
@@ -24,9 +25,9 @@ namespace Beta.GameBoyAdvance.APU
                 set { active = value; }
             }
 
-            protected Channel(Driver gameSystem, Timing timing)
+            protected Channel(MMIO mmio, Timing timing)
             {
-                this.gameSystem = gameSystem;
+                this.mmio = mmio;
                 this.timing = timing;
             }
 
@@ -126,14 +127,14 @@ namespace Beta.GameBoyAdvance.APU
             {
                 Initialize();
 
-                gameSystem.mmio.Map(address + 0, ReadRegister1, WriteRegister1);
-                gameSystem.mmio.Map(address + 1, ReadRegister2, WriteRegister2);
-                gameSystem.mmio.Map(address + 2, ReadRegister3, WriteRegister3);
-                gameSystem.mmio.Map(address + 3, ReadRegister4, WriteRegister4);
-                gameSystem.mmio.Map(address + 4, ReadRegister5, WriteRegister5);
-                gameSystem.mmio.Map(address + 5, ReadRegister6, WriteRegister6);
-                gameSystem.mmio.Map(address + 6, ReadRegister7, WriteRegister7);
-                gameSystem.mmio.Map(address + 7, ReadRegister8, WriteRegister8);
+                mmio.Map(address + 0, ReadRegister1, WriteRegister1);
+                mmio.Map(address + 1, ReadRegister2, WriteRegister2);
+                mmio.Map(address + 2, ReadRegister3, WriteRegister3);
+                mmio.Map(address + 3, ReadRegister4, WriteRegister4);
+                mmio.Map(address + 4, ReadRegister5, WriteRegister5);
+                mmio.Map(address + 5, ReadRegister6, WriteRegister6);
+                mmio.Map(address + 6, ReadRegister7, WriteRegister7);
+                mmio.Map(address + 7, ReadRegister8, WriteRegister8);
             }
         }
     }

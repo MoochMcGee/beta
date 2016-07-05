@@ -1,4 +1,5 @@
 ﻿using System;
+using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
@@ -29,8 +30,8 @@ namespace Beta.GameBoyAdvance.APU
                 get { return active; }
             }
 
-            public ChannelSquare1(Driver gameSystem, Timing timing)
-                : base(gameSystem, timing)
+            public ChannelSquare1(MMIO mmio, Timing timing)
+                : base(mmio, timing)
             {
                 this.timing.Cycles = timing.Period = (2048 - frequency) * 16 * timing.Single;
                 this.timing.Single = timing.Single;

@@ -1,5 +1,7 @@
 ﻿using Beta.GameBoyAdvance.APU;
-using Beta.GameBoyAdvance.CPU;
+using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
 {
@@ -16,9 +18,11 @@ namespace Beta.GameBoyAdvance
              0  // Log2( 1024 ) - Log2( 1024 )
         };
 
+        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly MMIO mmio;
+
         private Driver gameSystem;
         private Apu apu;
-        private Cpu cpu;
 
         private ushort interruptType;
         private int control;
@@ -32,9 +36,11 @@ namespace Beta.GameBoyAdvance
         public bool Countup { get { return (control & 0x0084) == 0x0084; } }
         public bool Enabled { get { return (control & 0x0084) == 0x0080; } }
 
-        public Timer(Driver gameSystem, ushort interruptType, int number)
+        public Timer(Driver gameSystem, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType, int number)
         {
             this.gameSystem = gameSystem;
+            this.mmio = mmio;
+            this.interrupt = interrupt;
             this.interruptType = interruptType;
             this.number = number;
         }
@@ -97,7 +103,7 @@ namespace Beta.GameBoyAdvance
 
                 if ((control & 0x40) != 0)
                 {
-                    cpu.Interrupt(interruptType);
+                    interrupt.Produce(new InterruptSignal(interruptType));
                 }
 
                 if (NextTimer != null && NextTimer.Countup)
@@ -112,12 +118,11 @@ namespace Beta.GameBoyAdvance
         public void Initialize(uint address)
         {
             apu = gameSystem.Apu;
-            cpu = gameSystem.Cpu;
 
-            gameSystem.mmio.Map(address + 0u, ReadCounter_0, WriteCounter_0);
-            gameSystem.mmio.Map(address + 1u, ReadCounter_1, WriteCounter_1);
-            gameSystem.mmio.Map(address + 2u, ReadControl_0, WriteControl_0);
-            gameSystem.mmio.Map(address + 3u, ReadControl_1, WriteControl_1);
+            mmio.Map(address + 0u, ReadCounter_0, WriteCounter_0);
+            mmio.Map(address + 1u, ReadCounter_1, WriteCounter_1);
+            mmio.Map(address + 2u, ReadControl_0, WriteControl_0);
+            mmio.Map(address + 3u, ReadControl_1, WriteControl_1);
         }
 
         public void Update()

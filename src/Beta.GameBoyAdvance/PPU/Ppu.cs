@@ -1,14 +1,25 @@
 ﻿using System;
 using Beta.GameBoyAdvance.CPU;
+using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
+using Beta.Platform.Video;
 using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.PPU
 {
-    public partial class Ppu : Processor
+    public partial class Ppu : Processor, IConsumer<ClockSignal>
     {
-        private Driver gameSystem;
-        private Cpu cpu;
+        private readonly IProducer<FrameSignal> frame;
+        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly IProducer<HBlankSignal> hblank_producer;
+        private readonly IProducer<VBlankSignal> vblank_producer;
+        private readonly IVideoBackend video;
+        private readonly MMIO mmio;
+        private readonly ORAM oram;
+        private readonly PRAM pram;
+        private readonly VRAM vram;
 
         private Blend blend;
         private Bg bg0;
@@ -53,18 +64,71 @@ namespace Beta.GameBoyAdvance.PPU
             }
         }
 
-        public Ppu(Driver gameSystem)
+        public Ppu(
+            MMIO mmio,
+            ORAM oram,
+            PRAM pram,
+            VRAM vram,
+            IProducer<FrameSignal> frame,
+            IProducer<InterruptSignal> interrupt,
+            IProducer<HBlankSignal> hblank,
+            IProducer<VBlankSignal> vblank,
+            IVideoBackend video)
         {
-            this.gameSystem = gameSystem;
-            cpu = gameSystem.Cpu;
+            this.frame = frame;
+            this.interrupt = interrupt;
+            this.hblank_producer = hblank;
+            this.vblank_producer = vblank;
+            this.mmio = mmio;
+            this.oram = oram;
+            this.pram = pram;
+            this.vram = vram;
+            this.video = video;
 
             Single = 4;
 
-            bg0 = new Bg(gameSystem);
-            bg1 = new Bg(gameSystem);
-            bg2 = new Bg(gameSystem);
-            bg3 = new Bg(gameSystem);
-            spr = new Sp(gameSystem);
+            bg0 = new Bg(mmio);
+            bg1 = new Bg(mmio);
+            bg2 = new Bg(mmio);
+            bg3 = new Bg(mmio);
+            spr = new Sp(oram);
+
+            bg0.Initialize(0u);
+            bg1.Initialize(1u);
+            bg2.Initialize(2u);
+            bg3.Initialize(3u);
+
+            mmio.Map(0x000, ReadReg, Write000);
+            mmio.Map(0x001, ReadReg, Write001);
+            mmio.Map(0x002, ReadReg, Write002);
+            mmio.Map(0x003, ReadReg, Write003);
+            mmio.Map(0x004, Read004, Write004);
+            mmio.Map(0x005, Read005, Write005);
+            // vertical counter
+            mmio.Map(0x006, Read006);
+            mmio.Map(0x007, Read007);
+            // window feature
+            mmio.Map(0x040, (a, data) => window0.X2 = data);
+            mmio.Map(0x041, (a, data) => window0.X1 = data);
+            mmio.Map(0x042, (a, data) => window1.X2 = data);
+            mmio.Map(0x043, (a, data) => window1.X1 = data);
+            mmio.Map(0x044, (a, data) => window0.Y2 = data);
+            mmio.Map(0x045, (a, data) => window0.Y1 = data);
+            mmio.Map(0x046, (a, data) => window1.Y2 = data);
+            mmio.Map(0x047, (a, data) => window1.Y1 = data);
+            mmio.Map(0x048, a => window0.Flags, (a, data) => window0.Flags = data);
+            mmio.Map(0x049, a => window1.Flags, (a, data) => window1.Flags = data);
+            mmio.Map(0x04a, a => windowOutFlags, (a, data) => windowOutFlags = data);
+            mmio.Map(0x04b, a => windowObjFlags, (a, data) => windowObjFlags = data);
+            mmio.Map(0x04c, ReadReg, Write04C);
+            mmio.Map(0x04d, ReadReg, Write04D);
+            // 04e - 04f
+            mmio.Map(0x050, ReadReg, Write050);
+            mmio.Map(0x051, ReadReg, Write051);
+            mmio.Map(0x052, ReadReg, Write052);
+            mmio.Map(0x053, ReadReg, Write053);
+            mmio.Map(0x054, ReadReg, Write054);
+            // 054 - 05f
         }
 
         private void EnterHBlank()
@@ -76,12 +140,13 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (hblankIrq)
             {
-                cpu.Interrupt(Cpu.Source.H_BLANK);
+                interrupt.Produce(new InterruptSignal(Cpu.Source.H_BLANK));
             }
 
             if (vclock < 160)
             {
-                cpu.Dma.HBlank();
+                hblank_producer.Produce(new HBlankSignal());
+
                 //if (cpu.dma[0].Enabled && cpu.dma[0].Type == Dma.HBlank) cpu.dma[0].Pending = true;
                 //if (cpu.dma[1].Enabled && cpu.dma[1].Type == Dma.HBlank) cpu.dma[1].Pending = true;
                 //if (cpu.dma[2].Enabled && cpu.dma[2].Type == Dma.HBlank) cpu.dma[2].Pending = true;
@@ -95,10 +160,10 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vblankIrq)
             {
-                cpu.Interrupt(Cpu.Source.V_BLANK);
+                interrupt.Produce(new InterruptSignal(Cpu.Source.V_BLANK));
             }
 
-            cpu.Dma.VBlank();
+            vblank_producer.Produce(new VBlankSignal());
             //if (cpu.dma[0].Enabled && cpu.dma[0].Type == Dma.VBlank) cpu.dma[0].Pending = true;
             //if (cpu.dma[1].Enabled && cpu.dma[1].Type == Dma.VBlank) cpu.dma[1].Pending = true;
             //if (cpu.dma[2].Enabled && cpu.dma[2].Type == Dma.VBlank) cpu.dma[2].Pending = true;
@@ -117,10 +182,9 @@ namespace Beta.GameBoyAdvance.PPU
             bg2.ResetAffine();
             bg3.ResetAffine();
 
-            Pad.AutofireState = !Pad.AutofireState;
+            frame.Produce(new FrameSignal());
 
-            gameSystem.Pad.Update();
-            gameSystem.Video.Render();
+            video.Render();
         }
 
         private void RenderScanline(int[] raster)
@@ -215,7 +279,7 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vmatch && vmatchIrq)
             {
-                cpu.Interrupt(Cpu.Source.V_CHECK);
+                interrupt.Produce(new InterruptSignal(Cpu.Source.V_CHECK));
             }
         }
 
@@ -348,56 +412,19 @@ namespace Beta.GameBoyAdvance.PPU
 
         #endregion
 
-        public void Initialize()
-        {
-            bg0.Initialize(0u);
-            bg1.Initialize(1u);
-            bg2.Initialize(2u);
-            bg3.Initialize(3u);
-
-            var mmio = gameSystem.mmio;
-
-            mmio.Map(0x000, ReadReg, Write000);
-            mmio.Map(0x001, ReadReg, Write001);
-            mmio.Map(0x002, ReadReg, Write002);
-            mmio.Map(0x003, ReadReg, Write003);
-            mmio.Map(0x004, Read004, Write004);
-            mmio.Map(0x005, Read005, Write005);
-            // vertical counter
-            mmio.Map(0x006, Read006);
-            mmio.Map(0x007, Read007);
-            // window feature
-            mmio.Map(0x040, (a, data) => window0.X2 = data);
-            mmio.Map(0x041, (a, data) => window0.X1 = data);
-            mmio.Map(0x042, (a, data) => window1.X2 = data);
-            mmio.Map(0x043, (a, data) => window1.X1 = data);
-            mmio.Map(0x044, (a, data) => window0.Y2 = data);
-            mmio.Map(0x045, (a, data) => window0.Y1 = data);
-            mmio.Map(0x046, (a, data) => window1.Y2 = data);
-            mmio.Map(0x047, (a, data) => window1.Y1 = data);
-            mmio.Map(0x048, a => window0.Flags, (a, data) => window0.Flags = data);
-            mmio.Map(0x049, a => window1.Flags, (a, data) => window1.Flags = data);
-            mmio.Map(0x04a, a => windowOutFlags, (a, data) => windowOutFlags = data);
-            mmio.Map(0x04b, a => windowObjFlags, (a, data) => windowObjFlags = data);
-            mmio.Map(0x04c, ReadReg, Write04C);
-            mmio.Map(0x04d, ReadReg, Write04D);
-            // 04e - 04f
-            mmio.Map(0x050, ReadReg, Write050);
-            mmio.Map(0x051, ReadReg, Write051);
-            mmio.Map(0x052, ReadReg, Write052);
-            mmio.Map(0x053, ReadReg, Write053);
-            mmio.Map(0x054, ReadReg, Write054);
-            // 054 - 05f
-        }
-
         public override void Update()
         {
             UpdateHClock();
 
             if (hclock == 240 && vclock < 160)
             {
-                RenderScanline(gameSystem.Video.GetRaster(vclock));
+                RenderScanline(video.GetRaster(vclock));
             }
+        }
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles);
         }
 
         private struct Blend

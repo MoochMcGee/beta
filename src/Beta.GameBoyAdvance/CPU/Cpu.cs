@@ -1,50 +1,37 @@
-﻿using Beta.GameBoyAdvance.APU;
-using Beta.GameBoyAdvance.PPU;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform;
+using Beta.Platform.Messaging;
 using Beta.Platform.Processors;
-using half = System.UInt16;
 
 namespace Beta.GameBoyAdvance.CPU
 {
-    public class Cpu : Arm7
+    public class Cpu : Arm7, IConsumer<InterruptSignal>
     {
-        private Driver gameSystem;
-        private Apu apu;
-        private Ppu ppu;
-        private Timer[] timer;
+        private readonly IProducer<ClockSignal> clock;
+
+        private Driver driver;
+        private Register16 ief;
+        private Register16 irf;
+        private bool ime;
 
         public DmaController Dma;
-        public Register16 ief;
-        public Register16 irf;
-        public bool ime;
+        public TimerController Timer;
 
-        public Cpu(Driver gameSystem)
+        public Cpu(Driver driver, MMIO mmio, IProducer<ClockSignal> clock, IProducer<InterruptSignal> interrupt)
         {
-            this.gameSystem = gameSystem;
+            this.driver = driver;
+            this.clock = clock;
 
-            Dma = new DmaController
-            {
-                Channels = new[]
-                {
-                    new Dma(gameSystem, Source.DMA_0),
-                    new Dma(gameSystem, Source.DMA_1),
-                    new Dma(gameSystem, Source.DMA_2),
-                    new Dma(gameSystem, Source.DMA_3)
-                }
-            };
+            Dma = new DmaController(driver, mmio, interrupt);
+            Timer = new TimerController(driver, mmio, interrupt);
 
-            timer = new[]
-            {
-                new Timer(gameSystem, Source.TIMER_0, 0),
-                new Timer(gameSystem, Source.TIMER_1, 1),
-                new Timer(gameSystem, Source.TIMER_2, 2),
-                new Timer(gameSystem, Source.TIMER_3, 3)
-            };
-
-            timer[0].NextTimer = timer[1];
-            timer[1].NextTimer = timer[2];
-            timer[2].NextTimer = timer[3];
-            timer[3].NextTimer = null;
+            mmio.Map(0x200, Read200, Write200);
+            mmio.Map(0x201, Read201, Write201);
+            mmio.Map(0x202, Read202, Write202);
+            mmio.Map(0x203, Read203, Write203);
+            mmio.Map(0x208, Read208, Write208);
+            mmio.Map(0x209, Read209, Write209);
         }
 
         private byte Read200(uint address)
@@ -110,19 +97,13 @@ namespace Beta.GameBoyAdvance.CPU
         {
             Dma.Transfer();
 
-            ppu.Update(Cycles);
-            apu.Update(Cycles);
-
-            if (timer[0].Enabled) { timer[0].Update(Cycles); }
-            if (timer[1].Enabled) { timer[1].Update(Cycles); }
-            if (timer[2].Enabled) { timer[2].Update(Cycles); }
-            if (timer[3].Enabled) { timer[3].Update(Cycles); }
+            clock.Produce(new ClockSignal(Cycles));
         }
 
         protected override uint Read(int size, uint address)
         {
             int cycles;
-            var data = gameSystem.Read(size, address, out cycles);
+            var data = driver.Read(size, address, out cycles);
 
             this.Cycles += cycles;
 
@@ -144,33 +125,16 @@ namespace Beta.GameBoyAdvance.CPU
             }
 
             int cycles;
-            gameSystem.Write(size, address, data, out cycles);
+            driver.Write(size, address, data, out cycles);
+
+            this.Cycles += cycles;
         }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            apu = gameSystem.Apu;
-            ppu = gameSystem.Ppu;
-
-            Dma.Channels[0].Initialize(0x0b0);
-            Dma.Channels[1].Initialize(0x0bc);
-            Dma.Channels[2].Initialize(0x0c8);
-            Dma.Channels[3].Initialize(0x0d4);
-
-            timer[0].Initialize(0x100);
-            timer[1].Initialize(0x104);
-            timer[2].Initialize(0x108);
-            timer[3].Initialize(0x10c);
-
-            var mmio = gameSystem.mmio;
-            mmio.Map(0x200, Read200, Write200);
-            mmio.Map(0x201, Read201, Write201);
-            mmio.Map(0x202, Read202, Write202);
-            mmio.Map(0x203, Read203, Write203);
-            mmio.Map(0x208, Read208, Write208);
-            mmio.Map(0x209, Read209, Write209);
+            Timer.Initialize();
         }
 
         public override void Update()
@@ -180,9 +144,9 @@ namespace Beta.GameBoyAdvance.CPU
             base.Update();
         }
 
-        public void Interrupt(half interrupt)
+        public void Consume(InterruptSignal e)
         {
-            irf.w |= interrupt;
+            irf.w |= e.Flag;
         }
 
         public static class Source

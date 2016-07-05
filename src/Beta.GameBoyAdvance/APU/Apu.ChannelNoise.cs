@@ -1,4 +1,5 @@
 ﻿using System;
+using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
@@ -15,8 +16,8 @@ namespace Beta.GameBoyAdvance.APU
             private int shift = 8;
             private int value = 0x6000;
 
-            public ChannelNoise(Driver gameSystem, Timing timing)
-                : base(gameSystem, timing)
+            public ChannelNoise(MMIO mmio, Timing timing)
+                : base(mmio, timing)
             {
                 this.timing.Cycles =
                 this.timing.Period = divisorTable[0] * 4 * timing.Single;

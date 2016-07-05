@@ -1,24 +1,25 @@
-﻿using Beta.GameBoyAdvance.CPU;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform;
 using Beta.Platform.Input;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
 {
-    public class Pad : InputBackend
+    public class Pad : InputBackend, IConsumer<FrameSignal>
     {
         public static bool AutofireState;
-
-        private Driver gameSystem;
-        private Cpu cpu;
 
         private Register16 data;
         private Register16 mask;
 
-        public Pad(Driver gameSystem)
+        public Pad(MMIO mmio)
             : base(0, 10)
         {
-            this.gameSystem = gameSystem;
-            cpu = gameSystem.Cpu;
+            mmio.Map(0x130, Read130);
+            mmio.Map(0x131, Read131);
+            mmio.Map(0x132, Read132, Write132);
+            mmio.Map(0x133, Read133, Write133);
 
             Map(0, "A");          // 0 - Button A (0=Pressed, 1=Released)
             Map(1, "X");          // 1 - Button B (etc.)
@@ -62,15 +63,6 @@ namespace Beta.GameBoyAdvance
             mask.h = data;
         }
 
-        public void Initialize()
-        {
-            var mmio = gameSystem.mmio;
-            mmio.Map(0x130, Read130);
-            mmio.Map(0x131, Read131);
-            mmio.Map(0x132, Read132, Write132);
-            mmio.Map(0x133, Read133, Write133);
-        }
-
         public override void Update()
         {
             base.Update();
@@ -107,6 +99,13 @@ namespace Beta.GameBoyAdvance
             }
 
             data.w ^= 0x3ff;
+        }
+
+        public void Consume(FrameSignal e)
+        {
+            AutofireState = !AutofireState;
+
+            Update();
         }
     }
 }

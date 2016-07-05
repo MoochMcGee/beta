@@ -1,4 +1,6 @@
-﻿namespace Beta.GameBoyAdvance.PPU
+﻿using Beta.GameBoyAdvance.Memory;
+
+namespace Beta.GameBoyAdvance.PPU
 {
     public partial class Ppu
     {
@@ -11,7 +13,8 @@
             public static int[][] XSizeLut;
             public static int[][] YSizeLut;
 
-            private Driver gameSystem;
+            private readonly ORAM oram;
+
             private int[] raster0 = new int[240];
             private int[] raster1 = new int[240];
             private int[] raster2 = new int[240];
@@ -38,9 +41,9 @@
                 };
             }
 
-            public Sp(Driver gameSystem)
+            public Sp(ORAM oram)
             {
-                this.gameSystem = gameSystem;
+                this.oram = oram;
                 Index = 4;
             }
 
@@ -62,7 +65,7 @@
 
             public void Render()
             {
-                var oram16 = gameSystem.oram.h;
+                var oram16 = oram.h;
 
                 for (var i = COUNT - 1; i >= 0; i--)
                 {

@@ -8,7 +8,7 @@
 
         private void BlendLayers(int[] raster)
         {
-            int backdrop = gameSystem.pram.h[0];
+            int backdrop = this.pram.h[0];
 
             for (var i = 0; i < 240; i++)
             {
@@ -89,7 +89,7 @@
 
         private void RenderMode3(int[] raster)
         {
-            var vram = gameSystem.vram.h;
+            var vram = this.vram.h;
 
             if (spr.MasterEnable) RenderSprite();
             if (bg2.MasterEnable)
@@ -127,8 +127,8 @@
 
         private void RenderMode4(int[] raster)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             if (spr.MasterEnable) RenderSprite();
             if (bg2.MasterEnable)
@@ -172,7 +172,7 @@
 
         private void RenderMode5(int[] raster)
         {
-            var vram = gameSystem.vram.h;
+            var vram = this.vram.h;
 
             if (spr.MasterEnable) RenderSprite();
             if (bg2.MasterEnable)
@@ -211,8 +211,8 @@
 
         private void RenderAffine(Bg bg)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             var size = 0;
             var mask = 0;
@@ -266,9 +266,9 @@
 
         private void RenderLinear(Bg bg)
         {
-            var pram16 = gameSystem.pram.h;
-            var vram16 = gameSystem.vram.h;
-            var vram8 = gameSystem.vram.b;
+            var pram16 = this.pram.h;
+            var vram16 = this.vram.h;
+            var vram8 = this.vram.b;
 
             var xMask = (bg.Size & 0x01) << 8;
             var yMask = (bg.Size & 0x02) << 7;
@@ -379,7 +379,7 @@
 
         private void RenderSprite()
         {
-            var oram = gameSystem.oram.h;
+            var oram = this.oram.h;
 
             for (var sprite = 512 - 4; sprite >= 0; sprite -= 4)
             {
@@ -476,8 +476,8 @@
 
         private void RenderSpriteWindow()
         {
-            var oram = gameSystem.oram.h;
-            var vram = gameSystem.vram.b;
+            var oram = this.oram.h;
+            var vram = this.vram.b;
 
             for (var sprite = 512u - 4u; sprite < 512u; sprite -= 4u)
             {
@@ -721,8 +721,8 @@
 
         private void RenderSprite4BppAffine(ushort attr2, int priority, int semitransparent, int x, int w, int h, int rw, int scale, short dx, short dy, int baseSprite, int pitch, int rx, int ry)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             var palette = 0x100 + ((attr2 >> 8) & 0xf0);
 
@@ -764,8 +764,8 @@
 
         private void RenderSprite8BppAffine(ushort attr2, int priority, int semitransparent, int x, int w, int h, int rw, int scale, short dx, short dy, int baseSprite, int pitch, int rx, int ry)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             // 256 colors
             for (var i = x; i < x + rw; i++)
@@ -796,8 +796,8 @@
 
         private void RenderSprite4BppLinear(ushort attr1, ushort attr2, int priority, int semitransparent, int x, int w, int line)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             int baseSprite;
 
@@ -858,8 +858,8 @@
 
         private void RenderSprite8BppLinear(ushort attr1, ushort attr2, int priority, int semitransparent, int x, int w, int line)
         {
-            var pram = gameSystem.pram.h;
-            var vram = gameSystem.vram.b;
+            var pram = this.pram.h;
+            var vram = this.vram.b;
 
             int baseSprite;
 

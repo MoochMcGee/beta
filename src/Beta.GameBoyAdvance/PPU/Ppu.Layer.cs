@@ -10,10 +10,6 @@
 
             public bool MasterEnable;
             public int Index;
-
-            public virtual void Initialize()
-            {
-            }
         }
     }
 }

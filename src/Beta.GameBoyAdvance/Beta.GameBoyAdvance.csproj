@@ -75,6 +75,10 @@
     <Compile Include="Memory\PRAM.cs" />
     <Compile Include="Memory\Registers.cs" />
     <Compile Include="Memory\VRAM.cs" />
+    <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\HBlankSignal.cs" />
+    <Compile Include="Messaging\InterruptSignal.cs" />
+    <Compile Include="Messaging\VBlankSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Pad.cs" />
     <Compile Include="PPU\Ppu.Bg.cs" />
@@ -85,6 +89,7 @@
     <Compile Include="PPU\Ppu.Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Timer.cs" />
+    <Compile Include="TimerController.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Beta.Platform\Beta.Platform.csproj">

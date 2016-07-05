@@ -1,4 +1,7 @@
-﻿using Beta.Platform;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.Messaging;
+using Beta.Platform;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
 {
@@ -14,7 +17,10 @@ namespace Beta.GameBoyAdvance
             1U, ~0U, 0U, 1U
         };
 
-        private Driver gameSystem;
+        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly MMIO mmio;
+
+        private Driver driver;
         private ushort interruptType;
 
         private Register16 controlRegister;
@@ -34,9 +40,11 @@ namespace Beta.GameBoyAdvance
         public bool Enabled { get { return (controlRegister.w & 0x8000u) != 0; } }
         public uint Type { get { return (controlRegister.w & 0x3000u); } }
 
-        public Dma(Driver gameSystem, ushort interruptType)
+        public Dma(Driver driver, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
         {
-            this.gameSystem = gameSystem;
+            this.driver = driver;
+            this.mmio = mmio;
+            this.interrupt = interrupt;
             this.interruptType = interruptType;
         }
 
@@ -49,11 +57,11 @@ namespace Beta.GameBoyAdvance
             {
                 int cycles;
 
-                var data = gameSystem.Read(size, source, out cycles);
-                gameSystem.Cpu.Cycles += cycles;
+                var data = driver.Read(size, source, out cycles);
+                driver.Cpu.Cycles += cycles;
 
-                gameSystem.Write(size, target, data, out cycles);
-                gameSystem.Cpu.Cycles += cycles;
+                driver.Write(size, target, data, out cycles);
+                driver.Cpu.Cycles += cycles;
 
                 target += targetStep;
                 source += sourceStep;
@@ -146,18 +154,18 @@ namespace Beta.GameBoyAdvance
 
         public void Initialize(uint address)
         {
-            gameSystem.mmio.Map(address + 0x0u, WriteSrcAddr_0); // $40000B0 - 32 - DMA0SAD
-            gameSystem.mmio.Map(address + 0x1u, WriteSrcAddr_1);
-            gameSystem.mmio.Map(address + 0x2u, WriteSrcAddr_2);
-            gameSystem.mmio.Map(address + 0x3u, WriteSrcAddr_3);
-            gameSystem.mmio.Map(address + 0x4u, WriteDstAddr_0); // $40000B4 - 32 - DMA0DAD
-            gameSystem.mmio.Map(address + 0x5u, WriteDstAddr_1);
-            gameSystem.mmio.Map(address + 0x6u, WriteDstAddr_2);
-            gameSystem.mmio.Map(address + 0x7u, WriteDstAddr_3);
-            gameSystem.mmio.Map(address + 0x8u, WriteCounter_0); // $40000B8 - 16 - DMA0CNT_L
-            gameSystem.mmio.Map(address + 0x9u, WriteCounter_1);
-            gameSystem.mmio.Map(address + 0xau, ReadControl_0, WriteControl_0); // $40000BA - 16 - DMA0CNT_H
-            gameSystem.mmio.Map(address + 0xbu, ReadControl_1, WriteControl_1);
+            mmio.Map(address + 0x0u, WriteSrcAddr_0); // $40000B0 - 32 - DMA0SAD
+            mmio.Map(address + 0x1u, WriteSrcAddr_1);
+            mmio.Map(address + 0x2u, WriteSrcAddr_2);
+            mmio.Map(address + 0x3u, WriteSrcAddr_3);
+            mmio.Map(address + 0x4u, WriteDstAddr_0); // $40000B4 - 32 - DMA0DAD
+            mmio.Map(address + 0x5u, WriteDstAddr_1);
+            mmio.Map(address + 0x6u, WriteDstAddr_2);
+            mmio.Map(address + 0x7u, WriteDstAddr_3);
+            mmio.Map(address + 0x8u, WriteCounter_0); // $40000B8 - 16 - DMA0CNT_L
+            mmio.Map(address + 0x9u, WriteCounter_1);
+            mmio.Map(address + 0xau, ReadControl_0, WriteControl_0); // $40000BA - 16 - DMA0CNT_H
+            mmio.Map(address + 0xbu, ReadControl_1, WriteControl_1);
         }
 
         public void Transfer()
@@ -183,7 +191,7 @@ namespace Beta.GameBoyAdvance
 
             if ((controlRegister.w & 0x4000) != 0)
             {
-                gameSystem.Cpu.Interrupt(interruptType);
+                interrupt.Produce(new InterruptSignal(interruptType));
             }
         }
     }

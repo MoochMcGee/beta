@@ -1,23 +1,20 @@
-﻿using Beta.Platform.Audio;
-using Beta.Platform.Core;
-using Beta.Platform.Video;
+﻿using Beta.Platform.Core;
+using SimpleInjector;
 
 namespace Beta.GameBoyAdvance
 {
     public sealed class DriverFactory : IDriverFactory
     {
-        private readonly IAudioBackend audio;
-        private readonly IVideoBackend video;
+        private readonly Container container;
 
-        public DriverFactory(IAudioBackend audio, IVideoBackend video)
+        public DriverFactory(Container container)
         {
-            this.audio = audio;
-            this.video = video;
+            this.container = container;
         }
 
         public IDriver Create(byte[] binary)
         {
-            var driver = new Driver(audio, video);
+            var driver = container.GetInstance<Driver>();
             driver.LoadGame(binary);
 
             return driver;

@@ -1,4 +1,5 @@
-﻿using Beta.Platform;
+﻿using Beta.GameBoyAdvance.Memory;
+using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.PPU
 {
@@ -9,7 +10,8 @@ namespace Beta.GameBoyAdvance.PPU
             public static int MosaicH;
             public static int MosaicV;
 
-            private Driver gameSystem;
+            private readonly MMIO mmio;
+
             private Register16 controlRegister;
             private Register16 offsetXRegister;
             private Register16 offsetYRegister;
@@ -40,9 +42,9 @@ namespace Beta.GameBoyAdvance.PPU
             public short Dy { get { return (short)pcRegister.w; } }
             public short Dmy { get { return (short)pdRegister.w; } }
 
-            public Bg(Driver gameSystem)
+            public Bg(MMIO mmio)
             {
-                this.gameSystem = gameSystem;
+                this.mmio = mmio;
             }
 
             #region Registers
@@ -181,35 +183,33 @@ namespace Beta.GameBoyAdvance.PPU
 
             public void Initialize(uint index)
             {
-                base.Initialize();
-
                 Index = (int)index;
 
-                gameSystem.mmio.Map(0x008 + (index * 2), ReadControl_0, WriteControl_0);
-                gameSystem.mmio.Map(0x009 + (index * 2), ReadControl_1, WriteControl_1);
-                gameSystem.mmio.Map(0x010 + (index * 4), /*          */ WriteScrollX_0);
-                gameSystem.mmio.Map(0x011 + (index * 4), /*          */ WriteScrollX_1);
-                gameSystem.mmio.Map(0x012 + (index * 4), /*          */ WriteScrollY_0);
-                gameSystem.mmio.Map(0x013 + (index * 4), /*          */ WriteScrollY_1);
+                mmio.Map(0x008 + (index * 2), ReadControl_0, WriteControl_0);
+                mmio.Map(0x009 + (index * 2), ReadControl_1, WriteControl_1);
+                mmio.Map(0x010 + (index * 4), /*          */ WriteScrollX_0);
+                mmio.Map(0x011 + (index * 4), /*          */ WriteScrollX_1);
+                mmio.Map(0x012 + (index * 4), /*          */ WriteScrollY_0);
+                mmio.Map(0x013 + (index * 4), /*          */ WriteScrollY_1);
 
                 if (index >= 2)
                 {
-                    gameSystem.mmio.Map(0x020 + ((index - 2) * 16), WritePA_0);
-                    gameSystem.mmio.Map(0x021 + ((index - 2) * 16), WritePA_1);
-                    gameSystem.mmio.Map(0x022 + ((index - 2) * 16), WritePB_0);
-                    gameSystem.mmio.Map(0x023 + ((index - 2) * 16), WritePB_1);
-                    gameSystem.mmio.Map(0x024 + ((index - 2) * 16), WritePC_0);
-                    gameSystem.mmio.Map(0x025 + ((index - 2) * 16), WritePC_1);
-                    gameSystem.mmio.Map(0x026 + ((index - 2) * 16), WritePD_0);
-                    gameSystem.mmio.Map(0x027 + ((index - 2) * 16), WritePD_1);
-                    gameSystem.mmio.Map(0x028 + ((index - 2) * 16), WriteRX_0);
-                    gameSystem.mmio.Map(0x029 + ((index - 2) * 16), WriteRX_1);
-                    gameSystem.mmio.Map(0x02A + ((index - 2) * 16), WriteRX_2);
-                    gameSystem.mmio.Map(0x02B + ((index - 2) * 16), WriteRX_3);
-                    gameSystem.mmio.Map(0x02C + ((index - 2) * 16), WriteRY_0);
-                    gameSystem.mmio.Map(0x02D + ((index - 2) * 16), WriteRY_1);
-                    gameSystem.mmio.Map(0x02E + ((index - 2) * 16), WriteRY_2);
-                    gameSystem.mmio.Map(0x02F + ((index - 2) * 16), WriteRY_3);
+                    mmio.Map(0x020 + ((index - 2) * 16), WritePA_0);
+                    mmio.Map(0x021 + ((index - 2) * 16), WritePA_1);
+                    mmio.Map(0x022 + ((index - 2) * 16), WritePB_0);
+                    mmio.Map(0x023 + ((index - 2) * 16), WritePB_1);
+                    mmio.Map(0x024 + ((index - 2) * 16), WritePC_0);
+                    mmio.Map(0x025 + ((index - 2) * 16), WritePC_1);
+                    mmio.Map(0x026 + ((index - 2) * 16), WritePD_0);
+                    mmio.Map(0x027 + ((index - 2) * 16), WritePD_1);
+                    mmio.Map(0x028 + ((index - 2) * 16), WriteRX_0);
+                    mmio.Map(0x029 + ((index - 2) * 16), WriteRX_1);
+                    mmio.Map(0x02A + ((index - 2) * 16), WriteRX_2);
+                    mmio.Map(0x02B + ((index - 2) * 16), WriteRX_3);
+                    mmio.Map(0x02C + ((index - 2) * 16), WriteRY_0);
+                    mmio.Map(0x02D + ((index - 2) * 16), WriteRY_1);
+                    mmio.Map(0x02E + ((index - 2) * 16), WriteRY_2);
+                    mmio.Map(0x02F + ((index - 2) * 16), WriteRY_3);
                 }
             }
 
