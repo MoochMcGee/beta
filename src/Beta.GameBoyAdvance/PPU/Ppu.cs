@@ -140,12 +140,12 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (hblankIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.H_BLANK));
+                interrupt.Produce(new InterruptSignal(Cpu.Source.HBlank));
             }
 
             if (vclock < 160)
             {
-                hblank_producer.Produce(new HBlankSignal());
+                hblank_producer.Produce(HBlankSignal.Singleton);
 
                 //if (cpu.dma[0].Enabled && cpu.dma[0].Type == Dma.HBlank) cpu.dma[0].Pending = true;
                 //if (cpu.dma[1].Enabled && cpu.dma[1].Type == Dma.HBlank) cpu.dma[1].Pending = true;
@@ -160,10 +160,11 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vblankIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.V_BLANK));
+                interrupt.Produce(new InterruptSignal(Cpu.Source.VBlank));
             }
 
-            vblank_producer.Produce(new VBlankSignal());
+            vblank_producer.Produce(VBlankSignal.Singleton);
+
             //if (cpu.dma[0].Enabled && cpu.dma[0].Type == Dma.VBlank) cpu.dma[0].Pending = true;
             //if (cpu.dma[1].Enabled && cpu.dma[1].Type == Dma.VBlank) cpu.dma[1].Pending = true;
             //if (cpu.dma[2].Enabled && cpu.dma[2].Type == Dma.VBlank) cpu.dma[2].Pending = true;
@@ -182,7 +183,7 @@ namespace Beta.GameBoyAdvance.PPU
             bg2.ResetAffine();
             bg3.ResetAffine();
 
-            frame.Produce(new FrameSignal());
+            frame.Produce(FrameSignal.Singleton);
 
             video.Render();
         }
@@ -279,7 +280,7 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vmatch && vmatchIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.V_CHECK));
+                interrupt.Produce(new InterruptSignal(Cpu.Source.VCheck));
             }
         }
 

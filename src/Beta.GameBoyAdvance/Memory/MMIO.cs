@@ -10,18 +10,29 @@ namespace Beta.GameBoyAdvance.Memory
         private const uint SIZE = (1u << 10);
         private const uint MASK = (SIZE - 1u);
 
+        private readonly Registers regs;
+
         private Reader[] readers = new Reader[SIZE];
         private Writer[] writers = new Writer[SIZE];
         private Register32 latch;
         private byte[] ioMemory = new byte[1024];
 
-        public MMIO()
+        public MMIO(Registers regs)
         {
+            this.regs = regs;
+
             for (int i = 0; i < 1024; i++)
             {
                 readers[i] = ReadOpenBus;
                 writers[i] = WriteOpenBus;
             }
+
+            Map(0x200, Read200, Write200);
+            Map(0x201, Read201, Write201);
+            Map(0x202, Read202, Write202);
+            Map(0x203, Read203, Write203);
+            Map(0x208, Read208, Write208);
+            Map(0x209, Read209, Write209);
         }
 
         private byte ReadOpenBus(word address)
@@ -91,5 +102,68 @@ namespace Beta.GameBoyAdvance.Memory
                 Map(address, reader, writer);
             }
         }
+
+        #region Registers
+
+        private byte Read200(uint address)
+        {
+            return regs.cpu.ief.l;
+        }
+
+        private byte Read201(uint address)
+        {
+            return regs.cpu.ief.h;
+        }
+
+        private byte Read202(uint address)
+        {
+            return regs.cpu.irf.l;
+        }
+
+        private byte Read203(uint address)
+        {
+            return regs.cpu.irf.h;
+        }
+
+        private void Write200(uint address, byte data)
+        {
+            regs.cpu.ief.l = data;
+        }
+
+        private void Write201(uint address, byte data)
+        {
+            regs.cpu.ief.h = data;
+        }
+
+        private void Write202(uint address, byte data)
+        {
+            regs.cpu.irf.l &= (byte)~data;
+        }
+
+        private void Write203(uint address, byte data)
+        {
+            regs.cpu.irf.h &= (byte)~data;
+        }
+
+        private byte Read208(uint address)
+        {
+            return (byte)(regs.cpu.ime ? 1 : 0);
+        }
+
+        private byte Read209(uint address)
+        {
+            return 0;
+        }
+
+        private void Write208(uint address, byte data)
+        {
+            regs.cpu.ime = (data & 1) != 0;
+        }
+
+        private void Write209(uint address, byte data)
+        {
+        }
+
+        #endregion
     }
 }

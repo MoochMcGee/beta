@@ -1,6 +1,5 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
-using Beta.Platform;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors;
 
@@ -10,92 +9,22 @@ namespace Beta.GameBoyAdvance.CPU
     {
         private readonly IMemoryMap memory;
         private readonly IProducer<ClockSignal> clock;
+        private readonly DmaController dma;
+        private readonly CpuRegisters regs;
+        private readonly TimerController timer;
 
-        private Register16 ief;
-        private Register16 irf;
-        private bool ime;
-
-        public DmaController Dma;
-        public TimerController Timer;
-
-        public Cpu(IMemoryMap memory, DmaController dma, TimerController timer, MMIO mmio, IProducer<ClockSignal> clock)
+        public Cpu(Registers regs, IMemoryMap memory, DmaController dma, TimerController timer, IProducer<ClockSignal> clock)
         {
+            this.regs = regs.cpu;
             this.memory = memory;
             this.clock = clock;
-
-            this.Dma = dma;
-            this.Timer = timer;
-
-            mmio.Map(0x200, Read200, Write200);
-            mmio.Map(0x201, Read201, Write201);
-            mmio.Map(0x202, Read202, Write202);
-            mmio.Map(0x203, Read203, Write203);
-            mmio.Map(0x208, Read208, Write208);
-            mmio.Map(0x209, Read209, Write209);
-        }
-
-        private byte Read200(uint address)
-        {
-            return ief.l;
-        }
-
-        private byte Read201(uint address)
-        {
-            return ief.h;
-        }
-
-        private byte Read202(uint address)
-        {
-            return irf.l;
-        }
-
-        private byte Read203(uint address)
-        {
-            return irf.h;
-        }
-
-        private void Write200(uint address, byte data)
-        {
-            ief.l = data;
-        }
-
-        private void Write201(uint address, byte data)
-        {
-            ief.h = data;
-        }
-
-        private void Write202(uint address, byte data)
-        {
-            irf.l &= (byte)~data;
-        }
-
-        private void Write203(uint address, byte data)
-        {
-            irf.h &= (byte)~data;
-        }
-
-        private byte Read208(uint address)
-        {
-            return (byte)(ime ? 1 : 0);
-        }
-
-        private byte Read209(uint address)
-        {
-            return 0;
-        }
-
-        private void Write208(uint address, byte data)
-        {
-            ime = (data & 1) != 0;
-        }
-
-        private void Write209(uint address, byte data)
-        {
+            this.dma = dma;
+            this.timer = timer;
         }
 
         protected override void Dispatch()
         {
-            Dma.Transfer();
+            dma.Transfer();
 
             clock.Produce(new ClockSignal(Cycles));
         }
@@ -126,39 +55,39 @@ namespace Beta.GameBoyAdvance.CPU
         {
             base.Initialize();
 
-            Timer.Initialize();
+            timer.Initialize();
         }
 
         public override void Update()
         {
-            interrupt = ((ief.w & irf.w) != 0) && ime;
+            interrupt = ((regs.ief.w & regs.irf.w) != 0) && regs.ime;
 
             base.Update();
         }
 
         public void Consume(InterruptSignal e)
         {
-            irf.w |= e.Flag;
+            regs.irf.w |= e.Flag;
         }
 
         public static class Source
         {
-            public const ushort V_BLANK = 0x0001; // 0 - lcd v-blank
-            public const ushort H_BLANK = 0x0002; // 1 - lcd h-blank
-            public const ushort V_CHECK = 0x0004; // 2 - lcd v-counter match
-            public const ushort TIMER_0 = 0x0008; // 3 - timer 0 overflow
-            public const ushort TIMER_1 = 0x0010; // 4 - timer 1 overflow
-            public const ushort TIMER_2 = 0x0020; // 5 - timer 2 overflow
-            public const ushort TIMER_3 = 0x0040; // 6 - timer 3 overflow
-            public const ushort SERIAL = 0x0080; // 7 - serial communication
-            public const ushort DMA_0 = 0x0100; // 8 - dma 0
-            public const ushort DMA_1 = 0x0200; // 9 - dma 1
-            public const ushort DMA_2 = 0x0400; // a - dma 2
-            public const ushort DMA_3 = 0x0800; // b - dma 3
-            public const ushort JOYPAD = 0x1000; // c - keypad
-            public const ushort CART = 0x2000; // d - game pak
-            public const ushort RES0 = 0x4000; // e - not used
-            public const ushort RES1 = 0x8000; // f - not used
+            public const ushort VBlank = 0x0001; // 0 - lcd v-blank
+            public const ushort HBlank = 0x0002; // 1 - lcd h-blank
+            public const ushort VCheck = 0x0004; // 2 - lcd v-counter match
+            public const ushort Timer0 = 0x0008; // 3 - timer 0 overflow
+            public const ushort Timer1 = 0x0010; // 4 - timer 1 overflow
+            public const ushort Timer2 = 0x0020; // 5 - timer 2 overflow
+            public const ushort Timer3 = 0x0040; // 6 - timer 3 overflow
+            public const ushort Serial = 0x0080; // 7 - serial communication
+            public const ushort Dma0   = 0x0100; // 8 - dma 0
+            public const ushort Dma1   = 0x0200; // 9 - dma 1
+            public const ushort Dma2   = 0x0400; // a - dma 2
+            public const ushort Dma3   = 0x0800; // b - dma 3
+            public const ushort Joypad = 0x1000; // c - keypad
+            public const ushort Cart   = 0x2000; // d - game pak
+            public const ushort Res0   = 0x4000; // e - not used
+            public const ushort Res1   = 0x8000; // f - not used
         }
     }
 }

@@ -1,4 +1,5 @@
 using Beta.GameBoyAdvance.APU;
+using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.PPU;
 using Beta.Platform.Core;
@@ -19,6 +20,7 @@ namespace Beta.GameBoyAdvance
             container.RegisterSingleton<TimerController>();
 
             container.RegisterSingleton<Apu>();
+            container.RegisterSingleton<Cpu>();
             container.RegisterSingleton<Pad>();
             container.RegisterSingleton<Ppu>();
 

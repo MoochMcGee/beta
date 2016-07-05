@@ -14,10 +14,10 @@ namespace Beta.GameBoyAdvance
         {
             timers = new[]
             {
-                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_0, 0),
-                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_1, 1),
-                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_2, 2),
-                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_3, 3)
+                new Timer(apu, mmio, interrupt, Cpu.Source.Timer0, 0),
+                new Timer(apu, mmio, interrupt, Cpu.Source.Timer1, 1),
+                new Timer(apu, mmio, interrupt, Cpu.Source.Timer2, 2),
+                new Timer(apu, mmio, interrupt, Cpu.Source.Timer3, 3)
             };
 
             timers[0].NextTimer = timers[1];
