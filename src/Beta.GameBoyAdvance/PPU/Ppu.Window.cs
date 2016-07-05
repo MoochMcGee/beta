@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoyAdvance.PPU
 {
-    public class Window
+    public sealed class Window
     {
         public bool Enabled;
         public byte Flags;

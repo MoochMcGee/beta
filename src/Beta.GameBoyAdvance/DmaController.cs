@@ -11,14 +11,14 @@ namespace Beta.GameBoyAdvance
     {
         public Dma[] Channels;
 
-        public DmaController(Driver driver, MMIO mmio, IProducer<InterruptSignal> interrupt)
+        public DmaController(IMemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt)
         {
             Channels = new[]
             {
-                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_0),
-                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_1),
-                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_2),
-                new Dma(driver, mmio, interrupt, Cpu.Source.DMA_3)
+                new Dma(memory, mmio, interrupt, Cpu.Source.DMA_0),
+                new Dma(memory, mmio, interrupt, Cpu.Source.DMA_1),
+                new Dma(memory, mmio, interrupt, Cpu.Source.DMA_2),
+                new Dma(memory, mmio, interrupt, Cpu.Source.DMA_3)
             };
 
             Channels[0].Initialize(0x0b0);

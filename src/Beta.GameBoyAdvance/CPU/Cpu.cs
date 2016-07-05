@@ -8,9 +8,9 @@ namespace Beta.GameBoyAdvance.CPU
 {
     public class Cpu : Arm7, IConsumer<InterruptSignal>
     {
+        private readonly IMemoryMap memory;
         private readonly IProducer<ClockSignal> clock;
 
-        private Driver driver;
         private Register16 ief;
         private Register16 irf;
         private bool ime;
@@ -18,13 +18,13 @@ namespace Beta.GameBoyAdvance.CPU
         public DmaController Dma;
         public TimerController Timer;
 
-        public Cpu(Driver driver, MMIO mmio, IProducer<ClockSignal> clock, IProducer<InterruptSignal> interrupt)
+        public Cpu(IMemoryMap memory, DmaController dma, TimerController timer, MMIO mmio, IProducer<ClockSignal> clock)
         {
-            this.driver = driver;
+            this.memory = memory;
             this.clock = clock;
 
-            Dma = new DmaController(driver, mmio, interrupt);
-            Timer = new TimerController(driver, mmio, interrupt);
+            this.Dma = dma;
+            this.Timer = timer;
 
             mmio.Map(0x200, Read200, Write200);
             mmio.Map(0x201, Read201, Write201);
@@ -102,12 +102,7 @@ namespace Beta.GameBoyAdvance.CPU
 
         protected override uint Read(int size, uint address)
         {
-            int cycles;
-            var data = driver.Read(size, address, out cycles);
-
-            this.Cycles += cycles;
-
-            return data;
+            return memory.Read(size, address);
         }
 
         protected override void Write(int size, uint address, uint data)
@@ -124,10 +119,7 @@ namespace Beta.GameBoyAdvance.CPU
                 data |= (data << 16);
             }
 
-            int cycles;
-            driver.Write(size, address, data, out cycles);
-
-            this.Cycles += cycles;
+            memory.Write(size, address, data);
         }
 
         public override void Initialize()

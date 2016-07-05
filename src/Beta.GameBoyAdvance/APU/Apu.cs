@@ -1,5 +1,4 @@
-﻿using Beta.GameBoyAdvance.CPU;
-using Beta.GameBoyAdvance.Memory;
+﻿using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
 using Beta.Platform.Audio;
 using Beta.Platform.Core;
@@ -10,9 +9,9 @@ namespace Beta.GameBoyAdvance.APU
     public partial class Apu : Processor, IConsumer<ClockSignal>
     {
         private readonly IAudioBackend audio;
+        private readonly DmaController dma;
         private readonly MMIO mmio;
 
-        private Cpu cpu;
         private ChannelNoise noise;
         private ChannelWaveRam waveRam;
         private ChannelSquare1 square1;
@@ -30,12 +29,11 @@ namespace Beta.GameBoyAdvance.APU
         public ChannelDirectSound DirectSound1;
         public ChannelDirectSound DirectSound2;
 
-        public Apu(Driver driver, MMIO mmio, IAudioBackend audio)
+        public Apu(DmaController dma, MMIO mmio, IAudioBackend audio)
         {
+            this.dma = dma;
             this.audio = audio;
             this.mmio = mmio;
-
-            cpu = driver.Cpu;
             Single = 1;
 
             courseTiming.Period = 16777216 / 512;
@@ -267,8 +265,8 @@ namespace Beta.GameBoyAdvance.APU
 
             mmio.Map(0x090, 0x09f, waveRam.Read, waveRam.Write);
 
-            DirectSound1.Initialize(cpu.Dma.Channels[1], 0x0a0);
-            DirectSound2.Initialize(cpu.Dma.Channels[2], 0x0a4);
+            DirectSound1.Initialize(dma.Channels[1], 0x0a0);
+            DirectSound2.Initialize(dma.Channels[2], 0x0a4);
         }
 
         public override void Update(int cycles)

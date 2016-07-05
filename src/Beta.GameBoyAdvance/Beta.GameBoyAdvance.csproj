@@ -65,11 +65,12 @@
     <Compile Include="DriverFactory.cs" />
     <Compile Include="GamePak.cs" />
     <Compile Include="Driver.cs" />
-    <Compile Include="Driver.Memory.cs" />
     <Compile Include="Memory\BIOS.cs" />
     <Compile Include="Memory\ERAM.cs" />
     <Compile Include="Memory\IMemory.cs" />
+    <Compile Include="Memory\IMemoryMap.cs" />
     <Compile Include="Memory\IRAM.cs" />
+    <Compile Include="Memory\MemoryMap.cs" />
     <Compile Include="Memory\MMIO.cs" />
     <Compile Include="Memory\ORAM.cs" />
     <Compile Include="Memory\PRAM.cs" />

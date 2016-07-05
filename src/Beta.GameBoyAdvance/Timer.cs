@@ -19,10 +19,8 @@ namespace Beta.GameBoyAdvance
         };
 
         private readonly IProducer<InterruptSignal> interrupt;
+        private readonly Apu apu;
         private readonly MMIO mmio;
-
-        private Driver gameSystem;
-        private Apu apu;
 
         private ushort interruptType;
         private int control;
@@ -36,9 +34,9 @@ namespace Beta.GameBoyAdvance
         public bool Countup { get { return (control & 0x0084) == 0x0084; } }
         public bool Enabled { get { return (control & 0x0084) == 0x0080; } }
 
-        public Timer(Driver gameSystem, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType, int number)
+        public Timer(Apu apu, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType, int number)
         {
-            this.gameSystem = gameSystem;
+            this.apu = apu;
             this.mmio = mmio;
             this.interrupt = interrupt;
             this.interruptType = interruptType;
@@ -117,8 +115,6 @@ namespace Beta.GameBoyAdvance
 
         public void Initialize(uint address)
         {
-            apu = gameSystem.Apu;
-
             mmio.Map(address + 0u, ReadCounter_0, WriteCounter_0);
             mmio.Map(address + 1u, ReadCounter_1, WriteCounter_1);
             mmio.Map(address + 2u, ReadControl_0, WriteControl_0);

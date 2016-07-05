@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using Beta.GameBoyAdvance.CPU;
 using Beta.Platform;
 using Beta.Platform.Exceptions;
+using Beta.Platform.Messaging;
 using half = System.UInt16;
 using word = System.UInt32;
 
@@ -24,20 +24,21 @@ namespace Beta.GameBoyAdvance
             new[] { 1, 1, 1 }
         };
 
-        private Cpu cpu;
+        private readonly IProducer<ClockSignal> clock;
+        private readonly byte[] binary;
+
         private Register32 latch;
         private half[] buffer;
         private word counter;
         private word mask;
-        private byte[] binary;
         private int ramAccess;
         private int[] romAccess1 = new int[3];
         private int[] romAccess2 = new int[3];
 
-        public GamePak(Driver gameSystem, byte[] binary)
+        public GamePak(byte[] binary, IProducer<ClockSignal> clock)
         {
-            cpu = gameSystem.Cpu;
             this.binary = binary;
+            this.clock = clock;
 
             SetRamAccessTiming(0);
             Set1stAccessTiming(0, WAIT_STATE_0);
@@ -82,11 +83,11 @@ namespace Beta.GameBoyAdvance
 
             if (counter != compare)
             {
-                cpu.Cycles += romAccess1[region];
+                clock.Produce(new ClockSignal(romAccess1[region]));
                 counter = compare;
             }
 
-            cpu.Cycles += romAccess2[region];
+            clock.Produce(new ClockSignal(romAccess2[region]));
             counter++;
 
             return buffer[address & mask];
@@ -102,7 +103,7 @@ namespace Beta.GameBoyAdvance
 
         public word ReadRam(int size, word address)
         {
-            cpu.Cycles += ramAccess;
+            clock.Produce(new ClockSignal(ramAccess));
             return 0;
         }
 
@@ -117,7 +118,7 @@ namespace Beta.GameBoyAdvance
 
         public void WriteRam(int size, word address, word data)
         {
-            cpu.Cycles += ramAccess;
+            clock.Produce(new ClockSignal(ramAccess));
         }
 
         public void WriteRom(int size, word address, word data)

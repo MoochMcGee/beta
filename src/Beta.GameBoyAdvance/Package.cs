@@ -1,4 +1,6 @@
+using Beta.GameBoyAdvance.APU;
 using Beta.GameBoyAdvance.Memory;
+using Beta.GameBoyAdvance.PPU;
 using Beta.Platform.Core;
 using SimpleInjector;
 using SimpleInjector.Packaging;
@@ -11,9 +13,14 @@ namespace Beta.GameBoyAdvance
         {
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
+            container.RegisterSingleton<IMemoryMap, MemoryMap>();
 
             container.RegisterSingleton<DmaController>();
             container.RegisterSingleton<TimerController>();
+
+            container.RegisterSingleton<Apu>();
+            container.RegisterSingleton<Pad>();
+            container.RegisterSingleton<Ppu>();
 
             container.RegisterSingleton<Registers>();
             container.RegisterSingleton<BIOS>();

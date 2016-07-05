@@ -17,10 +17,10 @@ namespace Beta.GameBoyAdvance
             1U, ~0U, 0U, 1U
         };
 
+        private readonly IMemoryMap memory;
         private readonly IProducer<InterruptSignal> interrupt;
         private readonly MMIO mmio;
 
-        private Driver driver;
         private ushort interruptType;
 
         private Register16 controlRegister;
@@ -40,9 +40,9 @@ namespace Beta.GameBoyAdvance
         public bool Enabled { get { return (controlRegister.w & 0x8000u) != 0; } }
         public uint Type { get { return (controlRegister.w & 0x3000u); } }
 
-        public Dma(Driver driver, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
+        public Dma(IMemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
         {
-            this.driver = driver;
+            this.memory = memory;
             this.mmio = mmio;
             this.interrupt = interrupt;
             this.interruptType = interruptType;
@@ -55,13 +55,8 @@ namespace Beta.GameBoyAdvance
 
             do
             {
-                int cycles;
-
-                var data = driver.Read(size, source, out cycles);
-                driver.Cpu.Cycles += cycles;
-
-                driver.Write(size, target, data, out cycles);
-                driver.Cpu.Cycles += cycles;
+                var data = memory.Read(size, source);
+                memory.Write(size, target, data);
 
                 target += targetStep;
                 source += sourceStep;

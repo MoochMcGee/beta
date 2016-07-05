@@ -1,4 +1,5 @@
-﻿using Beta.GameBoyAdvance.CPU;
+﻿using Beta.GameBoyAdvance.APU;
+using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
@@ -9,14 +10,14 @@ namespace Beta.GameBoyAdvance
     {
         private Timer[] timers;
 
-        public TimerController(Driver driver, MMIO mmio, IProducer<InterruptSignal> interrupt)
+        public TimerController(Apu apu, MMIO mmio, IProducer<InterruptSignal> interrupt)
         {
             timers = new[]
             {
-                new Timer(driver, mmio, interrupt, Cpu.Source.TIMER_0, 0),
-                new Timer(driver, mmio, interrupt, Cpu.Source.TIMER_1, 1),
-                new Timer(driver, mmio, interrupt, Cpu.Source.TIMER_2, 2),
-                new Timer(driver, mmio, interrupt, Cpu.Source.TIMER_3, 3)
+                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_0, 0),
+                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_1, 1),
+                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_2, 2),
+                new Timer(apu, mmio, interrupt, Cpu.Source.TIMER_3, 3)
             };
 
             timers[0].NextTimer = timers[1];
