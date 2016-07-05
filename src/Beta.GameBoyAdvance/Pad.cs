@@ -1,6 +1,5 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
-using Beta.Platform;
 using Beta.Platform.Input;
 using Beta.Platform.Messaging;
 
@@ -8,18 +7,12 @@ namespace Beta.GameBoyAdvance
 {
     public class Pad : InputBackend, IConsumer<FrameSignal>
     {
-        public static bool AutofireState;
+        private readonly PadRegisters regs;
 
-        private Register16 data;
-        private Register16 mask;
-
-        public Pad(MMIO mmio)
+        public Pad(Registers regs)
             : base(0, 10)
         {
-            mmio.Map(0x130, Read130);
-            mmio.Map(0x131, Read131);
-            mmio.Map(0x132, Read132, Write132);
-            mmio.Map(0x133, Read133, Write133);
+            this.regs = regs.pad;
 
             Map(0, "A");          // 0 - Button A (0=Pressed, 1=Released)
             Map(1, "X");          // 1 - Button B (etc.)
@@ -33,56 +26,26 @@ namespace Beta.GameBoyAdvance
             Map(9, "L-Shoulder"); // 9 - Button L (etc.)
         }
 
-        private byte Read130(uint address)
-        {
-            return data.l;
-        }
-
-        private byte Read131(uint address)
-        {
-            return data.h;
-        }
-
-        private byte Read132(uint address)
-        {
-            return mask.l;
-        }
-
-        private byte Read133(uint address)
-        {
-            return mask.h;
-        }
-
-        private void Write132(uint address, byte data)
-        {
-            mask.l = data;
-        }
-
-        private void Write133(uint address, byte data)
-        {
-            mask.h = data;
-        }
-
-        public override void Update()
+        public void Consume(FrameSignal e)
         {
             base.Update();
 
-            data.w = 0;
+            regs.data.w = 0;
 
-            if (Pressed(0)) data.w |= 0x0001;
-            if (Pressed(1)) data.w |= 0x0002;
-            if (Pressed(2)) data.w |= 0x0004;
-            if (Pressed(3)) data.w |= 0x0008;
-            if (Pressed(4)) data.w |= 0x0010;
-            if (Pressed(5)) data.w |= 0x0020;
-            if (Pressed(6)) data.w |= 0x0040;
-            if (Pressed(7)) data.w |= 0x0080;
-            if (Pressed(8)) data.w |= 0x0100;
-            if (Pressed(9)) data.w |= 0x0200;
+            if (Pressed(0)) regs.data.w |= 0x0001;
+            if (Pressed(1)) regs.data.w |= 0x0002;
+            if (Pressed(2)) regs.data.w |= 0x0004;
+            if (Pressed(3)) regs.data.w |= 0x0008;
+            if (Pressed(4)) regs.data.w |= 0x0010;
+            if (Pressed(5)) regs.data.w |= 0x0020;
+            if (Pressed(6)) regs.data.w |= 0x0040;
+            if (Pressed(7)) regs.data.w |= 0x0080;
+            if (Pressed(8)) regs.data.w |= 0x0100;
+            if (Pressed(9)) regs.data.w |= 0x0200;
 
-            if ((mask.w & 0x4000) != 0)
+            if ((regs.mask.w & 0x4000) != 0)
             {
-                if ((mask.w & 0x8000) != 0)
+                if ((regs.mask.w & 0x8000) != 0)
                 {
                     // if ((data.w & mask.w) != 0)
                     // {
@@ -98,14 +61,7 @@ namespace Beta.GameBoyAdvance
                 }
             }
 
-            data.w ^= 0x3ff;
-        }
-
-        public void Consume(FrameSignal e)
-        {
-            AutofireState = !AutofireState;
-
-            Update();
+            regs.data.w ^= 0x3ff;
         }
     }
 }

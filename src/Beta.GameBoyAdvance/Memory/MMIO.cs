@@ -27,6 +27,11 @@ namespace Beta.GameBoyAdvance.Memory
                 writers[i] = WriteOpenBus;
             }
 
+            Map(0x130, Read130);
+            Map(0x131, Read131);
+            Map(0x132, Read132, Write132);
+            Map(0x133, Read133, Write133);
+
             Map(0x200, Read200, Write200);
             Map(0x201, Read201, Write201);
             Map(0x202, Read202, Write202);
@@ -104,6 +109,36 @@ namespace Beta.GameBoyAdvance.Memory
         }
 
         #region Registers
+
+        private byte Read130(uint address)
+        {
+            return regs.pad.data.l;
+        }
+
+        private byte Read131(uint address)
+        {
+            return regs.pad.data.h;
+        }
+
+        private byte Read132(uint address)
+        {
+            return regs.pad.mask.l;
+        }
+
+        private byte Read133(uint address)
+        {
+            return regs.pad.mask.h;
+        }
+
+        private void Write132(uint address, byte data)
+        {
+            regs.pad.mask.l = data;
+        }
+
+        private void Write133(uint address, byte data)
+        {
+            regs.pad.mask.h = data;
+        }
 
         private byte Read200(uint address)
         {
