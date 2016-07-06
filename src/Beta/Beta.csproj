@@ -57,12 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSelector.cs" />
-    <Compile Include="FormHost.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormHost.designer.cs">
-      <DependentUpon>FormHost.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,9 +69,6 @@
     <Compile Include="IFileSelector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FormHost.resx">
-      <DependentUpon>FormHost.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -121,7 +112,15 @@
       <Name>Beta.Platform</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\control_play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\control_pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\control_stop.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets" Condition="Exists('..\..\packages\GitVersionTask.3.5.4\build\dotnet\GitVersionTask.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
