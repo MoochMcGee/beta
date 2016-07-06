@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Beta.Platform.Configuration;
 using SharpDX;
 using SharpDX.Multimedia;
@@ -28,7 +29,7 @@ namespace Beta.Platform.Audio
 
             var format = new WaveFormat(config.Audio.SampleRate, 16, config.Audio.Channels);
 
-            length = format.AverageBytesPerSecond / 30; // 33.3~ msec
+            length = (format.AverageBytesPerSecond + 59) / 60; // 16.67~ msec
 
             master = new MasteringVoice(engine, format.Channels, format.SampleRate);
             source = new SourceVoice(engine, format, VoiceFlags.None, 1f);
@@ -77,8 +78,9 @@ namespace Beta.Platform.Audio
             buffer.Stream = streams[streamIndex++ & STREAM_MASK];
             buffer.Stream.Seek(0L, SeekOrigin.Begin);
 
-            while (source.State.BuffersQueued > 1)
+            while (source.State.BuffersQueued > 2)
             {
+                Thread.Sleep(1);
             }
         }
 

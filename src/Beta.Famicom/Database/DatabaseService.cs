@@ -15,7 +15,7 @@ namespace Beta.Famicom.Database
 
         public DatabaseService()
         {
-            using (var reader = File.OpenText("systems/fc.sys/db.xml"))
+            using (var reader = File.OpenText("drivers/fc.sys/db.xml"))
             {
                 database = serializer.Deserialize(reader) as DatabaseInstance;
             }

@@ -4,16 +4,16 @@ namespace Beta.Platform.Messaging
 {
     public sealed class Producer<T> : IProducer<T>
     {
-        private readonly List<IConsumer<T>> consumers;
-
-        public Producer()
-        {
-            consumers = new List<IConsumer<T>>();
-        }
+        private List<IConsumer<T>> consumers = new List<IConsumer<T>>();
 
         public void Produce(T e)
         {
-            consumers.ForEach(s => s.Consume(e));
+            int count = consumers.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                consumers[i].Consume(e);
+            }
         }
 
         public void Subscribe(IConsumer<T> consumer)

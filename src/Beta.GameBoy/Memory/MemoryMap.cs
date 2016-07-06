@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Beta.GameBoy.Memory
+﻿namespace Beta.GameBoy.Memory
 {
     public sealed class MemoryMap : IMemoryMap
     {
@@ -19,11 +17,27 @@ namespace Beta.GameBoy.Memory
             this.wram = wram;
         }
 
-        public byte Read(ushort address) =>
-            Decode(address).Read(address);
+        public byte Read(ushort address)
+        {
+            var memory = Decode(address);
+            if (memory != null)
+            {
+                return memory.Read(address);
+            }
+            else
+            {
+                return 0xff;
+            }
+        }
 
-        public void Write(ushort address, byte data) =>
-            Decode(address).Write(address, data);
+        public void Write(ushort address, byte data)
+        {
+            var memory = Decode(address);
+            if (memory != null)
+            {
+                memory.Write(address, data);
+            }
+        }
 
         private IMemory Decode(ushort address)
         {
@@ -33,8 +47,7 @@ namespace Beta.GameBoy.Memory
             if (address >= 0xc000 && address <= 0xfdff) { return wram; }
             if (address >= 0xfe00 && address <= 0xfe9f) { return  oam; }
             if (address >= 0xff00 && address <= 0xffff) { return mmio; }
-
-            throw new NotImplementedException();
+            return null;
         }
     }
 }
