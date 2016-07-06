@@ -68,7 +68,6 @@ namespace Beta
 
             definition.Package.RegisterServices(container);
 
-            this.Text = $"Beta - {definition.Configuration.Name} - {file.Name}";
             LoadGame(container.GetInstance<IDriverFactory>(), file.FullName);
         }
 
@@ -92,14 +91,15 @@ namespace Beta
             var binary = File.ReadAllBytes(fileName);
 
             driver = driverFactory.Create(binary);
+
+            StartEmulation();
         }
 
         #endregion
 
         private void playButton_Click(object sender, EventArgs e)
         {
-            driverThread = new Thread(driver.Main);
-            driverThread.Start();
+            StartEmulation();
         }
 
         private void pauseButton_Click(object sender, EventArgs e)
@@ -108,17 +108,35 @@ namespace Beta
 
         private void stopButton_Click(object sender, EventArgs e)
         {
-            driverThread?.Abort();
-            driverThread?.Join();
-            driverThread = null;
+            AbortEmulation();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            this.Text = $"Beta - {GitVersionInformation.SemVer}";
+
             padding = new Size(
                 this.Width - panelCanvas.Width,
                 this.Height - panelCanvas.Height
             );
+        }
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            AbortEmulation();
+        }
+
+        private void StartEmulation()
+        {
+            driverThread = new Thread(driver.Main);
+            driverThread.Start();
+        }
+
+        private void AbortEmulation()
+        {
+            driverThread?.Abort();
+            driverThread?.Join();
+            driverThread = null;
         }
     }
 }
