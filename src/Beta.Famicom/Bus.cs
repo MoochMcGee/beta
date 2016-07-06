@@ -9,8 +9,8 @@ namespace Beta.Famicom
 
     public class Bus : IBus
     {
-        internal readonly Reader[] readers;
-        internal readonly Writer[] writers;
+        private readonly Reader[] readers;
+        private readonly Writer[] writers;
 
         public Bus(int capacity)
         {

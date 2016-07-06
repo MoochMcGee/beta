@@ -6,7 +6,6 @@ namespace Beta.Platform.Processors.RP6502
 {
     public abstract class Core : Processor
     {
-        private IRP6502Bus bus;
         private Action[] codes;
         private Action[] modes;
         private Status p;
@@ -21,10 +20,8 @@ namespace Beta.Platform.Processors.RP6502
             get { return rw != rwOld; }
         }
 
-        protected Core(IRP6502Bus bus)
+        protected Core()
         {
-            this.bus = bus;
-
             modes = new Action[]
             {
                 //    0        1        2        3        4        5        6        7        8        9        a        b        c        d        e        f
@@ -70,17 +67,17 @@ namespace Beta.Platform.Processors.RP6502
 
         private void Branch(bool flag)
         {
-            var data = Peek(registers.EA, true);
+            var data = Read(registers.EA, true);
 
             if (flag)
             {
-                Peek(registers.PC);
+                Read(registers.PC);
                 registers.PCL = Alu.Add(registers.PCL, data);
 
                 switch (data >> 7)
                 {
-                case 0: if (Alu.C == 1) { Peek(registers.PC, true); registers.PCH += 0x01; } break; // unsigned, pcl+data carried
-                case 1: if (Alu.C == 0) { Peek(registers.PC, true); registers.PCH += 0xff; } break; //   signed, pcl-data borrowed
+                case 0: if (Alu.C == 1) { Read(registers.PC, true); registers.PCH += 0x01; } break; // unsigned, pcl+data carried
+                case 1: if (Alu.C == 0) { Read(registers.PC, true); registers.PCH += 0xff; } break; //   signed, pcl-data borrowed
                 }
             }
         }
@@ -178,19 +175,19 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpAdc_m()
         {
-            Adc(Peek(registers.EA, true));
+            Adc(Read(registers.EA, true));
         }
 
         private void OpAnd_m()
         {
-            And(Peek(registers.EA, true));
+            And(Read(registers.EA, true));
         }
 
         private void OpAsl_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data);
-            Poke(registers.EA, Shl(data, 0), true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data);
+            Write(registers.EA, Shl(data, 0), true);
         }
 
         private void OpBcc_m()
@@ -210,7 +207,7 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpBit_m()
         {
-            var data = Peek(registers.EA, true);
+            var data = Read(registers.EA, true);
 
             p.N = (data >> 7) & 1;
             p.V = (data >> 6) & 1;
@@ -237,29 +234,29 @@ namespace Beta.Platform.Processors.RP6502
             const ushort dec = 0xffff;
             const ushort inc = 0x0001;
 
-            Peek(registers.PC);
+            Read(registers.PC);
             registers.PC += (interrupts.Available == 1) ? dec : inc;
 
             if (interrupts.Res == 1)
             {
-                Peek(registers.SP); registers.SPL--;
-                Peek(registers.SP); registers.SPL--;
-                Peek(registers.SP); registers.SPL--;
+                Read(registers.SP); registers.SPL--;
+                Read(registers.SP); registers.SPL--;
+                Read(registers.SP); registers.SPL--;
             }
             else
             {
                 var flag = (byte)(p.Pack() & ~(interrupts.Available << 4));
 
-                Poke(registers.SP, registers.PCH); registers.SPL--;
-                Poke(registers.SP, registers.PCL); registers.SPL--;
-                Poke(registers.SP, flag); registers.SPL--;
+                Write(registers.SP, registers.PCH); registers.SPL--;
+                Write(registers.SP, registers.PCL); registers.SPL--;
+                Write(registers.SP, flag); registers.SPL--;
             }
 
             var vector = interrupts.GetVector();
 
             p.I = 1;
-            registers.PCL = Peek((ushort)(vector + 0));
-            registers.PCH = Peek((ushort)(vector + 1), true);
+            registers.PCL = Read((ushort)(vector + 0));
+            registers.PCH = Read((ushort)(vector + 1), true);
         }
 
         private void OpBvc_m()
@@ -294,24 +291,24 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpCmp_m()
         {
-            Cmp(registers.A, Peek(registers.EA, true));
+            Cmp(registers.A, Read(registers.EA, true));
         }
 
         private void OpCpx_m()
         {
-            Cmp(registers.X, Peek(registers.EA, true));
+            Cmp(registers.X, Read(registers.EA, true));
         }
 
         private void OpCpy_m()
         {
-            Cmp(registers.Y, Peek(registers.EA, true));
+            Cmp(registers.Y, Read(registers.EA, true));
         }
 
         private void OpDec_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Mov(--data);
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Mov(--data);
+            Write(registers.EA, data, true);
         }
 
         private void OpDex_i()
@@ -326,14 +323,14 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpEor_m()
         {
-            Eor(Peek(registers.EA, true));
+            Eor(Read(registers.EA, true));
         }
 
         private void OpInc_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Mov(++data);
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Mov(++data);
+            Write(registers.EA, data, true);
         }
 
         private void OpInx_i()
@@ -348,53 +345,53 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpJmi_m()
         {
-            registers.PCL = Peek(registers.EA); registers.EAL++; // Emulate the JMP ($nnnn) bug
-            registers.PCH = Peek(registers.EA, true);
+            registers.PCL = Read(registers.EA); registers.EAL++; // Emulate the JMP ($nnnn) bug
+            registers.PCH = Read(registers.EA, true);
         }
 
         private void OpJmp_m()
         {
-            registers.PCL = Peek(registers.EA++);
-            registers.PCH = Peek(registers.EA++, true);
+            registers.PCL = Read(registers.EA++);
+            registers.PCH = Read(registers.EA++, true);
         }
 
         private void OpJsr_m()
         {
-            registers.EAL = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
 
-            Peek(registers.SP);
-            Poke(registers.SP, registers.PCH); registers.SPL--;
-            Poke(registers.SP, registers.PCL); registers.SPL--;
+            Read(registers.SP);
+            Write(registers.SP, registers.PCH); registers.SPL--;
+            Write(registers.SP, registers.PCL); registers.SPL--;
 
-            registers.PCH = Peek(registers.PC++, true);
+            registers.PCH = Read(registers.PC++, true);
             registers.PCL = registers.EAL;
         }
 
         private void OpLda_m()
         {
-            registers.A = Mov(Peek(registers.EA, true));
+            registers.A = Mov(Read(registers.EA, true));
         }
 
         private void OpLdx_m()
         {
-            registers.X = Mov(Peek(registers.EA, true));
+            registers.X = Mov(Read(registers.EA, true));
         }
 
         private void OpLdy_m()
         {
-            registers.Y = Mov(Peek(registers.EA, true));
+            registers.Y = Mov(Read(registers.EA, true));
         }
 
         private void OpLsr_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); data = Shr(data, 0);
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); data = Shr(data, 0);
+            Write(registers.EA, data, true);
         }
 
         private void OpOra_m()
         {
-            Ora(Peek(registers.EA, true));
+            Ora(Read(registers.EA, true));
         }
 
         private void OpNop_i()
@@ -403,65 +400,65 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpPha_i()
         {
-            Poke(registers.SP, registers.A, true);
+            Write(registers.SP, registers.A, true);
             registers.SPL--;
         }
 
         private void OpPhp_i()
         {
-            Poke(registers.SP, p.Pack(), true);
+            Write(registers.SP, p.Pack(), true);
             registers.SPL--;
         }
 
         private void OpPla_i()
         {
-            Peek(registers.SP);
+            Read(registers.SP);
             registers.SPL++;
 
-            registers.A = Mov(Peek(registers.SP, true));
+            registers.A = Mov(Read(registers.SP, true));
         }
 
         private void OpPlp_i()
         {
-            Peek(registers.SP);
+            Read(registers.SP);
             registers.SPL++;
 
-            p.Unpack(Peek(registers.SP, true));
+            p.Unpack(Read(registers.SP, true));
         }
 
         private void OpRol_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data);
-            Poke(registers.EA, Shl(data, p.C), true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data);
+            Write(registers.EA, Shl(data, p.C), true);
         }
 
         private void OpRor_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data);
-            Poke(registers.EA, Shr(data, p.C), true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data);
+            Write(registers.EA, Shr(data, p.C), true);
         }
 
         private void OpRti_i()
         {
-            Peek(registers.SP); registers.SPL++;
-            p.Unpack(Peek(registers.SP)); registers.SPL++;
-            registers.PCL = Peek(registers.SP); registers.SPL++;
-            registers.PCH = Peek(registers.SP, true);
+            Read(registers.SP); registers.SPL++;
+            p.Unpack(Read(registers.SP)); registers.SPL++;
+            registers.PCL = Read(registers.SP); registers.SPL++;
+            registers.PCH = Read(registers.SP, true);
         }
 
         private void OpRts_i()
         {
-            Peek(registers.SP); registers.SPL++;
-            registers.PCL = Peek(registers.SP); registers.SPL++;
-            registers.PCH = Peek(registers.SP);
-            Peek(registers.PC++, true);
+            Read(registers.SP); registers.SPL++;
+            registers.PCL = Read(registers.SP); registers.SPL++;
+            registers.PCH = Read(registers.SP);
+            Read(registers.PC++, true);
         }
 
         private void OpSbc_m()
         {
-            Sbc(Peek(registers.EA, true));
+            Sbc(Read(registers.EA, true));
         }
 
         private void OpSec_i()
@@ -481,17 +478,17 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpSta_m()
         {
-            Poke(registers.EA, registers.A, true);
+            Write(registers.EA, registers.A, true);
         }
 
         private void OpStx_m()
         {
-            Poke(registers.EA, registers.X, true);
+            Write(registers.EA, registers.X, true);
         }
 
         private void OpSty_m()
         {
-            Poke(registers.EA, registers.Y, true);
+            Write(registers.EA, registers.Y, true);
         }
 
         private void OpTax_i()
@@ -527,18 +524,18 @@ namespace Beta.Platform.Processors.RP6502
         // Unofficial codes
         private void OpAax_m()
         {
-            Poke(registers.EA, (byte)(registers.A & registers.X), true);
+            Write(registers.EA, (byte)(registers.A & registers.X), true);
         }
 
         private void OpAnc_m()
         {
-            And(Peek(registers.EA, true));
+            And(Read(registers.EA, true));
             p.C = (registers.A >> 7);
         }
 
         private void OpArr_m()
         {
-            And(Peek(registers.EA, true));
+            And(Read(registers.EA, true));
             registers.A = Shr(registers.A, p.C);
 
             p.C = (registers.A >> 6) & 1;
@@ -547,39 +544,39 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpAsr_m()
         {
-            And(Peek(registers.EA, true));
+            And(Read(registers.EA, true));
             registers.A = Shr(registers.A, 0);
         }
 
         private void OpAxa_m()
         {
-            Poke(registers.EA, (byte)(registers.A & registers.X & 7), true);
+            Write(registers.EA, (byte)(registers.A & registers.X & 7), true);
         }
 
         private void OpAxs_m()
         {
-            registers.X = Cmp((byte)(registers.A & registers.X), Peek(registers.EA, true));
+            registers.X = Cmp((byte)(registers.A & registers.X), Read(registers.EA, true));
         }
 
         private void OpDcp_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Mov(--data);
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Mov(--data);
+            Write(registers.EA, data, true);
 
             Cmp(registers.A, data);
         }
 
         private void OpDop_i()
         {
-            Peek(registers.EA, true);
+            Read(registers.EA, true);
         }
 
         private void OpIsc_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Mov(++data);
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Mov(++data);
+            Write(registers.EA, data, true);
 
             Sbc(data);
         }
@@ -591,40 +588,40 @@ namespace Beta.Platform.Processors.RP6502
 
         private void OpLar_m()
         {
-            registers.A = registers.X = Mov(registers.SPL &= Peek(registers.EA, true));
+            registers.A = registers.X = Mov(registers.SPL &= Read(registers.EA, true));
         }
 
         private void OpLax_m()
         {
-            registers.A = registers.X = Mov(Peek(registers.EA, true));
+            registers.A = registers.X = Mov(Read(registers.EA, true));
         }
 
         private void OpRla_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); And(data = Shl(data, p.C));
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); And(data = Shl(data, p.C));
+            Write(registers.EA, data, true);
         }
 
         private void OpRra_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Adc(data = Shr(data, p.C));
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Adc(data = Shr(data, p.C));
+            Write(registers.EA, data, true);
         }
 
         private void OpSlo_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Ora(data = Shl(data, 0));
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Ora(data = Shl(data, 0));
+            Write(registers.EA, data, true);
         }
 
         private void OpSre_m()
         {
-            var data = Peek(registers.EA);
-            Poke(registers.EA, data); Eor(data = Shr(data, 0));
-            Poke(registers.EA, data, true);
+            var data = Read(registers.EA);
+            Write(registers.EA, data); Eor(data = Shr(data, 0));
+            Write(registers.EA, data, true);
         }
 
         private void OpSxa_m()
@@ -632,14 +629,14 @@ namespace Beta.Platform.Processors.RP6502
             var data = (byte)(registers.X & (registers.EAH + 1));
 
             registers.EAL += registers.Y;
-            Peek(registers.EA);
+            Read(registers.EA);
 
             if (registers.EAL < registers.Y)
             {
                 registers.EAH = data;
             }
 
-            Poke(registers.EA, data, true);
+            Write(registers.EA, data, true);
         }
 
         private void OpSya_m()
@@ -647,31 +644,31 @@ namespace Beta.Platform.Processors.RP6502
             var data = (byte)(registers.Y & (registers.EAH + 1));
 
             registers.EAL += registers.X;
-            Peek(registers.EA);
+            Read(registers.EA);
 
             if (registers.EAL < registers.X)
             {
                 registers.EAH = data;
             }
 
-            Poke(registers.EA, data, true);
+            Write(registers.EA, data, true);
         }
 
         private void OpTop_i()
         {
-            Peek(registers.EA, true);
+            Read(registers.EA, true);
         }
 
         private void OpXaa_m()
         {
-            registers.A = Mov((byte)(registers.X & Peek(registers.EA, true)));
+            registers.A = Mov((byte)(registers.X & Read(registers.EA, true)));
         }
 
         private void OpXas_m()
         {
             registers.SPL = (byte)(registers.A & registers.X);
 
-            Poke(registers.EA, (byte)(registers.SPL & (registers.EAH + 1)), true);
+            Write(registers.EA, (byte)(registers.SPL & (registers.EAH + 1)), true);
         }
 
         #endregion
@@ -684,30 +681,30 @@ namespace Beta.Platform.Processors.RP6502
 
         private void AmAbs_a()
         {
-            registers.EAL = Peek(registers.PC++);
-            registers.EAH = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
+            registers.EAH = Read(registers.PC++);
         }
 
         private void AmAbx_r()
         {
-            registers.EAL = Peek(registers.PC++);
-            registers.EAH = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
+            registers.EAH = Read(registers.PC++);
             registers.EAL += registers.X;
 
             if (registers.EAL < registers.X)
             {
-                Peek(registers.EA);
+                Read(registers.EA);
                 registers.EAH++;
             }
         }
 
         private void AmAbx_w()
         {
-            registers.EAL = Peek(registers.PC++);
-            registers.EAH = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
+            registers.EAH = Read(registers.PC++);
             registers.EAL += registers.X;
 
-            Peek(registers.EA);
+            Read(registers.EA);
 
             if (registers.EAL < registers.X)
             {
@@ -717,24 +714,24 @@ namespace Beta.Platform.Processors.RP6502
 
         private void AmAby_r()
         {
-            registers.EAL = Peek(registers.PC++);
-            registers.EAH = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
+            registers.EAH = Read(registers.PC++);
             registers.EAL += registers.Y;
 
             if (registers.EAL < registers.Y)
             {
-                Peek(registers.EA);
+                Read(registers.EA);
                 registers.EAH++;
             }
         }
 
         private void AmAby_w()
         {
-            registers.EAL = Peek(registers.PC++);
-            registers.EAH = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
+            registers.EAH = Read(registers.PC++);
             registers.EAL += registers.Y;
 
-            Peek(registers.EA);
+            Read(registers.EA);
 
             if (registers.EAL < registers.Y)
             {
@@ -749,44 +746,44 @@ namespace Beta.Platform.Processors.RP6502
 
         private void AmImp_a()
         {
-            Peek(registers.PC, true);
+            Read(registers.PC, true);
         }
 
         private void AmInx_a()
         {
-            var pointer = Peek(registers.PC++);
+            var pointer = Read(registers.PC++);
 
-            Peek(registers.PC);
+            Read(registers.PC);
             pointer += registers.X;
 
-            registers.EAL = Peek(pointer++);
-            registers.EAH = Peek(pointer);
+            registers.EAL = Read(pointer++);
+            registers.EAH = Read(pointer);
         }
 
         private void AmIny_r()
         {
-            var pointer = Peek(registers.PC++);
+            var pointer = Read(registers.PC++);
 
-            registers.EAL = Peek(pointer++);
-            registers.EAH = Peek(pointer);
+            registers.EAL = Read(pointer++);
+            registers.EAH = Read(pointer);
             registers.EAL += registers.Y;
 
             if (registers.EAL < registers.Y)
             {
-                Peek(registers.EA);
+                Read(registers.EA);
                 registers.EAH++;
             }
         }
 
         private void AmIny_w()
         {
-            var pointer = Peek(registers.PC++);
+            var pointer = Read(registers.PC++);
 
-            registers.EAL = Peek(pointer++);
-            registers.EAH = Peek(pointer);
+            registers.EAL = Read(pointer++);
+            registers.EAH = Read(pointer);
             registers.EAL += registers.Y;
 
-            Peek(registers.EA);
+            Read(registers.EA);
 
             if (registers.EAL < registers.Y)
             {
@@ -796,31 +793,35 @@ namespace Beta.Platform.Processors.RP6502
 
         private void AmZpg_a()
         {
-            registers.EAL = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
             registers.EAH = 0;
         }
 
         private void AmZpx_a()
         {
-            registers.EAL = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
             registers.EAH = 0;
 
-            Peek(registers.EA);
+            Read(registers.EA);
             registers.EAL += registers.X;
         }
 
         private void AmZpy_a()
         {
-            registers.EAL = Peek(registers.PC++);
+            registers.EAL = Read(registers.PC++);
             registers.EAH = 0;
 
-            Peek(registers.EA);
+            Read(registers.EA);
             registers.EAL += registers.Y;
         }
 
         #endregion
 
         protected abstract void Dispatch();
+
+        protected abstract void Read(ushort address, ref byte data);
+
+        protected abstract void Write(ushort address, ref byte data);
 
         public virtual void ResetHard()
         {
@@ -847,7 +848,7 @@ namespace Beta.Platform.Processors.RP6502
 
         public override void Update()
         {
-            ir = Peek(registers.PC++);
+            ir = Read(registers.PC++);
 
             if (interrupts.Available == 1)
             {
@@ -873,7 +874,7 @@ namespace Beta.Platform.Processors.RP6502
             interrupts.NmiLatch = value;
         }
 
-        protected byte Peek(ushort address, bool last = false)
+        protected byte Read(ushort address, bool last = false)
         {
             rwOld = rw;
             rw = 1;
@@ -885,12 +886,12 @@ namespace Beta.Platform.Processors.RP6502
 
             Dispatch();
 
-            bus.Read(address, ref open);
+            Read(address, ref open);
 
             return open;
         }
 
-        protected void Poke(ushort address, byte data, bool last = false)
+        protected void Write(ushort address, byte data, bool last = false)
         {
             rwOld = rw;
             rw = 0;
@@ -903,7 +904,7 @@ namespace Beta.Platform.Processors.RP6502
             Dispatch();
 
             open = data;
-            bus.Write(address, ref open);
+            Write(address, ref open);
         }
     }
 }

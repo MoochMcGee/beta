@@ -1,4 +1,5 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using System;
+using Beta.Famicom.Abstractions;
 using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Platform.Audio;
@@ -9,6 +10,7 @@ namespace Beta.Famicom.CPU
 {
     public partial class R2A03 : Core, IConsumer<VblNmiSignal>
     {
+        private readonly R2A03Bus bus;
         private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clockProducer;
 
@@ -20,8 +22,8 @@ namespace Beta.Famicom.CPU
         public Joypad Joypad2;
 
         public R2A03(R2A03Bus bus, IAudioBackend audio, IProducer<ClockSignal> clockProducer)
-            : base(bus)
         {
+            this.bus = bus;
             this.audio = audio;
             this.clockProducer = clockProducer;
 
@@ -32,6 +34,16 @@ namespace Beta.Famicom.CPU
             tri = new ChannelTri();
             noi = new ChannelNoi();
             dmc = new ChannelDmc(this);
+        }
+
+        protected override void Read(ushort address, ref byte data)
+        {
+            bus.Read(address, ref data);
+        }
+
+        protected override void Write(ushort address, ref byte data)
+        {
+            bus.Write(address, ref data);
         }
 
         protected override void Dispatch()
@@ -98,7 +110,7 @@ namespace Beta.Famicom.CPU
 
                 for (var i = 0; i < 256; i++, dmaAddr++)
                 {
-                    Poke(0x2004, Peek(dmaAddr));
+                    Write(0x2004, Read(dmaAddr));
                 }
             }
         }

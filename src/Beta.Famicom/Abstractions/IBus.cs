@@ -1,9 +1,11 @@
-﻿using Beta.Platform.Processors.RP6502;
-
-namespace Beta.Famicom.Abstractions
+﻿namespace Beta.Famicom.Abstractions
 {
-    public interface IBus : IRP6502Bus
+    public interface IBus
     {
         void Map(string pattern, Reader reader = null, Writer writer = null);
+
+        void Read(ushort address, ref byte data);
+
+        void Write(ushort address, ref byte data);
     }
 }

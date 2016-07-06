@@ -14,7 +14,6 @@ namespace Beta.Famicom.PPU
         private readonly IProducer<PpuAddressSignal> addressProducer;
         private readonly IProducer<VblNmiSignal> vblNmiProducer;
         private readonly IVideoBackend video;
-        //private readonly GameSystem gameSystem;
 
         private Fetch fetch = new Fetch();
         private Scroll scroll = new Scroll();

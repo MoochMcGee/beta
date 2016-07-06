@@ -87,7 +87,7 @@ namespace Beta.Famicom.CPU
 
             private void DoDma()
             {
-                reader.Buffer = cpu.Peek(reader.Addr);
+                reader.Buffer = cpu.Read(reader.Addr);
                 reader.Buffered = true;
 
                 reader.Addr++;
