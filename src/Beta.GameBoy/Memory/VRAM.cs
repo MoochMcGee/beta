@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class VRAM : IMemory
+    public sealed class VRAM
     {
         private readonly byte[] vram = new byte[0x2000];
 

@@ -13,7 +13,6 @@ namespace Beta.GameBoy.PPU
         private const int PRIORITY_CLR = 0;
         private const int PRIORITY_BKG = 1;
         private const int PRIORITY_SPR = 2;
-        private const int PRIORITY_WND = 3;
 
         private const int SPRITE_SEQ = 0x2;
         private const int ACTIVE_SEQ = 0x3;
@@ -34,7 +33,7 @@ namespace Beta.GameBoy.PPU
         };
 
         private readonly PpuRegisters regs;
-        private readonly IMemoryMap memory;
+        private readonly MemoryMap memory;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<InterruptSignal> interrupt;
         private readonly IVideoBackend video;
@@ -44,7 +43,7 @@ namespace Beta.GameBoy.PPU
 
         public Ppu(
             Registers regs,
-            IMemoryMap memory,
+            MemoryMap memory,
             IProducer<FrameSignal> frame,
             IProducer<InterruptSignal> interrupt,
             IVideoBackend video)
@@ -198,7 +197,7 @@ namespace Beta.GameBoy.PPU
 
                     if (x >= 0 && x < 160)
                     {
-                        priority[x] = PRIORITY_WND;
+                        priority[x] = PRIORITY_BKG;
                         raster[x] = GetShade(palette, color);
                     }
 

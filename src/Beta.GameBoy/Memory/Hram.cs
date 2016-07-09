@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class HRAM : IMemory
+    public sealed class HRAM
     {
         private readonly byte[] hram = new byte[0x007f];
 

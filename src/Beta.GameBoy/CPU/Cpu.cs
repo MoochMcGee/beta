@@ -13,10 +13,10 @@ namespace Beta.GameBoy.CPU
         public const byte INT_SERIAL = (1 << 3);
         public const byte INT_JOYPAD = (1 << 4);
 
-        private readonly IMemoryMap memory;
+        private readonly MemoryMap memory;
         private readonly Registers regs;
 
-        public Cpu(Registers regs, IMemoryMap memory, IProducer<ClockSignal> clockProducer)
+        public Cpu(Registers regs, MemoryMap memory, IProducer<ClockSignal> clockProducer)
             : base(clockProducer)
         {
             this.regs = regs;

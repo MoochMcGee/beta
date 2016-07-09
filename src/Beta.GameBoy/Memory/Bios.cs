@@ -2,7 +2,7 @@
 
 namespace Beta.GameBoy.Memory
 {
-    public sealed class BIOS : IMemory
+    public sealed class BIOS
     {
         private readonly byte[] bios;
 

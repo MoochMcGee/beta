@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class Wave : IMemory
+    public sealed class Wave
     {
         private byte[] wave = new byte[16];
 

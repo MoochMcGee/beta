@@ -10,10 +10,10 @@ namespace Beta.GameBoy
 {
     public sealed class DriverFactory : IDriverFactory
     {
-        private readonly ICartridgeConnector cartridgeConnector;
+        private readonly CartridgeConnector cartridgeConnector;
         private readonly Container container;
 
-        public DriverFactory(Container container, Apu apu, Cpu cpu, Pad pad, Ppu ppu, Tma tma, ICartridgeConnector cartridge, ISubscriptionBroker broker)
+        public DriverFactory(Container container, Apu apu, Cpu cpu, Pad pad, Ppu ppu, Tma tma, CartridgeConnector cartridge, ISubscriptionBroker broker)
         {
             this.container = container;
             this.cartridgeConnector = cartridge;

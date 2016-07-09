@@ -1,9 +1,8 @@
 ﻿using System;
-using Beta.GameBoy.Memory;
 
 namespace Beta.GameBoy.Boards
 {
-    public class Board : IMemory
+    public class Board
     {
         protected byte[] Ram;
         protected byte[] Rom;

@@ -1,5 +1,4 @@
-﻿using System;
-using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.Abstractions;
 using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Platform.Audio;

@@ -58,7 +58,6 @@
     <Compile Include="APU\WavRegisters.cs" />
     <Compile Include="Boards\Board.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
-    <Compile Include="Boards\IBoardFactory.cs" />
     <Compile Include="Boards\NintendoMBC1.cs" />
     <Compile Include="Boards\NintendoMBC2.cs" />
     <Compile Include="Boards\NintendoMBC3.cs" />
@@ -69,9 +68,6 @@
     <Compile Include="Memory\BIOS.cs" />
     <Compile Include="Memory\CartridgeConnector.cs" />
     <Compile Include="Memory\HRAM.cs" />
-    <Compile Include="Memory\ICartridgeConnector.cs" />
-    <Compile Include="Memory\IMemory.cs" />
-    <Compile Include="Memory\IMemoryMap.cs" />
     <Compile Include="Memory\MemoryMap.cs" />
     <Compile Include="Memory\MMIO.cs" />
     <Compile Include="Memory\OAM.cs" />

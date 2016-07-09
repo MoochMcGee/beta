@@ -4,7 +4,7 @@
     {
         public bool enabled;
         public int period;
-        public int timer;
+        public int timer = 2048;
 
         public bool duration_loop;
         public int duration;

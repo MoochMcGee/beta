@@ -2,7 +2,7 @@
 
 namespace Beta.GameBoy.Boards
 {
-    public class BoardFactory : IBoardFactory
+    public sealed class BoardFactory
     {
         public Board Create(byte[] binary)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class OAM : IMemory
+    public sealed class OAM
     {
         private readonly byte[] oam = new byte[0xa0];
 

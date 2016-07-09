@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class MMIO : IMemory
+    public sealed class MMIO
     {
         private readonly Registers regs;
         private readonly HRAM hram;
