@@ -43,13 +43,39 @@
                     int r1 = (color1 >> 0) & 31, g1 = (color1 >> 5) & 31, b1 = (color1 >> 10) & 31;
                     int r2 = (color2 >> 0) & 31, g2 = (color2 >> 5) & 31, b2 = (color2 >> 10) & 31;
 
-                    r1 += r2;
-                    g1 += g2;
-                    b1 += b2;
+                    switch (mathType)
+                    {
+                    case 0:
+                        r1 += r2;
+                        g1 += g2;
+                        b1 += b2;
+                        break;
+
+                    case 1:
+                        r1 = (r1 + r2) / 2;
+                        g1 = (g1 + g2) / 2;
+                        b1 = (b1 + b2) / 2;
+                        break;
+
+                    case 2:
+                        r1 -= r2;
+                        g1 -= g2;
+                        b1 -= b2;
+                        break;
+
+                    case 3:
+                        r1 = (r1 - r2) / 2;
+                        g1 = (g1 - g2) / 2;
+                        b1 = (b1 - b2) / 2;
+                        break;
+                    }
 
                     if (r1 > 31) r1 = 31;
                     if (g1 > 31) g1 = 31;
                     if (b1 > 31) b1 = 31;
+                    if (r1 < 0) r1 = 0;
+                    if (g1 < 0) g1 = 0;
+                    if (b1 < 0) b1 = 0;
 
                     color1 = (r1 << 0) | (g1 << 5) | (b1 << 10);
                 }

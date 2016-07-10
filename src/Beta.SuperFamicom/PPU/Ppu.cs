@@ -47,6 +47,7 @@ namespace Beta.SuperFamicom.PPU
         private int[] colors = colorLookup[0];
         private int[] raster;
         private int colorMathEnabled;
+        private int mathType;
 
         static Ppu()
         {
@@ -467,6 +468,7 @@ namespace Beta.SuperFamicom.PPU
             mathEnable[3] = (data & 0x08) != 0;
             mathEnable[4] = (data & 0x10) != 0;
             mathEnable[5] = (data & 0x20) != 0;
+            mathType = (data >> 6) & 3;
         }
 
         public void Poke2132(byte data)
