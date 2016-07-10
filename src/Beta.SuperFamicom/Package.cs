@@ -10,6 +10,8 @@ namespace Beta.SuperFamicom
         {
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
+
+            container.RegisterSingleton<State>();
         }
     }
 }

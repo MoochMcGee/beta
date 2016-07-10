@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Beta.Platform.Audio;
 using Beta.Platform.Core;
 
 namespace Beta.SuperFamicom.SMP
@@ -50,7 +51,7 @@ namespace Beta.SuperFamicom.SMP
         private int timerCycles1;
         private int timerCycles2;
 
-        public Smp(Driver gameSystem)
+        public Smp(Driver gameSystem, IAudioBackend audio)
         {
             Single = 1;
 
@@ -75,7 +76,7 @@ namespace Beta.SuperFamicom.SMP
             };
             wram = new byte[65536];
             port = new byte[4];
-            dsp = new Dsp(gameSystem, wram);
+            dsp = new Dsp(gameSystem, audio, wram);
 
             registers.sph = 1;
         }

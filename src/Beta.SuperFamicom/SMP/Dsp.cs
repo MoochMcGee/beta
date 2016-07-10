@@ -1,4 +1,5 @@
-﻿using Beta.Platform.Core;
+﻿using Beta.Platform.Audio;
+using Beta.Platform.Core;
 
 namespace Beta.SuperFamicom.SMP
 {
@@ -112,18 +113,21 @@ namespace Beta.SuperFamicom.SMP
                    0x000
         };
 
-        private Driver gameSystem;
+        private readonly IAudioBackend audio;
+        private readonly Driver gameSystem;
+
         private State state = new State();
         private Voice[] voice = new Voice[8];
 
         private byte[] ram;
         private int step;
 
-        public Dsp(Driver gameSystem, byte[] ram)
+        public Dsp(Driver gameSystem, IAudioBackend audio, byte[] ram)
         {
             Single = 1;
 
             this.gameSystem = gameSystem;
+            this.audio = audio;
             this.ram = ram;
         }
 
@@ -780,8 +784,8 @@ namespace Beta.SuperFamicom.SMP
             }
 
             //output sample to DAC
-            gameSystem.Audio.Render(outl);
-            gameSystem.Audio.Render(outr);
+            audio.Render(outl);
+            audio.Render(outr);
         }
 
         private void echo_28()

@@ -1,5 +1,6 @@
 ﻿using Beta.Platform;
 using Beta.Platform.Core;
+using Beta.Platform.Video;
 
 namespace Beta.SuperFamicom.PPU
 {
@@ -18,7 +19,9 @@ namespace Beta.SuperFamicom.PPU
             new[] { new[] { 5,  8 }, new[] { 4,  7 }, new[] { 1, 10 }, new[] { 0, 0 }, new[] { 2, 3, 6,  9 } }  // mode 1 priority
         };
 
-        private Driver gameSystem;
+        private readonly IVideoBackend video;
+        private readonly Driver gameSystem;
+
         private Register32 hLatch;
         private Register32 vLatch;
         private Register32 product;
@@ -65,11 +68,13 @@ namespace Beta.SuperFamicom.PPU
             }
         }
 
-        public Ppu(Driver gameSystem)
+        public Ppu(Driver gameSystem, IVideoBackend video)
         {
             Single = 4;
 
             this.gameSystem = gameSystem;
+            this.video = video;
+
             bg0 = new Background(this, 0);
             bg1 = new Background(this, 1);
             bg2 = new Background(this, 2);
@@ -501,14 +506,14 @@ namespace Beta.SuperFamicom.PPU
 
                     ppu1Stat &= 0x3F; // reset time and range flags
 
-                    gameSystem.Video.Render();
+                    video.Render();
                     gameSystem.Joypad1.Update();
                     gameSystem.Joypad2.Update();
                 }
 
                 if (vclock < 240)
                 {
-                    raster = gameSystem.Video.GetRaster(vclock);
+                    raster = video.GetRaster(vclock);
                 }
             }
         }

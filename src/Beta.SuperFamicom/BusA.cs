@@ -14,10 +14,10 @@ namespace Beta.SuperFamicom
 
         private readonly Driver gameSystem;
         private readonly byte[] cart;
+        private readonly SCpuState scpu;
         private readonly WRAM wram;
 
         private byte open;
-        private bool vblank;
         private int h;
         private int h_target;
         private int v;
@@ -27,7 +27,6 @@ namespace Beta.SuperFamicom
         private byte reg2133;
         private byte reg4200;
         private byte reg4211;
-        private byte reg4212;
         private int t;
 
         // multiply regs
@@ -40,9 +39,10 @@ namespace Beta.SuperFamicom
         private byte wrdivb;
         private ushort rddiv;
 
-        public BusA(Driver gameSystem, byte[] cart)
+        public BusA(Driver gameSystem, State state, byte[] cart)
         {
             this.gameSystem = gameSystem;
+            this.scpu = state.scpu;
             this.cart = cart;
             this.wram = new WRAM();
         }
@@ -135,9 +135,9 @@ namespace Beta.SuperFamicom
             case 0x4016: return 0; // JOYSER0
             case 0x4017: return 0; // JOYSER1
 
-            case 0x4210: return (byte)((open & 0x70) | (vblank ? 0x80 : 0) | 0x02);
+            case 0x4210: return (byte)((open & 0x70) | (scpu.in_vblank ? 0x80 : 0) | 0x02);
             case 0x4211: return (byte)((open & 0x7f) | reg4211);
-            case 0x4212: return (byte)((open & 0x3e) | reg4212);
+            case 0x4212: return (byte)((open & 0x3e) | (scpu.in_vblank ? 0x80 : 0) | (scpu.in_hblank ? 0x40 : 0));
             case 0x4213: return 0; // I/O Port
             case 0x4214: return (byte)(rddiv >> 0); // RDDIVL
             case 0x4215: return (byte)(rddiv >> 8); // RDDIVH
@@ -266,7 +266,7 @@ namespace Beta.SuperFamicom
         {
             if ((address & 0xff00) == 0x4300)
             {
-                var channel = gameSystem.DMA.channels[(address >> 4) & 7];
+                var channel = gameSystem.Dma.channels[(address >> 4) & 7];
 
                 switch (address & 0xff0f)
                 {
@@ -339,8 +339,8 @@ namespace Beta.SuperFamicom
                 return;
 
             case 0x420b: /* MDMAEN */
-                gameSystem.DMA.mdma_en = data;
-                gameSystem.DMA.mdma_count = 2;
+                gameSystem.Dma.mdma_en = data;
+                gameSystem.Dma.mdma_count = 2;
                 return;
 
             case 0x420c: /* HDMAEN */
@@ -373,7 +373,7 @@ namespace Beta.SuperFamicom
 
         public void AddCycles(int amount)
         {
-            var dma = gameSystem.DMA;
+            var dma = gameSystem.Dma;
             if (dma.mdma_en != 0 && dma.mdma_count != 0 && --dma.mdma_count == 0)
             {
                 int time = dma.Run(t);
@@ -396,12 +396,12 @@ namespace Beta.SuperFamicom
 
             if (h <= 72)
             {
-                reg4212 &= 0xbf;
+                scpu.in_hblank = true;
             }
 
             if (h >= 1156)
             {
-                reg4212 |= 0x40;
+                scpu.in_hblank = false;
             }
 
             if (h >= 1364)
@@ -411,8 +411,7 @@ namespace Beta.SuperFamicom
 
                 if (v == ((reg2133 & 0x04) != 0 ? 241 : 225))
                 {
-                    vblank = true;
-                    reg4212 |= 0x80;
+                    scpu.in_vblank = true;
 
                     if ((reg4200 & 0x80) != 0)
                     {
@@ -424,8 +423,7 @@ namespace Beta.SuperFamicom
                 {
                     v = 0;
 
-                    vblank = false;
-                    reg4212 &= 0x7f;
+                    scpu.in_vblank = false;
                 }
             }
 
