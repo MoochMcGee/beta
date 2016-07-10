@@ -4,19 +4,15 @@
     {
         private readonly BusA bus;
 
-        public DmaChannel[] channels = new DmaChannel[8];
+        public DmaState[] dma;
         public byte mdma_en;
         public byte hdma_en;
         public int mdma_count;
 
-        public Dma(BusA bus)
+        public Dma(State state, BusA bus)
         {
+            this.dma = state.scpu.dma;
             this.bus = bus;
-
-            for (int i = 0; i < channels.Length; i++)
-            {
-                channels[i] = new DmaChannel();
-            }
         }
 
         public int Run(int totalCycles)
@@ -45,7 +41,7 @@
         private int RunChannel(int i)
         {
             var amount = 0;
-            var c = channels[i];
+            var c = dma[i];
             var step = 0;
 
             while (true)
@@ -53,30 +49,30 @@
                 bus.AddCycles(8);
                 amount += 8;
 
-                if ((c.Control & 0x80) == 0)
+                if ((c.control & 0x80) == 0)
                 {
-                    var data = bus.ReadFree(c.AddressA.b, c.AddressA.w);
-                    var dest = GetAddressB(c.Control & 7, c.AddressB, step);
+                    var data = bus.ReadFree(c.address_a.b, c.address_a.w);
+                    var dest = GetAddressB(c.control & 7, c.address_b, step);
                     bus.WriteFree(0, dest, data);
                 }
                 else
                 {
-                    var dest = GetAddressB(c.Control & 7, c.AddressB, step);
+                    var dest = GetAddressB(c.control & 7, c.address_b, step);
                     var data = bus.ReadFree(0, dest);
-                    bus.WriteFree(c.AddressA.b, c.AddressA.w, data);
+                    bus.WriteFree(c.address_a.b, c.address_a.w, data);
                 }
 
-                switch (c.Control & 0x18)
+                switch (c.control & 0x18)
                 {
-                case 0x00: c.AddressA.d++; break;
+                case 0x00: c.address_a.d++; break;
                 case 0x08: break;
-                case 0x10: c.AddressA.d--; break;
+                case 0x10: c.address_a.d--; break;
                 case 0x18: break;
                 }
 
                 step++;
 
-                if (--c.Count.w == 0)
+                if (--c.count == 0)
                 {
                     break;
                 }

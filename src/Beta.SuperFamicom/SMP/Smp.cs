@@ -2,10 +2,11 @@
 using System.Runtime.InteropServices;
 using Beta.Platform.Audio;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 
 namespace Beta.SuperFamicom.SMP
 {
-    public sealed class Smp : Processor
+    public sealed class Smp : Processor, IConsumer<ClockSignal>
     {
         static readonly int[] instrTimes =
         {// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -2106,6 +2107,11 @@ namespace Beta.SuperFamicom.SMP
         }
 
         #endregion
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles * 45056);
+        }
 
         private struct Timer
         {

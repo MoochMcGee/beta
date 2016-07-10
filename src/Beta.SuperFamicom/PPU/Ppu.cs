@@ -6,7 +6,7 @@ using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PPU
 {
-    public sealed partial class Ppu : Processor
+    public sealed partial class Ppu : Processor, IConsumer<ClockSignal>
     {
         private static int[][][] priorityLut = new[]
         {
@@ -606,6 +606,11 @@ namespace Beta.SuperFamicom.PPU
             case 6: RenderMode6(); break;
             case 7: RenderMode7(); break; // affine render
             }
+        }
+
+        public void Consume(ClockSignal e)
+        {
+            Update(e.Cycles);
         }
     }
 }

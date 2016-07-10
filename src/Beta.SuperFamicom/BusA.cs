@@ -1,6 +1,7 @@
-﻿//#define LOROM
+﻿#define LOROM
 using System;
 using Beta.Platform;
+using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP65816;
 using Beta.SuperFamicom.Memory;
 
@@ -18,14 +19,9 @@ namespace Beta.SuperFamicom
         private readonly WRAM wram;
 
         private byte open;
-        private int h;
-        private int h_target;
-        private int v;
-        private int v_target;
         private int refresh = 538;
         private int speedCart = SpeedNorm;
         private byte reg2133;
-        private byte reg4211;
         private int t;
 
         // multiply regs
@@ -135,7 +131,7 @@ namespace Beta.SuperFamicom
             case 0x4017: return 0; // JOYSER1
 
             case 0x4210: return (byte)((open & 0x70) | (scpu.in_vblank ? 0x80 : 0) | 0x02);
-            case 0x4211: return (byte)((open & 0x7f) | reg4211);
+            case 0x4211: return (byte)((open & 0x7f) | (scpu.timer_coincidence ? 0x80 : 0));
             case 0x4212: return (byte)((open & 0x3e) | (scpu.in_vblank ? 0x80 : 0) | (scpu.in_hblank ? 0x40 : 0));
             case 0x4213: return 0; // I/O Port
             case 0x4214: return (byte)(rddiv >> 0); // RDDIVL
@@ -265,17 +261,17 @@ namespace Beta.SuperFamicom
         {
             if ((address & 0xff00) == 0x4300)
             {
-                var channel = gameSystem.Dma.channels[(address >> 4) & 7];
+                var dma = scpu.dma[(address >> 4) & 7];
 
                 switch (address & 0xff0f)
                 {
-                case 0x4300: channel.Control = data; return;
-                case 0x4301: channel.AddressB = data; return;
-                case 0x4302: channel.AddressA.l = data; return;
-                case 0x4303: channel.AddressA.h = data; return;
-                case 0x4304: channel.AddressA.b = data; return;
-                case 0x4305: channel.Count.l = data; return;
-                case 0x4306: channel.Count.h = data; return;
+                case 0x4300: dma.control = data; return;
+                case 0x4301: dma.address_b = data; return;
+                case 0x4302: dma.address_a.l = data; return;
+                case 0x4303: dma.address_a.h = data; return;
+                case 0x4304: dma.address_a.b = data; return;
+                case 0x4305: dma.count = (ushort)((dma.count & 0xff00) | (data << 0)); return;
+                case 0x4306: dma.count = (ushort)((dma.count & 0x00ff) | (data << 8)); return;
                 case 0x4307: return;
                 case 0x4308: return;
                 case 0x4309: return;
@@ -293,12 +289,8 @@ namespace Beta.SuperFamicom
             case 0x4016: return;
 
             case 0x4200:
-                if ((scpu.reg4200 & 0x80) == 0 && (data & 0x80) != 0 && scpu.in_vblank)
-                {
-                    gameSystem.Cpu.Nmi();
-                }
-
                 scpu.reg4200 = data;
+                gameSystem.Cpu.NmiWrapper((scpu.reg4200 & 0x80) != 0);
                 return;
 
             case 0x4201: return; // I/O Port
@@ -321,21 +313,10 @@ namespace Beta.SuperFamicom
                 }
                 return; // WRDIVB
 
-            case 0x4207:
-                h_target = (h_target & ~0x00ff) | (data << 0);
-                return;
-
-            case 0x4208:
-                h_target = (h_target & ~0xff00) | (data << 8);
-                return;
-
-            case 0x4209:
-                v_target = (v_target & ~0x00ff) | (data << 0);
-                return;
-
-            case 0x420a:
-                v_target = (v_target & ~0xff00) | (data << 8);
-                return;
+            case 0x4207: scpu.h_target = (scpu.h_target & ~0x00ff) | (data << 0); return;
+            case 0x4208: scpu.h_target = (scpu.h_target & ~0xff00) | (data << 8); return;
+            case 0x4209: scpu.v_target = (scpu.v_target & ~0x00ff) | (data << 0); return;
+            case 0x420a: scpu.v_target = (scpu.v_target & ~0xff00) | (data << 8); return;
 
             case 0x420b: /* MDMAEN */
                 gameSystem.Dma.mdma_en = data;
@@ -381,42 +362,20 @@ namespace Beta.SuperFamicom
                 dma.mdma_en = 0;
             }
 
-            if (h <= refresh && (h + amount) >= refresh)
+            if (scpu.h <= refresh && (scpu.h + amount) >= refresh)
             {
                 refresh = 1072 - refresh;
-                h = (h + 40);
+                amount = (amount + 40);
                 t = (t + 40) & 7;
             }
 
-            int oldH = h;
-
-            h = (h + amount);
             t = (t + amount) & 7;
 
-            if (h >= 1364)
-            {
-                h -= 1364;
-                v += 1;
+            var clock = new ClockSignal(amount);
 
-                if (v == 262)
-                {
-                    v = 0;
-                }
-            }
-
-            bool h_match = (h >> 2) >= h_target && (oldH >> 2) < h_target;
-            bool v_match = (v >> 0) == v_target;
-
-            switch ((scpu.reg4200 >> 4) & 0x03)
-            {
-            case 0: break;
-            case 1: if (v_match) { reg4211 |= 0x80; gameSystem.Cpu.Irq(); } break;
-            case 2: if (h_match) { reg4211 |= 0x80; gameSystem.Cpu.Irq(); } break;
-            case 3: if (v_match && h_match) { reg4211 |= 0x80; gameSystem.Cpu.Irq(); } break;
-            }
-
-            gameSystem.Ppu.Update(amount);
-            gameSystem.Smp.Update(amount * 45056);
+            gameSystem.Cpu.Consume(clock);
+            gameSystem.Ppu.Consume(clock);
+            gameSystem.Smp.Consume(clock);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Beta.SuperFamicom
             var driver = new Driver();
 
             driver.Bus = new BusA(driver, state, binary);
-            driver.Dma = new Dma(driver.Bus);
+            driver.Dma = new Dma(state, driver.Bus);
             driver.Ppu = new Ppu(driver, video, hblank, vblank);
             driver.Smp = new Smp(driver, audio);
             driver.Cpu = new Cpu(state, driver.Bus);
