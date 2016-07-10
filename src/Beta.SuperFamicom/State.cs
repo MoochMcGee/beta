@@ -9,5 +9,7 @@
     {
         public bool in_hblank;
         public bool in_vblank;
+
+        public int reg4200;
     }
 }

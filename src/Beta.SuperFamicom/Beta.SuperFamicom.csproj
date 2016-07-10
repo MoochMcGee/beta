@@ -57,6 +57,8 @@
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
     <Compile Include="Memory\WRAM.cs" />
+    <Compile Include="Messaging\HBlankSignal.cs" />
+    <Compile Include="Messaging\VBlankSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="PAD\Pad.cs" />
     <Compile Include="PPU\Ppu.Background.cs" />

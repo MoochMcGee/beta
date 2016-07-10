@@ -1,20 +1,35 @@
-﻿using Beta.Platform.Processors.RP65816;
+﻿using Beta.Platform.Messaging;
+using Beta.Platform.Processors.RP65816;
+using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.CPU
 {
-    public partial class Cpu : Core
+    public partial class Cpu
+        : Core
+        , IConsumer<HBlankSignal>
+        , IConsumer<VBlankSignal>
     {
-        public Cpu(IBus bus)
+        private readonly SCpuState scpu;
+
+        public Cpu(State state, IBus bus)
             : base(bus)
         {
+            this.scpu = state.scpu;
         }
 
-        public void EnterHBlank() { }
+        public void Consume(HBlankSignal e)
+        {
+            scpu.in_hblank = e.HBlank;
+        }
 
-        public void EnterVBlank() { }
+        public void Consume(VBlankSignal e)
+        {
+            scpu.in_vblank = e.VBlank;
 
-        public void LeaveHBlank() { }
-
-        public void LeaveVBlank() { }
+            if (scpu.in_vblank && (scpu.reg4200 & 0x80) != 0)
+            {
+                Nmi();
+            }
+        }
     }
 }

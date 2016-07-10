@@ -1,6 +1,8 @@
 ﻿using Beta.Platform;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 using Beta.Platform.Video;
+using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PPU
 {
@@ -19,6 +21,8 @@ namespace Beta.SuperFamicom.PPU
             new[] { new[] { 5,  8 }, new[] { 4,  7 }, new[] { 1, 10 }, new[] { 0, 0 }, new[] { 2, 3, 6,  9 } }  // mode 1 priority
         };
 
+        private readonly IProducer<HBlankSignal> hblank;
+        private readonly IProducer<VBlankSignal> vblank;
         private readonly IVideoBackend video;
         private readonly Driver gameSystem;
 
@@ -68,12 +72,18 @@ namespace Beta.SuperFamicom.PPU
             }
         }
 
-        public Ppu(Driver gameSystem, IVideoBackend video)
+        public Ppu(
+            Driver gameSystem,
+            IVideoBackend video,
+            IProducer<HBlankSignal> hblank,
+            IProducer<VBlankSignal> vblank)
         {
             Single = 4;
 
             this.gameSystem = gameSystem;
             this.video = video;
+            this.hblank = hblank;
+            this.vblank = vblank;
 
             bg0 = new Background(this, 0);
             bg1 = new Background(this, 1);
@@ -498,11 +508,13 @@ namespace Beta.SuperFamicom.PPU
                 if (vclock == (overscan ? 241 : 225))
                 {
                     ppu2Stat ^= 0x80; // toggle field flag every vblank
+                    vblank.Produce(new VBlankSignal(true));
                 }
 
                 if (vclock == 262)
                 {
                     vclock = 0;
+                    vblank.Produce(new VBlankSignal(false));
 
                     ppu1Stat &= 0x3F; // reset time and range flags
 
@@ -514,6 +526,19 @@ namespace Beta.SuperFamicom.PPU
                 if (vclock < 240)
                 {
                     raster = video.GetRaster(vclock);
+                }
+            }
+
+            if (vclock < (overscan ? 241 : 225))
+            {
+                if (hclock <= 18)
+                {
+                    hblank.Produce(new HBlankSignal(true));
+                }
+
+                if (hclock >= 289)
+                {
+                    hblank.Produce(new HBlankSignal(false));
                 }
             }
         }

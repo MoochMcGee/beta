@@ -25,7 +25,6 @@ namespace Beta.SuperFamicom
         private int refresh = 538;
         private int speedCart = SpeedNorm;
         private byte reg2133;
-        private byte reg4200;
         private byte reg4211;
         private int t;
 
@@ -294,12 +293,12 @@ namespace Beta.SuperFamicom
             case 0x4016: return;
 
             case 0x4200:
-                if ((reg4200 & 0x80) == 0 && (data & 0x80) != 0 && v > 240)
+                if ((scpu.reg4200 & 0x80) == 0 && (data & 0x80) != 0 && scpu.in_vblank)
                 {
                     gameSystem.Cpu.Nmi();
                 }
 
-                reg4200 = data;
+                scpu.reg4200 = data;
                 return;
 
             case 0x4201: return; // I/O Port
@@ -394,43 +393,21 @@ namespace Beta.SuperFamicom
             h = (h + amount);
             t = (t + amount) & 7;
 
-            if (h <= 72)
-            {
-                scpu.in_hblank = true;
-            }
-
-            if (h >= 1156)
-            {
-                scpu.in_hblank = false;
-            }
-
             if (h >= 1364)
             {
                 h -= 1364;
                 v += 1;
 
-                if (v == ((reg2133 & 0x04) != 0 ? 241 : 225))
-                {
-                    scpu.in_vblank = true;
-
-                    if ((reg4200 & 0x80) != 0)
-                    {
-                        gameSystem.Cpu.Nmi();
-                    }
-                }
-
                 if (v == 262)
                 {
                     v = 0;
-
-                    scpu.in_vblank = false;
                 }
             }
 
             bool h_match = (h >> 2) >= h_target && (oldH >> 2) < h_target;
             bool v_match = (v >> 0) == v_target;
 
-            switch ((reg4200 >> 4) & 0x03)
+            switch ((scpu.reg4200 >> 4) & 0x03)
             {
             case 0: break;
             case 1: if (v_match) { reg4211 |= 0x80; gameSystem.Cpu.Irq(); } break;
