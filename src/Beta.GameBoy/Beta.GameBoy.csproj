@@ -52,6 +52,10 @@
   <ItemGroup>
     <Compile Include="APU\Apu.cs" />
     <Compile Include="APU\ApuRegisters.cs" />
+    <Compile Include="APU\Duration.cs" />
+    <Compile Include="APU\DurationUpdate.cs" />
+    <Compile Include="APU\Envelope.cs" />
+    <Compile Include="APU\EnvelopeUpdate.cs" />
     <Compile Include="APU\NoiRegisters.cs" />
     <Compile Include="APU\Sq1Registers.cs" />
     <Compile Include="APU\Sq2Registers.cs" />

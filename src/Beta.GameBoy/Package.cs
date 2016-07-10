@@ -16,23 +16,19 @@ namespace Beta.GameBoy
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
 
-            container.RegisterSingleton<BoardFactory>();
             container.RegisterSingleton<Apu>();
-            container.RegisterSingleton<Cpu>();
-            container.RegisterSingleton<Ppu>();
-            container.RegisterSingleton<Pad>();
-            container.RegisterSingleton<Tma>();
-
-            // Memory
-            // 
-
-            container.RegisterSingleton<CartridgeConnector>();
-            container.RegisterSingleton<MemoryMap>();
-            container.RegisterSingleton<Registers>();
             container.RegisterSingleton<BIOS>();
+            container.RegisterSingleton<BoardFactory>();
+            container.RegisterSingleton<CartridgeConnector>();
+            container.RegisterSingleton<Cpu>();
             container.RegisterSingleton<HRAM>();
+            container.RegisterSingleton<MemoryMap>();
             container.RegisterSingleton<MMIO>();
             container.RegisterSingleton<OAM>();
+            container.RegisterSingleton<Pad>();
+            container.RegisterSingleton<Ppu>();
+            container.RegisterSingleton<Registers>();
+            container.RegisterSingleton<Tma>();
             container.RegisterSingleton<VRAM>();
             container.RegisterSingleton<Wave>();
             container.RegisterSingleton<WRAM>();

@@ -104,13 +104,13 @@
 
             case 0xff11:
                 regs.sq1.duty_form = (data >> 6) & 3;
-                regs.sq1.duration_latch = (data >> 0) & 63;
+                regs.sq1.duration.latch = (data >> 0) & 63;
                 break;
 
             case 0xff12:
-                regs.sq1.volume = (data >> 4) & 15;
-                regs.sq1.volume_direction = (data >> 3) & 1;
-                regs.sq1.volume_period = (data >> 0) & 7;
+                regs.sq1.envelope.latch = (data >> 4) & 15;
+                regs.sq1.envelope.direction = (data >> 3) & 1;
+                regs.sq1.envelope.period = (data >> 0) & 7;
                 break;
 
             case 0xff13:
@@ -119,13 +119,14 @@
 
             case 0xff14:
                 regs.sq1.period = (regs.sq1.period & 0x0ff) | ((data << 8) & 0x700);
-                regs.sq1.duration_loop = (data & 0x40) == 0;
+                regs.sq1.duration.loop = (data & 0x40) == 0;
 
                 if ((data & 0x80) != 0)
                 {
-                    regs.sq1.timer = 2048 - regs.sq1.period;
-                    regs.sq1.duration = 64 - regs.sq1.duration_latch;
-                    regs.sq1.volume_timer = regs.sq1.volume_period;
+                    regs.sq1.timer = 0x800 - regs.sq1.period;
+                    regs.sq1.duration.count = 64 - regs.sq1.duration.latch;
+                    regs.sq1.envelope.count = regs.sq1.envelope.latch;
+                    regs.sq1.envelope.timer = regs.sq1.envelope.period;
                     regs.sq1.enabled = true;
 
                     regs.sq1.sweep_timer = regs.sq1.sweep_period;
@@ -137,13 +138,13 @@
 
             case 0xff16:
                 regs.sq2.duty_form = (data >> 6) & 3;
-                regs.sq2.duration_latch = (data >> 0) & 63;
+                regs.sq2.duration.latch = (data >> 0) & 63;
                 break;
 
             case 0xff17:
-                regs.sq2.volume = (data >> 4) & 15;
-                regs.sq2.volume_direction = (data >> 3) & 1;
-                regs.sq2.volume_period = (data >> 0) & 7;
+                regs.sq2.envelope.latch = (data >> 4) & 15;
+                regs.sq2.envelope.direction = (data >> 3) & 1;
+                regs.sq2.envelope.period = (data >> 0) & 7;
                 break;
 
             case 0xff18:
@@ -152,13 +153,14 @@
 
             case 0xff19:
                 regs.sq2.period = (regs.sq2.period & 0x0ff) | ((data << 8) & 0x700);
-                regs.sq2.duration_loop = (data & 0x40) == 0;
+                regs.sq2.duration.loop = (data & 0x40) == 0;
 
                 if ((data & 0x80) != 0)
                 {
-                    regs.sq2.timer = 2048 - regs.sq2.period;
-                    regs.sq2.duration = 64 - regs.sq2.duration_latch;
-                    regs.sq2.volume_timer = regs.sq2.volume_period;
+                    regs.sq2.timer = 0x800 - regs.sq2.period;
+                    regs.sq2.duration.count = 64 - regs.sq2.duration.latch;
+                    regs.sq2.envelope.count = regs.sq2.envelope.latch;
+                    regs.sq2.envelope.timer = regs.sq2.envelope.period;
                     regs.sq2.enabled = true;
                 }
                 break;
@@ -167,7 +169,7 @@
 
             case 0xff1a: break;
             case 0xff1b:
-                regs.wav.duration_latch = data;
+                regs.wav.duration.latch = data;
                 break;
 
             case 0xff1c:
@@ -186,12 +188,12 @@
 
             case 0xff1e:
                 regs.wav.period = (regs.wav.period & 0x0ff) | ((data << 8) & 0x700);
-                regs.wav.duration_loop = (data & 0x40) == 0;
+                regs.wav.duration.loop = (data & 0x40) == 0;
 
                 if ((data & 0x80) != 0)
                 {
-                    regs.wav.timer = (2048 - regs.wav.period) / 2;
-                    regs.wav.duration = 256 - regs.wav.duration_latch;
+                    regs.wav.timer = (0x800 - regs.wav.period) / 2;
+                    regs.wav.duration.count = 256 - regs.wav.duration.latch;
                     regs.wav.wave_ram_cursor = 0;
                     regs.wav.wave_ram_shift = 4;
                     regs.wav.enabled = true;
@@ -201,13 +203,13 @@
             // apu::noi
 
             case 0xff20:
-                regs.noi.duration_latch = (data >> 0) & 63;
+                regs.noi.duration.latch = (data >> 0) & 63;
                 break;
 
             case 0xff21:
-                regs.noi.volume_latch = (data >> 4) & 15;
-                regs.noi.volume_direction = (data >> 3) & 1;
-                regs.noi.volume_period = (data >> 0) & 7;
+                regs.noi.envelope.latch = (data >> 4) & 15;
+                regs.noi.envelope.direction = (data >> 3) & 1;
+                regs.noi.envelope.period = (data >> 0) & 7;
                 break;
 
             case 0xff22:
@@ -227,14 +229,14 @@
                 break;
 
             case 0xff23:
-                regs.noi.duration_loop = (data & 0x40) == 0;
+                regs.noi.duration.loop = (data & 0x40) == 0;
 
                 if ((data & 0x80) != 0)
                 {
                     regs.noi.timer = regs.noi.period;
-                    regs.noi.duration = 64 - regs.noi.duration_latch;
-                    regs.noi.volume = regs.noi.volume_latch;
-                    regs.noi.volume_timer = regs.noi.volume_period;
+                    regs.noi.duration.count = 64 - regs.noi.duration.latch;
+                    regs.noi.envelope.count = regs.noi.envelope.latch;
+                    regs.noi.envelope.timer = regs.noi.envelope.period;
                     regs.noi.lfsr = 0x7fff;
                     regs.noi.enabled = true;
                 }

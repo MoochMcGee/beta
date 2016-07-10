@@ -6,9 +6,7 @@
         public int period;
         public int timer = 2048;
 
-        public bool duration_loop;
-        public int duration;
-        public int duration_latch;
+        public Duration duration = new Duration();
 
         public int volume_shift;
 

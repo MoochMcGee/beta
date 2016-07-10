@@ -41,12 +41,19 @@ namespace Beta.GameBoy.APU
         {
             for (int i = 0; i < e.Cycles / 4; i++)
             {
-                Tick(e);
+                Tick();
             }
         }
 
-        private void Tick(ClockSignal e)
+        private void Tick()
         {
+            sample_timer -= 48000;
+            if (sample_timer <= 0)
+            {
+                sample_timer += sample_period;
+                RenderSample();
+            }
+
             if (regs.sequence_timer != 0 && --regs.sequence_timer == 0)
             {
                 regs.sequence_timer = 4194304 / 2048;
@@ -116,94 +123,21 @@ namespace Beta.GameBoy.APU
                     noi.lfsr |= feedback << 14;
                 }
             }
-
-            sample_timer -= 48000;
-            if (sample_timer <= 0)
-            {
-                sample_timer += sample_period;
-                RenderSample();
-            }
         }
 
         private void DurationTick()
         {
-            if (sq1.duration != 0 && --sq1.duration == 0)
-            {
-                if (sq1.duration_loop)
-                {
-                    sq1.duration = 64 - sq1.duration_latch;
-                }
-                else
-                {
-                    sq1.enabled = false;
-                }
-            }
-
-            if (sq2.duration != 0 && --sq2.duration == 0)
-            {
-                if (sq2.duration_loop)
-                {
-                    sq2.duration = 64 - sq2.duration_latch;
-                }
-                else
-                {
-                    sq2.enabled = false;
-                }
-            }
-
-            if (wav.duration != 0 && --wav.duration == 0)
-            {
-                if (wav.duration_loop)
-                {
-                    wav.duration = 256 - wav.duration_latch;
-                }
-                else
-                {
-                    wav.enabled = false;
-                }
-            }
-
-            if (noi.duration != 0 && --noi.duration == 0)
-            {
-                if (noi.duration_loop)
-                {
-                    noi.duration = 64 - noi.duration_latch;
-                }
-                else
-                {
-                    noi.enabled = false;
-                }
-            }
+            DurationUpdate.Tick(sq1.duration,  64, ref sq1.enabled);
+            DurationUpdate.Tick(sq2.duration,  64, ref sq2.enabled);
+            DurationUpdate.Tick(wav.duration, 256, ref wav.enabled);
+            DurationUpdate.Tick(noi.duration,  64, ref noi.enabled);
         }
 
         private void EnvelopeTick()
         {
-            if (sq1.volume_period != 0 && sq1.volume_timer != 0 && --sq1.volume_timer == 0)
-            {
-                sq1.volume_timer = sq1.volume_period;
-                sq1.volume = sq1.volume_direction == 0
-                    ? Math.Max(sq1.volume - 1, 0)
-                    : Math.Min(sq1.volume + 1, 15)
-                    ;
-            }
-
-            if (sq2.volume_period != 0 && sq2.volume_timer != 0 && --sq2.volume_timer == 0)
-            {
-                sq2.volume_timer = sq2.volume_period;
-                sq2.volume = sq2.volume_direction == 0
-                    ? Math.Max(sq2.volume - 1, 0)
-                    : Math.Min(sq2.volume + 1, 15)
-                    ;
-            }
-
-            if (noi.volume_period != 0 && noi.volume_timer != 0 && --noi.volume_timer == 0)
-            {
-                noi.volume_timer = noi.volume_period;
-                noi.volume = noi.volume_direction == 0
-                    ? Math.Max(noi.volume - 1, 0)
-                    : Math.Min(noi.volume + 1, 15)
-                    ;
-            }
+            EnvelopeUpdate.Tick(sq1.envelope);
+            EnvelopeUpdate.Tick(sq2.envelope);
+            EnvelopeUpdate.Tick(noi.envelope);
         }
 
         private void SweepTick()
@@ -238,17 +172,17 @@ namespace Beta.GameBoy.APU
         private void RenderSample()
         {
             int sq1_out = sq1.enabled
-                ? square_lut[sq1.duty_form][sq1.duty_step] * sq1.volume
+                ? square_lut[sq1.duty_form][sq1.duty_step] * sq1.envelope.count
                 : 0
                 ;
 
             int sq2_out = sq2.enabled
-                ? square_lut[sq2.duty_form][sq2.duty_step] * sq2.volume
+                ? square_lut[sq2.duty_form][sq2.duty_step] * sq2.envelope.count
                 : 0
                 ;
 
             int noi_out = noi.enabled
-                ? (~noi.lfsr & 1) * noi.volume
+                ? (~noi.lfsr & 1) * noi.envelope.count
                 : 0
                 ;
 
