@@ -22,8 +22,11 @@ namespace Beta.SuperFamicom
 
         public IVideoBackend Video { get; set; }
 
-        public Driver()
+        public Driver(IAudioBackend audio, IVideoBackend video)
         {
+            this.Audio = audio;
+            this.Video = video;
+
             Ppu = new Ppu(this);
             Smp = new Smp(this);
             Joypad1 = new Pad(0);

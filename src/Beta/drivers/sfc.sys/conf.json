@@ -3,7 +3,7 @@
   "extensions": [ ".sfc" ],
   "audio": {
     "channels": 2,
-    "sample-rate": 32000
+    "sample-rate": 48000
   },
   "video": {
     "width": 256,

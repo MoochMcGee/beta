@@ -1,7 +1,8 @@
-﻿#define LOROM
+﻿//#define LOROM
 using System;
 using Beta.Platform;
 using Beta.Platform.Processors.RP65816;
+using Beta.SuperFamicom.Memory;
 
 namespace Beta.SuperFamicom
 {
@@ -13,9 +14,8 @@ namespace Beta.SuperFamicom
 
         private readonly Driver gameSystem;
         private readonly byte[] cart;
-        private readonly byte[] wram;
+        private readonly WRAM wram;
 
-        private Register24 wramAddr;
         private byte open;
         private bool vblank;
         private int h;
@@ -44,8 +44,7 @@ namespace Beta.SuperFamicom
         {
             this.gameSystem = gameSystem;
             this.cart = cart;
-            this.wram = new byte[0x20000];
-            this.wram.Initialize<byte>(0x55);
+            this.wram = new WRAM();
         }
 
         public void Initialize()
@@ -68,12 +67,12 @@ namespace Beta.SuperFamicom
 
         public byte ReadFree(byte bank, ushort address)
         {
-            if (bank == 0x7e) { return ReadWram(bank, address); }
-            if (bank == 0x7f) { return ReadWram(bank, address); }
+            if (bank == 0x7e) { return wram.Read(bank, address); }
+            if (bank == 0x7f) { return wram.Read(bank, address); }
 
             if ((bank & 0x7f) <= 0x3f)
             {
-                if ((address & 0xe000) == 0x0000) { return ReadWram(0x00, address); }
+                if ((address & 0xe000) == 0x0000) { return wram.Read(0x00, address); }
                 if ((address & 0xff00) == 0x2100) { return ReadBusB(bank, address); }
                 if ((address & 0xfc00) == 0x4000) { return ReadSCPU(bank, address); }
                 if ((address & 0x8000) == 0x8000) { return ReadCart(bank, address); }
@@ -110,12 +109,7 @@ namespace Beta.SuperFamicom
             case 0x213f: return gameSystem.Ppu.Peek213F();
 
             // W-RAM Registers
-            case 0x2180:
-                {
-                    var data = ReadWram(wramAddr.b, wramAddr.w);
-                    wramAddr.d++;
-                    return data;
-                }
+            case 0x2180: return wram.Read();
             case 0x2181: return open;
             case 0x2182: return open;
             case 0x2183: return open;
@@ -167,11 +161,6 @@ namespace Beta.SuperFamicom
             // throw new NotImplementedException($"Unknown address: ${bank:x2}:{address:x4}.");
         }
 
-        private byte ReadWram(byte bank, ushort address)
-        {
-            return wram[((bank << 16) | address) & 0x1ffff];
-        }
-
         public void Write(byte bank, ushort address, byte data)
         {
             var speed = GetSpeed(bank, address);
@@ -182,12 +171,12 @@ namespace Beta.SuperFamicom
 
         public void WriteFree(byte bank, ushort address, byte data)
         {
-            if (bank == 0x7e) { WriteWram(bank, address, data); return; }
-            if (bank == 0x7f) { WriteWram(bank, address, data); return; }
+            if (bank == 0x7e) { wram.Write(bank, address, data); return; }
+            if (bank == 0x7f) { wram.Write(bank, address, data); return; }
 
             if ((bank & 0x7f) <= 0x3f)
             {
-                if ((address & 0xe000) == 0x0000) { WriteWram(0x00, address, data); return; } // $0000-$1fff
+                if ((address & 0xe000) == 0x0000) { wram.Write(0x00, address, data); return; } // $0000-$1fff
                 if ((address & 0xff00) == 0x2100) { WriteBusB(bank, address, data); return; } // $2100-$21ff
                 if ((address & 0xfc00) == 0x4000) { WriteSCPU(bank, address, data); return; } // $4000-$43ff
                 if ((address & 0x8000) == 0x8000) { WriteCart(bank, address, data); return; } // $8000-$ffff
@@ -264,15 +253,10 @@ namespace Beta.SuperFamicom
             case 0x2133: gameSystem.Ppu.Poke2133(data); reg2133 = data; break;
 
             // W-RAM Registers
-            case 0x2180:
-                {
-                    WriteWram(wramAddr.b, wramAddr.w, data);
-                    wramAddr.d++;
-                    break;
-                }
-            case 0x2181: wramAddr.l = data; break;
-            case 0x2182: wramAddr.h = data; break;
-            case 0x2183: wramAddr.b = data; break;
+            case 0x2180: wram.Write(data); break;
+            case 0x2181: wram.address = (wram.address & 0x1ff00) | ((data <<  0) & 0x000ff); break;
+            case 0x2182: wram.address = (wram.address & 0x100ff) | ((data <<  8) & 0x0ff00); break;
+            case 0x2183: wram.address = (wram.address & 0x0ffff) | ((data << 16) & 0x10000); break;
             }
         }
 
@@ -368,11 +352,6 @@ namespace Beta.SuperFamicom
             }
 
             throw new NotImplementedException($"Unknown address: ${bank:x2}:{address:x4}.");
-        }
-
-        private void WriteWram(byte bank, ushort address, byte data)
-        {
-            wram[((bank << 16) | address) & 0x1ffff] = data;
         }
 
         private int GetSpeed(byte bank, ushort address)
