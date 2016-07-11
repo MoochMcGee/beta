@@ -21,11 +21,25 @@ namespace Beta.SuperFamicom
         public bool in_vblank;
         public bool timer_coincidence;
 
+        public int dram_prescaler = 8;
+        public int dram_timer = 538;
+        public int time_prescaler = 4;
+
         public int h;
         public int h_target;
         public int v;
         public int v_target;
         public int reg4200;
+
+        // multiply regs
+        public byte wrmpya;
+        public byte wrmpyb;
+        public ushort rdmpy;
+
+        // divide regs
+        public Register16 wrdiv;
+        public byte wrdivb;
+        public ushort rddiv;
 
         public DmaState[] dma = new DmaState[8];
 

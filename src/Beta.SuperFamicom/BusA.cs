@@ -1,6 +1,5 @@
 ﻿#define LOROM
 using System;
-using Beta.Platform;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP65816;
 using Beta.SuperFamicom.Memory;
@@ -14,25 +13,13 @@ namespace Beta.SuperFamicom
         private const int SpeedFast = 6;
 
         private readonly Driver gameSystem;
-        private readonly byte[] cart;
         private readonly SCpuState scpu;
         private readonly WRAM wram;
+        private readonly byte[] cart;
 
         private byte open;
-        private int refresh = 538;
         private int speedCart = SpeedNorm;
-        private byte reg2133;
         private int t;
-
-        // multiply regs
-        private byte wrmpya;
-        private byte wrmpyb;
-        private ushort rdmpy;
-
-        // divide regs
-        private Register16 wrdiv;
-        private byte wrdivb;
-        private ushort rddiv;
 
         public BusA(Driver gameSystem, State state, byte[] cart)
         {
@@ -134,10 +121,10 @@ namespace Beta.SuperFamicom
             case 0x4211: return (byte)((open & 0x7f) | (scpu.timer_coincidence ? 0x80 : 0));
             case 0x4212: return (byte)((open & 0x3e) | (scpu.in_vblank ? 0x80 : 0) | (scpu.in_hblank ? 0x40 : 0));
             case 0x4213: return 0; // I/O Port
-            case 0x4214: return (byte)(rddiv >> 0); // RDDIVL
-            case 0x4215: return (byte)(rddiv >> 8); // RDDIVH
-            case 0x4216: return (byte)(rdmpy >> 0); // RDMPYL
-            case 0x4217: return (byte)(rdmpy >> 8); // RDMPYH
+            case 0x4214: return (byte)(scpu.rddiv >> 0); // RDDIVL
+            case 0x4215: return (byte)(scpu.rddiv >> 8); // RDDIVH
+            case 0x4216: return (byte)(scpu.rdmpy >> 0); // RDMPYL
+            case 0x4217: return (byte)(scpu.rdmpy >> 8); // RDMPYH
 
             case 0x4218: return gameSystem.Joypad1.Latch.l;
             case 0x4219: return gameSystem.Joypad1.Latch.h;
@@ -245,7 +232,7 @@ namespace Beta.SuperFamicom
             case 0x2130: gameSystem.Ppu.Poke2130(data); break;
             case 0x2131: gameSystem.Ppu.Poke2131(data); break;
             case 0x2132: gameSystem.Ppu.Poke2132(data); break;
-            case 0x2133: gameSystem.Ppu.Poke2133(data); reg2133 = data; break;
+            case 0x2133: gameSystem.Ppu.Poke2133(data); break;
 
             // W-RAM Registers
             case 0x2180: wram.Write(data); break;
@@ -294,22 +281,22 @@ namespace Beta.SuperFamicom
                 return;
 
             case 0x4201: return; // I/O Port
-            case 0x4202: wrmpya = data; return; // WRMPYA
-            case 0x4203: wrmpyb = data; rdmpy = (ushort)(wrmpya * wrmpyb); return; // WRMPYB
-            case 0x4204: wrdiv.l = data; return; // WRDIVL
-            case 0x4205: wrdiv.h = data; return; // WRDIVH
+            case 0x4202: scpu.wrmpya = data; return; // WRMPYA
+            case 0x4203: scpu.wrmpyb = data; scpu.rdmpy = (ushort)(scpu.wrmpya * scpu.wrmpyb); return; // WRMPYB
+            case 0x4204: scpu.wrdiv.l = data; return; // WRDIVL
+            case 0x4205: scpu.wrdiv.h = data; return; // WRDIVH
             case 0x4206:
-                wrdivb = data;
+                scpu.wrdivb = data;
 
-                if (wrdivb == 0)
+                if (scpu.wrdivb == 0)
                 {
-                    rddiv = 0xffff;
-                    rdmpy = wrdiv.w;
+                    scpu.rddiv = 0xffff;
+                    scpu.rdmpy = scpu.wrdiv.w;
                 }
                 else
                 {
-                    rddiv = (ushort)(wrdiv.w / wrdivb);
-                    rdmpy = (ushort)(wrdiv.w % wrdivb);
+                    scpu.rddiv = (ushort)(scpu.wrdiv.w / scpu.wrdivb);
+                    scpu.rdmpy = (ushort)(scpu.wrdiv.w % scpu.wrdivb);
                 }
                 return; // WRDIVB
 
@@ -362,14 +349,7 @@ namespace Beta.SuperFamicom
                 dma.mdma_en = 0;
             }
 
-            if (scpu.h <= refresh && (scpu.h + amount) >= refresh)
-            {
-                refresh = 1072 - refresh;
-                amount = (amount + 40);
-                t = (t + 40) & 7;
-            }
-
-            t = (t + amount) & 7;
+            t += amount;
 
             var clock = new ClockSignal(amount);
 

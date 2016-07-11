@@ -18,9 +18,13 @@
         public int Run(int totalCycles)
         {
             int amount = 0;
+            int cycles = totalCycles & 7;
+            if (cycles != 0)
+            {
+                // Align the clock divider
+                bus.AddCycles(8 - cycles); amount += 8 - cycles;
+            }
 
-            // Align the clock divider
-            bus.AddCycles(8 - (totalCycles & 7)); amount += 8 - (totalCycles & 7);
             // DMA initialization
             bus.AddCycles(8); amount += 8;
 

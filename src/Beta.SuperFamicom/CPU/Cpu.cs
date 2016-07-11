@@ -11,12 +11,15 @@ namespace Beta.SuperFamicom.CPU
         , IConsumer<ClockSignal>
     {
         private readonly SCpuState scpu;
+        private readonly BusA bus_a;
+
         private bool old_nmi;
 
-        public Cpu(State state, IBus bus)
+        public Cpu(State state, BusA bus)
             : base(bus)
         {
             this.scpu = state.scpu;
+            this.bus_a = bus;
         }
 
         public void Consume(ClockSignal e)
@@ -29,29 +32,49 @@ namespace Beta.SuperFamicom.CPU
 
         private void Tick()
         {
-            scpu.h++;
+            scpu.dram_prescaler--;
 
-            if (scpu.h == 1364)
+            if (scpu.dram_prescaler == 0)
             {
-                scpu.h = 0;
-                scpu.v++;
+                scpu.dram_prescaler = 8;
+                scpu.dram_timer -= 8;
 
-                if (scpu.v == 262)
+                if ((scpu.dram_timer & ~7) == 0)
                 {
-                    scpu.v = 0;
+                    scpu.dram_timer += 1364;
+                    bus_a.AddCycles(40);
                 }
             }
 
-            var h_coincidence = (scpu.h / 4) == scpu.h_target;
-            var v_coincidence = (scpu.v / 1) == scpu.v_target;
-            var type = (scpu.reg4200 >> 4) & 3;
+            scpu.time_prescaler--;
 
-            if ((type == 1 && v_coincidence) ||
-                (type == 2 && h_coincidence) ||
-                (type == 3 && h_coincidence && v_coincidence))
+            if (scpu.time_prescaler == 0)
             {
-                scpu.timer_coincidence = true;
-                Irq();
+                scpu.time_prescaler = 4;
+                scpu.h++;
+
+                if (scpu.h == 341)
+                {
+                    scpu.h = 0;
+                    scpu.v++;
+
+                    if (scpu.v == 262)
+                    {
+                        scpu.v = 0;
+                    }
+                }
+
+                var h_coincidence = scpu.h == scpu.h_target;
+                var v_coincidence = scpu.v == scpu.v_target;
+                var type = (scpu.reg4200 >> 4) & 3;
+
+                if ((type == 1 && h_coincidence) ||
+                    (type == 2 && v_coincidence) ||
+                    (type == 3 && h_coincidence && v_coincidence))
+                {
+                    scpu.timer_coincidence = true;
+                    Irq();
+                }
             }
         }
 

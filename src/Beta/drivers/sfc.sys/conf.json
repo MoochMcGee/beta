@@ -2,8 +2,8 @@
   "name": "Super Famicom",
   "extensions": [ ".sfc" ],
   "audio": {
-    "channels": 1,
-    "sample-rate": 64000
+    "channels": 2,
+    "sample-rate": 32000
   },
   "video": {
     "width": 256,
