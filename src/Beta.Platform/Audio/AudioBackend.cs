@@ -27,12 +27,12 @@ namespace Beta.Platform.Audio
             engine = new XAudio2();
             engine.StartEngine();
 
-            var format = new WaveFormat(config.Audio.SampleRate, 16, config.Audio.Channels);
+            var format = new WaveFormat(config.Audio.SampleRate, config.Audio.Channels);
 
-            length = (format.AverageBytesPerSecond + 59) / 60; // 16.67~ msec
+            length = format.ConvertLatencyToByteSize(16);
 
             master = new MasteringVoice(engine, format.Channels, format.SampleRate);
-            source = new SourceVoice(engine, format, VoiceFlags.None, 1f);
+            source = new SourceVoice(engine, format);
             source.Start();
 
             streams = new DataStream[STREAM_COUNT];
@@ -54,6 +54,13 @@ namespace Beta.Platform.Audio
             Dispose(false);
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
         private void Dispose(bool disposing)
         {
             source.Stop();
@@ -69,6 +76,16 @@ namespace Beta.Platform.Audio
             engine = null;
         }
 
+        public void Render(int sample)
+        {
+            buffer.Stream.Write(BitConverter.GetBytes((short)sample), 0, 2);
+
+            if (buffer.Stream.Position == length)
+            {
+                Render();
+            }
+        }
+
         private void Render()
         {
             buffer.Stream.Seek(0L, SeekOrigin.Begin);
@@ -81,27 +98,6 @@ namespace Beta.Platform.Audio
             while (source.State.BuffersQueued > 2)
             {
                 Thread.Sleep(1);
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        public void Initialize()
-        {
-        }
-
-        public void Render(int sample)
-        {
-            buffer.Stream.Write(BitConverter.GetBytes((short)sample), 0, 2);
-
-            if (buffer.Stream.Position == length)
-            {
-                Render();
             }
         }
     }

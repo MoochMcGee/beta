@@ -18,7 +18,6 @@ namespace Beta.Platform
             container.RegisterSingleton<ISubscriptionBroker, SubscriptionBroker>();
             container.RegisterSingleton<IAudioBackend, AudioBackend>();
             container.RegisterSingleton<IVideoBackend, VideoBackend>();
-            container.RegisterInitializer<IAudioBackend>(e => e.Initialize());
             container.RegisterInitializer<IVideoBackend>(e => e.Initialize());
 
             return container;
