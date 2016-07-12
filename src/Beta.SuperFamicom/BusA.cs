@@ -19,7 +19,6 @@ namespace Beta.SuperFamicom
 
         private byte open;
         private int speedCart = SpeedNorm;
-        private int t;
 
         public BusA(Driver gameSystem, State state, byte[] cart)
         {
@@ -340,17 +339,6 @@ namespace Beta.SuperFamicom
 
         public void AddCycles(int amount)
         {
-            var dma = gameSystem.Dma;
-            if (dma.mdma_en != 0 && dma.mdma_count != 0 && --dma.mdma_count == 0)
-            {
-                int time = dma.Run(t);
-                AddCycles(amount - (time % amount));
-
-                dma.mdma_en = 0;
-            }
-
-            t += amount;
-
             var clock = new ClockSignal(amount);
 
             gameSystem.Cpu.Consume(clock);

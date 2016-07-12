@@ -43,7 +43,7 @@ namespace Beta.SuperFamicom
             driver.Dma = new Dma(state, driver.Bus);
             driver.Ppu = new Ppu(driver, video, hblank, vblank);
             driver.Smp = new Smp(driver, audio);
-            driver.Cpu = new Cpu(state, driver.Bus);
+            driver.Cpu = new Cpu(state, driver.Bus, driver.Dma);
 
             driver.Smp.Initialize();
             driver.Ppu.Initialize();

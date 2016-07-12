@@ -6,32 +6,48 @@ namespace Beta.SuperFamicom.CPU
 {
     public partial class Cpu
         : Core
+        , IConsumer<ClockSignal>
         , IConsumer<HBlankSignal>
         , IConsumer<VBlankSignal>
-        , IConsumer<ClockSignal>
     {
         private readonly SCpuState scpu;
         private readonly BusA bus_a;
+        private readonly Dma dma;
 
         private bool old_nmi;
+        private int t;
 
-        public Cpu(State state, BusA bus)
+        public Cpu(State state, BusA bus, Dma dma)
             : base(bus)
         {
             this.scpu = state.scpu;
             this.bus_a = bus;
+            this.dma = dma;
         }
 
         public void Consume(ClockSignal e)
         {
+            t += e.Cycles;
+
             for (int i = 0; i < e.Cycles; i++)
             {
-                Tick();
+                Tick(e.Cycles);
             }
         }
 
-        private void Tick()
+        private void Tick(int amount)
         {
+            if (dma.mdma_count != 0 && --dma.mdma_count == 0)
+            {
+                if (dma.mdma_en != 0)
+                {
+                    int time = dma.Run(t);
+                    bus_a.AddCycles(amount - (time % amount));
+
+                    dma.mdma_en = 0;
+                }
+            }
+
             scpu.dram_prescaler--;
 
             if (scpu.dram_prescaler == 0)
