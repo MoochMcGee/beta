@@ -77,7 +77,6 @@
     <Compile Include="Audio\AudioBackend.cs" />
     <Compile Include="Audio\AudioParameters.cs" />
     <Compile Include="Audio\IAudioBackend.cs" />
-    <Compile Include="Audio\IAudioParameterProvider.cs" />
     <Compile Include="BitString.cs" />
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="ColorHelper.cs" />
@@ -127,7 +126,6 @@
     <Compile Include="Timing.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Video\IVideoBackend.cs" />
-    <Compile Include="Video\IVideoParameterProvider.cs" />
     <Compile Include="Video\VideoBackend.cs" />
     <Compile Include="Video\VideoParameters.cs" />
   </ItemGroup>

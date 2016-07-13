@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using Beta.Platform.Configuration;
 using SharpDX;
@@ -10,17 +9,11 @@ namespace Beta.Platform.Audio
 {
     public sealed class AudioBackend : IAudioBackend
     {
-        private const int STREAM_COUNT = 4;
-        private const int STREAM_MASK = STREAM_COUNT - 1;
-
-        private DataStream[] streams;
-        private int length;
-
         private AudioBuffer buffer;
         private MasteringVoice master;
         private SourceVoice source;
         private XAudio2 engine;
-        private int streamIndex;
+        private int length;
 
         public AudioBackend(IHwndProvider hwndProvider, ConfigurationFile config)
         {
@@ -35,18 +28,7 @@ namespace Beta.Platform.Audio
             source = new SourceVoice(engine, format);
             source.Start();
 
-            streams = new DataStream[STREAM_COUNT];
-
-            for (var i = 0; i < STREAM_COUNT; i++)
-            {
-                streams[i] = new DataStream(length, true, true);
-            }
-
-            buffer = new AudioBuffer
-            {
-                AudioBytes = length,
-                Stream = streams[streamIndex++ & STREAM_MASK]
-            };
+            buffer = CreateAudioBuffer();
         }
 
         ~AudioBackend()
@@ -78,7 +60,8 @@ namespace Beta.Platform.Audio
 
         public void Render(int sample)
         {
-            buffer.Stream.Write(BitConverter.GetBytes((short)sample), 0, 2);
+            buffer.Stream.WriteByte((byte)(sample >> 0));
+            buffer.Stream.WriteByte((byte)(sample >> 8));
 
             if (buffer.Stream.Position == length)
             {
@@ -86,19 +69,25 @@ namespace Beta.Platform.Audio
             }
         }
 
-        private void Render()
+        public void Render()
         {
-            buffer.Stream.Seek(0L, SeekOrigin.Begin);
-
             source.SubmitSourceBuffer(buffer, null);
 
-            buffer.Stream = streams[streamIndex++ & STREAM_MASK];
-            buffer.Stream.Seek(0L, SeekOrigin.Begin);
+            buffer = CreateAudioBuffer();
 
             while (source.State.BuffersQueued > 2)
             {
                 Thread.Sleep(1);
             }
+        }
+
+        private AudioBuffer CreateAudioBuffer()
+        {
+            return new AudioBuffer
+            {
+                AudioBytes = length,
+                Stream = new DataStream(length, true, true)
+            };
         }
     }
 }
