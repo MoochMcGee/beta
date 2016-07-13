@@ -10,23 +10,51 @@ namespace Beta.SuperFamicom.CPU
         , IConsumer<HBlankSignal>
         , IConsumer<VBlankSignal>
     {
+        private readonly IProducer<ClockSignal> clock;
         private readonly SCpuState scpu;
-        private readonly BusA bus_a;
-        private readonly Dma dma;
 
         private bool old_nmi;
         private int t;
 
-        public Cpu(State state, BusA bus, Dma dma)
-            : base(bus)
+        public BusA Bus;
+        public Dma Dma;
+
+        public Cpu(IProducer<ClockSignal> clock, State state)
         {
             this.scpu = state.scpu;
-            this.bus_a = bus;
-            this.dma = dma;
+            this.clock = clock;
+        }
+
+        protected override void InternalOperation()
+        {
+            clock.Produce(new ClockSignal(6));
+        }
+
+        protected override byte Read(byte bank, ushort address)
+        {
+            return Bus.Read(bank, address);
+        }
+
+        protected override void Write(byte bank, ushort address, byte data)
+        {
+            Bus.Write(bank, address, data);
         }
 
         public void Consume(ClockSignal e)
         {
+            var amount = e.Cycles;
+
+            if (Dma.mdma_count != 0 && --Dma.mdma_count == 0)
+            {
+                if (Dma.mdma_en != 0)
+                {
+                    int time = Dma.Run(t);
+                    clock.Produce(new ClockSignal(amount - (time % amount)));
+
+                    Dma.mdma_en = 0;
+                }
+            }
+
             t += e.Cycles;
 
             for (int i = 0; i < e.Cycles; i++)
@@ -37,17 +65,6 @@ namespace Beta.SuperFamicom.CPU
 
         private void Tick(int amount)
         {
-            if (dma.mdma_count != 0 && --dma.mdma_count == 0)
-            {
-                if (dma.mdma_en != 0)
-                {
-                    int time = dma.Run(t);
-                    bus_a.AddCycles(amount - (time % amount));
-
-                    dma.mdma_en = 0;
-                }
-            }
-
             scpu.dram_prescaler--;
 
             if (scpu.dram_prescaler == 0)
@@ -58,7 +75,7 @@ namespace Beta.SuperFamicom.CPU
                 if ((scpu.dram_timer & ~7) == 0)
                 {
                     scpu.dram_timer += 1364;
-                    bus_a.AddCycles(40);
+                    clock.Produce(new ClockSignal(40));
                 }
             }
 

@@ -114,7 +114,6 @@ namespace Beta.SuperFamicom.SMP
         };
 
         private readonly IAudioBackend audio;
-        private readonly Driver gameSystem;
 
         private State state = new State();
         private Voice[] voice = new Voice[8];
@@ -122,11 +121,10 @@ namespace Beta.SuperFamicom.SMP
         private byte[] ram;
         private int step;
 
-        public Dsp(Driver gameSystem, IAudioBackend audio, byte[] ram)
+        public Dsp(IAudioBackend audio, byte[] ram)
         {
             Single = 1;
 
-            this.gameSystem = gameSystem;
             this.audio = audio;
             this.ram = ram;
         }

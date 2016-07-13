@@ -5,8 +5,6 @@ namespace Beta.Platform.Processors.RP65816
 {
     public abstract partial class Core : Processor
     {
-        private readonly IBus bus;
-
         private Register16 rd;
         private Register16 a;
         private Register16 x;
@@ -24,15 +22,10 @@ namespace Beta.Platform.Processors.RP65816
         private bool irq;
         private bool nmi;
 
-        protected Core(IBus bus)
-        {
-            this.bus = bus;
-        }
-
         public virtual void Initialize()
         {
-            pc.l = bus.Read(0, 0xfffc);
-            pc.h = bus.Read(0, 0xfffd);
+            pc.l = Read(0, 0xfffc);
+            pc.h = Read(0, 0xfffd);
             pc.b = 0;
             sp.w = 0x1ff;
 
@@ -45,7 +38,7 @@ namespace Beta.Platform.Processors.RP65816
 
         public override void Update()
         {
-            switch (code = bus.Read(pc.b, pc.w++))
+            switch (code = Read(pc.b, pc.w++))
             {
             case 0x00: goto default; /* BRK #$nn */
             case 0x01: am_inx_w(); op_ora_m(); break; /* ORA ($nn,x) */
@@ -61,14 +54,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_ora_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_ora_w();
                 }
                 break;
@@ -97,26 +90,26 @@ namespace Beta.Platform.Processors.RP65816
             case 0x1f: am_abx_l(); op_ora_m(); break; /* ORA $nn:nnnn,x */
 
             case 0x20: /* JSR $nnnn */
-                aa.l = bus.Read(pc.b, pc.w); pc.w++;
-                aa.h = bus.Read(pc.b, pc.w);
-                bus.InternalOperation();
-                bus.Write(0, sp.w--, pc.h); if (p.e) { sp.h = 1; }
+                aa.l = Read(pc.b, pc.w); pc.w++;
+                aa.h = Read(pc.b, pc.w);
+                InternalOperation();
+                Write(0, sp.w--, pc.h); if (p.e) { sp.h = 1; }
                 LastCycle();
-                bus.Write(0, sp.w--, pc.l); if (p.e) { sp.h = 1; }
+                Write(0, sp.w--, pc.l); if (p.e) { sp.h = 1; }
                 pc.w = aa.w;
                 break;
 
             case 0x21: am_inx_w(); op_and_m(); break; /* AND ($nn,x) */
 
             case 0x22: /* JSR $nn:nnnn */
-                aa.l = bus.Read(pc.b, pc.w++);
-                aa.h = bus.Read(pc.b, pc.w++);
-                bus.Write(0, sp.w--, pc.b);
-                bus.InternalOperation();
-                pc.b = bus.Read(pc.b, pc.w);
-                bus.Write(0, sp.w--, pc.h);
+                aa.l = Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
+                Write(0, sp.w--, pc.b);
+                InternalOperation();
+                pc.b = Read(pc.b, pc.w);
+                Write(0, sp.w--, pc.h);
                 LastCycle();
-                bus.Write(0, sp.w--, pc.l);
+                Write(0, sp.w--, pc.l);
                 pc.w = aa.w;
 
                 if (p.e)
@@ -136,14 +129,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_and_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_and_w();
                 }
                 break;
@@ -184,14 +177,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_eor_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_eor_w();
                 }
                 break;
@@ -200,9 +193,9 @@ namespace Beta.Platform.Processors.RP65816
             case 0x4b: /*       */ op_phk_i(); break; /* PHK */
 
             case 0x4c: /* JMP $nnnn */
-                aa.l = bus.Read(pc.b, pc.w++);
+                aa.l = Read(pc.b, pc.w++);
                 LastCycle();
-                aa.h = bus.Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
                 pc.w = aa.w;
                 break;
 
@@ -223,10 +216,10 @@ namespace Beta.Platform.Processors.RP65816
             case 0x5b: am_imp_w(); op_tcd_i(); break; /* TCD */
 
             case 0x5c: /* JMP $nn:nnnn */
-                aa.l = bus.Read(pc.b, pc.w++);
-                aa.h = bus.Read(pc.b, pc.w++);
+                aa.l = Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
                 LastCycle();
-                aa.b = bus.Read(pc.b, pc.w++);
+                aa.b = Read(pc.b, pc.w++);
                 pc.d = aa.d;
                 break;
 
@@ -247,14 +240,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_adc_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_adc_w();
                 }
                 break;
@@ -263,10 +256,10 @@ namespace Beta.Platform.Processors.RP65816
             case 0x6b: /*       */ op_rtl_i(); break; /* RTL */
 
             case 0x6c: /* JMP ($nnnn) */
-                aa.l = bus.Read(pc.b, pc.w++);
-                aa.h = bus.Read(pc.b, pc.w++);
-                pc.l = bus.Read(0x00, aa.w++);
-                pc.h = bus.Read(0x00, aa.w++);
+                aa.l = Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
+                pc.l = Read(0x00, aa.w++);
+                pc.h = Read(0x00, aa.w++);
                 break;
 
             case 0x6d: am_abs_w(); op_adc_m(); break; /* ADC $nnnn */
@@ -286,16 +279,16 @@ namespace Beta.Platform.Processors.RP65816
             case 0x7b: am_imp_w(); op_tdc_i(); break; /* TDC */
 
             case 0x7c: /* JMP ($nnnn,x) */
-                aa.l = bus.Read(pc.b, pc.w++);
-                aa.h = bus.Read(pc.b, pc.w++);
+                aa.l = Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
                 aa.b = pc.b;
 
-                bus.InternalOperation();
+                InternalOperation();
                 aa.w += x.w;
 
-                pc.l = bus.Read(aa.b, aa.w++);
+                pc.l = Read(aa.b, aa.w++);
                 LastCycle();
-                pc.h = bus.Read(aa.b, aa.w++);
+                pc.h = Read(aa.b, aa.w++);
                 break;
 
             case 0x7d: am_abx_w(); op_adc_m(); break; /* ADC $nnnn,x */
@@ -305,10 +298,10 @@ namespace Beta.Platform.Processors.RP65816
             case 0x81: am_inx_w(); op_sta_m(); break; /* STA ($nn,x) */
 
             case 0x82: /* BRL #$nnnn */
-                rd.l = bus.Read(pc.b, pc.w++);
-                rd.h = bus.Read(pc.b, pc.w++);
+                rd.l = Read(pc.b, pc.w++);
+                rd.h = Read(pc.b, pc.w++);
 
-                bus.InternalOperation();
+                InternalOperation();
                 pc.w += rd.w;
                 break;
 
@@ -323,14 +316,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     p.z = (rd.l & a.l) == 0;
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     p.z = (rd.w & a.w) == 0;
                 }
                 break;
@@ -362,15 +355,15 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.x || p.e)
                 {
                     LastCycle();
-                    y.l = bus.Read(pc.b, pc.w++);
+                    y.l = Read(pc.b, pc.w++);
                     p.n = y.l >= 0x80;
                     p.z = y.l == 0x00;
                 }
                 else
                 {
-                    y.l = bus.Read(pc.b, pc.w++);
+                    y.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    y.h = bus.Read(pc.b, pc.w++);
+                    y.h = Read(pc.b, pc.w++);
                     p.n = y.w >= 0x8000;
                     p.z = y.w == 0x0000;
                 }
@@ -382,15 +375,15 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.x || p.e)
                 {
                     LastCycle();
-                    x.l = bus.Read(pc.b, pc.w++);
+                    x.l = Read(pc.b, pc.w++);
                     p.n = x.l >= 0x80;
                     p.z = x.l == 0x00;
                 }
                 else
                 {
-                    x.l = bus.Read(pc.b, pc.w++);
+                    x.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    x.h = bus.Read(pc.b, pc.w++);
+                    x.h = Read(pc.b, pc.w++);
                     p.n = x.w >= 0x8000;
                     p.z = x.w == 0x0000;
                 }
@@ -407,15 +400,15 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    a.l = bus.Read(pc.b, pc.w++);
+                    a.l = Read(pc.b, pc.w++);
                     p.n = a.l >= 0x80;
                     p.z = a.l == 0x00;
                 }
                 else
                 {
-                    a.l = bus.Read(pc.b, pc.w++);
+                    a.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    a.h = bus.Read(pc.b, pc.w++);
+                    a.h = Read(pc.b, pc.w++);
                     p.n = a.w >= 0x8000;
                     p.z = a.w == 0x0000;
                 }
@@ -448,14 +441,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.x || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_cpy_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_cpy_w();
                 }
                 break;
@@ -473,14 +466,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_cmp_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_cmp_w();
                 }
                 break;
@@ -505,12 +498,12 @@ namespace Beta.Platform.Processors.RP65816
             case 0xdb: goto default; /* STP */
 
             case 0xdc: /* JMP [$nnnn] */
-                aa.l = bus.Read(pc.b, pc.w++);
-                aa.h = bus.Read(pc.b, pc.w++);
+                aa.l = Read(pc.b, pc.w++);
+                aa.h = Read(pc.b, pc.w++);
                 aa.b = 0;
-                pc.l = bus.Read(aa.b, aa.w++);
-                pc.h = bus.Read(aa.b, aa.w++);
-                pc.b = bus.Read(aa.b, aa.w++);
+                pc.l = Read(aa.b, aa.w++);
+                pc.h = Read(aa.b, aa.w++);
+                pc.b = Read(aa.b, aa.w++);
                 break;
 
             case 0xdd: am_abx_w(); op_cmp_m(); break; /* CMP $nnnn,x */
@@ -521,14 +514,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.x || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_cpx_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_cpx_w();
                 }
                 break;
@@ -546,14 +539,14 @@ namespace Beta.Platform.Processors.RP65816
                 if (p.m || p.e)
                 {
                     LastCycle();
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     op_sbc_b();
                 }
                 else
                 {
-                    rd.l = bus.Read(pc.b, pc.w++);
+                    rd.l = Read(pc.b, pc.w++);
                     LastCycle();
-                    rd.h = bus.Read(pc.b, pc.w++);
+                    rd.h = Read(pc.b, pc.w++);
                     op_sbc_w();
                 }
                 break;
@@ -578,17 +571,17 @@ namespace Beta.Platform.Processors.RP65816
             case 0xfb: am_imp_w(); op_xce_i(); break; /* XCE */
 
             case 0xfc: /* JSR ($nnnn,x) */
-                aa.l = bus.Read(pc.b, pc.w++);
-                bus.Write(0, sp.w--, pc.h);
-                bus.Write(0, sp.w--, pc.l);
-                aa.h = bus.Read(pc.b, pc.w++);
+                aa.l = Read(pc.b, pc.w++);
+                Write(0, sp.w--, pc.h);
+                Write(0, sp.w--, pc.l);
+                aa.h = Read(pc.b, pc.w++);
 
-                bus.InternalOperation();
+                InternalOperation();
                 aa.w += x.w;
 
-                pc.l = bus.Read(pc.b, aa.w++);
+                pc.l = Read(pc.b, aa.w++);
                 LastCycle();
-                pc.h = bus.Read(pc.b, aa.w++);
+                pc.h = Read(pc.b, aa.w++);
                 break;
 
             case 0xfd: am_abx_w(); op_sbc_m(); break; /* SBC $nnnn,x */
@@ -620,26 +613,32 @@ namespace Beta.Platform.Processors.RP65816
             }
         }
 
+        protected abstract void InternalOperation();
+
+        protected abstract byte Read(byte bank, ushort address);
+
+        protected abstract void Write(byte bank, ushort address, byte data);
+
         private void Branch(bool flag)
         {
             if (flag == false)
             {
                 LastCycle();
-                rd.l = bus.Read(pc.b, pc.w++);
+                rd.l = Read(pc.b, pc.w++);
             }
             else
             {
-                rd.l = bus.Read(pc.b, pc.w++);
+                rd.l = Read(pc.b, pc.w++);
                 aa.w = pc.w;
                 pc.w += (ushort)(sbyte)rd.l;
 
                 if (p.e && pc.h != aa.h)
                 {
-                    bus.InternalOperation();
+                    InternalOperation();
                 }
 
                 LastCycle();
-                bus.InternalOperation();
+                InternalOperation();
             }
         }
 
@@ -650,24 +649,24 @@ namespace Beta.Platform.Processors.RP65816
 
         private void Isr(ushort vector)
         {
-            bus.Read(pc.b, pc.w);
-            bus.Read(pc.b, pc.w);
+            Read(pc.b, pc.w);
+            Read(pc.b, pc.w);
 
             if (p.e == false)
             {
-                bus.Write(0, sp.w--, pc.b);
+                Write(0, sp.w--, pc.b);
             }
 
             var flag = (byte)(p.e ? p.Pack() & ~0x10 : p.Pack());
             p.d = false;
             p.i = true;
 
-            bus.Write(0, sp.w--, pc.h); if (p.e) { sp.h = 1; }
-            bus.Write(0, sp.w--, pc.l); if (p.e) { sp.h = 1; }
-            bus.Write(0, sp.w--, flag); if (p.e) { sp.h = 1; }
+            Write(0, sp.w--, pc.h); if (p.e) { sp.h = 1; }
+            Write(0, sp.w--, pc.l); if (p.e) { sp.h = 1; }
+            Write(0, sp.w--, flag); if (p.e) { sp.h = 1; }
 
-            pc.l = bus.Read(0, vector++);
-            pc.h = bus.Read(0, vector++);
+            pc.l = Read(0, vector++);
+            pc.h = Read(0, vector++);
             pc.b = 0;
         }
 

@@ -52,7 +52,7 @@ namespace Beta.SuperFamicom.SMP
         private int timerCycles1;
         private int timerCycles2;
 
-        public Smp(Driver gameSystem, IAudioBackend audio)
+        public Smp(IAudioBackend audio)
         {
             Single = 1;
 
@@ -77,7 +77,7 @@ namespace Beta.SuperFamicom.SMP
             };
             wram = new byte[65536];
             port = new byte[4];
-            dsp = new Dsp(gameSystem, audio, wram);
+            dsp = new Dsp(audio, wram);
 
             registers.sph = 1;
         }

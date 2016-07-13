@@ -118,7 +118,6 @@
     <Compile Include="Processors\RP65816\Alu.cs" />
     <Compile Include="Processors\RP65816\Codes.cs" />
     <Compile Include="Processors\RP65816\Core.cs" />
-    <Compile Include="Processors\RP65816\IBus.cs" />
     <Compile Include="Processors\RP65816\Modes.cs" />
     <Compile Include="Processors\RP65816\Status.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,18 +1,22 @@
-﻿namespace Beta.SuperFamicom.CPU
+﻿using Beta.Platform.Messaging;
+
+namespace Beta.SuperFamicom.CPU
 {
     public sealed class Dma
     {
-        private readonly BusA bus;
+        private readonly IProducer<ClockSignal> clock;
 
         public DmaState[] dma;
         public byte mdma_en;
         public byte hdma_en;
         public int mdma_count;
 
-        public Dma(State state, BusA bus)
+        public BusA Bus;
+
+        public Dma(IProducer<ClockSignal> clock, State state)
         {
+            this.clock = clock;
             this.dma = state.scpu.dma;
-            this.bus = bus;
         }
 
         public int Run(int totalCycles)
@@ -22,11 +26,11 @@
             if (cycles != 0)
             {
                 // Align the clock divider
-                bus.AddCycles(8 - cycles); amount += 8 - cycles;
+                clock.Produce(new ClockSignal(8 - cycles)); amount += 8 - cycles;
             }
 
             // DMA initialization
-            bus.AddCycles(8); amount += 8;
+            clock.Produce(new ClockSignal(8)); amount += 8;
 
             for (int i = 0; i < 8; i++)
             {
@@ -34,7 +38,7 @@
                 if (enable)
                 {
                     // DMA channel initialization
-                    bus.AddCycles(8); amount += 8;
+                    clock.Produce(new ClockSignal(8)); amount += 8;
                     amount += RunChannel(i);
                 }
             }
@@ -50,20 +54,20 @@
 
             while (true)
             {
-                bus.AddCycles(8);
+                clock.Produce(new ClockSignal(8));
                 amount += 8;
 
                 if ((c.control & 0x80) == 0)
                 {
-                    var data = bus.ReadFree(c.address_a.b, c.address_a.w);
+                    var data = Bus.ReadFree(c.address_a.b, c.address_a.w);
                     var dest = GetAddressB(c.control & 7, c.address_b, step);
-                    bus.WriteFree(0, dest, data);
+                    Bus.WriteFree(0, dest, data);
                 }
                 else
                 {
                     var dest = GetAddressB(c.control & 7, c.address_b, step);
-                    var data = bus.ReadFree(0, dest);
-                    bus.WriteFree(c.address_a.b, c.address_a.w, data);
+                    var data = Bus.ReadFree(0, dest);
+                    Bus.WriteFree(c.address_a.b, c.address_a.w, data);
                 }
 
                 switch (c.control & 0x18)

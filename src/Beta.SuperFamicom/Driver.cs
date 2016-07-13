@@ -16,6 +16,15 @@ namespace Beta.SuperFamicom
         public Pad Joypad1;
         public Pad Joypad2;
 
+        public Driver(BusA bus, Cpu cpu, Dma dma, Ppu ppu, Smp smp)
+        {
+            this.Bus = bus;
+            this.Cpu = cpu;
+            this.Dma = dma;
+            this.Ppu = ppu;
+            this.Smp = smp;
+        }
+
         public void Main()
         {
             while (true)

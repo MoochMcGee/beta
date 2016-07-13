@@ -1,9 +1,11 @@
 ﻿using Beta.Platform;
 using Beta.Platform.Input;
+using Beta.Platform.Messaging;
+using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PAD
 {
-    public sealed class Pad : InputBackend
+    public sealed class Pad : InputBackend, IConsumer<FrameSignal>
     {
         public Register16 Latch;
 
@@ -24,9 +26,9 @@ namespace Beta.SuperFamicom.PAD
             Map(11, "R-Shoulder");
         }
 
-        public override void Update()
+        public void Consume(FrameSignal e)
         {
-            base.Update();
+            Update();
 
             Latch.w = 0x0000;
 

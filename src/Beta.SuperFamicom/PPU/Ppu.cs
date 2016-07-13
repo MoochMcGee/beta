@@ -21,10 +21,10 @@ namespace Beta.SuperFamicom.PPU
             new[] { new[] { 5,  8 }, new[] { 4,  7 }, new[] { 1, 10 }, new[] { 0, 0 }, new[] { 2, 3, 6,  9 } }  // mode 1 priority
         };
 
+        private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<HBlankSignal> hblank;
         private readonly IProducer<VBlankSignal> vblank;
         private readonly IVideoBackend video;
-        private readonly Driver gameSystem;
 
         private Register32 hLatch;
         private Register32 vLatch;
@@ -74,15 +74,15 @@ namespace Beta.SuperFamicom.PPU
         }
 
         public Ppu(
-            Driver gameSystem,
             IVideoBackend video,
+            IProducer<FrameSignal> frame,
             IProducer<HBlankSignal> hblank,
             IProducer<VBlankSignal> vblank)
         {
             Single = 4;
 
-            this.gameSystem = gameSystem;
             this.video = video;
+            this.frame = frame;
             this.hblank = hblank;
             this.vblank = vblank;
 
@@ -521,8 +521,8 @@ namespace Beta.SuperFamicom.PPU
                     ppu1Stat &= 0x3F; // reset time and range flags
 
                     video.Render();
-                    gameSystem.Joypad1.Update();
-                    gameSystem.Joypad2.Update();
+
+                    frame.Produce(new FrameSignal());
                 }
 
                 if (vclock < 240)

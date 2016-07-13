@@ -9,14 +9,14 @@ namespace Beta.Platform.Processors.RP65816
             if (flag || p.e)
             {
                 LastCycle();
-                rd.l = bus.Read(aa.b, aa.w);
+                rd.l = Read(aa.b, aa.w);
                 codeB();
             }
             else
             {
-                rd.l = bus.Read(aa.b, aa.w); aa.d++;
+                rd.l = Read(aa.b, aa.w); aa.d++;
                 LastCycle();
-                rd.h = bus.Read(aa.b, aa.w);
+                rd.h = Read(aa.b, aa.w);
                 codeW();
             }
         }
@@ -25,25 +25,25 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                rd.l = bus.Read(aa.b, aa.w);
+                rd.l = Read(aa.b, aa.w);
 
-                bus.InternalOperation();
+                InternalOperation();
                 codeB();
 
                 LastCycle();
-                bus.Write(aa.b, aa.w, rd.l);
+                Write(aa.b, aa.w, rd.l);
             }
             else
             {
-                rd.l = bus.Read(aa.b, aa.w); aa.d++;
-                rd.h = bus.Read(aa.b, aa.w);
+                rd.l = Read(aa.b, aa.w); aa.d++;
+                rd.h = Read(aa.b, aa.w);
 
-                bus.InternalOperation();
+                InternalOperation();
                 codeW();
 
-                bus.Write(aa.b, aa.w, rd.h); aa.d--;
+                Write(aa.b, aa.w, rd.h); aa.d--;
                 LastCycle();
-                bus.Write(aa.b, aa.w, rd.l);
+                Write(aa.b, aa.w, rd.l);
             }
         }
 
@@ -53,14 +53,14 @@ namespace Beta.Platform.Processors.RP65816
             {
                 codeB();
                 LastCycle();
-                bus.Write(aa.b, aa.w, rd.l);
+                Write(aa.b, aa.w, rd.l);
             }
             else
             {
                 codeW();
-                bus.Write(aa.b, aa.w, rd.l); aa.d++;
+                Write(aa.b, aa.w, rd.l); aa.d++;
                 LastCycle();
-                bus.Write(aa.b, aa.w, rd.h);
+                Write(aa.b, aa.w, rd.h);
             }
         }
 
@@ -91,12 +91,12 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_move(int adjust)
         {
-            var dp = bus.Read(pc.b, pc.w++);
-            var sp = bus.Read(pc.b, pc.w++);
+            var dp = Read(pc.b, pc.w++);
+            var sp = Read(pc.b, pc.w++);
             db = dp;
-            rd.l = bus.Read(sp, x.w);
-            bus.Write(dp, y.w, rd.l);
-            bus.InternalOperation();
+            rd.l = Read(sp, x.w);
+            Write(dp, y.w, rd.l);
+            InternalOperation();
 
             if (p.x || p.e)
             {
@@ -110,7 +110,7 @@ namespace Beta.Platform.Processors.RP65816
             }
 
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
             if (a.w != 0) pc.w -= 3;
             a.w--;
         }
@@ -252,9 +252,9 @@ namespace Beta.Platform.Processors.RP65816
         {
             am_abs_w();
 
-            bus.Write(0, sp.w--, aa.h);
+            Write(0, sp.w--, aa.h);
             LastCycle();
-            bus.Write(0, sp.w--, aa.l);
+            Write(0, sp.w--, aa.l);
 
             if (p.e)
             {
@@ -265,8 +265,8 @@ namespace Beta.Platform.Processors.RP65816
         private void op_pei_i()
         {
             am_ind_w();
-            bus.Write(0, sp.w--, aa.h);
-            bus.Write(0, sp.w--, aa.l);
+            Write(0, sp.w--, aa.h);
+            Write(0, sp.w--, aa.l);
 
             if (p.e)
             {
@@ -276,12 +276,12 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_per_i()
         {
-            rd.l = bus.Read(pc.b, pc.w++);
-            rd.h = bus.Read(pc.b, pc.w++);
-            bus.InternalOperation();
+            rd.l = Read(pc.b, pc.w++);
+            rd.h = Read(pc.b, pc.w++);
+            InternalOperation();
             aa.w = (ushort)(pc.w + rd.w);
-            bus.Write(0, sp.w--, aa.h);
-            bus.Write(0, sp.w--, aa.l);
+            Write(0, sp.w--, aa.h);
+            Write(0, sp.w--, aa.l);
 
             if (p.e)
             {
@@ -291,26 +291,26 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_pha_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
 
             if (p.m || p.e)
             {
                 LastCycle();
-                bus.Write(0, sp.w--, a.l); if (p.e) { sp.h = 1; }
+                Write(0, sp.w--, a.l); if (p.e) { sp.h = 1; }
             }
             else
             {
-                bus.Write(0, sp.w--, a.h);
+                Write(0, sp.w--, a.h);
                 LastCycle();
-                bus.Write(0, sp.w--, a.l);
+                Write(0, sp.w--, a.l);
             }
         }
 
         private void op_phb_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
             LastCycle();
-            bus.Write(0, sp.w--, db);
+            Write(0, sp.w--, db);
 
             if (p.e)
             {
@@ -320,10 +320,10 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_phd_i()
         {
-            bus.InternalOperation();
-            bus.Write(0, sp.w--, dp.h);
+            InternalOperation();
+            Write(0, sp.w--, dp.h);
             LastCycle();
-            bus.Write(0, sp.w--, dp.l);
+            Write(0, sp.w--, dp.l);
 
             if (p.e)
             {
@@ -333,9 +333,9 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_phk_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
             LastCycle();
-            bus.Write(0, sp.w--, pc.b);
+            Write(0, sp.w--, pc.b);
 
             if (p.e)
             {
@@ -345,9 +345,9 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_php_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
             LastCycle();
-            bus.Write(0, sp.w--, p.Pack());
+            Write(0, sp.w--, p.Pack());
 
             if (p.e)
             {
@@ -357,18 +357,18 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_phx_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
 
             if (p.x || p.e)
             {
                 LastCycle();
-                bus.Write(0, sp.w--, x.l);
+                Write(0, sp.w--, x.l);
             }
             else
             {
-                bus.Write(0, sp.w--, x.h);
+                Write(0, sp.w--, x.h);
                 LastCycle();
-                bus.Write(0, sp.w--, x.l);
+                Write(0, sp.w--, x.l);
             }
 
             if (p.e)
@@ -379,18 +379,18 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_phy_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
 
             if (p.x || p.e)
             {
                 LastCycle();
-                bus.Write(0, sp.w--, y.l);
+                Write(0, sp.w--, y.l);
             }
             else
             {
-                bus.Write(0, sp.w--, y.h);
+                Write(0, sp.w--, y.h);
                 LastCycle();
-                bus.Write(0, sp.w--, y.l);
+                Write(0, sp.w--, y.l);
             }
 
             if (p.e)
@@ -401,21 +401,21 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_pla_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
 
             if (p.m || p.e)
             {
                 LastCycle();
-                a.l = bus.Read(0, ++sp.w); if (p.e) sp.h = 1;
+                a.l = Read(0, ++sp.w); if (p.e) sp.h = 1;
                 p.n = a.l >= 0x80;
                 p.z = a.l == 0x00;
             }
             else
             {
-                a.l = bus.Read(0, ++sp.w);
+                a.l = Read(0, ++sp.w);
                 LastCycle();
-                a.h = bus.Read(0, ++sp.w);
+                a.h = Read(0, ++sp.w);
                 p.n = a.w >= 0x8000;
                 p.z = a.w == 0x0000;
             }
@@ -423,11 +423,11 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_plb_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
 
             LastCycle();
-            db = bus.Read(0, ++sp.w);
+            db = Read(0, ++sp.w);
             p.n = db >= 0x80;
             p.z = db == 0x00;
 
@@ -439,11 +439,11 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_pld_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
-            dp.l = bus.Read(0, ++sp.w);
+            InternalOperation();
+            InternalOperation();
+            dp.l = Read(0, ++sp.w);
             LastCycle();
-            dp.h = bus.Read(0, ++sp.w);
+            dp.h = Read(0, ++sp.w);
             p.n = dp.w >= 0x8000;
             p.z = dp.w == 0x0000;
 
@@ -455,17 +455,17 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_plp_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
             LastCycle();
 
             if (p.e)
             {
-                sp.l++; p.Unpack(bus.Read(0, sp.w));
+                sp.l++; p.Unpack(Read(0, sp.w));
             }
             else
             {
-                sp.w++; p.Unpack(bus.Read(0, sp.w));
+                sp.w++; p.Unpack(Read(0, sp.w));
             }
 
             if (p.x || p.e)
@@ -477,21 +477,21 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_plx_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
 
             if (p.x || p.e)
             {
                 LastCycle();
-                x.l = bus.Read(0, ++sp.w);
+                x.l = Read(0, ++sp.w);
                 p.n = x.l >= 0x80;
                 p.z = x.l == 0x00;
             }
             else
             {
-                x.l = bus.Read(0, ++sp.w);
+                x.l = Read(0, ++sp.w);
                 LastCycle();
-                x.h = bus.Read(0, ++sp.w);
+                x.h = Read(0, ++sp.w);
                 p.n = x.w >= 0x8000;
                 p.z = x.w == 0x0000;
             }
@@ -504,21 +504,21 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_ply_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
 
             if (p.x || p.e)
             {
                 LastCycle();
-                y.l = bus.Read(0, ++sp.w);
+                y.l = Read(0, ++sp.w);
                 p.n = y.l >= 0x80;
                 p.z = y.l == 0x00;
             }
             else
             {
-                y.l = bus.Read(0, ++sp.w);
+                y.l = Read(0, ++sp.w);
                 LastCycle();
-                y.h = bus.Read(0, ++sp.w);
+                y.h = Read(0, ++sp.w);
                 p.n = y.w >= 0x8000;
                 p.z = y.w == 0x0000;
             }
@@ -531,10 +531,10 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_rep_i()
         {
-            rd.l = bus.Read(pc.b, pc.w++);
+            rd.l = Read(pc.b, pc.w++);
 
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
 
             if ((rd.l & 0x80) != 0) { p.n = false; }
             if ((rd.l & 0x40) != 0) { p.v = false; }
@@ -580,34 +580,34 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_rti_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
+            InternalOperation();
+            InternalOperation();
 
             if (p.e)
             {
-                sp.l++; p.Unpack(bus.Read(0, sp.w));
-                sp.l++; pc.l = (bus.Read(0, sp.w));
+                sp.l++; p.Unpack(Read(0, sp.w));
+                sp.l++; pc.l = (Read(0, sp.w));
                 LastCycle();
-                sp.l++; pc.h = (bus.Read(0, sp.w));
+                sp.l++; pc.h = (Read(0, sp.w));
             }
             else
             {
-                sp.w++; p.Unpack(bus.Read(0, sp.w));
-                sp.w++; pc.l = (bus.Read(0, sp.w));
-                sp.w++; pc.h = (bus.Read(0, sp.w));
+                sp.w++; p.Unpack(Read(0, sp.w));
+                sp.w++; pc.l = (Read(0, sp.w));
+                sp.w++; pc.h = (Read(0, sp.w));
                 LastCycle();
-                sp.w++; pc.b = (bus.Read(0, sp.w));
+                sp.w++; pc.b = (Read(0, sp.w));
             }
         }
 
         private void op_rtl_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
-            pc.l = bus.Read(0, ++sp.w);
-            pc.h = bus.Read(0, ++sp.w);
+            InternalOperation();
+            InternalOperation();
+            pc.l = Read(0, ++sp.w);
+            pc.h = Read(0, ++sp.w);
             LastCycle();
-            pc.b = bus.Read(0, ++sp.w);
+            pc.b = Read(0, ++sp.w);
             pc.w++;
 
             if (p.e)
@@ -618,12 +618,12 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_rts_i()
         {
-            bus.InternalOperation();
-            bus.InternalOperation();
-            pc.l = bus.Read(0, ++sp.w); if (p.e) { sp.h = 1; }
-            pc.h = bus.Read(0, ++sp.w); if (p.e) { sp.h = 1; }
+            InternalOperation();
+            InternalOperation();
+            pc.l = Read(0, ++sp.w); if (p.e) { sp.h = 1; }
+            pc.h = Read(0, ++sp.w); if (p.e) { sp.h = 1; }
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
             pc.w++;
         }
 
@@ -633,10 +633,10 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_sep_i()
         {
-            rd.l = bus.Read(pc.b, pc.w++);
+            rd.l = Read(pc.b, pc.w++);
 
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
 
             if ((rd.l & 0x80) != 0) { p.n = true; }
             if ((rd.l & 0x40) != 0) { p.v = true; }
@@ -805,9 +805,9 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_xba_i()
         {
-            bus.InternalOperation();
+            InternalOperation();
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
 
             a.l ^= a.h;
             a.h ^= a.l;

@@ -1,47 +1,44 @@
 ﻿#define LOROM
 using System;
 using Beta.Platform.Messaging;
-using Beta.Platform.Processors.RP65816;
 using Beta.SuperFamicom.Memory;
 
 namespace Beta.SuperFamicom
 {
-    public sealed class BusA : IBus
+    public sealed class BusA
     {
         private const int SpeedSlow = 12;
         private const int SpeedNorm = 8;
         private const int SpeedFast = 6;
 
-        private readonly Driver gameSystem;
+        private readonly IProducer<ClockSignal> clock;
         private readonly SCpuState scpu;
         private readonly WRAM wram;
-        private readonly byte[] cart;
 
         private byte open;
+        private byte[] cart;
         private int speedCart = SpeedNorm;
 
-        public BusA(Driver gameSystem, State state, byte[] cart)
+        public Driver Driver;
+
+        public BusA(IProducer<ClockSignal> clock, State state)
         {
-            this.gameSystem = gameSystem;
+            this.clock = clock;
             this.scpu = state.scpu;
-            this.cart = cart;
             this.wram = new WRAM();
         }
 
-        public void Initialize()
+        public void Initialize(byte[] cart)
         {
-            AddCycles(170);
-        }
+            this.cart = cart;
 
-        public void InternalOperation()
-        {
-            AddCycles(SpeedFast);
+            clock.Produce(new ClockSignal(170));
         }
 
         public byte Read(byte bank, ushort address)
         {
             var speed = GetSpeed(bank, address);
-            AddCycles(speed);
+            clock.Produce(new ClockSignal(speed));
 
             return open = ReadFree(bank, address);
         }
@@ -70,24 +67,24 @@ namespace Beta.SuperFamicom
             if ((address & 0xffc0) == 0x2140)
             {
                 // S-SMP Registers
-                return gameSystem.Smp.ReadPort(address & 3, 0);
+                return Driver.Smp.ReadPort(address & 3, 0);
             }
 
             switch (address)
             {
             // S-PPU Registers
-            case 0x2134: return gameSystem.Ppu.Peek2134();
-            case 0x2135: return gameSystem.Ppu.Peek2135();
-            case 0x2136: return gameSystem.Ppu.Peek2136();
-            case 0x2137: return gameSystem.Ppu.Peek2137();
-            case 0x2138: return gameSystem.Ppu.Peek2138();
-            case 0x2139: return gameSystem.Ppu.Peek2139();
-            case 0x213a: return gameSystem.Ppu.Peek213A();
-            case 0x213b: return gameSystem.Ppu.Peek213B();
-            case 0x213c: return gameSystem.Ppu.Peek213C();
-            case 0x213d: return gameSystem.Ppu.Peek213D();
-            case 0x213e: return gameSystem.Ppu.Peek213E();
-            case 0x213f: return gameSystem.Ppu.Peek213F();
+            case 0x2134: return Driver.Ppu.Peek2134();
+            case 0x2135: return Driver.Ppu.Peek2135();
+            case 0x2136: return Driver.Ppu.Peek2136();
+            case 0x2137: return Driver.Ppu.Peek2137();
+            case 0x2138: return Driver.Ppu.Peek2138();
+            case 0x2139: return Driver.Ppu.Peek2139();
+            case 0x213a: return Driver.Ppu.Peek213A();
+            case 0x213b: return Driver.Ppu.Peek213B();
+            case 0x213c: return Driver.Ppu.Peek213C();
+            case 0x213d: return Driver.Ppu.Peek213D();
+            case 0x213e: return Driver.Ppu.Peek213E();
+            case 0x213f: return Driver.Ppu.Peek213F();
 
             // W-RAM Registers
             case 0x2180: return wram.Read();
@@ -125,11 +122,11 @@ namespace Beta.SuperFamicom
             case 0x4216: return (byte)(scpu.rdmpy >> 0); // RDMPYL
             case 0x4217: return (byte)(scpu.rdmpy >> 8); // RDMPYH
 
-            case 0x4218: return gameSystem.Joypad1.Latch.l;
-            case 0x4219: return gameSystem.Joypad1.Latch.h;
+            case 0x4218: return Driver.Joypad1.Latch.l;
+            case 0x4219: return Driver.Joypad1.Latch.h;
 
-            case 0x421a: return gameSystem.Joypad2.Latch.l;
-            case 0x421b: return gameSystem.Joypad2.Latch.h;
+            case 0x421a: return Driver.Joypad2.Latch.l;
+            case 0x421b: return Driver.Joypad2.Latch.h;
 
             case 0x421c: return 0; // JOY3L
             case 0x421d: return 0; // JOY3H
@@ -145,7 +142,7 @@ namespace Beta.SuperFamicom
         public void Write(byte bank, ushort address, byte data)
         {
             var speed = GetSpeed(bank, address);
-            AddCycles(speed);
+            clock.Produce(new ClockSignal(speed));
 
             WriteFree(bank, address, open = data);
         }
@@ -173,65 +170,65 @@ namespace Beta.SuperFamicom
         {
             if ((address & 0xffc0) == 0x2140)
             {
-                gameSystem.Smp.WritePort(address & 3, data, 0);
+                Driver.Smp.WritePort(address & 3, data, 0);
                 return;
             }
 
             switch (address)
             {
             // S-PPU Registers
-            case 0x2100: gameSystem.Ppu.Poke2100(data); break;
-            case 0x2101: gameSystem.Ppu.Poke2101(data); break;
-            case 0x2102: gameSystem.Ppu.Poke2102(data); break;
-            case 0x2103: gameSystem.Ppu.Poke2103(data); break;
-            case 0x2104: gameSystem.Ppu.Poke2104(data); break;
-            case 0x2105: gameSystem.Ppu.Poke2105(data); break;
-            case 0x2106: gameSystem.Ppu.Poke2106(data); break;
-            case 0x2107: gameSystem.Ppu.Poke2107(data); break;
-            case 0x2108: gameSystem.Ppu.Poke2108(data); break;
-            case 0x2109: gameSystem.Ppu.Poke2109(data); break;
-            case 0x210a: gameSystem.Ppu.Poke210A(data); break;
-            case 0x210b: gameSystem.Ppu.Poke210B(data); break;
-            case 0x210c: gameSystem.Ppu.Poke210C(data); break;
-            case 0x210d: gameSystem.Ppu.Poke210D(data); break;
-            case 0x210e: gameSystem.Ppu.Poke210E(data); break;
-            case 0x210f: gameSystem.Ppu.Poke210F(data); break;
-            case 0x2110: gameSystem.Ppu.Poke2110(data); break;
-            case 0x2111: gameSystem.Ppu.Poke2111(data); break;
-            case 0x2112: gameSystem.Ppu.Poke2112(data); break;
-            case 0x2113: gameSystem.Ppu.Poke2113(data); break;
-            case 0x2114: gameSystem.Ppu.Poke2114(data); break;
-            case 0x2115: gameSystem.Ppu.Poke2115(data); break;
-            case 0x2116: gameSystem.Ppu.Poke2116(data); break;
-            case 0x2117: gameSystem.Ppu.Poke2117(data); break;
-            case 0x2118: gameSystem.Ppu.Poke2118(data); break;
-            case 0x2119: gameSystem.Ppu.Poke2119(data); break;
-            case 0x211a: gameSystem.Ppu.Poke211A(data); break;
-            case 0x211b: gameSystem.Ppu.Poke211B(data); break;
-            case 0x211c: gameSystem.Ppu.Poke211C(data); break;
-            case 0x211d: gameSystem.Ppu.Poke211D(data); break;
-            case 0x211e: gameSystem.Ppu.Poke211E(data); break;
-            case 0x211f: gameSystem.Ppu.Poke211F(data); break;
-            case 0x2120: gameSystem.Ppu.Poke2120(data); break;
-            case 0x2121: gameSystem.Ppu.Poke2121(data); break;
-            case 0x2122: gameSystem.Ppu.Poke2122(data); break;
-            case 0x2123: gameSystem.Ppu.Poke2123(data); break;
-            case 0x2124: gameSystem.Ppu.Poke2124(data); break;
-            case 0x2125: gameSystem.Ppu.Poke2125(data); break;
-            case 0x2126: gameSystem.Ppu.Poke2126(data); break;
-            case 0x2127: gameSystem.Ppu.Poke2127(data); break;
-            case 0x2128: gameSystem.Ppu.Poke2128(data); break;
-            case 0x2129: gameSystem.Ppu.Poke2129(data); break;
-            case 0x212a: gameSystem.Ppu.Poke212A(data); break;
-            case 0x212b: gameSystem.Ppu.Poke212B(data); break;
-            case 0x212c: gameSystem.Ppu.Poke212C(data); break;
-            case 0x212d: gameSystem.Ppu.Poke212D(data); break;
-            case 0x212e: gameSystem.Ppu.Poke212E(data); break;
-            case 0x212f: gameSystem.Ppu.Poke212F(data); break;
-            case 0x2130: gameSystem.Ppu.Poke2130(data); break;
-            case 0x2131: gameSystem.Ppu.Poke2131(data); break;
-            case 0x2132: gameSystem.Ppu.Poke2132(data); break;
-            case 0x2133: gameSystem.Ppu.Poke2133(data); break;
+            case 0x2100: Driver.Ppu.Poke2100(data); break;
+            case 0x2101: Driver.Ppu.Poke2101(data); break;
+            case 0x2102: Driver.Ppu.Poke2102(data); break;
+            case 0x2103: Driver.Ppu.Poke2103(data); break;
+            case 0x2104: Driver.Ppu.Poke2104(data); break;
+            case 0x2105: Driver.Ppu.Poke2105(data); break;
+            case 0x2106: Driver.Ppu.Poke2106(data); break;
+            case 0x2107: Driver.Ppu.Poke2107(data); break;
+            case 0x2108: Driver.Ppu.Poke2108(data); break;
+            case 0x2109: Driver.Ppu.Poke2109(data); break;
+            case 0x210a: Driver.Ppu.Poke210A(data); break;
+            case 0x210b: Driver.Ppu.Poke210B(data); break;
+            case 0x210c: Driver.Ppu.Poke210C(data); break;
+            case 0x210d: Driver.Ppu.Poke210D(data); break;
+            case 0x210e: Driver.Ppu.Poke210E(data); break;
+            case 0x210f: Driver.Ppu.Poke210F(data); break;
+            case 0x2110: Driver.Ppu.Poke2110(data); break;
+            case 0x2111: Driver.Ppu.Poke2111(data); break;
+            case 0x2112: Driver.Ppu.Poke2112(data); break;
+            case 0x2113: Driver.Ppu.Poke2113(data); break;
+            case 0x2114: Driver.Ppu.Poke2114(data); break;
+            case 0x2115: Driver.Ppu.Poke2115(data); break;
+            case 0x2116: Driver.Ppu.Poke2116(data); break;
+            case 0x2117: Driver.Ppu.Poke2117(data); break;
+            case 0x2118: Driver.Ppu.Poke2118(data); break;
+            case 0x2119: Driver.Ppu.Poke2119(data); break;
+            case 0x211a: Driver.Ppu.Poke211A(data); break;
+            case 0x211b: Driver.Ppu.Poke211B(data); break;
+            case 0x211c: Driver.Ppu.Poke211C(data); break;
+            case 0x211d: Driver.Ppu.Poke211D(data); break;
+            case 0x211e: Driver.Ppu.Poke211E(data); break;
+            case 0x211f: Driver.Ppu.Poke211F(data); break;
+            case 0x2120: Driver.Ppu.Poke2120(data); break;
+            case 0x2121: Driver.Ppu.Poke2121(data); break;
+            case 0x2122: Driver.Ppu.Poke2122(data); break;
+            case 0x2123: Driver.Ppu.Poke2123(data); break;
+            case 0x2124: Driver.Ppu.Poke2124(data); break;
+            case 0x2125: Driver.Ppu.Poke2125(data); break;
+            case 0x2126: Driver.Ppu.Poke2126(data); break;
+            case 0x2127: Driver.Ppu.Poke2127(data); break;
+            case 0x2128: Driver.Ppu.Poke2128(data); break;
+            case 0x2129: Driver.Ppu.Poke2129(data); break;
+            case 0x212a: Driver.Ppu.Poke212A(data); break;
+            case 0x212b: Driver.Ppu.Poke212B(data); break;
+            case 0x212c: Driver.Ppu.Poke212C(data); break;
+            case 0x212d: Driver.Ppu.Poke212D(data); break;
+            case 0x212e: Driver.Ppu.Poke212E(data); break;
+            case 0x212f: Driver.Ppu.Poke212F(data); break;
+            case 0x2130: Driver.Ppu.Poke2130(data); break;
+            case 0x2131: Driver.Ppu.Poke2131(data); break;
+            case 0x2132: Driver.Ppu.Poke2132(data); break;
+            case 0x2133: Driver.Ppu.Poke2133(data); break;
 
             // W-RAM Registers
             case 0x2180: wram.Write(data); break;
@@ -276,7 +273,7 @@ namespace Beta.SuperFamicom
 
             case 0x4200:
                 scpu.reg4200 = data;
-                gameSystem.Cpu.NmiWrapper((scpu.reg4200 & 0x80) != 0);
+                Driver.Cpu.NmiWrapper((scpu.reg4200 & 0x80) != 0);
                 return;
 
             case 0x4201: return; // I/O Port
@@ -305,8 +302,8 @@ namespace Beta.SuperFamicom
             case 0x420a: scpu.v_target = (scpu.v_target & ~0xff00) | (data << 8); return;
 
             case 0x420b: /* MDMAEN */
-                gameSystem.Dma.mdma_en = data;
-                gameSystem.Dma.mdma_count = 2;
+                Driver.Dma.mdma_en = data;
+                Driver.Dma.mdma_count = 2;
                 return;
 
             case 0x420c: /* HDMAEN */
@@ -335,15 +332,6 @@ namespace Beta.SuperFamicom
             if (((addr - 0x4000) & 0x7E00) != 0) return SpeedFast;
 
             return SpeedSlow;
-        }
-
-        public void AddCycles(int amount)
-        {
-            var clock = new ClockSignal(amount);
-
-            gameSystem.Cpu.Consume(clock);
-            gameSystem.Ppu.Consume(clock);
-            gameSystem.Smp.Consume(clock);
         }
     }
 }

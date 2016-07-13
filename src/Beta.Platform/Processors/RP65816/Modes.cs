@@ -4,62 +4,62 @@
     {
         private void am_abs_w()
         {
-            aa.l = bus.Read(pc.b, pc.w++);
-            aa.h = bus.Read(pc.b, pc.w++);
+            aa.l = Read(pc.b, pc.w++);
+            aa.h = Read(pc.b, pc.w++);
             aa.b = db;
         }
 
         private void am_abx_w()
         {
-            ia.l = bus.Read(pc.b, pc.w++);
-            ia.h = bus.Read(pc.b, pc.w++);
+            ia.l = Read(pc.b, pc.w++);
+            ia.h = Read(pc.b, pc.w++);
             ia.b = db;
             aa.d = ia.d + x.w;
 
             if (p.x == false || (aa.h != ia.h) || (code == 0x9d || code == 0x9e))
             {
-                bus.InternalOperation();
+                InternalOperation();
             }
         }
 
         private void am_abx_l()
         {
-            aa.l = bus.Read(pc.b, pc.w++);
-            aa.h = bus.Read(pc.b, pc.w++);
-            aa.b = bus.Read(pc.b, pc.w++);
+            aa.l = Read(pc.b, pc.w++);
+            aa.h = Read(pc.b, pc.w++);
+            aa.b = Read(pc.b, pc.w++);
 
             aa.d += x.w;
         }
 
         private void am_aby_w()
         {
-            ia.l = bus.Read(pc.b, pc.w++);
-            ia.h = bus.Read(pc.b, pc.w++);
+            ia.l = Read(pc.b, pc.w++);
+            ia.h = Read(pc.b, pc.w++);
             ia.b = db;
             aa.d = ia.d + y.w;
 
             if (p.x == false || (aa.h != ia.h) || (code == 0x99))
             {
-                bus.InternalOperation();
+                InternalOperation();
             }
         }
 
         private void am_abs_l()
         {
-            aa.l = bus.Read(pc.b, pc.w++);
-            aa.h = bus.Read(pc.b, pc.w++);
-            aa.b = bus.Read(pc.b, pc.w++);
+            aa.l = Read(pc.b, pc.w++);
+            aa.h = Read(pc.b, pc.w++);
+            aa.b = Read(pc.b, pc.w++);
         }
 
         private void am_dpg_w()
         {
-            aa.l = bus.Read(pc.b, pc.w++);
+            aa.l = Read(pc.b, pc.w++);
             aa.h = dp.h;
             aa.b = 0x00;
 
             if (dp.l != 0)
             {
-                bus.InternalOperation();
+                InternalOperation();
                 aa.w += dp.l;
             }
         }
@@ -68,7 +68,7 @@
         {
             am_dpg_w();
 
-            bus.InternalOperation();
+            InternalOperation();
             aa.w += x.w;
         }
 
@@ -76,22 +76,22 @@
         {
             am_dpg_w();
 
-            bus.InternalOperation();
+            InternalOperation();
             aa.w += y.w;
         }
 
         private void am_imp_w()
         {
             LastCycle();
-            bus.InternalOperation();
+            InternalOperation();
         }
 
         private void am_ind_w()
         {
             am_dpg_w();
 
-            ia.l = bus.Read(aa.b, aa.w); aa.d++;
-            ia.h = bus.Read(aa.b, aa.w);
+            ia.l = Read(aa.b, aa.w); aa.d++;
+            ia.h = Read(aa.b, aa.w);
             ia.b = db;
             aa.d = ia.d;
         }
@@ -100,9 +100,9 @@
         {
             am_dpg_w();
 
-            ia.l = bus.Read(aa.b, aa.w); aa.d++;
-            ia.h = bus.Read(aa.b, aa.w); aa.d++;
-            ia.b = bus.Read(aa.b, aa.w);
+            ia.l = Read(aa.b, aa.w); aa.d++;
+            ia.h = Read(aa.b, aa.w); aa.d++;
+            ia.b = Read(aa.b, aa.w);
             aa.d = ia.d;
         }
 
@@ -110,8 +110,8 @@
         {
             am_dpx_w();
 
-            ia.l = bus.Read(aa.b, aa.w++);
-            ia.h = bus.Read(aa.b, aa.w++);
+            ia.l = Read(aa.b, aa.w++);
+            ia.h = Read(aa.b, aa.w++);
             ia.b = db;
             aa.d = ia.d;
         }
@@ -120,14 +120,14 @@
         {
             am_dpg_w();
 
-            ia.l = bus.Read(aa.b, aa.w); aa.d++;
-            ia.h = bus.Read(aa.b, aa.w);
+            ia.l = Read(aa.b, aa.w); aa.d++;
+            ia.h = Read(aa.b, aa.w);
             ia.b = db;
             aa.d = ia.d + y.w;
 
             if (p.x == false || (aa.h != ia.h) || (code == 0x91))
             {
-                bus.InternalOperation();
+                InternalOperation();
             }
         }
 
@@ -135,19 +135,19 @@
         {
             am_dpg_w();
 
-            ia.l = bus.Read(aa.b, aa.w); aa.d++;
-            ia.h = bus.Read(aa.b, aa.w); aa.d++;
-            ia.b = bus.Read(aa.b, aa.w);
+            ia.l = Read(aa.b, aa.w); aa.d++;
+            ia.h = Read(aa.b, aa.w); aa.d++;
+            ia.b = Read(aa.b, aa.w);
             aa.d = ia.d + y.w;
         }
 
         private void am_spr_w()
         {
-            aa.l = bus.Read(pc.b, pc.w++);
+            aa.l = Read(pc.b, pc.w++);
             aa.h = 0x00;
             aa.b = 0x00;
 
-            bus.InternalOperation();
+            InternalOperation();
             aa.w += sp.w;
         }
 
@@ -155,11 +155,11 @@
         {
             am_spr_w();
 
-            ia.l = bus.Read(aa.b, aa.w); aa.d++;
-            ia.h = bus.Read(aa.b, aa.w);
+            ia.l = Read(aa.b, aa.w); aa.d++;
+            ia.h = Read(aa.b, aa.w);
             ia.d = db;
 
-            bus.InternalOperation();
+            InternalOperation();
             aa.d = ia.d + y.w;
         }
     }
