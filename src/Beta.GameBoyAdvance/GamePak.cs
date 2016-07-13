@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform;
 using Beta.Platform.Exceptions;
 using Beta.Platform.Messaging;
@@ -24,7 +25,7 @@ namespace Beta.GameBoyAdvance
             new[] { 1, 1, 1 }
         };
 
-        private readonly IProducer<ClockSignal> clock;
+        private readonly IProducer<AddClockSignal> clock;
         private readonly byte[] binary;
 
         private Register32 latch;
@@ -35,7 +36,7 @@ namespace Beta.GameBoyAdvance
         private int[] romAccess1 = new int[3];
         private int[] romAccess2 = new int[3];
 
-        public GamePak(byte[] binary, IProducer<ClockSignal> clock)
+        public GamePak(byte[] binary, IProducer<AddClockSignal> clock)
         {
             this.binary = binary;
             this.clock = clock;
@@ -83,11 +84,11 @@ namespace Beta.GameBoyAdvance
 
             if (counter != compare)
             {
-                clock.Produce(new ClockSignal(romAccess1[region]));
+                clock.Produce(new AddClockSignal(romAccess1[region]));
                 counter = compare;
             }
 
-            clock.Produce(new ClockSignal(romAccess2[region]));
+            clock.Produce(new AddClockSignal(romAccess2[region]));
             counter++;
 
             return buffer[address & mask];
@@ -103,7 +104,7 @@ namespace Beta.GameBoyAdvance
 
         public word ReadRam(int size, word address)
         {
-            clock.Produce(new ClockSignal(ramAccess));
+            clock.Produce(new AddClockSignal(ramAccess));
             return 0;
         }
 
@@ -118,7 +119,7 @@ namespace Beta.GameBoyAdvance
 
         public void WriteRam(int size, word address, word data)
         {
-            clock.Produce(new ClockSignal(ramAccess));
+            clock.Produce(new AddClockSignal(ramAccess));
         }
 
         public void WriteRom(int size, word address, word data)

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Beta.GameBoyAdvance.CPU;
+using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Exceptions;
 using Beta.Platform.Messaging;
 using word = System.UInt32;
@@ -18,7 +19,7 @@ namespace Beta.GameBoyAdvance.Memory
 
         private GamePak gamePak;
 
-        private readonly IProducer<ClockSignal> clock;
+        private readonly IProducer<AddClockSignal> clock;
         private BIOS bios;
         private readonly ERAM eram;
         private readonly IRAM iram;
@@ -28,7 +29,7 @@ namespace Beta.GameBoyAdvance.Memory
         private readonly VRAM vram;
 
         public MemoryMap(
-            IProducer<ClockSignal> clock,
+            IProducer<AddClockSignal> clock,
             ERAM eram,
             IRAM iram,
             MMIO mmio,
@@ -53,7 +54,7 @@ namespace Beta.GameBoyAdvance.Memory
         {
             var area = (address >> 24) & 15;
 
-            clock.Produce(new ClockSignal(timingTable[size][area]));
+            clock.Produce(new AddClockSignal(timingTable[size][area]));
 
             switch (area)
             {
@@ -82,7 +83,7 @@ namespace Beta.GameBoyAdvance.Memory
         {
             var area = (address >> 24) & 15;
 
-            clock.Produce(new ClockSignal(timingTable[size][area]));
+            clock.Produce(new AddClockSignal(timingTable[size][area]));
 
             switch (area)
             {

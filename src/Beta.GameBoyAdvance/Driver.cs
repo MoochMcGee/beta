@@ -11,7 +11,7 @@ namespace Beta.GameBoyAdvance
     public partial class Driver : IDriver
     {
         private readonly IMemoryMap memory;
-        private readonly IProducer<ClockSignal> clock;
+        private readonly IProducer<AddClockSignal> clock;
         private readonly Apu apu;
         private readonly Cpu cpu;
         private readonly Pad pad;
@@ -25,8 +25,8 @@ namespace Beta.GameBoyAdvance
             Pad pad,
             Ppu ppu,
             IMemoryMap memory,
-            IProducer<ClockSignal> clock,
-            ISubscriptionBroker broker)
+            IProducer<AddClockSignal> clock,
+            ISignalBroker broker)
         {
             this.memory = memory;
             this.clock = clock;
@@ -35,15 +35,16 @@ namespace Beta.GameBoyAdvance
             this.ppu = ppu;
             this.cpu = cpu;
 
-            broker.Subscribe(ppu);
-            broker.Subscribe(apu);
-            broker.Subscribe(timer);
+            broker.Link(ppu);
+            broker.Link(apu);
+            broker.Link(timer);
 
-            broker.Subscribe(cpu);
-            broker.Subscribe<HBlankSignal>(dma);
-            broker.Subscribe<VBlankSignal>(dma);
+            broker.Link<AddClockSignal>(cpu);
+            broker.Link<InterruptSignal>(cpu);
+            broker.Link<HBlankSignal>(dma);
+            broker.Link<VBlankSignal>(dma);
 
-            broker.Subscribe(pad);
+            broker.Link(pad);
         }
 
         public void Main()

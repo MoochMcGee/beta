@@ -76,6 +76,7 @@
     <Compile Include="Memory\PRAM.cs" />
     <Compile Include="Memory\Registers.cs" />
     <Compile Include="Memory\VRAM.cs" />
+    <Compile Include="Messaging\AddClockSignal.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\HBlankSignal.cs" />
     <Compile Include="Messaging\InterruptSignal.cs" />

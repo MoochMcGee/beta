@@ -1,11 +1,12 @@
-﻿using Beta.GameBoyAdvance.Memory;
+﻿using System;
+using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors;
 
 namespace Beta.GameBoyAdvance.CPU
 {
-    public class Cpu : Arm7, IConsumer<InterruptSignal>
+    public class Cpu : Arm7, IConsumer<InterruptSignal>, IConsumer<AddClockSignal>
     {
         private readonly IMemoryMap memory;
         private readonly IProducer<ClockSignal> clock;
@@ -68,6 +69,11 @@ namespace Beta.GameBoyAdvance.CPU
         public void Consume(InterruptSignal e)
         {
             regs.irf.w |= e.Flag;
+        }
+
+        public void Consume(AddClockSignal e)
+        {
+            Cycles += e.Cycles;
         }
 
         public static class Source
