@@ -10,7 +10,8 @@ namespace Beta.Famicom.CPU
         private ChannelNoi noi;
         private ChannelDmc dmc;
         private ChannelExt ext;
-        private Register16 reg4017;
+        private byte reg4017;
+        private bool reg4017_post;
         private bool irqEnabled;
         private bool irqPending;
         private bool apuToggle;

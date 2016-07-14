@@ -57,12 +57,12 @@ namespace Beta.Famicom.CPU
 
                 dmc.Clock();
 
-                if (reg4017.h != 0)
+                if (reg4017_post)
                 {
-                    reg4017.h = 0;
+                    reg4017_post = false;
 
-                    irqEnabled = (reg4017.l & 0x40) == 0;
-                    mode = (reg4017.l & 0x80) >> 7;
+                    irqEnabled = (reg4017 & 0x40) == 0;
+                    mode = (reg4017 & 0x80) >> 7;
                     step = 0;
 
                     frameTimer.Cycles = timingTable[0][mode][step];
@@ -174,8 +174,8 @@ namespace Beta.Famicom.CPU
 
         private void Poke4017(ushort address, ref byte data)
         {
-            reg4017.l = data;
-            reg4017.h = 1;
+            reg4017 = data;
+            reg4017_post = true;
         }
 
         public void MapTo(IBus bus)

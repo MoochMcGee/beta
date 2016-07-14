@@ -366,14 +366,14 @@ namespace Beta.Famicom.Boards.Namcot
                 {
                     var c = channels[(addr >> 3) & 7];
 
-                    switch (addr & 0x07)
+                    switch (addr & 7)
                     {
-                    case 0: c.Rd.ub0 = data; break;
-                    case 1: c.Rp.ub0 = data; break;
-                    case 2: c.Rd.ub1 = data; break;
-                    case 3: c.Rp.ub1 = data; break;
-                    case 4: c.Rd.ub2 = (byte)(data & 0x03); c.Count = 16777216 - ((data & ~3) << 16); break;
-                    case 5: c.Rp.ub2 = data; break;
+                    case 0: c.Delta = (c.Delta & 0xffff00) | data; break;
+                    case 1: c.Phase = (c.Phase & 0xffff00) | data; break;
+                    case 2: c.Delta = (c.Delta & 0xff00ff) | (data << 8); break;
+                    case 3: c.Phase = (c.Phase & 0xff00ff) | (data << 8); break;
+                    case 4: c.Delta = (c.Delta & 0x00ffff) | ((data << 16) & 0x030000); c.Count = 16777216 - ((data & ~3) << 16); break;
+                    case 5: c.Phase = (c.Phase & 0x00ffff) | (data << 16); break;
                     case 6: c.Index = data; break;
                     case 7: c.Level = (byte)(data & 0x0f); break;
                     }
@@ -417,11 +417,11 @@ namespace Beta.Famicom.Boards.Namcot
                 private byte start;
                 private byte value;
 
-                public Register32 Rd;
-                public Register32 Rp;
                 public byte Index;
                 public byte Level;
                 public int Count;
+                public int Delta;
+                public int Phase;
 
                 public Channel(int ordinal)
                 {
@@ -435,17 +435,17 @@ namespace Beta.Famicom.Boards.Namcot
 
                 public void Update(byte[] wram, byte[] wave)
                 {
-                    // -- Clock phase counter --
-                    Rp.sd0 += Rd.sd0;
-                    Rp.sd0 %= Count;
+                    // Clock phase counter
+                    Phase = (Phase + Delta) % Count;
 
-                    // -- Get next sample --
-                    value = wave[(Rp.ub2 + Index) & 0xff];
+                    // Get next sample
+                    value = wave[((Phase >> 16) + Index) & 0xff];
 
-                    // -- Write phase back into ram (This is detectable by games via $4800) --
-                    wram[start | 1] = Rp.ub0;
-                    wram[start | 3] = Rp.ub1;
-                    wram[start | 5] = Rp.ub2;
+                    // Write phase back into ram
+                    // This is detectable by games via $4800
+                    wram[start | 1] = (byte)(Phase >> 0);
+                    wram[start | 3] = (byte)(Phase >> 8);
+                    wram[start | 5] = (byte)(Phase >> 16);
                 }
             }
         }
