@@ -26,9 +26,6 @@ namespace Beta.SuperFamicom.PPU
         private readonly IProducer<VBlankSignal> vblank;
         private readonly IVideoBackend video;
 
-        private Register32 hLatch;
-        private Register32 vLatch;
-        private Register32 product;
         private bool forceBlank;
         private bool interlace;
         private bool overscan;
@@ -42,12 +39,17 @@ namespace Beta.SuperFamicom.PPU
         private int forceMainToBlack;
         private int fixedColor;
         private int brightness;
+        private bool hlatch_toggle;
+        private bool vlatch_toggle;
+        private int hlatch;
+        private int vlatch;
         private int hclock;
         private int vclock;
         private int[] colors = colorLookup[0];
         private int[] raster;
         private int colorMathEnabled;
         private int mathType;
+        private int product;
 
         static Ppu()
         {
@@ -98,42 +100,55 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek2134()
         {
-            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
-            return ppu1Open = product.ub0;
+            return ppu1Open = ((byte)(product >> 0));
         }
 
         public byte Peek2135()
         {
-            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
-            return ppu1Open = product.ub1;
+            return ppu1Open = ((byte)(product >> 8));
         }
 
         public byte Peek2136()
         {
-            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
-            return ppu1Open = product.ub2;
+            return ppu1Open = ((byte)(product >> 16));
         }
 
         public byte Peek2137()
         {
+            hlatch = hclock;
+            vlatch = vclock;
+
             return 0;
         }
 
         public byte Peek213C()
         {
-            return (hLatch.ub2 ^= 1) != 0 ?
-                (ppu2Open = hLatch.ub0) :
-                (ppu2Open = hLatch.ub1);
+            hlatch_toggle = !hlatch_toggle;
+
+            ppu2Open = hlatch_toggle
+                ? (byte)((ppu2Open & 0x00) | (hlatch >> 0))
+                : (byte)((ppu2Open & 0xfe) | (hlatch >> 8))
+                ;
+
+            return ppu2Open;
         }
 
         public byte Peek213D()
         {
-            return (vLatch.ub2 ^= 1) != 0 ?
-                (ppu2Open = vLatch.ub0) :
-                (ppu2Open = vLatch.ub1);
+            vlatch_toggle = !vlatch_toggle;
+
+            ppu2Open = vlatch_toggle
+                ? (byte)((ppu2Open & 0x00) | (vlatch >> 0))
+                : (byte)((ppu2Open & 0xfe) | (vlatch >> 8))
+                ;
+
+            return ppu2Open;
         }
 
         public byte Peek213E()
@@ -145,8 +160,8 @@ namespace Beta.SuperFamicom.PPU
         {
             var data = ppu2Stat;
 
-            hLatch.ub2 = 0;
-            vLatch.ub2 = 0;
+            hlatch_toggle = false;
+            vlatch_toggle = false;
 
             return data;
         }
@@ -467,8 +482,8 @@ namespace Beta.SuperFamicom.PPU
         public void Poke2132(byte data)
         {
             if ((data & 0x80) != 0) { fixedColor = (fixedColor & ~0x7c00) | ((data & 0x1f) << 10); }
-            if ((data & 0x40) != 0) { fixedColor = (fixedColor & ~0x03e0) | ((data & 0x1f) <<  5); }
-            if ((data & 0x20) != 0) { fixedColor = (fixedColor & ~0x001f) | ((data & 0x1f) <<  0); }
+            if ((data & 0x40) != 0) { fixedColor = (fixedColor & ~0x03e0) | ((data & 0x1f) << 5); }
+            if ((data & 0x20) != 0) { fixedColor = (fixedColor & ~0x001f) | ((data & 0x1f) << 0); }
         }
 
         public void Poke2133(byte data)
@@ -493,7 +508,7 @@ namespace Beta.SuperFamicom.PPU
         public override void Update()
         {
             hclock++;
-            
+
             if (hclock == 274) { RenderScanline(); }
             if (hclock == 341)
             {
