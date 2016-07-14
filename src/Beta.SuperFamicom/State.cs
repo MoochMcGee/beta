@@ -11,7 +11,7 @@ namespace Beta.SuperFamicom
     public sealed class DmaState
     {
         public ushort count;
-        public Register24 address_a;
+        public int address_a;
         public byte address_b;
         public byte control;
     }

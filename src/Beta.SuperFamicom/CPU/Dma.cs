@@ -57,9 +57,12 @@ namespace Beta.SuperFamicom.CPU
                 clock.Produce(new ClockSignal(8));
                 amount += 8;
 
+                var a_bank = (byte)(c.address_a >> 16);
+                var a_addr = (ushort)(c.address_a >> 0);
+
                 if ((c.control & 0x80) == 0)
                 {
-                    var data = Bus.ReadFree(c.address_a.b, c.address_a.w);
+                    var data = Bus.ReadFree(a_bank, a_addr);
                     var dest = GetAddressB(c.control & 7, c.address_b, step);
                     Bus.WriteFree(0, dest, data);
                 }
@@ -67,14 +70,14 @@ namespace Beta.SuperFamicom.CPU
                 {
                     var dest = GetAddressB(c.control & 7, c.address_b, step);
                     var data = Bus.ReadFree(0, dest);
-                    Bus.WriteFree(c.address_a.b, c.address_a.w, data);
+                    Bus.WriteFree(a_bank, a_addr, data);
                 }
 
                 switch (c.control & 0x18)
                 {
-                case 0x00: c.address_a.d++; break;
+                case 0x00: c.address_a++; break;
                 case 0x08: break;
-                case 0x10: c.address_a.d--; break;
+                case 0x10: c.address_a--; break;
                 case 0x18: break;
                 }
 

@@ -18,27 +18,6 @@ namespace Beta.Platform
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct Register24
-    {
-        [field: FieldOffset(0)]
-        public byte l;
-
-        [field: FieldOffset(1)]
-        public byte h;
-
-        [field: FieldOffset(2)]
-        public byte b;
-
-        [field: FieldOffset(0)]
-        public ushort w;
-
-        [field: FieldOffset(0)]
-        public uint d;
-
-        public override string ToString() => $"0x{d:x6}";
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
     public struct Register32
     {
         // unsigned

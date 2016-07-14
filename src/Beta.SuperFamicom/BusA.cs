@@ -252,9 +252,9 @@ namespace Beta.SuperFamicom
                 {
                 case 0x4300: dma.control = data; return;
                 case 0x4301: dma.address_b = data; return;
-                case 0x4302: dma.address_a.l = data; return;
-                case 0x4303: dma.address_a.h = data; return;
-                case 0x4304: dma.address_a.b = data; return;
+                case 0x4302: dma.address_a = (dma.address_a & 0xffff00) | (data << 0); return;
+                case 0x4303: dma.address_a = (dma.address_a & 0xff00ff) | (data << 8); return;
+                case 0x4304: dma.address_a = (dma.address_a & 0x00ffff) | (data << 16); return;
                 case 0x4305: dma.count = (ushort)((dma.count & 0xff00) | (data << 0)); return;
                 case 0x4306: dma.count = (ushort)((dma.count & 0x00ff) | (data << 8)); return;
                 case 0x4307: return;
