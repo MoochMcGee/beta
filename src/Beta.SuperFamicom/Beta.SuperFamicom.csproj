@@ -53,7 +53,6 @@
     <Compile Include="BusA.cs" />
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="CPU\Dma.cs" />
-    <Compile Include="CPU\DmaChannel.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
     <Compile Include="Memory\WRAM.cs" />

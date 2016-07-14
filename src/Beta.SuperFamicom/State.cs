@@ -5,6 +5,7 @@ namespace Beta.SuperFamicom
     public sealed class State
     {
         public readonly SCpuState scpu = new SCpuState();
+        public readonly ushort[] pads = new ushort[2];
     }
 
     public sealed class DmaState
@@ -37,7 +38,7 @@ namespace Beta.SuperFamicom
         public ushort rdmpy;
 
         // divide regs
-        public Register16 wrdiv;
+        public ushort wrdiv;
         public byte wrdivb;
         public ushort rddiv;
 

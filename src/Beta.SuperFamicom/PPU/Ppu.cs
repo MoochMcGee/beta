@@ -98,21 +98,21 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek2134()
         {
-            product.sd0 = (short)Background.M7A.w * (sbyte)Background.M7B.h;
+            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
             return ppu1Open = product.ub0;
         }
 
         public byte Peek2135()
         {
-            product.sd0 = (short)Background.M7A.w * (sbyte)Background.M7B.h;
+            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
             return ppu1Open = product.ub1;
         }
 
         public byte Peek2136()
         {
-            product.sd0 = (short)Background.M7A.w * (sbyte)Background.M7B.h;
+            product.sd0 = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
 
             return ppu1Open = product.ub2;
         }
@@ -164,7 +164,8 @@ namespace Beta.SuperFamicom.PPU
             spr.Addr = (data & 0x07) << 13;
             spr.Name = (data & 0x18) << 9;
             spr.Name += 0x1000;
-            spr.Size = Sprite.SizeLut[(data & 0xe0) >> 5];
+            spr.Width = Sprite.WidthLut[(data & 0xe0) >> 5];
+            spr.Height = Sprite.HeightLut[(data & 0xe0) >> 5];
         }
 
         public void Poke2105(byte data)
@@ -238,8 +239,7 @@ namespace Beta.SuperFamicom.PPU
         {
             bg0.WriteHOffset(data);
 
-            Background.M7HOffset.l = Background.M7Latch;
-            Background.M7HOffset.h = data;
+            Background.M7HOffset = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
@@ -247,8 +247,7 @@ namespace Beta.SuperFamicom.PPU
         {
             bg0.WriteVOffset(data);
 
-            Background.M7VOffset.l = Background.M7Latch;
-            Background.M7VOffset.h = data;
+            Background.M7VOffset = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
@@ -302,43 +301,37 @@ namespace Beta.SuperFamicom.PPU
 
         public void Poke211B(byte data)
         {
-            Background.M7A.l = Background.M7Latch;
-            Background.M7A.h = data;
+            Background.M7A = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
         public void Poke211C(byte data)
         {
-            Background.M7B.l = Background.M7Latch;
-            Background.M7B.h = data;
+            Background.M7B = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
         public void Poke211D(byte data)
         {
-            Background.M7C.l = Background.M7Latch;
-            Background.M7C.h = data;
+            Background.M7C = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
         public void Poke211E(byte data)
         {
-            Background.M7D.l = Background.M7Latch;
-            Background.M7D.h = data;
+            Background.M7D = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
         public void Poke211F(byte data)
         {
-            Background.M7X.l = Background.M7Latch;
-            Background.M7X.h = data;
+            Background.M7X = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 
         public void Poke2120(byte data)
         {
-            Background.M7Y.l = Background.M7Latch;
-            Background.M7Y.h = data;
+            Background.M7Y = (ushort)((data << 8) | Background.M7Latch);
             Background.M7Latch = data;
         }
 

@@ -9,11 +9,13 @@ namespace Beta.SuperFamicom
     public sealed class DriverFactory : IDriverFactory
     {
         private readonly Container container;
+        private readonly State state;
         private readonly ISubscriptionBroker broker;
 
-        public DriverFactory(Container container, ISubscriptionBroker broker)
+        public DriverFactory(Container container, State state, ISubscriptionBroker broker)
         {
             this.container = container;
+            this.state = state;
             this.broker = broker;
         }
 
@@ -26,8 +28,8 @@ namespace Beta.SuperFamicom
             driver.Cpu.Dma = driver.Dma;
             driver.Dma.Bus = driver.Bus;
 
-            driver.Joypad1 = new Pad(0);
-            driver.Joypad2 = new Pad(1);
+            driver.Joypad1 = new Pad(state, 0);
+            driver.Joypad2 = new Pad(state, 1);
 
             broker.Subscribe<ClockSignal>(driver.Cpu);
             broker.Subscribe<ClockSignal>(driver.Ppu);
@@ -37,7 +39,6 @@ namespace Beta.SuperFamicom
             broker.Subscribe<HBlankSignal>(driver.Cpu);
             broker.Subscribe<VBlankSignal>(driver.Cpu);
 
-            driver.Smp.Initialize();
             driver.Bus.Initialize(binary);
             driver.Ppu.Initialize();
             driver.Cpu.Initialize();

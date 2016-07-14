@@ -9,14 +9,14 @@ namespace Beta.Platform.Processors.RP65816
             if (flag || p.e)
             {
                 LastCycle();
-                rd.l = Read(aa.b, aa.w);
+                regs.rdl = Read(regs.aab, regs.aa);
                 codeB();
             }
             else
             {
-                rd.l = Read(aa.b, aa.w); aa.d++;
+                regs.rdl = Read(regs.aab, regs.aa); regs.aa24++;
                 LastCycle();
-                rd.h = Read(aa.b, aa.w);
+                regs.rdh = Read(regs.aab, regs.aa);
                 codeW();
             }
         }
@@ -25,25 +25,25 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                rd.l = Read(aa.b, aa.w);
+                regs.rdl = Read(regs.aab, regs.aa);
 
                 InternalOperation();
                 codeB();
 
                 LastCycle();
-                Write(aa.b, aa.w, rd.l);
+                Write(regs.aab, regs.aa, regs.rdl);
             }
             else
             {
-                rd.l = Read(aa.b, aa.w); aa.d++;
-                rd.h = Read(aa.b, aa.w);
+                regs.rdl = Read(regs.aab, regs.aa); regs.aa24++;
+                regs.rdh = Read(regs.aab, regs.aa);
 
                 InternalOperation();
                 codeW();
 
-                Write(aa.b, aa.w, rd.h); aa.d--;
+                Write(regs.aab, regs.aa, regs.rdh); regs.aa24--;
                 LastCycle();
-                Write(aa.b, aa.w, rd.l);
+                Write(regs.aab, regs.aa, regs.rdl);
             }
         }
 
@@ -53,14 +53,14 @@ namespace Beta.Platform.Processors.RP65816
             {
                 codeB();
                 LastCycle();
-                Write(aa.b, aa.w, rd.l);
+                Write(regs.aab, regs.aa, regs.rdl);
             }
             else
             {
                 codeW();
-                Write(aa.b, aa.w, rd.l); aa.d++;
+                Write(regs.aab, regs.aa, regs.rdl); regs.aa24++;
                 LastCycle();
-                Write(aa.b, aa.w, rd.h);
+                Write(regs.aab, regs.aa, regs.rdh);
             }
         }
 
@@ -91,43 +91,43 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_move(int adjust)
         {
-            var dp = Read(pc.b, pc.w++);
-            var sp = Read(pc.b, pc.w++);
+            var dp = Read(regs.pcb, regs.pc++);
+            var sp = Read(regs.pcb, regs.pc++);
             db = dp;
-            rd.l = Read(sp, x.w);
-            Write(dp, y.w, rd.l);
+            regs.rdl = Read(sp, regs.x);
+            Write(dp, regs.y, regs.rdl);
             InternalOperation();
 
             if (p.x || p.e)
             {
-                x.l += (byte)adjust;
-                y.l += (byte)adjust;
+                regs.xl += (byte)adjust;
+                regs.yl += (byte)adjust;
             }
             else
             {
-                x.w += (ushort)adjust;
-                y.w += (ushort)adjust;
+                regs.x += (ushort)adjust;
+                regs.y += (ushort)adjust;
             }
 
             LastCycle();
             InternalOperation();
-            if (a.w != 0) pc.w -= 3;
-            a.w--;
+            if (regs.a != 0) regs.pc -= 3;
+            regs.a--;
         }
 
         private void op_asl_a()
         {
             if (p.m || p.e)
             {
-                rd.l = a.l;
+                regs.rdl = regs.al;
                 op_asl_b();
-                a.l = rd.l;
+                regs.al = regs.rdl;
             }
             else
             {
-                rd.w = a.w;
+                regs.rd = regs.a;
                 op_asl_w();
-                a.w = rd.w;
+                regs.a = regs.rd;
             }
         }
 
@@ -140,15 +140,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                a.l--;
-                p.n = a.l >= 0x80;
-                p.z = a.l == 0x00;
+                regs.al--;
+                p.n = regs.al >= 0x80;
+                p.z = regs.al == 0x00;
             }
             else
             {
-                a.w--;
-                p.n = a.w >= 0x8000;
-                p.z = a.w == 0x0000;
+                regs.a--;
+                p.n = regs.a >= 0x8000;
+                p.z = regs.a == 0x0000;
             }
         }
 
@@ -156,15 +156,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                x.l--;
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl--;
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.w--;
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.x--;
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
         }
 
@@ -172,15 +172,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                y.l--;
-                p.n = y.l >= 0x80;
-                p.z = y.l == 0x00;
+                regs.yl--;
+                p.n = regs.yl >= 0x80;
+                p.z = regs.yl == 0x00;
             }
             else
             {
-                y.w--;
-                p.n = y.w >= 0x8000;
-                p.z = y.w == 0x0000;
+                regs.y--;
+                p.n = regs.y >= 0x8000;
+                p.z = regs.y == 0x0000;
             }
         }
 
@@ -188,15 +188,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                a.l++;
-                p.n = a.l >= 0x80;
-                p.z = a.l == 0x00;
+                regs.al++;
+                p.n = regs.al >= 0x80;
+                p.z = regs.al == 0x00;
             }
             else
             {
-                a.w++;
-                p.n = a.w >= 0x8000;
-                p.z = a.w == 0x0000;
+                regs.a++;
+                p.n = regs.a >= 0x8000;
+                p.z = regs.a == 0x0000;
             }
         }
 
@@ -204,15 +204,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                x.l++;
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl++;
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.w++;
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.x++;
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
         }
 
@@ -220,15 +220,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                y.l++;
-                p.n = y.l >= 0x80;
-                p.z = y.l == 0x00;
+                regs.yl++;
+                p.n = regs.yl >= 0x80;
+                p.z = regs.yl == 0x00;
             }
             else
             {
-                y.w++;
-                p.n = y.w >= 0x8000;
-                p.z = y.w == 0x0000;
+                regs.y++;
+                p.n = regs.y >= 0x8000;
+                p.z = regs.y == 0x0000;
             }
         }
 
@@ -236,15 +236,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                rd.l = a.l;
+                regs.rdl = regs.al;
                 op_lsr_b();
-                a.l = rd.l;
+                regs.al = regs.rdl;
             }
             else
             {
-                rd.w = a.w;
+                regs.rd = regs.a;
                 op_lsr_w();
-                a.w = rd.w;
+                regs.a = regs.rd;
             }
         }
 
@@ -252,40 +252,40 @@ namespace Beta.Platform.Processors.RP65816
         {
             am_abs_w();
 
-            Write(0, sp.w--, aa.h);
+            Write(0, regs.sp--, regs.aah); 
             LastCycle();
-            Write(0, sp.w--, aa.l);
+            Write(0, regs.sp--, regs.aal);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
         private void op_pei_i()
         {
             am_ind_w();
-            Write(0, sp.w--, aa.h);
-            Write(0, sp.w--, aa.l);
+            Write(0, regs.sp--, regs.aah);
+            Write(0, regs.sp--, regs.aal);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
         private void op_per_i()
         {
-            rd.l = Read(pc.b, pc.w++);
-            rd.h = Read(pc.b, pc.w++);
+            regs.rdl = Read(regs.pcb, regs.pc++);
+            regs.rdh = Read(regs.pcb, regs.pc++);
             InternalOperation();
-            aa.w = (ushort)(pc.w + rd.w);
-            Write(0, sp.w--, aa.h);
-            Write(0, sp.w--, aa.l);
+            regs.aa = (ushort)(regs.pc + regs.rd);
+            Write(0, regs.sp--, regs.aah);
+            Write(0, regs.sp--, regs.aal);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -296,13 +296,13 @@ namespace Beta.Platform.Processors.RP65816
             if (p.m || p.e)
             {
                 LastCycle();
-                Write(0, sp.w--, a.l); if (p.e) { sp.h = 1; }
+                Write(0, regs.sp--, regs.al); if (p.e) { regs.sph = 1; }
             }
             else
             {
-                Write(0, sp.w--, a.h);
+                Write(0, regs.sp--, regs.ah);
                 LastCycle();
-                Write(0, sp.w--, a.l);
+                Write(0, regs.sp--, regs.al);
             }
         }
 
@@ -310,24 +310,24 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             LastCycle();
-            Write(0, sp.w--, db);
+            Write(0, regs.sp--, db);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
         private void op_phd_i()
         {
             InternalOperation();
-            Write(0, sp.w--, dp.h);
+            Write(0, regs.sp--, regs.dph);
             LastCycle();
-            Write(0, sp.w--, dp.l);
+            Write(0, regs.sp--, regs.dpl);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -335,11 +335,11 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             LastCycle();
-            Write(0, sp.w--, pc.b);
+            Write(0, regs.sp--, regs.pcb);
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -347,11 +347,11 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             LastCycle();
-            Write(0, sp.w--, p.Pack());
+            Write(0, regs.sp--, p.Pack());
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -362,18 +362,18 @@ namespace Beta.Platform.Processors.RP65816
             if (p.x || p.e)
             {
                 LastCycle();
-                Write(0, sp.w--, x.l);
+                Write(0, regs.sp--, regs.xl);
             }
             else
             {
-                Write(0, sp.w--, x.h);
+                Write(0, regs.sp--, regs.xh);
                 LastCycle();
-                Write(0, sp.w--, x.l);
+                Write(0, regs.sp--, regs.xl);
             }
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -384,18 +384,18 @@ namespace Beta.Platform.Processors.RP65816
             if (p.x || p.e)
             {
                 LastCycle();
-                Write(0, sp.w--, y.l);
+                Write(0, regs.sp--, regs.yl);
             }
             else
             {
-                Write(0, sp.w--, y.h);
+                Write(0, regs.sp--, regs.yh);
                 LastCycle();
-                Write(0, sp.w--, y.l);
+                Write(0, regs.sp--, regs.yl);
             }
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -407,17 +407,17 @@ namespace Beta.Platform.Processors.RP65816
             if (p.m || p.e)
             {
                 LastCycle();
-                a.l = Read(0, ++sp.w); if (p.e) sp.h = 1;
-                p.n = a.l >= 0x80;
-                p.z = a.l == 0x00;
+                regs.al = Read(0, ++regs.sp); if (p.e) regs.sph = 1;
+                p.n = regs.al >= 0x80;
+                p.z = regs.al == 0x00;
             }
             else
             {
-                a.l = Read(0, ++sp.w);
+                regs.al = Read(0, ++regs.sp);
                 LastCycle();
-                a.h = Read(0, ++sp.w);
-                p.n = a.w >= 0x8000;
-                p.z = a.w == 0x0000;
+                regs.ah = Read(0, ++regs.sp);
+                p.n = regs.a >= 0x8000;
+                p.z = regs.a == 0x0000;
             }
         }
 
@@ -427,13 +427,13 @@ namespace Beta.Platform.Processors.RP65816
             InternalOperation();
 
             LastCycle();
-            db = Read(0, ++sp.w);
+            db = Read(0, ++regs.sp);
             p.n = db >= 0x80;
             p.z = db == 0x00;
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -441,15 +441,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             InternalOperation();
-            dp.l = Read(0, ++sp.w);
+            regs.dpl = Read(0, ++regs.sp);
             LastCycle();
-            dp.h = Read(0, ++sp.w);
-            p.n = dp.w >= 0x8000;
-            p.z = dp.w == 0x0000;
+            regs.dph = Read(0, ++regs.sp);
+            p.n = regs.dp >= 0x8000;
+            p.z = regs.dp == 0x0000;
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -461,17 +461,17 @@ namespace Beta.Platform.Processors.RP65816
 
             if (p.e)
             {
-                sp.l++; p.Unpack(Read(0, sp.w));
+                regs.spl++; p.Unpack(Read(0, regs.sp));
             }
             else
             {
-                sp.w++; p.Unpack(Read(0, sp.w));
+                regs.sp++; p.Unpack(Read(0, regs.sp));
             }
 
             if (p.x || p.e)
             {
-                x.h = 0;
-                y.h = 0;
+                regs.xh = 0;
+                regs.yh = 0;
             }
         }
 
@@ -483,22 +483,22 @@ namespace Beta.Platform.Processors.RP65816
             if (p.x || p.e)
             {
                 LastCycle();
-                x.l = Read(0, ++sp.w);
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl = Read(0, ++regs.sp);
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.l = Read(0, ++sp.w);
+                regs.xl = Read(0, ++regs.sp);
                 LastCycle();
-                x.h = Read(0, ++sp.w);
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.xh = Read(0, ++regs.sp);
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -510,55 +510,55 @@ namespace Beta.Platform.Processors.RP65816
             if (p.x || p.e)
             {
                 LastCycle();
-                y.l = Read(0, ++sp.w);
-                p.n = y.l >= 0x80;
-                p.z = y.l == 0x00;
+                regs.yl = Read(0, ++regs.sp);
+                p.n = regs.yl >= 0x80;
+                p.z = regs.yl == 0x00;
             }
             else
             {
-                y.l = Read(0, ++sp.w);
+                regs.yl = Read(0, ++regs.sp);
                 LastCycle();
-                y.h = Read(0, ++sp.w);
-                p.n = y.w >= 0x8000;
-                p.z = y.w == 0x0000;
+                regs.yh = Read(0, ++regs.sp);
+                p.n = regs.y >= 0x8000;
+                p.z = regs.y == 0x0000;
             }
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
         private void op_rep_i()
         {
-            rd.l = Read(pc.b, pc.w++);
+            regs.rdl = Read(regs.pcb, regs.pc++);
 
             LastCycle();
             InternalOperation();
 
-            if ((rd.l & 0x80) != 0) { p.n = false; }
-            if ((rd.l & 0x40) != 0) { p.v = false; }
-            if ((rd.l & 0x20) != 0) { p.m = false; }
-            if ((rd.l & 0x10) != 0) { p.x = false; }
-            if ((rd.l & 0x08) != 0) { p.d = false; }
-            if ((rd.l & 0x04) != 0) { p.i = false; }
-            if ((rd.l & 0x02) != 0) { p.z = false; }
-            if ((rd.l & 0x01) != 0) { p.c = false; }
+            if ((regs.rdl & 0x80) != 0) { p.n = false; }
+            if ((regs.rdl & 0x40) != 0) { p.v = false; }
+            if ((regs.rdl & 0x20) != 0) { p.m = false; }
+            if ((regs.rdl & 0x10) != 0) { p.x = false; }
+            if ((regs.rdl & 0x08) != 0) { p.d = false; }
+            if ((regs.rdl & 0x04) != 0) { p.i = false; }
+            if ((regs.rdl & 0x02) != 0) { p.z = false; }
+            if ((regs.rdl & 0x01) != 0) { p.c = false; }
         }
 
         private void op_rol_a()
         {
             if (p.m || p.e)
             {
-                rd.l = a.l;
+                regs.rdl = regs.al;
                 op_rol_b();
-                a.l = rd.l;
+                regs.al = regs.rdl;
             }
             else
             {
-                rd.w = a.w;
+                regs.rd = regs.a;
                 op_rol_w();
-                a.w = rd.w;
+                regs.a = regs.rd;
             }
         }
 
@@ -566,15 +566,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                rd.l = a.l;
+                regs.rdl = regs.al;
                 op_ror_b();
-                a.l = rd.l;
+                regs.al = regs.rdl;
             }
             else
             {
-                rd.w = a.w;
+                regs.rd = regs.a;
                 op_ror_w();
-                a.w = rd.w;
+                regs.a = regs.rd;
             }
         }
 
@@ -585,18 +585,18 @@ namespace Beta.Platform.Processors.RP65816
 
             if (p.e)
             {
-                sp.l++; p.Unpack(Read(0, sp.w));
-                sp.l++; pc.l = (Read(0, sp.w));
+                regs.spl++; p.Unpack(Read(0, regs.sp));
+                regs.spl++; regs.pcl = (Read(0, regs.sp));
                 LastCycle();
-                sp.l++; pc.h = (Read(0, sp.w));
+                regs.spl++; regs.pch = (Read(0, regs.sp));
             }
             else
             {
-                sp.w++; p.Unpack(Read(0, sp.w));
-                sp.w++; pc.l = (Read(0, sp.w));
-                sp.w++; pc.h = (Read(0, sp.w));
+                regs.sp++; p.Unpack(Read(0, regs.sp));
+                regs.sp++; regs.pcl = (Read(0, regs.sp));
+                regs.sp++; regs.pch = (Read(0, regs.sp));
                 LastCycle();
-                sp.w++; pc.b = (Read(0, sp.w));
+                regs.sp++; regs.pcb = (Read(0, regs.sp));
             }
         }
 
@@ -604,15 +604,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             InternalOperation();
-            pc.l = Read(0, ++sp.w);
-            pc.h = Read(0, ++sp.w);
+            regs.pcl = Read(0, ++regs.sp);
+            regs.pch = Read(0, ++regs.sp);
             LastCycle();
-            pc.b = Read(0, ++sp.w);
-            pc.w++;
+            regs.pcb = Read(0, ++regs.sp);
+            regs.pc++;
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
@@ -620,11 +620,11 @@ namespace Beta.Platform.Processors.RP65816
         {
             InternalOperation();
             InternalOperation();
-            pc.l = Read(0, ++sp.w); if (p.e) { sp.h = 1; }
-            pc.h = Read(0, ++sp.w); if (p.e) { sp.h = 1; }
+            regs.pcl = Read(0, ++regs.sp); if (p.e) { regs.sph = 1; }
+            regs.pch = Read(0, ++regs.sp); if (p.e) { regs.sph = 1; }
             LastCycle();
             InternalOperation();
-            pc.w++;
+            regs.pc++;
         }
 
         private void op_sec_i() { p.c = true; }
@@ -633,34 +633,34 @@ namespace Beta.Platform.Processors.RP65816
 
         private void op_sep_i()
         {
-            rd.l = Read(pc.b, pc.w++);
+            regs.rdl = Read(regs.pcb, regs.pc++);
 
             LastCycle();
             InternalOperation();
 
-            if ((rd.l & 0x80) != 0) { p.n = true; }
-            if ((rd.l & 0x40) != 0) { p.v = true; }
-            if ((rd.l & 0x20) != 0) { p.m = true; }
-            if ((rd.l & 0x10) != 0) { p.x = true; x.h = 0; y.h = 0; }
-            if ((rd.l & 0x08) != 0) { p.d = true; }
-            if ((rd.l & 0x04) != 0) { p.i = true; }
-            if ((rd.l & 0x02) != 0) { p.z = true; }
-            if ((rd.l & 0x01) != 0) { p.c = true; }
+            if ((regs.rdl & 0x80) != 0) { p.n = true; }
+            if ((regs.rdl & 0x40) != 0) { p.v = true; }
+            if ((regs.rdl & 0x20) != 0) { p.m = true; }
+            if ((regs.rdl & 0x10) != 0) { p.x = true; regs.xh = 0; regs.yh = 0; }
+            if ((regs.rdl & 0x08) != 0) { p.d = true; }
+            if ((regs.rdl & 0x04) != 0) { p.i = true; }
+            if ((regs.rdl & 0x02) != 0) { p.z = true; }
+            if ((regs.rdl & 0x01) != 0) { p.c = true; }
         }
 
         private void op_tax_i()
         {
             if (p.x || p.e)
             {
-                x.l = a.l;
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl = regs.al;
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.w = a.w;
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.x = regs.a;
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
         }
 
@@ -668,62 +668,62 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                y.l = a.l;
-                p.n = y.l >= 0x80;
-                p.z = y.l == 0x00;
+                regs.yl = regs.al;
+                p.n = regs.yl >= 0x80;
+                p.z = regs.yl == 0x00;
             }
             else
             {
-                y.w = a.w;
-                p.n = y.w >= 0x8000;
-                p.z = y.w == 0x0000;
+                regs.y = regs.a;
+                p.n = regs.y >= 0x8000;
+                p.z = regs.y == 0x0000;
             }
         }
 
         private void op_tcd_i()
         {
-            dp.w = a.w;
-            p.n = dp.w >= 0x8000;
-            p.z = dp.w == 0x0000;
+            regs.dp = regs.a;
+            p.n = regs.dp >= 0x8000;
+            p.z = regs.dp == 0x0000;
         }
 
         private void op_tcs_i()
         {
-            sp.w = a.w;
+            regs.sp = regs.a;
 
             if (p.e)
             {
-                sp.h = 1;
+                regs.sph = 1;
             }
         }
 
         private void op_tdc_i()
         {
-            a.w = dp.w;
-            p.n = a.w >= 0x8000;
-            p.z = a.w == 0x0000;
+            regs.a = regs.dp;
+            p.n = regs.a >= 0x8000;
+            p.z = regs.a == 0x0000;
         }
 
         private void op_tsc_i()
         {
-            a.w = sp.w;
-            p.n = a.w >= 0x8000;
-            p.z = a.w == 0x0000;
+            regs.a = regs.sp;
+            p.n = regs.a >= 0x8000;
+            p.z = regs.a == 0x0000;
         }
 
         private void op_tsx_i()
         {
             if (p.x || p.e)
             {
-                x.l = sp.l;
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl = regs.spl;
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.w = sp.w;
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.x = regs.sp;
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
         }
 
@@ -731,15 +731,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                a.l = x.l;
-                p.n = a.l >= 0x80;
-                p.z = a.l == 0x00;
+                regs.al = regs.xl;
+                p.n = regs.al >= 0x80;
+                p.z = regs.al == 0x00;
             }
             else
             {
-                a.w = x.w;
-                p.n = a.w >= 0x8000;
-                p.z = a.w == 0x0000;
+                regs.a = regs.x;
+                p.n = regs.a >= 0x8000;
+                p.z = regs.a == 0x0000;
             }
         }
 
@@ -747,11 +747,11 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.e)
             {
-                sp.l = x.l;
+                regs.spl = regs.xl;
             }
             else
             {
-                sp.w = x.w;
+                regs.sp = regs.x;
             }
         }
 
@@ -759,15 +759,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                y.l = x.l;
-                p.n = y.l >= 0x80;
-                p.z = y.l == 0x00;
+                regs.yl = regs.xl;
+                p.n = regs.yl >= 0x80;
+                p.z = regs.yl == 0x00;
             }
             else
             {
-                y.w = x.w;
-                p.n = y.w >= 0x8000;
-                p.z = y.w == 0x0000;
+                regs.y = regs.x;
+                p.n = regs.y >= 0x8000;
+                p.z = regs.y == 0x0000;
             }
         }
 
@@ -775,15 +775,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.m || p.e)
             {
-                a.l = y.l;
-                p.n = a.l >= 0x80;
-                p.z = a.l == 0x00;
+                regs.al = regs.yl;
+                p.n = regs.al >= 0x80;
+                p.z = regs.al == 0x00;
             }
             else
             {
-                a.w = y.w;
-                p.n = a.w >= 0x8000;
-                p.z = a.w == 0x0000;
+                regs.a = regs.y;
+                p.n = regs.a >= 0x8000;
+                p.z = regs.a == 0x0000;
             }
         }
 
@@ -791,15 +791,15 @@ namespace Beta.Platform.Processors.RP65816
         {
             if (p.x || p.e)
             {
-                x.l = y.l;
-                p.n = x.l >= 0x80;
-                p.z = x.l == 0x00;
+                regs.xl = regs.yl;
+                p.n = regs.xl >= 0x80;
+                p.z = regs.xl == 0x00;
             }
             else
             {
-                x.w = y.w;
-                p.n = x.w >= 0x8000;
-                p.z = x.w == 0x0000;
+                regs.x = regs.y;
+                p.n = regs.x >= 0x8000;
+                p.z = regs.x == 0x0000;
             }
         }
 
@@ -809,11 +809,11 @@ namespace Beta.Platform.Processors.RP65816
             LastCycle();
             InternalOperation();
 
-            a.l ^= a.h;
-            a.h ^= a.l;
-            a.l ^= a.h;
-            p.n = a.l >= 0x80;
-            p.z = a.l == 0x00;
+            regs.al ^= regs.ah;
+            regs.ah ^= regs.al;
+            regs.al ^= regs.ah;
+            p.n = regs.al >= 0x80;
+            p.z = regs.al == 0x00;
         }
 
         private void op_xce_i()

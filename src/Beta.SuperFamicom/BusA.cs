@@ -13,6 +13,7 @@ namespace Beta.SuperFamicom
 
         private readonly IProducer<ClockSignal> clock;
         private readonly SCpuState scpu;
+        private readonly State state;
         private readonly WRAM wram;
 
         private byte open;
@@ -25,6 +26,7 @@ namespace Beta.SuperFamicom
         {
             this.clock = clock;
             this.scpu = state.scpu;
+            this.state = state;
             this.wram = new WRAM();
         }
 
@@ -122,11 +124,11 @@ namespace Beta.SuperFamicom
             case 0x4216: return (byte)(scpu.rdmpy >> 0); // RDMPYL
             case 0x4217: return (byte)(scpu.rdmpy >> 8); // RDMPYH
 
-            case 0x4218: return Driver.Joypad1.Latch.l;
-            case 0x4219: return Driver.Joypad1.Latch.h;
+            case 0x4218: return (byte)(state.pads[0] >> 0);
+            case 0x4219: return (byte)(state.pads[0] >> 8);
 
-            case 0x421a: return Driver.Joypad2.Latch.l;
-            case 0x421b: return Driver.Joypad2.Latch.h;
+            case 0x421a: return (byte)(state.pads[1] >> 0);
+            case 0x421b: return (byte)(state.pads[1] >> 8);
 
             case 0x421c: return 0; // JOY3L
             case 0x421d: return 0; // JOY3H
@@ -279,20 +281,20 @@ namespace Beta.SuperFamicom
             case 0x4201: return; // I/O Port
             case 0x4202: scpu.wrmpya = data; return; // WRMPYA
             case 0x4203: scpu.wrmpyb = data; scpu.rdmpy = (ushort)(scpu.wrmpya * scpu.wrmpyb); return; // WRMPYB
-            case 0x4204: scpu.wrdiv.l = data; return; // WRDIVL
-            case 0x4205: scpu.wrdiv.h = data; return; // WRDIVH
+            case 0x4204: scpu.wrdiv = (ushort)((scpu.wrdiv & 0xff00) | (data << 0)); return; // WRDIVL
+            case 0x4205: scpu.wrdiv = (ushort)((scpu.wrdiv & 0x00ff) | (data << 8)); return; // WRDIVH
             case 0x4206:
                 scpu.wrdivb = data;
 
                 if (scpu.wrdivb == 0)
                 {
                     scpu.rddiv = 0xffff;
-                    scpu.rdmpy = scpu.wrdiv.w;
+                    scpu.rdmpy = scpu.wrdiv;
                 }
                 else
                 {
-                    scpu.rddiv = (ushort)(scpu.wrdiv.w / scpu.wrdivb);
-                    scpu.rdmpy = (ushort)(scpu.wrdiv.w % scpu.wrdivb);
+                    scpu.rddiv = (ushort)(scpu.wrdiv / scpu.wrdivb);
+                    scpu.rdmpy = (ushort)(scpu.wrdiv % scpu.wrdivb);
                 }
                 return; // WRDIVB
 

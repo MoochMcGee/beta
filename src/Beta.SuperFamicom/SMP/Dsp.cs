@@ -127,10 +127,7 @@ namespace Beta.SuperFamicom.SMP
 
             this.audio = audio;
             this.ram = ram;
-        }
 
-        public void Initialize()
-        {
             state.Regs[FLG] = 0xe0;
 
             state.Noise = 0x4000;

@@ -1,5 +1,4 @@
-﻿using Beta.Platform;
-using Beta.Platform.Input;
+﻿using Beta.Platform.Input;
 using Beta.Platform.Messaging;
 using Beta.SuperFamicom.Messaging;
 
@@ -7,11 +6,15 @@ namespace Beta.SuperFamicom.PAD
 {
     public sealed class Pad : InputBackend, IConsumer<FrameSignal>
     {
-        public Register16 Latch;
+        private readonly State state;
+        private readonly int index;
 
-        public Pad(int index)
+        public Pad(State state, int index)
             : base(index, 12)
         {
+            this.state = state;
+            this.index = index;
+
             Map(0, "A");
             Map(1, "X");
             Map(2, "Back");
@@ -30,20 +33,22 @@ namespace Beta.SuperFamicom.PAD
         {
             Update();
 
-            Latch.w = 0x0000;
+            ushort latch = 0x0000;
 
-            if (Pressed(0x0)) Latch.w |= 0x8000;
-            if (Pressed(0x1)) Latch.w |= 0x4000;
-            if (Pressed(0x2)) Latch.w |= 0x2000;
-            if (Pressed(0x3)) Latch.w |= 0x1000;
-            if (Pressed(0x4)) Latch.w |= 0x0800;
-            if (Pressed(0x5)) Latch.w |= 0x0400;
-            if (Pressed(0x6)) Latch.w |= 0x0200;
-            if (Pressed(0x7)) Latch.w |= 0x0100;
-            if (Pressed(0x8)) Latch.w |= 0x0080;
-            if (Pressed(0x9)) Latch.w |= 0x0040;
-            if (Pressed(0xA)) Latch.w |= 0x0020;
-            if (Pressed(0xB)) Latch.w |= 0x0010;
+            if (Pressed(0x0)) latch |= 0x8000;
+            if (Pressed(0x1)) latch |= 0x4000;
+            if (Pressed(0x2)) latch |= 0x2000;
+            if (Pressed(0x3)) latch |= 0x1000;
+            if (Pressed(0x4)) latch |= 0x0800;
+            if (Pressed(0x5)) latch |= 0x0400;
+            if (Pressed(0x6)) latch |= 0x0200;
+            if (Pressed(0x7)) latch |= 0x0100;
+            if (Pressed(0x8)) latch |= 0x0080;
+            if (Pressed(0x9)) latch |= 0x0040;
+            if (Pressed(0xa)) latch |= 0x0020;
+            if (Pressed(0xb)) latch |= 0x0010;
+
+            state.pads[index] = latch;
         }
     }
 }

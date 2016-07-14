@@ -43,14 +43,14 @@ namespace Beta.SuperFamicom.SMP
         private byte[] wram;
         private byte[] port;
         private bool bootRomEnabled;
-        private bool flagC;
-        private bool flagZ;
-        private bool flagH;
-        private int flagP;
-        private bool flagV;
-        private bool flagN;
-        private int timerCycles1;
-        private int timerCycles2;
+        private bool flagC = false;
+        private bool flagZ = false;
+        private bool flagH = false;
+        private int  flagP = 0;
+        private bool flagV = false;
+        private bool flagN = false;
+        private int timerCycles1 = 0;
+        private int timerCycles2 = 0;
 
         public Smp(IAudioBackend audio)
         {
@@ -80,15 +80,7 @@ namespace Beta.SuperFamicom.SMP
             dsp = new Dsp(audio, wram);
 
             registers.sph = 1;
-        }
 
-        private static byte ReadBootRom(int address)
-        {
-            return bootRom[address & 0x3f];
-        }
-
-        public void Initialize()
-        {
             wram[0xf0] = 0x0a;
             wram[0xf1] = 0xb0;
             bootRomEnabled = true;
@@ -97,27 +89,16 @@ namespace Beta.SuperFamicom.SMP
             registers.y = 0;
             registers.sp = 0x100;
             registers.pc = ReadFullWord(0xfffe);
-            flagP = 0;
-            flagC = false;
-            flagZ = false;
-            flagH = false;
-            flagV = false;
-            flagN = false;
-            timerCycles1 = 0;
-            timerCycles2 = 0;
-            timers[0].Enabled = false;
-            timers[1].Enabled = false;
-            timers[2].Enabled = false;
-            timers[0].Compare = 255;
-            timers[1].Compare = 255;
-            timers[2].Compare = 255;
-            timers[0].Stage1 = 0;
-            timers[1].Stage1 = 0;
-            timers[2].Stage1 = 0;
-            timers[0].Stage2 = 0;
-            timers[1].Stage2 = 0;
-            timers[2].Stage2 = 0;
-            dsp.Initialize();
+
+            for (int i = 0; i < 3; i++)
+            {
+                timers[i] = new Timer();
+            }
+        }
+
+        private static byte ReadBootRom(int address)
+        {
+            return bootRom[address & 0x3f];
         }
 
         private byte Shl(byte value, int carry = 0)
@@ -2113,12 +2094,12 @@ namespace Beta.SuperFamicom.SMP
             Update(e.Cycles * 45056);
         }
 
-        private struct Timer
+        private sealed class Timer
         {
-            public bool Enabled;
-            public int Compare;
-            public int Stage1;
-            public int Stage2;
+            public bool Enabled = false;
+            public int Compare = 255;
+            public int Stage1 = 0;
+            public int Stage2 = 0;
 
             public void Update(int clocks)
             {

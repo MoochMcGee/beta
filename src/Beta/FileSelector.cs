@@ -24,25 +24,6 @@ namespace Beta
             return null;
         }
 
-        private static string CreateAll(DriverDefinition[] drivers)
-        {
-            var linq =
-                from driver in drivers
-                from extension in driver.Configuration.Extensions
-                select "*" + extension;
-
-            return $"All Files|{string.Join(";", linq)}";
-        }
-
-        private static string CreateFilter(DriverDefinition e)
-        {
-            var linq =
-                from extension in e.Configuration.Extensions
-                select "*" + extension;
-
-            return $"{e.Configuration.Name}|{string.Join(";", linq)}";
-        }
-
         private static string CreateFilter(DriverDefinition[] drivers)
         {
             var all = CreateAll(drivers);
@@ -55,6 +36,25 @@ namespace Beta
             list.AddRange(filters);
 
             return string.Join("|", list);
+        }
+
+        private static string CreateFilter(DriverDefinition e)
+        {
+            var linq =
+                from extension in e.Configuration.Extensions
+                select "*" + extension;
+
+            return $"{e.Configuration.Name}|{string.Join(";", linq)}";
+        }
+
+        private static string CreateAll(DriverDefinition[] drivers)
+        {
+            var linq =
+                from driver in drivers
+                from extension in driver.Configuration.Extensions
+                select "*" + extension;
+
+            return $"All Files|{string.Join(";", linq)}";
         }
     }
 }

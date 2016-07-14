@@ -23,14 +23,14 @@ namespace Beta.SuperFamicom.PPU
 
             public static byte M7Control;
             public static byte M7Latch;
-            public static Register16 M7A;
-            public static Register16 M7B;
-            public static Register16 M7C;
-            public static Register16 M7D;
-            public static Register16 M7X;
-            public static Register16 M7Y;
-            public static Register16 M7HOffset;
-            public static Register16 M7VOffset;
+            public static ushort M7A;
+            public static ushort M7B;
+            public static ushort M7C;
+            public static ushort M7D;
+            public static ushort M7X;
+            public static ushort M7Y;
+            public static ushort M7HOffset;
+            public static ushort M7VOffset;
 
             private int hOffset;
             private int vOffset;
@@ -99,6 +99,8 @@ namespace Beta.SuperFamicom.PPU
                 }
 
                 var bits = new byte[depth];
+                var vram_0 = Ppu.vram_0;
+                var vram_1 = Ppu.vram_1;
 
                 for (uint i = 0; i < 33; i++, xTile++)
                 {
@@ -108,7 +110,10 @@ namespace Beta.SuperFamicom.PPU
                         ((yTile & 32) << yMove) +
                         ((xTile & 32) << xMove);
 
-                    var name = Ppu.vram[nameAddress & 0x7fff].w;
+                    var name =
+                        (vram_0[nameAddress & 0x7fff] << 0) |
+                        (vram_1[nameAddress & 0x7fff] << 8);
+
                     var charAddress = CharBase + ((name & 0x3ff) * depth * 4) + yLine;
 
                     var priority = Priorities[(name >> 13) & 1];
@@ -122,18 +127,18 @@ namespace Beta.SuperFamicom.PPU
                     {
                         for (int j = 0; j < depth; j += 2)
                         {
-                            var data = Ppu.vram[(charAddress & 0x7fff) | (j << 2)];
-                            bits[j | 0] = Utility.ReverseLookup[data.l];
-                            bits[j | 1] = Utility.ReverseLookup[data.h];
+                            var addr = (charAddress & 0x7fff) | (j << 2);
+                            bits[j | 0] = Utility.ReverseLookup[vram_0[addr]];
+                            bits[j | 1] = Utility.ReverseLookup[vram_1[addr]];
                         }
                     }
                     else
                     {
                         for (int j = 0; j < depth; j += 2)
                         {
-                            var data = Ppu.vram[(charAddress & 0x7fff) | (j << 2)];
-                            bits[j | 0] = data.l;
-                            bits[j | 1] = data.h;
+                            var addr = (charAddress & 0x7fff) | (j << 2);
+                            bits[j | 0] = vram_0[addr];
+                            bits[j | 1] = vram_1[addr];
                         }
                     }
 
@@ -179,16 +184,16 @@ namespace Beta.SuperFamicom.PPU
 
             public void RenderAffine()
             {
-                int a = (short)M7A.w;
-                int b = (short)M7B.w;
-                int c = (short)M7C.w;
-                int d = (short)M7D.w;
+                int a = (short)M7A;
+                int b = (short)M7B;
+                int c = (short)M7C;
+                int d = (short)M7D;
 
-                var cx = ((M7X.w & 0x1fff) ^ 0x1000) - 0x1000;
-                var cy = ((M7Y.w & 0x1fff) ^ 0x1000) - 0x1000;
+                var cx = ((M7X & 0x1fff) ^ 0x1000) - 0x1000;
+                var cy = ((M7Y & 0x1fff) ^ 0x1000) - 0x1000;
 
-                var hoffs = ((M7HOffset.w & 0x1fff) ^ 0x1000) - 0x1000;
-                var voffs = ((M7VOffset.w & 0x1fff) ^ 0x1000) - 0x1000;
+                var hoffs = ((M7HOffset & 0x1fff) ^ 0x1000) - 0x1000;
+                var voffs = ((M7VOffset & 0x1fff) ^ 0x1000) - 0x1000;
 
                 var h = hoffs - cx;
                 var v = voffs - cy;
@@ -217,8 +222,8 @@ namespace Beta.SuperFamicom.PPU
                     var rx = (tx >> 8) & 0x3ff;
                     var ry = (ty >> 8) & 0x3ff;
 
-                    var tile = Ppu.vram[((ry & ~7) << 4) + (rx >> 3)].l; // ..yy yyyy yxxx xxxx
-                    var data = Ppu.vram[(tile << 6) + ((ry & 7) << 3) + (rx & 7)].h; // ..dd dddd ddyy yxxx
+                    var tile = Ppu.vram_0[((ry & ~7) << 4) + (rx >> 3)]; // ..yy yyyy yxxx xxxx
+                    var data = Ppu.vram_1[(tile << 6) + ((ry & 7) << 3) + (rx & 7)]; // ..dd dddd ddyy yxxx
 
                     Enable[x] = true;
                     Raster[x] = data;

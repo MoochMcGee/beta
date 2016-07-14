@@ -12,10 +12,11 @@ namespace Beta.SuperFamicom.PPU
         private byte oramData; // latch for oram
         private word oramAddr;
 
-        private Register16 vramAddr;
+        private int vram_address;
         private MemoryChip cram = new MemoryChip(0x0200); // 256x15-bit
         private MemoryChip oram = new MemoryChip(0x0220); // 256x16-bit + 16x16-bit
-        private Register16[] vram = new Register16[0x8000]; // 32kw
+        private byte[] vram_0 = new byte[0x8000];
+        private byte[] vram_1 = new byte[0x8000];
 
         private byte vramCtrl;
         private byte vramStep = 0x01;
@@ -56,9 +57,9 @@ namespace Beta.SuperFamicom.PPU
         public byte Peek2139()
         {
             var data = vramLatch;
-            vramLatch = vram[MapVRamAddress(vramAddr.w)].l;
+            vramLatch = vram_0[MapVRamAddress(vram_address)];
 
-            if ((vramCtrl & 0x80) == 0) { vramAddr.w += vramStep; }
+            if ((vramCtrl & 0x80) == 0) { vram_address += vramStep; }
 
             return ppu1Open = data;
         }
@@ -66,9 +67,9 @@ namespace Beta.SuperFamicom.PPU
         public byte Peek213A()
         {
             var data = vramLatch;
-            vramLatch = vram[MapVRamAddress(vramAddr.w)].h;
+            vramLatch = vram_1[MapVRamAddress(vram_address)];
 
-            if ((vramCtrl & 0x80) != 0) { vramAddr.w += vramStep; }
+            if ((vramCtrl & 0x80) != 0) { vram_address += vramStep; }
 
             return ppu1Open = data;
         }
@@ -129,30 +130,30 @@ namespace Beta.SuperFamicom.PPU
 
         public void Poke2116(byte data)
         {
-            vramAddr.l = data;
+            vram_address = (vram_address & 0xff00) | (data << 0);
         }
 
         public void Poke2117(byte data)
         {
-            vramAddr.h = data;
+            vram_address = (vram_address & 0x00ff) | (data << 8);
         }
 
         public void Poke2118(byte data)
         {
-            var address = MapVRamAddress(vramAddr.w);
+            var address = MapVRamAddress(vram_address);
 
-            vram[address].l = data;
+            vram_0[address] = data;
 
-            if ((vramCtrl & 0x80) == 0) { vramAddr.w += vramStep; }
+            if ((vramCtrl & 0x80) == 0) { vram_address += vramStep; }
         }
 
         public void Poke2119(byte data)
         {
-            var address = MapVRamAddress(vramAddr.w);
+            var address = MapVRamAddress(vram_address);
 
-            vram[address].h = data;
+            vram_1[address] = data;
 
-            if ((vramCtrl & 0x80) != 0) { vramAddr.w += vramStep; }
+            if ((vramCtrl & 0x80) != 0) { vram_address += vramStep; }
         }
     }
 }

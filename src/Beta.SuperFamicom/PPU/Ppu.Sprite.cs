@@ -8,22 +8,35 @@ namespace Beta.SuperFamicom.PPU
 
         private sealed class Sprite : Layer
         {
-            public static Register16[][] SizeLut = new[]
+            public static int[][] WidthLut = new[]
             {
-                new[] { new Register16 { l =  8, h =  8 }, new Register16 { l = 16, h = 16 } }, // 000 =  8x8  and 16x16 sprites
-                new[] { new Register16 { l =  8, h =  8 }, new Register16 { l = 32, h = 32 } }, // 001 =  8x8  and 32x32 sprites
-                new[] { new Register16 { l =  8, h =  8 }, new Register16 { l = 64, h = 64 } }, // 010 =  8x8  and 64x64 sprites
-                new[] { new Register16 { l = 16, h = 16 }, new Register16 { l = 32, h = 32 } }, // 011 = 16x16 and 32x32 sprites
-                new[] { new Register16 { l = 16, h = 16 }, new Register16 { l = 64, h = 64 } }, // 100 = 16x16 and 64x64 sprites
-                new[] { new Register16 { l = 32, h = 32 }, new Register16 { l = 64, h = 64 } }, // 101 = 32x32 and 64x64 sprites
-                new[] { new Register16 { l = 16, h = 32 }, new Register16 { l = 32, h = 64 } }, // 110 = 16x32 and 32x64 sprites
-                new[] { new Register16 { l = 16, h = 32 }, new Register16 { l = 32, h = 32 } } // 111 = 16x32 and 32x32 sprites
+                new[] {  8, 16 }, // 000 =  8x8  and 16x16 sprites
+                new[] {  8, 32 }, // 001 =  8x8  and 32x32 sprites
+                new[] {  8, 64 }, // 010 =  8x8  and 64x64 sprites
+                new[] { 16, 32 }, // 011 = 16x16 and 32x32 sprites
+                new[] { 16, 64 }, // 100 = 16x16 and 64x64 sprites
+                new[] { 32, 64 }, // 101 = 32x32 and 64x64 sprites
+                new[] { 16, 32 }, // 110 = 16x32 and 32x64 sprites
+                new[] { 16, 32 }  // 111 = 16x32 and 32x32 sprites
             };
 
-            public Register16[] Size = SizeLut[0];
+            public static int[][] HeightLut = new[]
+            {
+                new[] {  8, 16 }, // 000 =  8x8  and 16x16 sprites
+                new[] {  8, 32 }, // 001 =  8x8  and 32x32 sprites
+                new[] {  8, 64 }, // 010 =  8x8  and 64x64 sprites
+                new[] { 16, 32 }, // 011 = 16x16 and 32x32 sprites
+                new[] { 16, 64 }, // 100 = 16x16 and 64x64 sprites
+                new[] { 32, 64 }, // 101 = 32x32 and 64x64 sprites
+                new[] { 32, 64 }, // 110 = 16x32 and 32x64 sprites
+                new[] { 32, 32 }  // 111 = 16x32 and 32x32 sprites
+            };
+
             public bool Interlace;
             public int Addr;
             public int Name;
+            public int[] Width = WidthLut[0];
+            public int[] Height = HeightLut[0];
 
             public Sprite(Ppu ppu)
                 : base(ppu, 4)
@@ -53,8 +66,8 @@ namespace Beta.SuperFamicom.PPU
 
                     xpos |= (exta & 1) << 8;
 
-                    int xSize = Size[(exta & 2U) >> 1].l;
-                    int ySize = Size[(exta & 2U) >> 1].h;
+                    int xSize = Width[(exta & 2U) >> 1];
+                    int ySize = Height[(exta & 2U) >> 1];
 
                     if (Interlace) line <<= 1;
 
@@ -90,10 +103,10 @@ namespace Beta.SuperFamicom.PPU
                     {
                         t++;
 
-                        var bit0 = Ppu.vram[charAddress + 0u].l;
-                        var bit1 = Ppu.vram[charAddress + 0u].h;
-                        var bit2 = Ppu.vram[charAddress + 8u].l;
-                        var bit3 = Ppu.vram[charAddress + 8u].h;
+                        var bit0 = Ppu.vram_0[charAddress + 0u];
+                        var bit1 = Ppu.vram_1[charAddress + 0u];
+                        var bit2 = Ppu.vram_0[charAddress + 8u];
+                        var bit3 = Ppu.vram_1[charAddress + 8u];
 
                         if ((attr & 0x40U) == 0U)
                         {
