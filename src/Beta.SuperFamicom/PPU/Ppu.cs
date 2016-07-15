@@ -65,9 +65,9 @@ namespace Beta.SuperFamicom.PPU
                     g |= (r >> 5);
                     b |= (r >> 5);
 
-                    r = (r * (brightness + 1)) / 16;
-                    g = (g * (brightness + 1)) / 16;
-                    b = (b * (brightness + 1)) / 16;
+                    r = (r * brightness) / 15;
+                    g = (g * brightness) / 15;
+                    b = (b * brightness) / 15;
 
                     colorLookup[brightness][colour] = (r << 16) | (g << 8) | b;
                 }
