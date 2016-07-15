@@ -18,7 +18,9 @@ namespace Beta.SuperFamicom
             container.RegisterSingleton<State>();
             container.RegisterSingleton<BusA>();
             container.RegisterSingleton<Cpu>();
+            container.RegisterSingleton<Dsp>();
             container.RegisterSingleton<Ppu>();
+            container.RegisterSingleton<PSRAM>();
             container.RegisterSingleton<Smp>();
             container.RegisterSingleton<WRAM>();
         }

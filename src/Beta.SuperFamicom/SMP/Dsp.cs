@@ -114,19 +114,19 @@ namespace Beta.SuperFamicom.SMP
         };
 
         private readonly IAudioBackend audio;
+        private readonly PSRAM psram;
 
         private State state = new State();
         private Voice[] voice = new Voice[8];
 
-        private byte[] ram;
         private int step;
 
-        public Dsp(IAudioBackend audio, byte[] ram)
+        public Dsp(IAudioBackend audio, PSRAM psram)
         {
             Single = 1;
 
             this.audio = audio;
-            this.ram = ram;
+            this.psram = psram;
 
             state.Regs[FLG] = 0xe0;
 
@@ -147,13 +147,13 @@ namespace Beta.SuperFamicom.SMP
 
         public byte Peek()
         {
-            int addr = ram[0x00f2];
+            int addr = psram.Read(0x00f2);
             return state.Regs[addr & 0x7f];
         }
 
         public void Poke(byte data)
         {
-            int addr = ram[0x00f2];
+            int addr = psram.Read(0x00f2);
 
             if ((addr & 0x80) != 0) return;
 
@@ -352,7 +352,7 @@ namespace Beta.SuperFamicom.SMP
         //brr
         private void brr_decode(Voice v)
         {   //state.t_brr_byte = ram[v.brr_addr + v.brr_offset] cached from previous clock cycle
-            var nybbles = (state.BrrByte << 8) + ram[(ushort)(v.BrrAddr + v.BrrOffset + 1)];
+            var nybbles = (state.BrrByte << 8) + psram.Read((ushort)(v.BrrAddr + v.BrrOffset + 1));
 
             var filter = (state.BrrHeader >> 2) & 3;
             var scale = (state.BrrHeader >> 4);
@@ -484,8 +484,8 @@ namespace Beta.SuperFamicom.SMP
             {
                 addr += 2;
             }
-            var lo = ram[(ushort)(addr + 0)];
-            var hi = ram[(ushort)(addr + 1)];
+            var lo = psram.Read((ushort)(addr + 0));
+            var hi = psram.Read((ushort)(addr + 1));
             state.BrrNextAddr = ((hi << 8) + lo);
 
             state.Adsr0 = state.Regs[v.Vidx + ADSR0];
@@ -508,8 +508,8 @@ namespace Beta.SuperFamicom.SMP
 
         private void V3B(Voice v)
         {
-            state.BrrByte = ram[(ushort)(v.BrrAddr + v.BrrOffset)];
-            state.BrrHeader = ram[(ushort)(v.BrrAddr)];
+            state.BrrByte = psram.Read((ushort)(v.BrrAddr + v.BrrOffset));
+            state.BrrHeader = psram.Read((ushort)(v.BrrAddr));
         }
 
         private void V3C(Voice v)
@@ -677,8 +677,8 @@ namespace Beta.SuperFamicom.SMP
         private void echo_read(int channel)
         {
             var addr = (uint)(state.EchoPtr + channel * 2);
-            var lo = ram[(ushort)(addr + 0)];
-            var hi = ram[(ushort)(addr + 1)];
+            var lo = psram.Read((ushort)(addr + 0));
+            var hi = psram.Read((ushort)(addr + 1));
             int s = (short)((hi << 8) + lo);
             state.EchoHist[channel].Write((uint)state.EchoHistPos, s >> 1);
         }
@@ -689,8 +689,8 @@ namespace Beta.SuperFamicom.SMP
             {
                 var addr = (uint)(state.EchoPtr + channel * 2);
                 var s = state.EchoOut[channel];
-                ram[(ushort)(addr + 0)] = (byte)s;
-                ram[(ushort)(addr + 1)] = (byte)(s >> 8);
+                psram.Write((ushort)(addr + 0), (byte)(s >> 0));
+                psram.Write((ushort)(addr + 1), (byte)(s >> 8));
             }
 
             state.EchoOut[channel] = 0;

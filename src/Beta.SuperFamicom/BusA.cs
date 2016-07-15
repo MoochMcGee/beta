@@ -51,7 +51,7 @@ namespace Beta.SuperFamicom
             if ((address & 0xffc0) == 0x2140)
             {
                 // S-SMP Registers
-                data = Driver.Smp.ReadPort(address & 3, 0);
+                data = Driver.Smp.ReadPort((ushort)(address & 3));
                 return;
             }
 
@@ -132,7 +132,7 @@ namespace Beta.SuperFamicom
         {
             if ((address & 0xffc0) == 0x2140)
             {
-                Driver.Smp.WritePort(address & 3, data, 0);
+                Driver.Smp.WritePort((ushort)(address & 3), data);
                 return;
             }
 
