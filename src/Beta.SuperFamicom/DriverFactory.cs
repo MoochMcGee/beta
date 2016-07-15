@@ -25,7 +25,7 @@ namespace Beta.SuperFamicom
         {
             var driver = container.GetInstance<Driver>();
 
-            driver.Bus.Driver = driver;
+            driver.Bus.Cpu = driver.Cpu;
             driver.Cpu.Bus = driver.Bus;
             driver.Cpu.Dma = driver.Dma;
             driver.Dma.Bus = driver.Bus;

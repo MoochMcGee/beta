@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Beta.Platform.Audio;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
 

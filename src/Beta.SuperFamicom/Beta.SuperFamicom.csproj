@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusA.cs" />
+    <Compile Include="BusB.cs" />
     <Compile Include="Cartridges\HiRomCartridge.cs" />
     <Compile Include="Cartridges\LoRomCartridge.cs" />
     <Compile Include="CPU\Cpu.cs" />

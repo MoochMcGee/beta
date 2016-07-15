@@ -1,32 +1,30 @@
 ﻿using System;
-using Beta.Platform.Messaging;
 using Beta.SuperFamicom.Cartridges;
+using Beta.SuperFamicom.CPU;
 using Beta.SuperFamicom.Memory;
 
 namespace Beta.SuperFamicom
 {
     public sealed class BusA
     {
-        private readonly IProducer<ClockSignal> clock;
         private readonly State state;
         private readonly WRAM wram;
+        private readonly BusB busB;
 
         private ICartridge cart;
 
-        public Driver Driver;
+        public Cpu Cpu;
 
-        public BusA(IProducer<ClockSignal> clock, State state, WRAM wram)
+        public BusA(State state, WRAM wram, BusB busB)
         {
-            this.clock = clock;
             this.state = state;
             this.wram = wram;
+            this.busB = busB;
         }
 
         public void Initialize(ICartridge cart)
         {
             this.cart = cart;
-
-            clock.Produce(new ClockSignal(170));
         }
 
         public void Read(byte bank, ushort address, ref byte data)
@@ -35,7 +33,7 @@ namespace Beta.SuperFamicom
             if ((bank & 0x7f) <= 0x3f)
             {
                 if ((address & 0xe000) == 0x0000) { wram.Read(0x00, address, ref data); return; }
-                if ((address & 0xff00) == 0x2100) { ReadBusB(bank, address, ref data); return; }
+                if ((address & 0xff00) == 0x2100) { busB.Read(bank, address, ref data); return; }
                 if ((address & 0xfc00) == 0x4000) { ReadSCPU(bank, address, ref data); return; }
                 if ((address & 0x8000) == 0x8000) { cart.Read(bank, address, ref data); return; }
                 return;
@@ -44,39 +42,6 @@ namespace Beta.SuperFamicom
             if ((bank & 0x7f) <= 0x7f) { cart.Read(bank, address, ref data); return; }
 
             throw new NotImplementedException();
-        }
-
-        private void ReadBusB(byte bank, ushort address, ref byte data)
-        {
-            if ((address & 0xffc0) == 0x2140)
-            {
-                // S-SMP Registers
-                data = Driver.Smp.ReadPort((ushort)(address & 3));
-                return;
-            }
-
-            switch (address)
-            {
-            // S-PPU Registers
-            case 0x2134: data = Driver.Ppu.Peek2134(); break;
-            case 0x2135: data = Driver.Ppu.Peek2135(); break;
-            case 0x2136: data = Driver.Ppu.Peek2136(); break;
-            case 0x2137: data = Driver.Ppu.Peek2137(); break;
-            case 0x2138: data = Driver.Ppu.Peek2138(); break;
-            case 0x2139: data = Driver.Ppu.Peek2139(); break;
-            case 0x213a: data = Driver.Ppu.Peek213A(); break;
-            case 0x213b: data = Driver.Ppu.Peek213B(); break;
-            case 0x213c: data = Driver.Ppu.Peek213C(); break;
-            case 0x213d: data = Driver.Ppu.Peek213D(); break;
-            case 0x213e: data = Driver.Ppu.Peek213E(); break;
-            case 0x213f: data = Driver.Ppu.Peek213F(); break;
-
-            // W-RAM Registers
-            case 0x2180: data = wram.Read(); break;
-            case 0x2181: break;
-            case 0x2182: break;
-            case 0x2183: break;
-            }
         }
 
         private void ReadSCPU(byte bank, ushort address, ref byte data)
@@ -117,7 +82,7 @@ namespace Beta.SuperFamicom
             if ((bank & 0x7f) <= 0x3f)
             {
                 if ((address & 0xe000) == 0x0000) { wram.Write(0x00, address, data); return; } // $0000-$1fff
-                if ((address & 0xff00) == 0x2100) { WriteBusB(bank, address, data); return; } // $2100-$21ff
+                if ((address & 0xff00) == 0x2100) { busB.Write(bank, address, data); return; } // $2100-$21ff
                 if ((address & 0xfc00) == 0x4000) { WriteSCPU(bank, address, data); return; } // $4000-$43ff
                 if ((address & 0x8000) == 0x8000) { cart.Write(bank, address, data); return; } // $8000-$ffff
                 return;
@@ -126,78 +91,6 @@ namespace Beta.SuperFamicom
             if ((bank & 0x7f) <= 0x7f) { cart.Write(bank, address, data); return; }
 
             throw new NotImplementedException();
-        }
-
-        private void WriteBusB(byte bank, ushort address, byte data)
-        {
-            if ((address & 0xffc0) == 0x2140)
-            {
-                Driver.Smp.WritePort((ushort)(address & 3), data);
-                return;
-            }
-
-            switch (address)
-            {
-            // S-PPU Registers
-            case 0x2100: Driver.Ppu.Poke2100(data); break;
-            case 0x2101: Driver.Ppu.Poke2101(data); break;
-            case 0x2102: Driver.Ppu.Poke2102(data); break;
-            case 0x2103: Driver.Ppu.Poke2103(data); break;
-            case 0x2104: Driver.Ppu.Poke2104(data); break;
-            case 0x2105: Driver.Ppu.Poke2105(data); break;
-            case 0x2106: Driver.Ppu.Poke2106(data); break;
-            case 0x2107: Driver.Ppu.Poke2107(data); break;
-            case 0x2108: Driver.Ppu.Poke2108(data); break;
-            case 0x2109: Driver.Ppu.Poke2109(data); break;
-            case 0x210a: Driver.Ppu.Poke210A(data); break;
-            case 0x210b: Driver.Ppu.Poke210B(data); break;
-            case 0x210c: Driver.Ppu.Poke210C(data); break;
-            case 0x210d: Driver.Ppu.Poke210D(data); break;
-            case 0x210e: Driver.Ppu.Poke210E(data); break;
-            case 0x210f: Driver.Ppu.Poke210F(data); break;
-            case 0x2110: Driver.Ppu.Poke2110(data); break;
-            case 0x2111: Driver.Ppu.Poke2111(data); break;
-            case 0x2112: Driver.Ppu.Poke2112(data); break;
-            case 0x2113: Driver.Ppu.Poke2113(data); break;
-            case 0x2114: Driver.Ppu.Poke2114(data); break;
-            case 0x2115: Driver.Ppu.Poke2115(data); break;
-            case 0x2116: Driver.Ppu.Poke2116(data); break;
-            case 0x2117: Driver.Ppu.Poke2117(data); break;
-            case 0x2118: Driver.Ppu.Poke2118(data); break;
-            case 0x2119: Driver.Ppu.Poke2119(data); break;
-            case 0x211a: Driver.Ppu.Poke211A(data); break;
-            case 0x211b: Driver.Ppu.Poke211B(data); break;
-            case 0x211c: Driver.Ppu.Poke211C(data); break;
-            case 0x211d: Driver.Ppu.Poke211D(data); break;
-            case 0x211e: Driver.Ppu.Poke211E(data); break;
-            case 0x211f: Driver.Ppu.Poke211F(data); break;
-            case 0x2120: Driver.Ppu.Poke2120(data); break;
-            case 0x2121: Driver.Ppu.Poke2121(data); break;
-            case 0x2122: Driver.Ppu.Poke2122(data); break;
-            case 0x2123: Driver.Ppu.Poke2123(data); break;
-            case 0x2124: Driver.Ppu.Poke2124(data); break;
-            case 0x2125: Driver.Ppu.Poke2125(data); break;
-            case 0x2126: Driver.Ppu.Poke2126(data); break;
-            case 0x2127: Driver.Ppu.Poke2127(data); break;
-            case 0x2128: Driver.Ppu.Poke2128(data); break;
-            case 0x2129: Driver.Ppu.Poke2129(data); break;
-            case 0x212a: Driver.Ppu.Poke212A(data); break;
-            case 0x212b: Driver.Ppu.Poke212B(data); break;
-            case 0x212c: Driver.Ppu.Poke212C(data); break;
-            case 0x212d: Driver.Ppu.Poke212D(data); break;
-            case 0x212e: Driver.Ppu.Poke212E(data); break;
-            case 0x212f: Driver.Ppu.Poke212F(data); break;
-            case 0x2130: Driver.Ppu.Poke2130(data); break;
-            case 0x2131: Driver.Ppu.Poke2131(data); break;
-            case 0x2132: Driver.Ppu.Poke2132(data); break;
-            case 0x2133: Driver.Ppu.Poke2133(data); break;
-
-            // W-RAM Registers
-            case 0x2180: wram.Write(data); break;
-            case 0x2181: wram.address = (wram.address & 0x1ff00) | ((data << 0) & 0x000ff); break;
-            case 0x2182: wram.address = (wram.address & 0x100ff) | ((data << 8) & 0x0ff00); break;
-            case 0x2183: wram.address = (wram.address & 0x0ffff) | ((data << 16) & 0x10000); break;
-            }
         }
 
         private void WriteSCPU(byte bank, ushort address, byte data)
@@ -233,7 +126,7 @@ namespace Beta.SuperFamicom
 
             case 0x4200:
                 state.scpu.reg4200 = data;
-                Driver.Cpu.NmiWrapper((state.scpu.reg4200 & 0x80) != 0);
+                Cpu.NmiWrapper((state.scpu.reg4200 & 0x80) != 0);
                 return;
 
             case 0x4201: return; // I/O Port
