@@ -1,5 +1,7 @@
-﻿using Beta.Platform.Core;
+﻿#define LOROM
+using Beta.Platform.Core;
 using Beta.Platform.Messaging;
+using Beta.SuperFamicom.Cartridges;
 using Beta.SuperFamicom.Messaging;
 using Beta.SuperFamicom.PAD;
 using SimpleInjector;
@@ -39,7 +41,12 @@ namespace Beta.SuperFamicom
             broker.Subscribe<HBlankSignal>(driver.Cpu);
             broker.Subscribe<VBlankSignal>(driver.Cpu);
 
-            driver.Bus.Initialize(binary);
+#if LOROM
+            var cart = new LoRomCartridge(binary);
+#else
+            var cart = new HiRomCartridge(binary);
+#endif
+            driver.Bus.Initialize(cart);
             driver.Ppu.Initialize();
             driver.Cpu.Initialize();
 

@@ -51,10 +51,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusA.cs" />
+    <Compile Include="Cartridges\HiRomCartridge.cs" />
+    <Compile Include="Cartridges\LoRomCartridge.cs" />
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="CPU\Dma.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
+    <Compile Include="Cartridges\ICartridge.cs" />
     <Compile Include="Memory\WRAM.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\HBlankSignal.cs" />

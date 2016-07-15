@@ -1,6 +1,6 @@
-﻿#define LOROM
-using System;
+﻿using System;
 using Beta.Platform.Messaging;
+using Beta.SuperFamicom.Cartridges;
 using Beta.SuperFamicom.Memory;
 
 namespace Beta.SuperFamicom
@@ -11,7 +11,7 @@ namespace Beta.SuperFamicom
         private readonly State state;
         private readonly WRAM wram;
 
-        private byte[] cart;
+        private ICartridge cart;
 
         public Driver Driver;
 
@@ -22,7 +22,7 @@ namespace Beta.SuperFamicom
             this.wram = wram;
         }
 
-        public void Initialize(byte[] cart)
+        public void Initialize(ICartridge cart)
         {
             this.cart = cart;
 
@@ -37,11 +37,11 @@ namespace Beta.SuperFamicom
                 if ((address & 0xe000) == 0x0000) { wram.Read(0x00, address, ref data); return; }
                 if ((address & 0xff00) == 0x2100) { ReadBusB(bank, address, ref data); return; }
                 if ((address & 0xfc00) == 0x4000) { ReadSCPU(bank, address, ref data); return; }
-                if ((address & 0x8000) == 0x8000) { ReadCart(bank, address, ref data); return; }
+                if ((address & 0x8000) == 0x8000) { cart.Read(bank, address, ref data); return; }
                 return;
             }
 
-            if ((bank & 0x7f) <= 0x7f) { ReadCart(bank, address, ref data); return; }
+            if ((bank & 0x7f) <= 0x7f) { cart.Read(bank, address, ref data); return; }
 
             throw new NotImplementedException();
         }
@@ -77,16 +77,6 @@ namespace Beta.SuperFamicom
             case 0x2182: break;
             case 0x2183: break;
             }
-        }
-
-        private void ReadCart(byte bank, ushort address, ref byte data)
-        {
-#if LOROM
-            var index = (bank << 15) | (address & 0x7fff);
-#else
-            var index = (bank << 16) | (address & 0xffff);
-#endif
-            data = cart[index & (cart.Length - 1)];
         }
 
         private void ReadSCPU(byte bank, ushort address, ref byte data)
@@ -129,11 +119,11 @@ namespace Beta.SuperFamicom
                 if ((address & 0xe000) == 0x0000) { wram.Write(0x00, address, data); return; } // $0000-$1fff
                 if ((address & 0xff00) == 0x2100) { WriteBusB(bank, address, data); return; } // $2100-$21ff
                 if ((address & 0xfc00) == 0x4000) { WriteSCPU(bank, address, data); return; } // $4000-$43ff
-                if ((address & 0x8000) == 0x8000) { WriteCart(bank, address, data); return; } // $8000-$ffff
+                if ((address & 0x8000) == 0x8000) { cart.Write(bank, address, data); return; } // $8000-$ffff
                 return;
             }
 
-            if ((bank & 0x7f) <= 0x7f) { WriteCart(bank, address, data); return; }
+            if ((bank & 0x7f) <= 0x7f) { cart.Write(bank, address, data); return; }
 
             throw new NotImplementedException();
         }
@@ -204,13 +194,11 @@ namespace Beta.SuperFamicom
 
             // W-RAM Registers
             case 0x2180: wram.Write(data); break;
-            case 0x2181: wram.address = (wram.address & 0x1ff00) | ((data <<  0) & 0x000ff); break;
-            case 0x2182: wram.address = (wram.address & 0x100ff) | ((data <<  8) & 0x0ff00); break;
+            case 0x2181: wram.address = (wram.address & 0x1ff00) | ((data << 0) & 0x000ff); break;
+            case 0x2182: wram.address = (wram.address & 0x100ff) | ((data << 8) & 0x0ff00); break;
             case 0x2183: wram.address = (wram.address & 0x0ffff) | ((data << 16) & 0x10000); break;
             }
         }
-
-        private void WriteCart(byte bank, ushort address, byte data) { }
 
         private void WriteSCPU(byte bank, ushort address, byte data)
         {

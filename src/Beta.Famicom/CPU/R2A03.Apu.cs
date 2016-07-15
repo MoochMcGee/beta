@@ -1,6 +1,4 @@
-﻿using Beta.Platform;
-
-namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.CPU
 {
     public partial class R2A03
     {
