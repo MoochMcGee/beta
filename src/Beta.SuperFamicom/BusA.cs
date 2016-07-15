@@ -31,15 +31,14 @@ namespace Beta.SuperFamicom
 
         public void Read(byte bank, ushort address, ref byte data)
         {
-            if (bank == 0x7e) { data = wram.Read(bank, address); return; }
-            if (bank == 0x7f) { data = wram.Read(bank, address); return; }
-
+            if ((bank & 0x7e) == 0x7e) { wram.Read(bank, address, ref data); return; }
             if ((bank & 0x7f) <= 0x3f)
             {
-                if ((address & 0xe000) == 0x0000) { data = wram.Read(0x00, address); return; }
+                if ((address & 0xe000) == 0x0000) { wram.Read(0x00, address, ref data); return; }
                 if ((address & 0xff00) == 0x2100) { ReadBusB(bank, address, ref data); return; }
                 if ((address & 0xfc00) == 0x4000) { ReadSCPU(bank, address, ref data); return; }
                 if ((address & 0x8000) == 0x8000) { ReadCart(bank, address, ref data); return; }
+                return;
             }
 
             if ((bank & 0x7f) <= 0x7f) { ReadCart(bank, address, ref data); return; }
@@ -124,9 +123,7 @@ namespace Beta.SuperFamicom
 
         public void Write(byte bank, ushort address, byte data)
         {
-            if (bank == 0x7e) { wram.Write(bank, address, data); return; }
-            if (bank == 0x7f) { wram.Write(bank, address, data); return; }
-
+            if ((bank & 0x7e) == 0x7e) { wram.Write(bank, address, data); return; }
             if ((bank & 0x7f) <= 0x3f)
             {
                 if ((address & 0xe000) == 0x0000) { wram.Write(0x00, address, data); return; } // $0000-$1fff

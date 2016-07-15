@@ -13,9 +13,9 @@ namespace Beta.SuperFamicom.Memory
             wram.Initialize<byte>(0x55);
         }
 
-        public byte Read(byte bank, ushort address)
+        public void Read(byte bank, ushort address, ref byte data)
         {
-            return wram[((bank << 16) & 0x10000) | address];
+            data = wram[((bank << 16) & 0x10000) | address];
         }
 
         public void Write(byte bank, ushort address, byte data)
