@@ -25,6 +25,7 @@ namespace Beta.SuperFamicom
         public int dram_prescaler = 8;
         public int dram_timer = 538;
         public int time_prescaler = 4;
+        public bool fast_cart;
 
         public int h;
         public int h_target;
@@ -43,6 +44,9 @@ namespace Beta.SuperFamicom
         public ushort rddiv;
 
         public DmaState[] dma = new DmaState[8];
+        public byte mdma_en;
+        public byte hdma_en;
+        public int mdma_count;
 
         public SCpuState()
         {

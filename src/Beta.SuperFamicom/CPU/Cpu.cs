@@ -14,6 +14,7 @@ namespace Beta.SuperFamicom.CPU
         private readonly SCpuState scpu;
 
         private bool old_nmi;
+        private byte open;
         private int t;
 
         public BusA Bus;
@@ -32,26 +33,52 @@ namespace Beta.SuperFamicom.CPU
 
         protected override byte Read(byte bank, ushort address)
         {
-            return Bus.Read(bank, address);
+            var speed = GetSpeed(bank, address);
+            clock.Produce(new ClockSignal(speed));
+
+            Bus.Read(bank, address, ref open);
+
+            return open;
         }
 
         protected override void Write(byte bank, ushort address, byte data)
         {
-            Bus.Write(bank, address, data);
+            var speed = GetSpeed(bank, address);
+            clock.Produce(new ClockSignal(speed));
+
+            Bus.Write(bank, address, open = data);
+        }
+
+        private int GetSpeed(byte bank, ushort address)
+        {
+            var addr = (bank << 16) | address;
+
+            if ((addr & 0x408000) != 0)
+            {
+                return (addr & 0x800000) != 0 && scpu.fast_cart
+                    ? 6
+                    : 8
+                    ;
+            }
+
+            if (((addr + 0x6000) & 0x4000) != 0) return 8;
+            if (((addr - 0x4000) & 0x7E00) != 0) return 6;
+
+            return 12;
         }
 
         public void Consume(ClockSignal e)
         {
             var amount = e.Cycles;
 
-            if (Dma.mdma_count != 0 && --Dma.mdma_count == 0)
+            if (scpu.mdma_count != 0 && --scpu.mdma_count == 0)
             {
-                if (Dma.mdma_en != 0)
+                if (scpu.mdma_en != 0)
                 {
                     int time = Dma.Run(t);
                     clock.Produce(new ClockSignal(amount - (time % amount)));
 
-                    Dma.mdma_en = 0;
+                    scpu.mdma_en = 0;
                 }
             }
 

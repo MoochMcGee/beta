@@ -5,18 +5,14 @@ namespace Beta.SuperFamicom.CPU
     public sealed class Dma
     {
         private readonly IProducer<ClockSignal> clock;
-
-        public DmaState[] dma;
-        public byte mdma_en;
-        public byte hdma_en;
-        public int mdma_count;
+        private readonly SCpuState scpu;
 
         public BusA Bus;
 
         public Dma(IProducer<ClockSignal> clock, State state)
         {
             this.clock = clock;
-            this.dma = state.scpu.dma;
+            this.scpu = state.scpu;
         }
 
         public int Run(int totalCycles)
@@ -34,7 +30,7 @@ namespace Beta.SuperFamicom.CPU
 
             for (int i = 0; i < 8; i++)
             {
-                var enable = (mdma_en & (1 << i)) != 0;
+                var enable = (scpu.mdma_en & (1 << i)) != 0;
                 if (enable)
                 {
                     // DMA channel initialization
@@ -49,7 +45,7 @@ namespace Beta.SuperFamicom.CPU
         private int RunChannel(int i)
         {
             var amount = 0;
-            var c = dma[i];
+            var channel = scpu.dma[i];
             var step = 0;
 
             while (true)
@@ -57,33 +53,36 @@ namespace Beta.SuperFamicom.CPU
                 clock.Produce(new ClockSignal(8));
                 amount += 8;
 
-                var a_bank = (byte)(c.address_a >> 16);
-                var a_addr = (ushort)(c.address_a >> 0);
+                var bank = (byte)(channel.address_a >> 16);
+                var addr = (ushort)(channel.address_a >> 0);
+                var dest = GetAddressB(channel, step);
 
-                if ((c.control & 0x80) == 0)
+                byte data = 0;
+
+                if ((channel.control & 0x80) == 0)
                 {
-                    var data = Bus.ReadFree(a_bank, a_addr);
-                    var dest = GetAddressB(c.control & 7, c.address_b, step);
-                    Bus.WriteFree(0, dest, data);
+                    Bus.Read(bank, addr, ref data);
+                    Bus.Write(0, dest, data);
                 }
                 else
                 {
-                    var dest = GetAddressB(c.control & 7, c.address_b, step);
-                    var data = Bus.ReadFree(0, dest);
-                    Bus.WriteFree(a_bank, a_addr, data);
+                    Bus.Read(0, dest, ref data);
+                    Bus.Write(bank, addr, data);
                 }
 
-                switch (c.control & 0x18)
+                switch ((channel.control >> 3) & 3)
                 {
-                case 0x00: c.address_a++; break;
-                case 0x08: break;
-                case 0x10: c.address_a--; break;
-                case 0x18: break;
+                case 0: channel.address_a++; break;
+                case 1: break;
+                case 2: channel.address_a--; break;
+                case 3: break;
                 }
 
                 step++;
 
-                if (--c.count == 0)
+                channel.count--;
+
+                if (channel.count == 0)
                 {
                     break;
                 }
@@ -92,23 +91,24 @@ namespace Beta.SuperFamicom.CPU
             return amount;
         }
 
-        private ushort GetAddressB(int type, int init, int step)
+        private ushort GetAddressB(DmaState channel, int step)
         {
-            int port = 0;
+            int init = channel.address_b;
+            int type = channel.control & 7;
 
             switch (type)
             {
-            case 0: port = init; break;
-            case 1: port = init + ((step >> 0) & 1); break;
-            case 2: port = init; break;
-            case 3: port = init + ((step >> 1) & 1); break;
-            case 4: port = init + ((step >> 0) & 3); break;
-            case 5: port = init + ((step >> 0) & 1); break;
-            case 6: port = init; break;
-            case 7: port = init + ((step >> 1) & 1); break;
+            case 0: step = 0; break;
+            case 1: step = (step & 1); break;
+            case 2: step = 0; break;
+            case 3: step = (step & 2) / 2; break;
+            case 4: step = (step & 3); break;
+            case 5: step = (step & 1); break;
+            case 6: step = 0; break;
+            case 7: step = (step & 2) / 2; break;
             }
 
-            return (ushort)(0x2100 | (byte)port);
+            return (ushort)(0x2100 | ((init + step) & 0xff));
         }
     }
 }

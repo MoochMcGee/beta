@@ -7,27 +7,19 @@ namespace Beta.SuperFamicom
 {
     public sealed class BusA
     {
-        private const int SpeedSlow = 12;
-        private const int SpeedNorm = 8;
-        private const int SpeedFast = 6;
-
         private readonly IProducer<ClockSignal> clock;
-        private readonly SCpuState scpu;
         private readonly State state;
         private readonly WRAM wram;
 
-        private byte open;
         private byte[] cart;
-        private int speedCart = SpeedNorm;
 
         public Driver Driver;
 
-        public BusA(IProducer<ClockSignal> clock, State state)
+        public BusA(IProducer<ClockSignal> clock, State state, WRAM wram)
         {
             this.clock = clock;
-            this.scpu = state.scpu;
             this.state = state;
-            this.wram = new WRAM();
+            this.wram = wram;
         }
 
         public void Initialize(byte[] cart)
@@ -37,119 +29,100 @@ namespace Beta.SuperFamicom
             clock.Produce(new ClockSignal(170));
         }
 
-        public byte Read(byte bank, ushort address)
+        public void Read(byte bank, ushort address, ref byte data)
         {
-            var speed = GetSpeed(bank, address);
-            clock.Produce(new ClockSignal(speed));
-
-            return open = ReadFree(bank, address);
-        }
-
-        public byte ReadFree(byte bank, ushort address)
-        {
-            if (bank == 0x7e) { return wram.Read(bank, address); }
-            if (bank == 0x7f) { return wram.Read(bank, address); }
+            if (bank == 0x7e) { data = wram.Read(bank, address); return; }
+            if (bank == 0x7f) { data = wram.Read(bank, address); return; }
 
             if ((bank & 0x7f) <= 0x3f)
             {
-                if ((address & 0xe000) == 0x0000) { return wram.Read(0x00, address); }
-                if ((address & 0xff00) == 0x2100) { return ReadBusB(bank, address); }
-                if ((address & 0xfc00) == 0x4000) { return ReadSCPU(bank, address); }
-                if ((address & 0x8000) == 0x8000) { return ReadCart(bank, address); }
-                return open;
+                if ((address & 0xe000) == 0x0000) { data = wram.Read(0x00, address); return; }
+                if ((address & 0xff00) == 0x2100) { ReadBusB(bank, address, ref data); return; }
+                if ((address & 0xfc00) == 0x4000) { ReadSCPU(bank, address, ref data); return; }
+                if ((address & 0x8000) == 0x8000) { ReadCart(bank, address, ref data); return; }
             }
 
-            if ((bank & 0x7f) <= 0x7f) { return ReadCart(bank, address); }
+            if ((bank & 0x7f) <= 0x7f) { ReadCart(bank, address, ref data); return; }
 
             throw new NotImplementedException();
         }
 
-        private byte ReadBusB(byte bank, ushort address)
+        private void ReadBusB(byte bank, ushort address, ref byte data)
         {
             if ((address & 0xffc0) == 0x2140)
             {
                 // S-SMP Registers
-                return Driver.Smp.ReadPort(address & 3, 0);
+                data = Driver.Smp.ReadPort(address & 3, 0);
+                return;
             }
 
             switch (address)
             {
             // S-PPU Registers
-            case 0x2134: return Driver.Ppu.Peek2134();
-            case 0x2135: return Driver.Ppu.Peek2135();
-            case 0x2136: return Driver.Ppu.Peek2136();
-            case 0x2137: return Driver.Ppu.Peek2137();
-            case 0x2138: return Driver.Ppu.Peek2138();
-            case 0x2139: return Driver.Ppu.Peek2139();
-            case 0x213a: return Driver.Ppu.Peek213A();
-            case 0x213b: return Driver.Ppu.Peek213B();
-            case 0x213c: return Driver.Ppu.Peek213C();
-            case 0x213d: return Driver.Ppu.Peek213D();
-            case 0x213e: return Driver.Ppu.Peek213E();
-            case 0x213f: return Driver.Ppu.Peek213F();
+            case 0x2134: data = Driver.Ppu.Peek2134(); break;
+            case 0x2135: data = Driver.Ppu.Peek2135(); break;
+            case 0x2136: data = Driver.Ppu.Peek2136(); break;
+            case 0x2137: data = Driver.Ppu.Peek2137(); break;
+            case 0x2138: data = Driver.Ppu.Peek2138(); break;
+            case 0x2139: data = Driver.Ppu.Peek2139(); break;
+            case 0x213a: data = Driver.Ppu.Peek213A(); break;
+            case 0x213b: data = Driver.Ppu.Peek213B(); break;
+            case 0x213c: data = Driver.Ppu.Peek213C(); break;
+            case 0x213d: data = Driver.Ppu.Peek213D(); break;
+            case 0x213e: data = Driver.Ppu.Peek213E(); break;
+            case 0x213f: data = Driver.Ppu.Peek213F(); break;
 
             // W-RAM Registers
-            case 0x2180: return wram.Read();
-            case 0x2181: return open;
-            case 0x2182: return open;
-            case 0x2183: return open;
+            case 0x2180: data = wram.Read(); break;
+            case 0x2181: break;
+            case 0x2182: break;
+            case 0x2183: break;
             }
-
-            return open;
         }
 
-        private byte ReadCart(byte bank, ushort address)
+        private void ReadCart(byte bank, ushort address, ref byte data)
         {
 #if LOROM
             var index = (bank << 15) | (address & 0x7fff);
 #else
             var index = (bank << 16) | (address & 0xffff);
 #endif
-            return cart[index & (cart.Length - 1)];
+            data = cart[index & (cart.Length - 1)];
         }
 
-        private byte ReadSCPU(byte bank, ushort address)
+        private void ReadSCPU(byte bank, ushort address, ref byte data)
         {
             switch (address)
             {
-            case 0x4016: return 0; // JOYSER0
-            case 0x4017: return 0; // JOYSER1
+            case 0x4016: break; // JOYSER0
+            case 0x4017: break; // JOYSER1
 
-            case 0x4210: return (byte)((open & 0x70) | (scpu.in_vblank ? 0x80 : 0) | 0x02);
-            case 0x4211: return (byte)((open & 0x7f) | (scpu.timer_coincidence ? 0x80 : 0));
-            case 0x4212: return (byte)((open & 0x3e) | (scpu.in_vblank ? 0x80 : 0) | (scpu.in_hblank ? 0x40 : 0));
-            case 0x4213: return 0; // I/O Port
-            case 0x4214: return (byte)(scpu.rddiv >> 0); // RDDIVL
-            case 0x4215: return (byte)(scpu.rddiv >> 8); // RDDIVH
-            case 0x4216: return (byte)(scpu.rdmpy >> 0); // RDMPYL
-            case 0x4217: return (byte)(scpu.rdmpy >> 8); // RDMPYH
+            case 0x4210: data = (byte)((data & 0x70) | (state.scpu.in_vblank ? 0x80 : 0) | 0x02); break;
+            case 0x4211: data = (byte)((data & 0x7f) | (state.scpu.timer_coincidence ? 0x80 : 0)); break;
+            case 0x4212: data = (byte)((data & 0x3e) | (state.scpu.in_vblank ? 0x80 : 0) | (state.scpu.in_hblank ? 0x40 : 0)); break;
+            case 0x4213: break; // I/O Port
+            case 0x4214: data = (byte)(state.scpu.rddiv >> 0); break; // RDDIVL
+            case 0x4215: data = (byte)(state.scpu.rddiv >> 8); break; // RDDIVH
+            case 0x4216: data = (byte)(state.scpu.rdmpy >> 0); break; // RDMPYL
+            case 0x4217: data = (byte)(state.scpu.rdmpy >> 8); break; // RDMPYH
 
-            case 0x4218: return (byte)(state.pads[0] >> 0);
-            case 0x4219: return (byte)(state.pads[0] >> 8);
+            case 0x4218: data = (byte)(state.pads[0] >> 0); break;
+            case 0x4219: data = (byte)(state.pads[0] >> 8); break;
 
-            case 0x421a: return (byte)(state.pads[1] >> 0);
-            case 0x421b: return (byte)(state.pads[1] >> 8);
+            case 0x421a: data = (byte)(state.pads[1] >> 0); break;
+            case 0x421b: data = (byte)(state.pads[1] >> 8); break;
 
-            case 0x421c: return 0; // JOY3L
-            case 0x421d: return 0; // JOY3H
+            case 0x421c: data = 0; break; // JOY3L
+            case 0x421d: data = 0; break; // JOY3H
 
-            case 0x421e: return 0; // JOY4L
-            case 0x421f: return 0; // JOY4H
+            case 0x421e: data = 0; break; // JOY4L
+            case 0x421f: data = 0; break; // JOY4H
             }
 
-            return open;
             // throw new NotImplementedException($"Unknown address: ${bank:x2}:{address:x4}.");
         }
 
         public void Write(byte bank, ushort address, byte data)
-        {
-            var speed = GetSpeed(bank, address);
-            clock.Produce(new ClockSignal(speed));
-
-            WriteFree(bank, address, open = data);
-        }
-
-        public void WriteFree(byte bank, ushort address, byte data)
         {
             if (bank == 0x7e) { wram.Write(bank, address, data); return; }
             if (bank == 0x7f) { wram.Write(bank, address, data); return; }
@@ -246,7 +219,7 @@ namespace Beta.SuperFamicom
         {
             if ((address & 0xff00) == 0x4300)
             {
-                var dma = scpu.dma[(address >> 4) & 7];
+                var dma = state.scpu.dma[(address >> 4) & 7];
 
                 switch (address & 0xff0f)
                 {
@@ -274,66 +247,50 @@ namespace Beta.SuperFamicom
             case 0x4016: return;
 
             case 0x4200:
-                scpu.reg4200 = data;
-                Driver.Cpu.NmiWrapper((scpu.reg4200 & 0x80) != 0);
+                state.scpu.reg4200 = data;
+                Driver.Cpu.NmiWrapper((state.scpu.reg4200 & 0x80) != 0);
                 return;
 
             case 0x4201: return; // I/O Port
-            case 0x4202: scpu.wrmpya = data; return; // WRMPYA
-            case 0x4203: scpu.wrmpyb = data; scpu.rdmpy = (ushort)(scpu.wrmpya * scpu.wrmpyb); return; // WRMPYB
-            case 0x4204: scpu.wrdiv = (ushort)((scpu.wrdiv & 0xff00) | (data << 0)); return; // WRDIVL
-            case 0x4205: scpu.wrdiv = (ushort)((scpu.wrdiv & 0x00ff) | (data << 8)); return; // WRDIVH
+            case 0x4202: state.scpu.wrmpya = data; return; // WRMPYA
+            case 0x4203: state.scpu.wrmpyb = data; state.scpu.rdmpy = (ushort)(state.scpu.wrmpya * state.scpu.wrmpyb); return; // WRMPYB
+            case 0x4204: state.scpu.wrdiv = (ushort)((state.scpu.wrdiv & 0xff00) | (data << 0)); return; // WRDIVL
+            case 0x4205: state.scpu.wrdiv = (ushort)((state.scpu.wrdiv & 0x00ff) | (data << 8)); return; // WRDIVH
             case 0x4206:
-                scpu.wrdivb = data;
+                state.scpu.wrdivb = data;
 
-                if (scpu.wrdivb == 0)
+                if (state.scpu.wrdivb == 0)
                 {
-                    scpu.rddiv = 0xffff;
-                    scpu.rdmpy = scpu.wrdiv;
+                    state.scpu.rddiv = 0xffff;
+                    state.scpu.rdmpy = state.scpu.wrdiv;
                 }
                 else
                 {
-                    scpu.rddiv = (ushort)(scpu.wrdiv / scpu.wrdivb);
-                    scpu.rdmpy = (ushort)(scpu.wrdiv % scpu.wrdivb);
+                    state.scpu.rddiv = (ushort)(state.scpu.wrdiv / state.scpu.wrdivb);
+                    state.scpu.rdmpy = (ushort)(state.scpu.wrdiv % state.scpu.wrdivb);
                 }
                 return; // WRDIVB
 
-            case 0x4207: scpu.h_target = (scpu.h_target & ~0x00ff) | (data << 0); return;
-            case 0x4208: scpu.h_target = (scpu.h_target & ~0xff00) | (data << 8); return;
-            case 0x4209: scpu.v_target = (scpu.v_target & ~0x00ff) | (data << 0); return;
-            case 0x420a: scpu.v_target = (scpu.v_target & ~0xff00) | (data << 8); return;
+            case 0x4207: state.scpu.h_target = (state.scpu.h_target & ~0x00ff) | (data << 0); return;
+            case 0x4208: state.scpu.h_target = (state.scpu.h_target & ~0xff00) | (data << 8); return;
+            case 0x4209: state.scpu.v_target = (state.scpu.v_target & ~0x00ff) | (data << 0); return;
+            case 0x420a: state.scpu.v_target = (state.scpu.v_target & ~0xff00) | (data << 8); return;
 
             case 0x420b: /* MDMAEN */
-                Driver.Dma.mdma_en = data;
-                Driver.Dma.mdma_count = 2;
+                state.scpu.mdma_en = data;
+                state.scpu.mdma_count = 2;
                 return;
 
             case 0x420c: /* HDMAEN */
+                state.scpu.hdma_en = data;
                 return;
 
             case 0x420d:
-                speedCart = (data & 1) == 1 ? SpeedFast : SpeedNorm;
+                state.scpu.fast_cart = (data & 1) != 0;
                 return;
             }
 
             throw new NotImplementedException($"Unknown address: ${bank:x2}:{address:x4}.");
-        }
-
-        private int GetSpeed(byte bank, ushort address)
-        {
-            var addr = (bank << 16) | address;
-
-            if ((addr & 0x408000) != 0)
-            {
-                if ((addr & 0x800000) != 0) return speedCart;
-
-                return SpeedNorm;
-            }
-
-            if (((addr + 0x6000) & 0x4000) != 0) return SpeedNorm;
-            if (((addr - 0x4000) & 0x7E00) != 0) return SpeedFast;
-
-            return SpeedSlow;
         }
     }
 }
