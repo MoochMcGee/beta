@@ -32,6 +32,8 @@ namespace Beta.SuperFamicom.PPU
                 new[] { 32, 32 }  // 111 = 16x32 and 32x32 sprites
             };
 
+            private readonly Ppu ppu;
+
             public bool Interlace;
             public int Addr;
             public int Name;
@@ -41,6 +43,7 @@ namespace Beta.SuperFamicom.PPU
             public Sprite(Ppu ppu)
                 : base(ppu, 4)
             {
+                this.ppu = ppu;
             }
 
             public void Render()
@@ -50,19 +53,24 @@ namespace Beta.SuperFamicom.PPU
 
                 for (int i = 0; i < 256; i++)
                 {
-                    Raster[i] = 0;
-                    Enable[i] = false;
+                    raster[i] = 0;
+                    enable[i] = false;
                 }
 
                 for (var i = 127; i >= 0; i--)
                 {
-                    int exta = Ppu.oram.h[(i >> 3) | 0x100] >> ((i & 7) << 1);
-                    int xpos = Ppu.oram.b[(i << 2) | 0x000];
-                    int ypos = Ppu.oram.b[(i << 2) | 0x001] + 1;
-                    int tile = Ppu.oram.b[(i << 2) | 0x002];
-                    int attr = Ppu.oram.b[(i << 2) | 0x003];
+                    int exta = ppu.oam.h[(i >> 3) | 0x100] >> ((i & 7) << 1);
+                    int xpos = ppu.oam.b[(i << 2) | 0x000];
+                    int ypos = ppu.oam.b[(i << 2) | 0x001];
+                    int tile = ppu.oam.b[(i << 2) | 0x002];
+                    int attr = ppu.oam.b[(i << 2) | 0x003];
 
-                    var line = ( Ppu.vclock - ypos ) & 0x7fffffff;
+                    if (ypos >= 240)
+                    {
+                        ypos -= 256;
+                    }
+
+                    var line = (ppu.vclock - ypos - 1) & int.MaxValue;
 
                     xpos |= (exta & 1) << 8;
 
@@ -97,16 +105,16 @@ namespace Beta.SuperFamicom.PPU
                         charAddress = (charAddress + Name) & 0x7fff;
                     }
 
-                    var priority = Priorities[(attr >> 4) & 3];
+                    var priority = priorities[(attr >> 4) & 3];
 
                     for (var column = 0; column < xSize; column += 8)
                     {
                         t++;
 
-                        var bit0 = Ppu.vram_0[charAddress + 0u];
-                        var bit1 = Ppu.vram_1[charAddress + 0u];
-                        var bit2 = Ppu.vram_0[charAddress + 8u];
-                        var bit3 = Ppu.vram_1[charAddress + 8u];
+                        var bit0 = ppu.vram_0[charAddress + 0u];
+                        var bit1 = ppu.vram_1[charAddress + 0u];
+                        var bit2 = ppu.vram_0[charAddress + 8u];
+                        var bit3 = ppu.vram_1[charAddress + 8u];
 
                         if ((attr & 0x40U) == 0U)
                         {
@@ -130,17 +138,17 @@ namespace Beta.SuperFamicom.PPU
                                 continue;
                             }
 
-                            Enable[xpos] = true;
-                            Raster[xpos] = palette + colour;
-                            Priority[xpos] = priority;
+                            enable[xpos] = true;
+                            raster[xpos] = palette + colour;
+                            base.priority[xpos] = priority;
                         }
 
                         charAddress = (charAddress + charStep) & 0x7fff;
                     }
                 }
 
-                if (t > 34) Ppu.ppu1Stat |= 0x80;
-                if (r > 32) Ppu.ppu1Stat |= 0x40;
+                if (t > 34) ppu.ppu1Stat |= 0x80;
+                if (r > 32) ppu.ppu1Stat |= 0x40;
             }
         }
     }

@@ -47,7 +47,6 @@ namespace Beta.SuperFamicom
             var cart = new HiRomCartridge(binary);
 #endif
             driver.Bus.Initialize(cart);
-            driver.Ppu.Initialize();
             driver.Cpu.Initialize();
 
             return driver;

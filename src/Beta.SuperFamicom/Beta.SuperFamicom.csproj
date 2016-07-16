@@ -72,7 +72,6 @@
     <Compile Include="PPU\Ppu.Memory.cs" />
     <Compile Include="PPU\Ppu.Render.cs" />
     <Compile Include="PPU\Ppu.Sprite.cs" />
-    <Compile Include="PPU\Ppu.Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SMP\Dsp.cs" />
     <Compile Include="SMP\PSRAM.cs" />

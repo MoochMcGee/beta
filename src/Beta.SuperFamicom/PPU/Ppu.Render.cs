@@ -26,22 +26,26 @@
                 {
                     var layer = layers[i];
 
-                    if (layer.Enable[x])
+                    if (layer.enable[x])
                     {
-                        if (layer.Sm != 0 && priority1 < layer.Priority[x]) { priority1 = layer.Priority[x]; source1 = i; }
-                        if (layer.Ss != 0 && priority2 < layer.Priority[x]) { priority2 = layer.Priority[x]; source2 = i; }
+                        if (layer.screen_main != 0 && priority1 < layer.priority[x]) { priority1 = layer.priority[x]; source1 = i; }
+                        if (layer.screen_sub != 0 && priority2 < layer.priority[x]) { priority2 = layer.priority[x]; source2 = i; }
                     }
                 }
 
                 var colorexempt = (source1 == 4 && (color1 < 0xc0));
 
-                if (source1 != 5) color1 = cram.h[layers[source1].Raster[x]];
-                if (source2 != 5) color2 = cram.h[layers[source2].Raster[x]];
+                if (source1 != 5) color1 = cram.h[layers[source1].raster[x]];
+                if (source2 != 5) color2 = cram.h[layers[source2].raster[x]];
 
                 if (!colorexempt && mathEnable[source1])
                 {
-                    int r1 = (color1 >> 0) & 31, g1 = (color1 >> 5) & 31, b1 = (color1 >> 10) & 31;
-                    int r2 = (color2 >> 0) & 31, g2 = (color2 >> 5) & 31, b2 = (color2 >> 10) & 31;
+                    int r1 = (color1 >>  0) & 31;
+                    int g1 = (color1 >>  5) & 31;
+                    int b1 = (color1 >> 10) & 31;
+                    int r2 = (color2 >>  0) & 31;
+                    int g2 = (color2 >>  5) & 31;
+                    int b2 = (color2 >> 10) & 31;
 
                     switch (mathType)
                     {
@@ -120,14 +124,14 @@
             {
                 int color;
 
-                if ((color = spr.GetColorM(i)) != 0) goto render; // Sprites with priority 3
-                if ((color = bg0.GetColorM(i)) != 0) goto render; // BG1 tiles with priority 1
-                if ((color = spr.GetColorM(i)) != 0) goto render; // Sprites with priority 2
-                if ((color = bg1.GetColorM(i)) != 0) goto render; // BG2 tiles with priority 1
-                if ((color = spr.GetColorM(i)) != 0) goto render; // Sprites with priority 1
-                if ((color = bg0.GetColorM(i)) != 0) goto render; // BG1 tiles with priority 0
-                if ((color = spr.GetColorM(i)) != 0) goto render; // Sprites with priority 0
-                if ((color = bg1.GetColorM(i)) != 0) goto render; // BG2 tiles with priority 0
+                if ((color = spr.GetMainColor(i)) != 0) goto render; // Sprites with priority 3
+                if ((color = bg0.GetMainColor(i)) != 0) goto render; // BG1 tiles with priority 1
+                if ((color = spr.GetMainColor(i)) != 0) goto render; // Sprites with priority 2
+                if ((color = bg1.GetMainColor(i)) != 0) goto render; // BG2 tiles with priority 1
+                if ((color = spr.GetMainColor(i)) != 0) goto render; // Sprites with priority 1
+                if ((color = bg0.GetMainColor(i)) != 0) goto render; // BG1 tiles with priority 0
+                if ((color = spr.GetMainColor(i)) != 0) goto render; // Sprites with priority 0
+                if ((color = bg1.GetMainColor(i)) != 0) goto render; // BG2 tiles with priority 0
 
                 render:
                 raster[i] = colors[cram.h[color]];

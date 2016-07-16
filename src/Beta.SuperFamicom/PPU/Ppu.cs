@@ -20,6 +20,7 @@ namespace Beta.SuperFamicom.PPU
             new[] { new[] { 5,  8 }, new[] { 4,  7 }, new[] { 1, 10 }, new[] { 0, 0 }, new[] { 2, 3, 6,  9 } }  // mode 1 priority
         };
 
+        private readonly SPpuState sppu;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<HBlankSignal> hblank;
         private readonly IProducer<VBlankSignal> vblank;
@@ -75,6 +76,7 @@ namespace Beta.SuperFamicom.PPU
         }
 
         public Ppu(
+            State state,
             IVideoBackend video,
             IProducer<FrameSignal> frame,
             IProducer<HBlankSignal> hblank,
@@ -82,15 +84,16 @@ namespace Beta.SuperFamicom.PPU
         {
             Single = 4;
 
+            this.sppu = state.sppu;
             this.video = video;
             this.frame = frame;
             this.hblank = hblank;
             this.vblank = vblank;
 
-            bg0 = new Background(this, 0);
-            bg1 = new Background(this, 1);
-            bg2 = new Background(this, 2);
-            bg3 = new Background(this, 3);
+            bg0 = new Background(sppu.bg0, this);
+            bg1 = new Background(sppu.bg1, this);
+            bg2 = new Background(sppu.bg2, this);
+            bg3 = new Background(sppu.bg3, this);
             clr = new ColorGeneration(this);
             spr = new Sprite(this);
 
@@ -99,21 +102,21 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek2134()
         {
-            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)sppu.m7.a * ((sbyte)(sppu.m7.b >> 8));
 
             return ppu1Open = ((byte)(product >> 0));
         }
 
         public byte Peek2135()
         {
-            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)sppu.m7.a * ((sbyte)(sppu.m7.b >> 8));
 
             return ppu1Open = ((byte)(product >> 8));
         }
 
         public byte Peek2136()
         {
-            product = (short)Background.M7A * ((sbyte)(Background.M7B >> 8));
+            product = (short)sppu.m7.a * ((sbyte)(sppu.m7.b >> 8));
 
             return ppu1Open = ((byte)(product >> 16));
         }
@@ -184,281 +187,278 @@ namespace Beta.SuperFamicom.PPU
 
         public void Poke2105(byte data)
         {
-            Background.Mode = (data & 0x07);
-            Background.Priority = (data & 0x08) != 0;
-            bg0.CharSize = (data & 0x10) != 0 ? 16 : 8;
-            bg1.CharSize = (data & 0x20) != 0 ? 16 : 8;
-            bg2.CharSize = (data & 0x40) != 0 ? 16 : 8;
-            bg3.CharSize = (data & 0x80) != 0 ? 16 : 8;
+            sppu.bg_mode = (data & 0x07);
+            sppu.bg_priority = (data & 0x08) != 0;
+            sppu.bg0.char_size = (data & 0x10) != 0 ? 16 : 8;
+            sppu.bg1.char_size = (data & 0x20) != 0 ? 16 : 8;
+            sppu.bg2.char_size = (data & 0x40) != 0 ? 16 : 8;
+            sppu.bg3.char_size = (data & 0x80) != 0 ? 16 : 8;
 
-            var table = priorityLut[Background.Mode];
+            var table = priorityLut[sppu.bg_mode];
 
-            if (Background.Mode == 1 && Background.Priority)
+            if (sppu.bg_mode == 1 && sppu.bg_priority)
                 table = priorityLut[8];
 
-            bg0.Priorities = table[0];
-            bg1.Priorities = table[1];
-            bg2.Priorities = table[2];
-            bg3.Priorities = table[3];
-            spr.Priorities = table[4];
+            bg0.priorities = table[0];
+            bg1.priorities = table[1];
+            bg2.priorities = table[2];
+            bg3.priorities = table[3];
+            spr.priorities = table[4];
         }
 
         public void Poke2106(byte data)
         {
-            bg0.Mosaic = (data & 0x01) != 0;
-            bg1.Mosaic = (data & 0x02) != 0;
-            bg2.Mosaic = (data & 0x04) != 0;
-            bg3.Mosaic = (data & 0x08) != 0;
+            sppu.bg0.mosaic = (data & 0x01) != 0;
+            sppu.bg1.mosaic = (data & 0x02) != 0;
+            sppu.bg2.mosaic = (data & 0x04) != 0;
+            sppu.bg3.mosaic = (data & 0x08) != 0;
 
-            Background.MosaicSize = (data & 0xf0) >> 4;
+            sppu.bg_mosaic_size = (data & 0xf0) >> 4;
         }
 
         public void Poke2107(byte data)
         {
-            bg0.NameSize = (data & 0x03);
-            bg0.NameBase = (data & 0x7c) << 8;
+            sppu.bg0.name_size = (data & 0x03);
+            sppu.bg0.name_base = (data & 0x7c) << 8;
         }
 
         public void Poke2108(byte data)
         {
-            bg1.NameSize = (data & 0x03);
-            bg1.NameBase = (data & 0x7c) << 8;
+            sppu.bg1.name_size = (data & 0x03);
+            sppu.bg1.name_base = (data & 0x7c) << 8;
         }
 
         public void Poke2109(byte data)
         {
-            bg2.NameSize = (data & 0x03);
-            bg2.NameBase = (data & 0x7c) << 8;
+            sppu.bg2.name_size = (data & 0x03);
+            sppu.bg2.name_base = (data & 0x7c) << 8;
         }
 
         public void Poke210A(byte data)
         {
-            bg3.NameSize = (data & 0x03);
-            bg3.NameBase = (data & 0x7c) << 8;
+            sppu.bg3.name_size = (data & 0x03);
+            sppu.bg3.name_base = (data & 0x7c) << 8;
         }
 
         public void Poke210B(byte data)
         {
-            bg0.CharBase = (data & 0x07) << 12;
-            bg1.CharBase = (data & 0x70) << 8;
+            sppu.bg0.char_base = (data & 0x07) << 12;
+            sppu.bg1.char_base = (data & 0x70) << 8;
         }
 
         public void Poke210C(byte data)
         {
-            bg2.CharBase = (data & 0x07) << 12;
-            bg3.CharBase = (data & 0x70) << 8;
+            sppu.bg2.char_base = (data & 0x07) << 12;
+            sppu.bg3.char_base = (data & 0x70) << 8;
         }
 
         public void Poke210D(byte data)
         {
-            bg0.WriteHOffset(data);
+            WriteHOffset(sppu.bg0, data);
 
-            Background.M7HOffset = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.h_offset = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke210E(byte data)
         {
-            bg0.WriteVOffset(data);
+            WriteVOffset(sppu.bg0, data);
 
-            Background.M7VOffset = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.v_offset = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke210F(byte data)
         {
-            bg1.WriteHOffset(data);
+            WriteHOffset(sppu.bg1, data);
         }
 
         public void Poke2110(byte data)
         {
-            bg1.WriteVOffset(data);
+            WriteVOffset(sppu.bg1, data);
         }
 
         public void Poke2111(byte data)
         {
-            bg2.WriteHOffset(data);
+            WriteHOffset(sppu.bg2, data);
         }
 
         public void Poke2112(byte data)
         {
-            bg2.WriteVOffset(data);
+            WriteVOffset(sppu.bg2, data);
         }
 
         public void Poke2113(byte data)
         {
-            bg3.WriteHOffset(data);
+            WriteHOffset(sppu.bg3, data);
         }
 
         public void Poke2114(byte data)
         {
-            bg3.WriteVOffset(data);
+            WriteVOffset(sppu.bg3, data);
         }
 
         public void Poke2115(byte data)
         {
-            vramCtrl = data;
+            vram_control = data;
 
-            switch (vramCtrl & 3)
+            switch (vram_control & 3)
             {
-            case 0: vramStep = 0x01; break;
-            case 1: vramStep = 0x20; break;
-            case 2: vramStep = 0x80; break;
-            case 3: vramStep = 0x80; break;
+            case 0: vram_step = 0x01; break;
+            case 1: vram_step = 0x20; break;
+            case 2: vram_step = 0x80; break;
+            case 3: vram_step = 0x80; break;
             }
         }
 
         public void Poke211A(byte data)
         {
-            Background.M7Control = data;
+            sppu.m7.control = data;
         }
 
         public void Poke211B(byte data)
         {
-            Background.M7A = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.a = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke211C(byte data)
         {
-            Background.M7B = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.b = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke211D(byte data)
         {
-            Background.M7C = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.c = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke211E(byte data)
         {
-            Background.M7D = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.d = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke211F(byte data)
         {
-            Background.M7X = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.x = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke2120(byte data)
         {
-            Background.M7Y = (ushort)((data << 8) | Background.M7Latch);
-            Background.M7Latch = data;
+            sppu.m7.y = (ushort)((data << 8) | sppu.m7.latch);
+            sppu.m7.latch = data;
         }
 
         public void Poke2123(byte data)
         {
-            bg0.PokeWindow1(data); data >>= 4;
-            bg1.PokeWindow1(data);
+            bg0.window_1_inverted = (data & 0x01) != 0;
+            bg0.window_1_enable   = (data & 0x02) != 0;
+            bg0.window_2_inverted = (data & 0x04) != 0;
+            bg0.window_2_enable   = (data & 0x08) != 0;
+
+            bg1.window_1_inverted = (data & 0x10) != 0;
+            bg1.window_1_enable   = (data & 0x20) != 0;
+            bg1.window_2_inverted = (data & 0x40) != 0;
+            bg1.window_2_enable   = (data & 0x80) != 0;
         }
 
         public void Poke2124(byte data)
         {
-            bg2.PokeWindow1(data); data >>= 4;
-            bg3.PokeWindow1(data);
+            bg2.window_1_inverted = (data & 0x01) != 0;
+            bg2.window_1_enable   = (data & 0x02) != 0;
+            bg2.window_2_inverted = (data & 0x04) != 0;
+            bg2.window_2_enable   = (data & 0x08) != 0;
+
+            bg3.window_1_inverted = (data & 0x10) != 0;
+            bg3.window_1_enable   = (data & 0x20) != 0;
+            bg3.window_2_inverted = (data & 0x40) != 0;
+            bg3.window_2_enable   = (data & 0x80) != 0;
         }
 
         public void Poke2125(byte data)
         {
-            spr.PokeWindow1(data); data >>= 4;
-            clr.PokeWindow1(data);
+            spr.window_1_inverted = (data & 0x01) != 0;
+            spr.window_1_enable   = (data & 0x02) != 0;
+            spr.window_2_inverted = (data & 0x04) != 0;
+            spr.window_2_enable   = (data & 0x08) != 0;
+
+            clr.window_1_inverted = (data & 0x10) != 0;
+            clr.window_1_enable   = (data & 0x20) != 0;
+            clr.window_2_inverted = (data & 0x40) != 0;
+            clr.window_2_enable   = (data & 0x80) != 0;
         }
 
         public void Poke2126(byte data)
         {
-            if (window1.L == data)
-            {
-                return;
-            }
-
-            window1.L = data;
-            window1.Dirty = true;
+            sppu.window1.x1 = data;
         }
 
         public void Poke2127(byte data)
         {
-            if (window1.R == data)
-            {
-                return;
-            }
-
-            window1.R = data;
-            window1.Dirty = true;
+            sppu.window1.x2 = data;
         }
 
         public void Poke2128(byte data)
         {
-            if (window2.L == data)
-            {
-                return;
-            }
-
-            window2.L = data;
-            window2.Dirty = true;
+            sppu.window2.x1 = data;
         }
 
         public void Poke2129(byte data)
         {
-            if (window2.R == data)
-            {
-                return;
-            }
-
-            window2.R = data;
-            window2.Dirty = true;
+            sppu.window2.x2 = data;
         }
 
         public void Poke212A(byte data)
         {
-            bg0.PokeWindow2(data); data >>= 2;
-            bg1.PokeWindow2(data); data >>= 2;
-            bg2.PokeWindow2(data); data >>= 2;
-            bg3.PokeWindow2(data);
+            bg0.window_logic = (data >> 0) & 3;
+            bg1.window_logic = (data >> 2) & 3;
+            bg2.window_logic = (data >> 4) & 3;
+            bg3.window_logic = (data >> 6) & 3;
         }
 
         public void Poke212B(byte data)
         {
-            spr.PokeWindow2(data); data >>= 2;
-            clr.PokeWindow2(data);
+            spr.window_logic = (data >> 0) & 3;
+            clr.window_logic = (data >> 2) & 3;
         }
 
         public void Poke212C(byte data)
         {
-            bg0.Sm = (data & 0x01) != 0 ? ~0 : 0;
-            bg1.Sm = (data & 0x02) != 0 ? ~0 : 0;
-            bg2.Sm = (data & 0x04) != 0 ? ~0 : 0;
-            bg3.Sm = (data & 0x08) != 0 ? ~0 : 0;
-            spr.Sm = (data & 0x10) != 0 ? ~0 : 0;
+            bg0.screen_main = (data & 0x01) != 0 ? ~0 : 0;
+            bg1.screen_main = (data & 0x02) != 0 ? ~0 : 0;
+            bg2.screen_main = (data & 0x04) != 0 ? ~0 : 0;
+            bg3.screen_main = (data & 0x08) != 0 ? ~0 : 0;
+            spr.screen_main = (data & 0x10) != 0 ? ~0 : 0;
         }
 
         public void Poke212D(byte data)
         {
-            bg0.Ss = (data & 0x01) != 0 ? ~0 : 0;
-            bg1.Ss = (data & 0x02) != 0 ? ~0 : 0;
-            bg2.Ss = (data & 0x04) != 0 ? ~0 : 0;
-            bg3.Ss = (data & 0x08) != 0 ? ~0 : 0;
-            spr.Ss = (data & 0x10) != 0 ? ~0 : 0;
+            bg0.screen_sub = (data & 0x01) != 0 ? ~0 : 0;
+            bg1.screen_sub = (data & 0x02) != 0 ? ~0 : 0;
+            bg2.screen_sub = (data & 0x04) != 0 ? ~0 : 0;
+            bg3.screen_sub = (data & 0x08) != 0 ? ~0 : 0;
+            spr.screen_sub = (data & 0x10) != 0 ? ~0 : 0;
         }
 
         public void Poke212E(byte data)
         {
-            bg0.Wm = (data & 0x01) != 0;
-            bg1.Wm = (data & 0x02) != 0;
-            bg2.Wm = (data & 0x04) != 0;
-            bg3.Wm = (data & 0x08) != 0;
-            spr.Wm = (data & 0x10) != 0;
+            bg0.window_main = (data & 0x01) != 0;
+            bg1.window_main = (data & 0x02) != 0;
+            bg2.window_main = (data & 0x04) != 0;
+            bg3.window_main = (data & 0x08) != 0;
+            spr.window_main = (data & 0x10) != 0;
         }
 
         public void Poke212F(byte data)
         {
-            bg0.Ws = (data & 0x01) != 0;
-            bg1.Ws = (data & 0x02) != 0;
-            bg2.Ws = (data & 0x04) != 0;
-            bg3.Ws = (data & 0x08) != 0;
-            spr.Ws = (data & 0x10) != 0;
+            bg0.window_sub = (data & 0x01) != 0;
+            bg1.window_sub = (data & 0x02) != 0;
+            bg2.window_sub = (data & 0x04) != 0;
+            bg3.window_sub = (data & 0x08) != 0;
+            spr.window_sub = (data & 0x10) != 0;
         }
 
         public void Poke2130(byte data)
@@ -494,14 +494,16 @@ namespace Beta.SuperFamicom.PPU
             interlace = (data & 0x01) != 0;
         }
 
-        public void Initialize()
+        public void WriteHOffset(BackgroundState bg, byte data)
         {
-            bg0.Initialize();
-            bg1.Initialize();
-            bg2.Initialize();
-            bg3.Initialize();
-            clr.Initialize();
-            spr.Initialize();
+            bg.h_offset = (data << 8) | (sppu.bg_offset_latch & ~7) | ((bg.h_offset >> 8) & 7);
+            sppu.bg_offset_latch = data;
+        }
+
+        public void WriteVOffset(BackgroundState bg, byte data)
+        {
+            bg.v_offset = (data << 8) | sppu.bg_offset_latch;
+            sppu.bg_offset_latch = data;
         }
 
         public override void Update()
@@ -556,11 +558,11 @@ namespace Beta.SuperFamicom.PPU
         {
             for (var i = 0; i < 256; i++)
             {
-                bg0.Enable[i] = false;
-                bg1.Enable[i] = false;
-                bg2.Enable[i] = false;
-                bg3.Enable[i] = false;
-                spr.Enable[i] = false;
+                bg0.enable[i] = false;
+                bg1.enable[i] = false;
+                bg2.enable[i] = false;
+                bg3.enable[i] = false;
+                spr.enable[i] = false;
                 raster[i] = 0;
             }
 
@@ -569,42 +571,7 @@ namespace Beta.SuperFamicom.PPU
                 return;
             }
 
-            if (window1.Dirty)
-            {
-                window1.Dirty = false;
-                window1.Update();
-
-                // invalidate all layers using window 1
-                bg0.WnDirty |= bg0.W1 != 0;
-                bg1.WnDirty |= bg1.W1 != 0;
-                bg2.WnDirty |= bg2.W1 != 0;
-                bg3.WnDirty |= bg3.W1 != 0;
-                spr.WnDirty |= spr.W1 != 0;
-                clr.WnDirty |= clr.W1 != 0;
-            }
-
-            if (window2.Dirty)
-            {
-                window2.Dirty = false;
-                window2.Update();
-
-                // invalidate all layers using window 2
-                bg0.WnDirty |= bg0.W2 != 0;
-                bg1.WnDirty |= bg1.W2 != 0;
-                bg2.WnDirty |= bg2.W2 != 0;
-                bg3.WnDirty |= bg3.W2 != 0;
-                spr.WnDirty |= spr.W2 != 0;
-                clr.WnDirty |= clr.W2 != 0;
-            }
-
-            if (bg0.WnDirty) { bg0.WnDirty = false; bg0.UpdateWindow(); }
-            if (bg1.WnDirty) { bg1.WnDirty = false; bg1.UpdateWindow(); }
-            if (bg2.WnDirty) { bg2.WnDirty = false; bg2.UpdateWindow(); }
-            if (bg3.WnDirty) { bg3.WnDirty = false; bg3.UpdateWindow(); }
-            if (spr.WnDirty) { spr.WnDirty = false; spr.UpdateWindow(); }
-            if (clr.WnDirty) { clr.WnDirty = false; clr.UpdateWindow(); }
-
-            switch (Background.Mode)
+            switch (sppu.bg_mode)
             {
             case 0: RenderMode0(); break;
             case 1: RenderMode1(); break;
