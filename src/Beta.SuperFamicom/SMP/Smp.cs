@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Beta.Platform.Core;
+using Beta.Platform.Messaging;
 
 namespace Beta.SuperFamicom.SMP
 {
-    public sealed class Smp : Processor
+    public sealed class Smp : Processor, IConsumer<ClockSignal>
     {
         static readonly int[] instrTimes =
         {// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -34,25 +35,28 @@ namespace Beta.SuperFamicom.SMP
             0xf6, 0xda, 0x00, 0xba, 0xf4, 0xc4, 0xf4, 0xdd, 0x5d, 0xd0, 0xdb, 0x1f, 0x00, 0x00, 0xc0, 0xff
         };
 
+        private readonly PSRAM psram;
+
         private Registers registers;
         private Action[] codeTable;
         private Dsp dsp;
         private Timer[] timers = new Timer[3];
-        private byte[] wram;
         private byte[] port;
         private bool bootRomEnabled;
-        private bool flagC;
-        private bool flagZ;
-        private bool flagH;
-        private int flagP;
-        private bool flagV;
-        private bool flagN;
-        private int timerCycles1;
-        private int timerCycles2;
+        private bool flagC = false;
+        private bool flagZ = false;
+        private bool flagH = false;
+        private int flagP = 0;
+        private bool flagV = false;
+        private bool flagN = false;
+        private int timerCycles1 = 0;
+        private int timerCycles2 = 0;
 
-        public Smp(Driver gameSystem)
+        public Smp(Dsp dsp, PSRAM psram)
         {
             Single = 1;
+
+            this.psram = psram;
 
             codeTable = new Action[]
             {
@@ -73,49 +77,30 @@ namespace Beta.SuperFamicom.SMP
                 OpE0, OpE1, OpE2, OpE3, OpE4, OpE5, OpE6, OpE7, OpE8, OpE9, OpEA, OpEB, OpEC, OpED, OpEE, OpEF,
                 OpF0, OpF1, OpF2, OpF3, OpF4, OpF5, OpF6, OpF7, OpF8, OpF9, OpFA, OpFB, OpFC, OpFD, OpFE, OpFF
             };
-            wram = new byte[65536];
+
             port = new byte[4];
-            dsp = new Dsp(gameSystem, wram);
+            this.dsp = dsp;
 
             registers.sph = 1;
-        }
 
-        private static byte ReadBootRom(int address)
-        {
-            return bootRom[address & 0x3f];
-        }
-
-        public void Initialize()
-        {
-            wram[0xf0] = 0x0a;
-            wram[0xf1] = 0xb0;
+            psram.Write(0x00f0, 0x0a);
+            psram.Write(0x00f1, 0xb0);
             bootRomEnabled = true;
             registers.a = 0;
             registers.x = 0;
             registers.y = 0;
             registers.sp = 0x100;
             registers.pc = ReadFullWord(0xfffe);
-            flagP = 0;
-            flagC = false;
-            flagZ = false;
-            flagH = false;
-            flagV = false;
-            flagN = false;
-            timerCycles1 = 0;
-            timerCycles2 = 0;
-            timers[0].Enabled = false;
-            timers[1].Enabled = false;
-            timers[2].Enabled = false;
-            timers[0].Compare = 255;
-            timers[1].Compare = 255;
-            timers[2].Compare = 255;
-            timers[0].Stage1 = 0;
-            timers[1].Stage1 = 0;
-            timers[2].Stage1 = 0;
-            timers[0].Stage2 = 0;
-            timers[1].Stage2 = 0;
-            timers[2].Stage2 = 0;
-            dsp.Initialize();
+
+            for (int i = 0; i < 3; i++)
+            {
+                timers[i] = new Timer();
+            }
+        }
+
+        private static byte ReadBootRom(int address)
+        {
+            return bootRom[address & 0x3f];
         }
 
         private byte Shl(byte value, int carry = 0)
@@ -262,12 +247,12 @@ namespace Beta.SuperFamicom.SMP
 
         private byte ReadWram(int address)
         {
-            return wram[address];
+            return psram.Read((ushort)address);
         }
 
         private void WriteWram(int address, int data)
         {
-            wram[address] = (byte)data;
+            psram.Write((ushort)address, (byte)data);
         }
 
         private ushort ReadFullWord(int address)
@@ -377,14 +362,14 @@ namespace Beta.SuperFamicom.SMP
 
                     if ((data & 0x10) != 0)
                     {
-                        wram[0xf4] = 0;
-                        wram[0xf5] = 0;
+                        psram.Write(0x00f4, 0);
+                        psram.Write(0x00f5, 0);
                     }
 
                     if ((data & 0x20) != 0)
                     {
-                        wram[0xf6] = 0;
-                        wram[0xf7] = 0;
+                        psram.Write(0x00f6, 0);
+                        psram.Write(0x00f7, 0);
                     }
 
                     bootRomEnabled = (data & 0x80) != 0;
@@ -541,16 +526,14 @@ namespace Beta.SuperFamicom.SMP
             Cycles -= cycles;
         }
 
-        public byte ReadPort(int number, int timestamp)
+        public byte ReadPort(ushort address)
         {
-            Update(timestamp);
-            return port[number];
+            return port[address];
         }
 
-        public void WritePort(int number, int data, int timestamp)
+        public void WritePort(ushort address, byte data)
         {
-            Update(timestamp);
-            wram[number + 0xf4] = (byte)data;
+            psram.Write((ushort)(address + 0xf4), data);
         }
 
         #region Codes
@@ -2106,12 +2089,17 @@ namespace Beta.SuperFamicom.SMP
 
         #endregion
 
-        private struct Timer
+        public void Consume(ClockSignal e)
         {
-            public bool Enabled;
-            public int Compare;
-            public int Stage1;
-            public int Stage2;
+            Update(e.Cycles * 45056);
+        }
+
+        private sealed class Timer
+        {
+            public bool Enabled = false;
+            public int Compare = 255;
+            public int Stage1 = 0;
+            public int Stage2 = 0;
 
             public void Update(int clocks)
             {

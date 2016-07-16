@@ -82,6 +82,7 @@
             // playButton
             // 
             this.playButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.playButton.Enabled = false;
             this.playButton.Image = global::Beta.Properties.Resources.control_play;
             this.playButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.playButton.Name = "playButton";
@@ -92,6 +93,7 @@
             // pauseButton
             // 
             this.pauseButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.pauseButton.Enabled = false;
             this.pauseButton.Image = global::Beta.Properties.Resources.control_pause;
             this.pauseButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.pauseButton.Name = "pauseButton";
@@ -102,6 +104,7 @@
             // stopButton
             // 
             this.stopButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stopButton.Enabled = false;
             this.stopButton.Image = global::Beta.Properties.Resources.control_stop;
             this.stopButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopButton.Name = "stopButton";

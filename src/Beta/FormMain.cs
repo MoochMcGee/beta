@@ -130,13 +130,22 @@ namespace Beta
         {
             driverThread = new Thread(driver.Main);
             driverThread.Start();
+
+            playButton.Enabled = false;
+            stopButton.Enabled = true;
         }
 
         private void AbortEmulation()
         {
-            driverThread?.Abort();
-            driverThread?.Join();
-            driverThread = null;
+            if (driverThread != null)
+            {
+                driverThread.Abort();
+                driverThread.Join();
+                driverThread = null;
+            }
+
+            playButton.Enabled = true;
+            stopButton.Enabled = false;
         }
     }
 }

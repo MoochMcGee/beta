@@ -1,4 +1,4 @@
-﻿using Beta.Platform;
+﻿using Beta.Platform.Exceptions;
 
 namespace Beta.SuperFamicom.PPU
 {
@@ -6,101 +6,69 @@ namespace Beta.SuperFamicom.PPU
     {
         private abstract class Layer
         {
-            private int w1Reg;
-            private int w2Reg;
-            private int w1Inv;
-            private int w2Inv;
-            private int wnLog;
-            private int[] window = new int[256];
+            private WindowState window1;
+            private WindowState window2;
 
-            protected Ppu Ppu;
-
-            public bool WnDirty;
-            public bool Wm;
-            public bool Ws;
-            public int Sm;
-            public int Ss;
-            public int W1;
-            public int W2;
-            public bool[] Enable = new bool[256];
-            public int[] Raster = new int[256];
-            public int[] Priority = new int[256];
-            public int[] Priorities;
+            public bool window_main;
+            public bool window_sub;
+            public int screen_main;
+            public int screen_sub;
+            public int window_logic;
+            public bool window_1_enable;
+            public bool window_1_inverted;
+            public bool window_2_enable;
+            public bool window_2_inverted;
+            public bool[] enable = new bool[256];
+            public int[] raster = new int[256];
+            public int[] priority = new int[256];
+            public int[] priorities;
 
             protected Layer(Ppu ppu, int priorities)
             {
-                Ppu = ppu;
-                Priorities = new int[priorities];
-                window.Initialize(-1);
+                this.window1 = ppu.sppu.window1;
+                this.window2 = ppu.sppu.window2;
+                this.priorities = new int[priorities];
             }
 
-            public virtual int GetColorM(int index)
+            public int GetMainColor(int x)
             {
-                var color = Raster[index] & Sm;
-
-                if (Wm) color &= window[index];
-
-                return color;
+                return (window_main && GetWindow(x))
+                    ? 0
+                    : raster[x] & screen_main
+                    ;
             }
 
-            public virtual int GetColorS(int index)
+            public int GetSubColor(int x)
             {
-                var color = Raster[index] & Ss;
-
-                if (Ws) color &= window[index];
-
-                return color;
+                return (window_sub && GetWindow(x))
+                    ? 0
+                    : raster[x] & screen_sub
+                    ;
             }
 
-            public virtual void Initialize()
+            public bool GetWindow(int x)
             {
-            }
-
-            public void PokeWindow1(byte value)
-            {
-                if (w1Reg == (value & 15u))
+                if (window_1_enable == false &&
+                    window_2_enable == false)
                 {
-                    return;
+                    return false;
                 }
 
-                w1Reg =  ((value & 0xf) >> 0);
-                w1Inv =  ((value & 0x1) >> 0);
-                W1    = ~((value & 0x2) >> 1) + 1;
-                w2Inv =  ((value & 0x4) >> 2);
-                W2    = ~((value & 0x8) >> 3) + 1;
-                WnDirty = true;
-            }
+                var w1 = (x >= window1.x1 && x <= window1.x2);
+                var w2 = (x >= window2.x1 && x <= window2.x2);
 
-            public void PokeWindow2(byte value)
-            {
-                if (w2Reg == (value & 3u))
+                w1 = (w1 ^ window_1_inverted) && window_1_enable;
+                w2 = (w2 ^ window_2_inverted) && window_2_enable;
+
+                switch (window_logic)
                 {
-                    return;
+                case 0: return  (w1 | w2); // or
+                case 1: return  (w1 & w2); // and
+                case 2: return  (w1 ^ w2); // xor
+                case 3: return !(w1 ^ w2); // xnor
                 }
 
-                w2Reg = ((value & 0x3) >> 0);
-                wnLog = ((value & 0x3) >> 0);
-                WnDirty = true;
-            }
-
-            public void UpdateWindow()
-            {
-                var w1Buffer = Ppu.window1.MaskBuffer;
-                var w2Buffer = Ppu.window2.MaskBuffer;
-
-                for (var i = 0; i < 256; i++)
-                {
-                    var w1Mask = (w1Buffer[i] ^ w1Inv) & W1;
-                    var w2Mask = (w2Buffer[i] ^ w2Inv) & W2;
-
-                    switch (wnLog & W1 & W2)
-                    {
-                    case 0: window[i] = ((w1Mask | w2Mask) ^ 0) - 1; break; // or
-                    case 1: window[i] = ((w1Mask & w2Mask) ^ 0) - 1; break; // and
-                    case 2: window[i] = ((w1Mask ^ w2Mask) ^ 0) - 1; break; // xor
-                    case 3: window[i] = ((w1Mask ^ w2Mask) ^ 1) - 1; break; // xnor
-                    }
-                }
+                throw new CompilerPleasingException();
             }
         }
     }

@@ -12,16 +12,6 @@ namespace Beta.SuperFamicom.PPU
                 : base(ppu, 0)
             {
             }
-
-            public override int GetColorM(int index)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override int GetColorS(int index)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

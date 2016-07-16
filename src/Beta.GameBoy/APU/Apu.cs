@@ -1,5 +1,4 @@
-﻿using System;
-using Beta.GameBoy.Memory;
+﻿using Beta.GameBoy.Memory;
 using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 
