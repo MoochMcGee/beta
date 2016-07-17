@@ -6,11 +6,11 @@ namespace Beta.GameBoy.Memory
     {
         private readonly BoardFactory factory;
         private readonly BIOS boot;
-        private readonly Registers regs;
+        private readonly State regs;
 
         private Board cart;
 
-        public CartridgeConnector(BoardFactory factory, BIOS boot, Registers regs)
+        public CartridgeConnector(BoardFactory factory, BIOS boot, State regs)
         {
             this.factory = factory;
             this.boot = boot;

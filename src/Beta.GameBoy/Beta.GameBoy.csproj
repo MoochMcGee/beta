@@ -51,15 +51,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APU\Apu.cs" />
-    <Compile Include="APU\ApuRegisters.cs" />
+    <Compile Include="APU\ApuState.cs" />
+    <Compile Include="APU\ApuStateManager.cs" />
     <Compile Include="APU\Duration.cs" />
-    <Compile Include="APU\DurationUpdate.cs" />
+    <Compile Include="APU\DurationManager.cs" />
     <Compile Include="APU\Envelope.cs" />
-    <Compile Include="APU\EnvelopeUpdate.cs" />
-    <Compile Include="APU\NoiRegisters.cs" />
-    <Compile Include="APU\Sq1Registers.cs" />
-    <Compile Include="APU\Sq2Registers.cs" />
-    <Compile Include="APU\WavRegisters.cs" />
+    <Compile Include="APU\EnvelopeManager.cs" />
+    <Compile Include="APU\Mixer.cs" />
+    <Compile Include="APU\NoiState.cs" />
+    <Compile Include="APU\NoiStateManager.cs" />
+    <Compile Include="APU\Sq1State.cs" />
+    <Compile Include="APU\Sq1StateManager.cs" />
+    <Compile Include="APU\Sq2State.cs" />
+    <Compile Include="APU\Sq2StateManager.cs" />
+    <Compile Include="APU\SweepManager.cs" />
+    <Compile Include="APU\WavState.cs" />
+    <Compile Include="APU\WavStateManager.cs" />
     <Compile Include="Boards\Board.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\NintendoMBC1.cs" />
@@ -75,7 +82,7 @@
     <Compile Include="Memory\MemoryMap.cs" />
     <Compile Include="Memory\MMIO.cs" />
     <Compile Include="Memory\OAM.cs" />
-    <Compile Include="Memory\Registers.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="Memory\VRAM.cs" />
     <Compile Include="Memory\Wave.cs" />
     <Compile Include="Memory\WRAM.cs" />

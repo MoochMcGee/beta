@@ -1,14 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 using Beta.Platform.Core;
 using Beta.Platform.Exceptions;
-using Beta.Platform.Messaging;
 
 namespace Beta.Platform.Processors
 {
     public abstract class LR35902 : Processor
     {
-        protected readonly IProducer<ClockSignal> clockProducer;
-
         private Status sr;
         private Registers registers;
         private byte code;
@@ -21,11 +18,6 @@ namespace Beta.Platform.Processors
         private static int CarryBits(int a, int b, int r)
         {
             return (a & b) | ((a ^ b) & ~r);
-        }
-
-        public LR35902(IProducer<ClockSignal> clockProducer)
-        {
-            this.clockProducer = clockProducer;
         }
 
         private bool Flag()

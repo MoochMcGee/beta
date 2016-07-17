@@ -1,5 +1,4 @@
 ﻿using Beta.GameBoy.CPU;
-using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
 using Beta.Platform.Messaging;
 
@@ -16,9 +15,9 @@ namespace Beta.GameBoy
         };
 
         private readonly IProducer<InterruptSignal> ints;
-        private readonly TmaRegisters regs;
+        private readonly TmaState regs;
 
-        public Tma(Registers regs, IProducer<InterruptSignal> ints)
+        public Tma(State regs, IProducer<InterruptSignal> ints)
         {
             this.ints = ints;
             this.regs = regs.tma;

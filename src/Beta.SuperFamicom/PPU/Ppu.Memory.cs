@@ -1,5 +1,4 @@
 ﻿using Beta.Platform;
-using word = System.UInt16;
 
 namespace Beta.SuperFamicom.PPU
 {

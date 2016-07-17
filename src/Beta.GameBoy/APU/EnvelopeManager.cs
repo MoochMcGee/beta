@@ -2,7 +2,7 @@
 
 namespace Beta.GameBoy.APU
 {
-    public static class EnvelopeUpdate
+    public static class EnvelopeManager
     {
         public static void Tick(Envelope e)
         {

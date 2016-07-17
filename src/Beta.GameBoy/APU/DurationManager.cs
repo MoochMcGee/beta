@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.APU
 {
-    public static class DurationUpdate
+    public static class DurationManager
     {
         public static void Tick(Duration e, int count, ref bool enabled)
         {

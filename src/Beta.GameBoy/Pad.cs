@@ -1,5 +1,4 @@
-﻿using Beta.GameBoy.Memory;
-using Beta.GameBoy.Messaging;
+﻿using Beta.GameBoy.Messaging;
 using Beta.Platform.Input;
 using Beta.Platform.Messaging;
 
@@ -7,9 +6,9 @@ namespace Beta.GameBoy
 {
     public class Pad : InputBackend, IConsumer<FrameSignal>
     {
-        private readonly Registers regs;
+        private readonly State regs;
 
-        public Pad(Registers regs)
+        public Pad(State regs)
             : base(0, 10)
         {
             this.regs = regs;

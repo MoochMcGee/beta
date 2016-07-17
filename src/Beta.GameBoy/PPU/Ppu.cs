@@ -32,7 +32,7 @@ namespace Beta.GameBoy.PPU
             ColorHelper.FromRGB( 31,  31,  31)
         };
 
-        private readonly PpuRegisters regs;
+        private readonly PpuState regs;
         private readonly MemoryMap memory;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<InterruptSignal> interrupt;
@@ -42,7 +42,7 @@ namespace Beta.GameBoy.PPU
         private int[] raster;
 
         public Ppu(
-            Registers regs,
+            State regs,
             MemoryMap memory,
             IProducer<FrameSignal> frame,
             IProducer<InterruptSignal> interrupt,
@@ -287,9 +287,9 @@ namespace Beta.GameBoy.PPU
 
         public override void Update()
         {
-            if (regs.dma_triggered)
+            if (regs.dma_trigger)
             {
-                regs.dma_triggered = false;
+                regs.dma_trigger = false;
 
                 var dst_address = (ushort)(0xfe00);
                 var src_address = (ushort)(regs.dma_segment << 8);

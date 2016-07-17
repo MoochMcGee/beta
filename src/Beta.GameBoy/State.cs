@@ -1,30 +1,25 @@
 ﻿using Beta.GameBoy.APU;
 
-namespace Beta.GameBoy.Memory
+namespace Beta.GameBoy
 {
-    public sealed class Registers
+    public sealed class State
     {
-        public ApuRegisters apu = new ApuRegisters();
-        public CpuRegisters cpu = new CpuRegisters();
-        public PadRegisters pad = new PadRegisters();
-        public PpuRegisters ppu = new PpuRegisters();
-        public TmaRegisters tma = new TmaRegisters();
-
-        public NoiRegisters noi = new NoiRegisters();
-        public Sq1Registers sq1 = new Sq1Registers();
-        public Sq2Registers sq2 = new Sq2Registers();
-        public WavRegisters wav = new WavRegisters();
+        public ApuState apu = new ApuState();
+        public CpuState cpu = new CpuState();
+        public PadState pad = new PadState();
+        public PpuState ppu = new PpuState();
+        public TmaState tma = new TmaState();
 
         public bool boot_rom_enabled = true;
     }
 
-    public sealed class CpuRegisters
+    public sealed class CpuState
     {
         public byte ief;
         public byte irf;
     }
 
-    public sealed class PadRegisters
+    public sealed class PadState
     {
         public bool p14;
         public bool p15;
@@ -32,7 +27,7 @@ namespace Beta.GameBoy.Memory
         public byte p15_latch;
     }
 
-    public sealed class PpuRegisters
+    public sealed class PpuState
     {
         public bool bkg_enabled;
         public bool lcd_enabled;
@@ -54,11 +49,11 @@ namespace Beta.GameBoy.Memory
         public byte v_check;
         public byte ff40;
 
-        public bool dma_triggered;
+        public bool dma_trigger;
         public byte dma_segment;
     }
 
-    public sealed class TmaRegisters
+    public sealed class TmaState
     {
         public byte divider;
         public byte counter;

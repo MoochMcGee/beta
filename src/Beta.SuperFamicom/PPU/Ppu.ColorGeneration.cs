@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Beta.SuperFamicom.PPU
+﻿namespace Beta.SuperFamicom.PPU
 {
     public partial class Ppu
     {

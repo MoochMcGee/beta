@@ -23,11 +23,12 @@ namespace Beta.GameBoy
             container.RegisterSingleton<Cpu>();
             container.RegisterSingleton<HRAM>();
             container.RegisterSingleton<MemoryMap>();
+            container.RegisterSingleton<Mixer>();
             container.RegisterSingleton<MMIO>();
             container.RegisterSingleton<OAM>();
             container.RegisterSingleton<Pad>();
             container.RegisterSingleton<Ppu>();
-            container.RegisterSingleton<Registers>();
+            container.RegisterSingleton<State>();
             container.RegisterSingleton<Tma>();
             container.RegisterSingleton<VRAM>();
             container.RegisterSingleton<Wave>();
