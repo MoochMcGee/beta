@@ -28,82 +28,82 @@ namespace Beta.Famicom.Boards.Konami
             sound = new Sound();
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             prgPages[0] = data << 13;
         }
 
-        private void Poke8010(ushort address, ref byte data)
+        private void Poke8010(ushort address, byte data)
         {
             prgPages[1] = data << 13;
         }
 
-        private void Poke9000(ushort address, ref byte data)
+        private void Poke9000(ushort address, byte data)
         {
             prgPages[2] = data << 13;
         }
 
-        private void Poke9010(ushort address, ref byte data)
+        private void Poke9010(ushort address, byte data)
         {
             sound.WriteAddr(data);
         }
 
-        private void Poke9030(ushort address, ref byte data)
+        private void Poke9030(ushort address, byte data)
         {
             sound.WriteData(data);
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             chrPages[0] = data << 10;
         }
 
-        private void PokeA010(ushort address, ref byte data)
+        private void PokeA010(ushort address, byte data)
         {
             chrPages[1] = data << 10;
         }
 
-        private void PokeB000(ushort address, ref byte data)
+        private void PokeB000(ushort address, byte data)
         {
             chrPages[2] = data << 10;
         }
 
-        private void PokeB010(ushort address, ref byte data)
+        private void PokeB010(ushort address, byte data)
         {
             chrPages[3] = data << 10;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             chrPages[4] = data << 10;
         }
 
-        private void PokeC010(ushort address, ref byte data)
+        private void PokeC010(ushort address, byte data)
         {
             chrPages[5] = data << 10;
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             chrPages[6] = data << 10;
         }
 
-        private void PokeD010(ushort address, ref byte data)
+        private void PokeD010(ushort address, byte data)
         {
             chrPages[7] = data << 10;
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             mirroring = (data & 0x03);
         }
 
-        private void PokeE010(ushort address, ref byte data)
+        private void PokeE010(ushort address, byte data)
         {
             irq.Refresh = data;
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             irq.Mode = (data & 0x04) != 0;
             irq.Enabled = (data & 0x02) != 0;
@@ -118,7 +118,7 @@ namespace Beta.Famicom.Boards.Konami
             Cpu.Irq(0);
         }
 
-        private void PokeF010(ushort address, ref byte data)
+        private void PokeF010(ushort address, byte data)
         {
             irq.Enabled = irq.EnabledRefresh;
             Cpu.Irq(0);

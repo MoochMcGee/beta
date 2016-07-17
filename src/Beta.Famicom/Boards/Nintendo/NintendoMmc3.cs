@@ -38,14 +38,14 @@ namespace Beta.Famicom.Boards.Nintendo
             prgPages = new int[4];
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             chrMode = (data & 0x80) << 5; // $0000/$1000
             prgMode = (data & 0x40) << 8; // $0000/$4000
             regAddr = (data & 0x07) << 0;
         }
 
-        private void Poke8001(ushort address, ref byte data)
+        private void Poke8001(ushort address, byte data)
         {
             switch (regAddr)
             {
@@ -60,34 +60,34 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             mirroring = (data & 0x01);
         }
 
-        private void PokeA001(ushort address, ref byte data)
+        private void PokeA001(ushort address, byte data)
         {
             ramEnabled = (data & 0x80) != 0;
             ramProtect = (data & 0x40) != 0;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             irqRefresh = data;
         }
 
-        private void PokeC001(ushort address, ref byte data)
+        private void PokeC001(ushort address, byte data)
         {
             irqCounter = 0;
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             irqEnabled = false;
             Cpu.Irq(0);
         }
 
-        private void PokeE001(ushort address, ref byte data)
+        private void PokeE001(ushort address, byte data)
         {
             irqEnabled = true;
         }
@@ -126,18 +126,20 @@ namespace Beta.Famicom.Boards.Nintendo
             throw new CompilerPleasingException();
         }
 
-        protected override void PeekRam(ushort address, ref byte data)
+        protected override void ReadRam(ushort address, ref byte data)
         {
             if (ramEnabled)
             {
-                base.PeekRam(address, ref data);
+                base.ReadRam(address, ref data);
             }
         }
 
-        protected override void PokeRam(ushort address, ref byte data)
+        protected override void WriteRam(ushort address, byte data)
         {
             if (ramEnabled && !ramProtect)
-                base.PokeRam(address, ref data);
+            {
+                WriteRam(address, data);
+            }
         }
 
         public override void Consume(ClockSignal e)
@@ -155,16 +157,14 @@ namespace Beta.Famicom.Boards.Nintendo
             prgPages[2] = -2 << 13;
             prgPages[3] = -1 << 13;
 
-            byte zero = 0;
-
-            Poke8000(0x8000, ref zero);
-            Poke8000(0x8001, ref zero);
-            Poke8000(0xa000, ref zero);
-            Poke8000(0xa001, ref zero);
-            Poke8000(0xc000, ref zero);
-            Poke8000(0xc001, ref zero);
-            Poke8000(0xe000, ref zero);
-            Poke8000(0xe001, ref zero);
+            Poke8000(0x8000, 0);
+            Poke8000(0x8001, 0);
+            Poke8000(0xa000, 0);
+            Poke8000(0xa001, 0);
+            Poke8000(0xc000, 0);
+            Poke8000(0xc001, 0);
+            Poke8000(0xe000, 0);
+            Poke8000(0xe001, 0);
         }
 
         public override void MapToCpu(IBus bus)

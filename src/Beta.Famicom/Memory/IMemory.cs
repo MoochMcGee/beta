@@ -2,8 +2,8 @@
 {
     public interface IMemory
     {
-        void Peek(int address, ref byte data);
+        void Read(int address, ref byte data);
 
-        void Poke(int address, ref byte data);
+        void Write(int address, byte data);
     }
 }

@@ -2,6 +2,10 @@
 {
     public partial class R2A03
     {
+        public void Hook(ChannelExt ext)
+        {
+        }
+
         public class ChannelExt
         {
             public virtual void ClockHalf()

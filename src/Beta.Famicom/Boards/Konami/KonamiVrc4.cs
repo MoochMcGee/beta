@@ -27,117 +27,117 @@ namespace Beta.Famicom.Boards.Konami
             irq = new Irq();
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             prgPages[0] = (data & 0x1f) << 13;
         }
 
-        private void Poke9000(ushort address, ref byte data)
+        private void Poke9000(ushort address, byte data)
         {
             mirroring = (data & 0x03);
         }
 
-        private void Poke9002(ushort address, ref byte data)
+        private void Poke9002(ushort address, byte data)
         {
             prgMode = (data & 0x02) << 13;
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             prgPages[1] = (data & 0x1f) << 13;
         }
 
-        private void PokeB000(ushort address, ref byte data)
+        private void PokeB000(ushort address, byte data)
         {
             chrPages[0] = (chrPages[0] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeB001(ushort address, ref byte data)
+        private void PokeB001(ushort address, byte data)
         {
             chrPages[0] = (chrPages[0] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeB002(ushort address, ref byte data)
+        private void PokeB002(ushort address, byte data)
         {
             chrPages[1] = (chrPages[1] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeB003(ushort address, ref byte data)
+        private void PokeB003(ushort address, byte data)
         {
             chrPages[1] = (chrPages[1] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             chrPages[2] = (chrPages[2] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeC001(ushort address, ref byte data)
+        private void PokeC001(ushort address, byte data)
         {
             chrPages[2] = (chrPages[2] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeC002(ushort address, ref byte data)
+        private void PokeC002(ushort address, byte data)
         {
             chrPages[3] = (chrPages[3] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeC003(ushort address, ref byte data)
+        private void PokeC003(ushort address, byte data)
         {
             chrPages[3] = (chrPages[3] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             chrPages[4] = (chrPages[4] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeD001(ushort address, ref byte data)
+        private void PokeD001(ushort address, byte data)
         {
             chrPages[4] = (chrPages[4] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeD002(ushort address, ref byte data)
+        private void PokeD002(ushort address, byte data)
         {
             chrPages[5] = (chrPages[5] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeD003(ushort address, ref byte data)
+        private void PokeD003(ushort address, byte data)
         {
             chrPages[5] = (chrPages[5] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             chrPages[6] = (chrPages[6] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeE001(ushort address, ref byte data)
+        private void PokeE001(ushort address, byte data)
         {
             chrPages[6] = (chrPages[6] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeE002(ushort address, ref byte data)
+        private void PokeE002(ushort address, byte data)
         {
             chrPages[7] = (chrPages[7] & ~(0x0f << 10)) | ((data & 0x0f) << 10);
         }
 
-        private void PokeE003(ushort address, ref byte data)
+        private void PokeE003(ushort address, byte data)
         {
             chrPages[7] = (chrPages[7] & ~(0xf0 << 10)) | ((data & 0x1f) << 14);
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0x0f) | ((data & 0x0f) << 0);
         }
 
-        private void PokeF001(ushort address, ref byte data)
+        private void PokeF001(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0xf0) | ((data & 0x0f) << 4);
         }
 
-        private void PokeF002(ushort address, ref byte data)
+        private void PokeF002(ushort address, byte data)
         {
             irq.Mode = (data & 4) != 0;
             irq.Enabled = (data & 2) != 0;
@@ -150,7 +150,7 @@ namespace Beta.Famicom.Boards.Konami
             Cpu.Irq(0);
         }
 
-        private void PokeF003(ushort address, ref byte data)
+        private void PokeF003(ushort address, byte data)
         {
             irq.Enabled = irq.EnabledRefresh;
             Cpu.Irq(0);

@@ -30,67 +30,67 @@ namespace Beta.Famicom.Boards.Konami
             sound = new Sound();
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             prgPages[0] = data << 14;
         }
 
-        private void PokeB003(ushort address, ref byte data)
+        private void PokeB003(ushort address, byte data)
         {
             mirroring = (data >> 2) & 0x03;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             prgPages[1] = data << 13;
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             chrPages[0] = data << 10;
         }
 
-        private void PokeD001(ushort address, ref byte data)
+        private void PokeD001(ushort address, byte data)
         {
             chrPages[1] = data << 10;
         }
 
-        private void PokeD002(ushort address, ref byte data)
+        private void PokeD002(ushort address, byte data)
         {
             chrPages[2] = data << 10;
         }
 
-        private void PokeD003(ushort address, ref byte data)
+        private void PokeD003(ushort address, byte data)
         {
             chrPages[3] = data << 10;
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             chrPages[4] = data << 10;
         }
 
-        private void PokeE001(ushort address, ref byte data)
+        private void PokeE001(ushort address, byte data)
         {
             chrPages[5] = data << 10;
         }
 
-        private void PokeE002(ushort address, ref byte data)
+        private void PokeE002(ushort address, byte data)
         {
             chrPages[6] = data << 10;
         }
 
-        private void PokeE003(ushort address, ref byte data)
+        private void PokeE003(ushort address, byte data)
         {
             chrPages[7] = data << 10;
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             irq.Refresh = data;
         }
 
-        private void PokeF001(ushort address, ref byte data)
+        private void PokeF001(ushort address, byte data)
         {
             irq.Mode = (data & 0x04) != 0;
             irq.Enabled = (data & 0x02) != 0;
@@ -103,7 +103,7 @@ namespace Beta.Famicom.Boards.Konami
             Cpu.Irq(0);
         }
 
-        private void PokeF002(ushort address, ref byte data)
+        private void PokeF002(ushort address, byte data)
         {
             irq.Enabled = irq.EnabledRefresh;
             Cpu.Irq(0);
@@ -329,19 +329,19 @@ namespace Beta.Famicom.Boards.Konami
                     Timing.Period = R2A03.DELAY;
                 }
 
-                public void PokeReg1(ushort address, ref byte data)
+                public void PokeReg1(ushort address, byte data)
                 {
                     form = data >> 4 & 0xF;
                     level = data & 0xF;
                 }
 
-                public void PokeReg2(ushort address, ref byte data)
+                public void PokeReg2(ushort address, byte data)
                 {
                     Frequency = (Frequency & ~0x0FF) | (data << 0 & 0x0FF);
                     Timing.Single = (Frequency + 1) * R2A03.PHASE;
                 }
 
-                public void PokeReg3(ushort address, ref byte data)
+                public void PokeReg3(ushort address, byte data)
                 {
                     Frequency = (Frequency & ~0xF00) | (data << 8 & 0xF00);
                     Timing.Single = (Frequency + 1) * R2A03.PHASE;
@@ -394,18 +394,18 @@ namespace Beta.Famicom.Boards.Konami
                     Timing.Period = R2A03.DELAY;
                 }
 
-                public void PokeReg1(ushort address, ref byte data)
+                public void PokeReg1(ushort address, byte data)
                 {
                     rate = data & 0x3F;
                 }
 
-                public void PokeReg2(ushort address, ref byte data)
+                public void PokeReg2(ushort address, byte data)
                 {
                     Frequency = (Frequency & ~0x0FF) | (data << 0 & 0x0FF);
                     Timing.Single = (Frequency + 1) * R2A03.PHASE;
                 }
 
-                public void PokeReg3(ushort address, ref byte data)
+                public void PokeReg3(ushort address, byte data)
                 {
                     Frequency = (Frequency & ~0xF00) | (data << 8 & 0xF00);
                     Timing.Single = (Frequency + 1) * R2A03.PHASE;

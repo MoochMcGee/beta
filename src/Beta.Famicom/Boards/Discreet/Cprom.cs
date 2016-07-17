@@ -22,31 +22,31 @@ namespace Beta.Famicom.Boards.Discreet
             return (address & 0xfff) | chrPages[(address >> 12) & 1];
         }
 
-        protected override void PeekChr(ushort address, ref byte data)
+        protected override void ReadChr(ushort address, ref byte data)
         {
             var addr = DecodeChr(address);
 
             switch (addr & 0x2000)
             {
-            case 0x0000: chr0.Peek(addr, ref data); break;
-            case 0x2000: chr1.Peek(addr, ref data); break;
+            case 0x0000: chr0.Read(addr, ref data); break;
+            case 0x2000: chr1.Read(addr, ref data); break;
             }
         }
 
-        protected override void PokeChr(ushort address, ref byte data)
+        protected override void WriteChr(ushort address, byte data)
         {
             var addr = DecodeChr(address);
 
             switch (addr & 0x2000)
             {
-            case 0x0000: chr0.Poke(addr, ref data); break;
-            case 0x2000: chr1.Poke(addr, ref data); break;
+            case 0x0000: chr0.Write(addr, data); break;
+            case 0x2000: chr1.Write(addr, data); break;
             }
 
             throw new CompilerPleasingException();
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             chrPages[1] = (data & 0x03) << 12;
         }

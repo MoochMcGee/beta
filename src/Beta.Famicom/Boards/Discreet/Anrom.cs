@@ -18,7 +18,7 @@ namespace Beta.Famicom.Boards.Discreet
             return (address & 0x7fff) | prgPage;
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             mirroring = (data >> 4) & 1;
             prgPage = (data & 0x03) << 15;

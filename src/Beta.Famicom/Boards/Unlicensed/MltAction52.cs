@@ -24,7 +24,7 @@ namespace Beta.Famicom.Boards.Unlicensed
             data = (byte)ram4[address & 3];
         }
 
-        private void PokeRam4(ushort address, ref byte data)
+        private void PokeRam4(ushort address, byte data)
         {
             ram4[address & 3] = (data & 0x0f);
         }
@@ -45,17 +45,17 @@ namespace Beta.Famicom.Boards.Unlicensed
             return base.DecodePrg(address);
         }
 
-        protected override void PeekPrg(ushort address, ref byte data)
+        protected override void ReadPrg(ushort address, ref byte data)
         {
             if (Prg == null)
             {
                 return;
             }
 
-            base.PeekPrg(address, ref data);
+            base.ReadPrg(address, ref data);
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             switch ((address >> 11) & 3)
             {

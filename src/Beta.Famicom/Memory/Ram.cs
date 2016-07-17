@@ -11,12 +11,12 @@
             mask = capacity - 1;
         }
 
-        public void Peek(int address, ref byte data)
+        public void Read(int address, ref byte data)
         {
             data = buffer[address & mask];
         }
 
-        public void Poke(int address, ref byte data)
+        public void Write(int address, byte data)
         {
             buffer[address & mask] = data;
         }

@@ -92,7 +92,7 @@ namespace Beta.Famicom.Boards.Nintendo
             return base.DecodePrg(address);
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             if (Cpu.Edge)
             { // ignore multiple writes

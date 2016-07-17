@@ -5,7 +5,7 @@ namespace Beta.Famicom
 {
     public delegate void Reader(ushort address, ref byte data);
 
-    public delegate void Writer(ushort address, ref byte data);
+    public delegate void Writer(ushort address, byte data);
 
     public class Bus : IBus
     {
@@ -28,7 +28,7 @@ namespace Beta.Famicom
         {
         }
 
-        private static void NullWrite(ushort address, ref byte data)
+        private static void NullWrite(ushort address, byte data)
         {
         }
 
@@ -53,9 +53,9 @@ namespace Beta.Famicom
             readers[address](address, ref data);
         }
 
-        public void Write(ushort address, ref byte data)
+        public void Write(ushort address, byte data)
         {
-            writers[address](address, ref data);
+            writers[address](address, data);
         }
     }
 }

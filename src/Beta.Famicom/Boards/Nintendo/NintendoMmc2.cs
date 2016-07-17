@@ -29,32 +29,32 @@ namespace Beta.Famicom.Boards.Nintendo
             chr1 = chr1Latch = 2;
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             prgPages[0] = data << 13;
         }
 
-        private void PokeB000(ushort address, ref byte data)
+        private void PokeB000(ushort address, byte data)
         {
             chrPages[0] = data << 12;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             chrPages[1] = data << 12;
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             chrPages[2] = data << 12;
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             chrPages[3] = data << 12;
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             mirroring = (data & 0x01);
         }

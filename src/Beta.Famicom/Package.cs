@@ -26,6 +26,7 @@ namespace Beta.Famicom
             container.RegisterSingleton<Driver>();
             container.RegisterSingleton<R2A03>();
             container.RegisterSingleton<R2A03Bus>();
+            container.RegisterSingleton<R2A03State>();
             container.RegisterSingleton<R2C02>();
             container.RegisterSingleton<R2C02Bus>();
         }

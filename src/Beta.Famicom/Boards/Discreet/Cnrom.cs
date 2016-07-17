@@ -17,7 +17,7 @@ namespace Beta.Famicom.Boards.Discreet
             return (address & 0x1fff) | chrPage;
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             chrPage = data << 13;
         }

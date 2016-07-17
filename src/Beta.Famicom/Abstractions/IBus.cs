@@ -6,6 +6,6 @@
 
         void Read(ushort address, ref byte data);
 
-        void Write(ushort address, ref byte data);
+        void Write(ushort address, byte data);
     }
 }

@@ -15,12 +15,12 @@ namespace Beta.Famicom.Boards.Camerica
             prgPages = new int[2];
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             mirroring = (data >> 4) & 1;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             prgPages[0] = data << 14;
         }

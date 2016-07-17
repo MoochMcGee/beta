@@ -464,7 +464,7 @@ namespace Beta.Famicom.PPU
             data = tmp;
         }
 
-        private void Write2000(ushort address, ref byte data)
+        private void Write2000(ushort address, byte data)
         {
             scroll.Temp = (ushort)((scroll.Temp & 0x73ff) | ((data << 10) & 0x0c00));
             scroll.Step = (ushort)((data & 0x04) != 0 ? 0x0020 : 0x0001);
@@ -476,7 +476,7 @@ namespace Beta.Famicom.PPU
             VBL();
         }
 
-        private void Write2001(ushort address, ref byte data)
+        private void Write2001(ushort address, byte data)
         {
             bkg.Clipped = (data & 0x02) == 0;
             spr.Clipped = (data & 0x04) == 0;
@@ -487,13 +487,13 @@ namespace Beta.Famicom.PPU
             emphasis = (data & 0xe0) << 1;
         }
 
-        private void Write2003(ushort address, ref byte data)
+        private void Write2003(ushort address, byte data)
         {
             oamAddress = data;
             oamAddressLatch = data;
         }
 
-        private void Write2004(ushort address, ref byte data)
+        private void Write2004(ushort address, byte data)
         {
             if ((oamAddress & 3) == 2)
                 data &= 0xe3;
@@ -501,7 +501,7 @@ namespace Beta.Famicom.PPU
             oam[oamAddress++] = data;
         }
 
-        private void Write2005(ushort address, ref byte data)
+        private void Write2005(ushort address, byte data)
         {
             scroll.Swap = !scroll.Swap;
 
@@ -516,7 +516,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void Write2006(ushort address, ref byte data)
+        private void Write2006(ushort address, byte data)
         {
             scroll.Swap = !scroll.Swap;
             if (scroll.Swap)
@@ -532,7 +532,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void Write2007(ushort address, ref byte data)
+        private void Write2007(ushort address, byte data)
         {
             PokeByte(scroll.Address, data);
 
@@ -558,12 +558,12 @@ namespace Beta.Famicom.PPU
             data = pal[address & 0x001f];
         }
 
-        private void WritePal0(ushort address, ref byte data)
+        private void WritePal0(ushort address, byte data)
         {
             pal[address & 0x000c] = (byte)(data & 0x3f);
         }
 
-        private void WritePalN(ushort address, ref byte data)
+        private void WritePalN(ushort address, byte data)
         {
             pal[address & 0x001f] = (byte)(data & 0x3f);
         }
@@ -930,7 +930,7 @@ namespace Beta.Famicom.PPU
         private void PokeByte(ushort address, byte data)
         {
             address &= 0x3fff;
-            bus.Write(address, ref data);
+            bus.Write(address, data);
         }
 
         public void Initialize()
@@ -938,15 +938,13 @@ namespace Beta.Famicom.PPU
             vclock = 261;
             raster = video.GetRaster(0);
 
-            byte zero = 0;
-
-            Write2000(0x2000, ref zero);
-            Write2001(0x2001, ref zero);
+            Write2000(0x2000, 0);
+            Write2001(0x2001, 0);
             //  $2002: Unimplemented/Invalid
-            Write2003(0x2003, ref zero);
+            Write2003(0x2003, 0);
             //  $2004: ORAM Data Port (Writing will modify public registers in an undesired manner)
-            Write2005(0x2005, ref zero);
-            Write2006(0x2006, ref zero);
+            Write2005(0x2005, 0);
+            Write2006(0x2006, 0);
             //  $2007: VRAM Data Port (Writing will modify public registers in an undesired manner)
 
             InitializeMemory();

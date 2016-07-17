@@ -20,27 +20,27 @@ namespace Beta.Famicom.Boards.Konami
             irq = new Irq();
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0x000f) | ((data & 0x0f) << 0);
         }
 
-        private void Poke9000(ushort address, ref byte data)
+        private void Poke9000(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0x00f0) | ((data & 0x0f) << 4);
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0x0f00) | ((data & 0x0f) << 8);
         }
 
-        private void PokeB000(ushort address, ref byte data)
+        private void PokeB000(ushort address, byte data)
         {
             irq.Refresh = (irq.Refresh & ~0xf000) | ((data & 0x0f) << 12);
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             irq.Mode = (data & 4) != 0;
             irq.Enabled = (data & 2) != 0;
@@ -52,17 +52,17 @@ namespace Beta.Famicom.Boards.Konami
             Cpu.Irq(0);
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             irq.Enabled = irq.EnabledRefresh;
             Cpu.Irq(0);
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             prgPages[0] = (data & 0xf) << 14;
         }

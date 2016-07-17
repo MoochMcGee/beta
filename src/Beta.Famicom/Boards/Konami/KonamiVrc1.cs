@@ -22,36 +22,36 @@ namespace Beta.Famicom.Boards.Konami
             prgPages[3] = -1 << 13;
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             prgPages[0] = (data & 0x0f) << 13;
         }
 
-        private void Poke9000(ushort address, ref byte data)
+        private void Poke9000(ushort address, byte data)
         {
             mirroring = (data & 1);
             chrPages[0] = (chrPages[0] & ~0x10000) | ((data & 2) << 15);
             chrPages[1] = (chrPages[1] & ~0x10000) | ((data & 4) << 14);
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             prgPages[1] = (data & 0x0f) << 13;
         }
 
         // $b000
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             prgPages[2] = (data & 0x0f) << 13;
         }
 
         // $d000
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             chrPages[0] = (chrPages[0] & ~0xf000) | ((data & 0x0f) << 12);
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             chrPages[1] = (chrPages[1] & ~0xf000) | ((data & 0x0f) << 12);
         }

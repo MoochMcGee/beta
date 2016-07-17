@@ -14,13 +14,13 @@ namespace Beta.Famicom.Boards.Camerica
             prgPages = new int[2];
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             prgPages[0] = (prgPages[0] & ~0x30000) | ((data & 0x18) << 13);
             prgPages[1] = (prgPages[1] & ~0x30000) | ((data & 0x18) << 13);
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             prgPages[0] = (prgPages[0] & ~0x0c000) | ((data & 0x03) << 14);
         }

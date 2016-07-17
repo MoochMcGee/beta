@@ -817,11 +817,9 @@ namespace Beta.Platform.Processors.RP6502
 
         #endregion
 
-        protected abstract void Dispatch();
-
         protected abstract void Read(ushort address, ref byte data);
 
-        protected abstract void Write(ushort address, ref byte data);
+        protected abstract void Write(ushort address, byte data);
 
         public virtual void ResetHard()
         {
@@ -884,8 +882,6 @@ namespace Beta.Platform.Processors.RP6502
                 interrupts.Poll(p.I);
             }
 
-            Dispatch();
-
             Read(address, ref open);
 
             return open;
@@ -901,10 +897,7 @@ namespace Beta.Platform.Processors.RP6502
                 interrupts.Poll(p.I);
             }
 
-            Dispatch();
-
-            open = data;
-            Write(address, ref open);
+            Write(address, open = data);
         }
     }
 }

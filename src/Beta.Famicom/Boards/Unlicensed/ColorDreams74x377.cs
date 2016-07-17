@@ -25,7 +25,7 @@ namespace Beta.Famicom.Boards.Unlicensed
             return (address & 0x7fff) | prgPage[0];
         }
 
-        protected override void PokePrg(ushort address, ref byte data)
+        protected override void WritePrg(ushort address, byte data)
         {
             chrPage[0] = (data & 0xf0) << 0x9;
             prgPage[0] = (data & 0x03) << 0xf;

@@ -39,19 +39,19 @@ namespace Beta.Famicom
             data = wram[address & 0x7ff];
         }
 
-        public void PokeVRam(ushort address, ref byte data)
+        public void PokeVRam(ushort address, byte data)
         {
             vram[(address & 0x3ff) | (board.VRamA10(address) << 10)] = data;
         }
 
-        public void PokeWRam(ushort address, ref byte data)
+        public void PokeWRam(ushort address, byte data)
         {
             wram[address & 0x7ff] = data;
         }
 
         public void Initialize()
         {
-            r2a03.Initialize();
+            // r2a03.Initialize();
             r2c02.Initialize();
             board.Initialize();
         }

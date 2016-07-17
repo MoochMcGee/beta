@@ -33,73 +33,73 @@ namespace Beta.Famicom.Boards.Bandai
             }
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             chrPages[0] = data << 10;
         }
 
-        private void Poke8001(ushort address, ref byte data)
+        private void Poke8001(ushort address, byte data)
         {
             chrPages[1] = data << 10;
         }
 
-        private void Poke8002(ushort address, ref byte data)
+        private void Poke8002(ushort address, byte data)
         {
             chrPages[2] = data << 10;
         }
 
-        private void Poke8003(ushort address, ref byte data)
+        private void Poke8003(ushort address, byte data)
         {
             chrPages[3] = data << 10;
         }
 
-        private void Poke8004(ushort address, ref byte data)
+        private void Poke8004(ushort address, byte data)
         {
             chrPages[4] = data << 10;
         }
 
-        private void Poke8005(ushort address, ref byte data)
+        private void Poke8005(ushort address, byte data)
         {
             chrPages[5] = data << 10;
         }
 
-        private void Poke8006(ushort address, ref byte data)
+        private void Poke8006(ushort address, byte data)
         {
             chrPages[6] = data << 10;
         }
 
-        private void Poke8007(ushort address, ref byte data)
+        private void Poke8007(ushort address, byte data)
         {
             chrPages[7] = data << 10;
         }
 
-        private void Poke8008(ushort address, ref byte data)
+        private void Poke8008(ushort address, byte data)
         {
             prgPages[0] = data << 14;
         }
 
-        private void Poke8009(ushort address, ref byte data)
+        private void Poke8009(ushort address, byte data)
         {
             mirroring = (data & 0x03);
         }
 
-        private void Poke800A(ushort address, ref byte data)
+        private void Poke800A(ushort address, byte data)
         {
             irqEnabled = (data & 0x01) != 0;
             Cpu.Irq(0);
         }
 
-        private void Poke800B(ushort address, ref byte data)
+        private void Poke800B(ushort address, byte data)
         {
             irqCounter = (irqCounter & ~0x00ff) | (data << 0);
         }
 
-        private void Poke800C(ushort address, ref byte data)
+        private void Poke800C(ushort address, byte data)
         {
             irqCounter = (irqCounter & ~0xff00) | (data << 8);
         }
 
-        private void Poke800D(ushort address, ref byte data)
+        private void Poke800D(ushort address, byte data)
         {
             if (eeprom != null)
             {

@@ -79,44 +79,44 @@ namespace Beta.Famicom.Boards
             return address;
         }
 
-        protected virtual void PeekChr(ushort address, ref byte data)
+        protected virtual void ReadChr(ushort address, ref byte data)
         {
-            Chr.Peek(DecodeChr(address), ref data);
+            Chr.Read(DecodeChr(address), ref data);
         }
 
-        protected virtual void PeekPrg(ushort address, ref byte data)
+        protected virtual void ReadPrg(ushort address, ref byte data)
         {
-            Prg.Peek(DecodePrg(address), ref data);
+            Prg.Read(DecodePrg(address), ref data);
         }
 
-        protected virtual void PeekRam(ushort address, ref byte data)
+        protected virtual void ReadRam(ushort address, ref byte data)
         {
-            Ram?.Peek(address, ref data);
+            Ram?.Read(address, ref data);
         }
 
-        protected virtual void PokeChr(ushort address, ref byte data)
+        protected virtual void WriteChr(ushort address, byte data)
         {
-            Chr.Poke(DecodeChr(address), ref data);
+            Chr.Write(DecodeChr(address), data);
         }
 
-        protected virtual void PokePrg(ushort address, ref byte data)
+        protected virtual void WritePrg(ushort address, byte data)
         {
         }
 
-        protected virtual void PokeRam(ushort address, ref byte data)
+        protected virtual void WriteRam(ushort address, byte data)
         {
-            Ram?.Poke(address, ref data);
+            Ram?.Write(address, data);
         }
 
         public virtual void MapToCpu(IBus bus)
         {
-            bus.Map("011- ---- ---- ----", PeekRam, PokeRam);
-            bus.Map("1--- ---- ---- ----", PeekPrg, PokePrg);
+            bus.Map("011- ---- ---- ----", ReadRam, WriteRam);
+            bus.Map("1--- ---- ---- ----", ReadPrg, WritePrg);
         }
 
         public virtual void MapToPpu(IBus bus)
         {
-            bus.Map("000- ---- ---- ----", PeekChr, PokeChr);
+            bus.Map("000- ---- ---- ----", ReadChr, WriteChr);
         }
 
         public virtual int VRamA10(ushort address)

@@ -30,7 +30,28 @@ namespace Beta.Famicom.Database
                        where cartridge.Sha1 == sha1
                        select cartridge.Boards[0];
 
-            return linq.First();
+            var result = linq.FirstOrDefault();
+            if (result == null)
+            {
+                return new Board
+                {
+                    SolderPad = new Pad { H = 0, V = 0 },
+                    Chip = new System.Collections.Generic.List<Chip>(),
+                    Vram = new System.Collections.Generic.List<Ram>(),
+                    Wram = new System.Collections.Generic.List<Ram>(),
+                    Chr = new System.Collections.Generic.List<Rom>
+                    {
+                        new Rom { SizeString = "8k" }
+                    },
+                    Prg = new System.Collections.Generic.List<Rom>
+                    {
+                        new Rom { SizeString= "32k" }
+                    },
+                    Type = "NES-SxROM"
+                };
+            }
+
+            return result;
         }
     }
 }

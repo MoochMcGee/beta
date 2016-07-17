@@ -35,42 +35,42 @@ namespace Beta.Famicom.Boards.Namcot
 
         private void PeekNmtA(ushort address, ref byte data)
         {
-            nmtA.Peek((address & 0x3ff) | nmtPages[0], ref data);
+            nmtA.Read((address & 0x3ff) | nmtPages[0], ref data);
         }
 
         private void PeekNmtB(ushort address, ref byte data)
         {
-            nmtB.Peek((address & 0x3ff) | nmtPages[1], ref data);
+            nmtB.Read((address & 0x3ff) | nmtPages[1], ref data);
         }
 
         private void PeekNmtC(ushort address, ref byte data)
         {
-            nmtC.Peek((address & 0x3ff) | nmtPages[2], ref data);
+            nmtC.Read((address & 0x3ff) | nmtPages[2], ref data);
         }
 
         private void PeekNmtD(ushort address, ref byte data)
         {
-            nmtD.Peek((address & 0x3ff) | nmtPages[3], ref data);
+            nmtD.Read((address & 0x3ff) | nmtPages[3], ref data);
         }
 
-        private void PokeNmtA(ushort address, ref byte data)
+        private void PokeNmtA(ushort address, byte data)
         {
-            nmtA.Poke(address & 0x3ff, ref data);
+            nmtA.Write(address & 0x3ff, data);
         }
 
-        private void PokeNmtB(ushort address, ref byte data)
+        private void PokeNmtB(ushort address, byte data)
         {
-            nmtB.Poke(address & 0x3ff, ref data);
+            nmtB.Write(address & 0x3ff, data);
         }
 
-        private void PokeNmtC(ushort address, ref byte data)
+        private void PokeNmtC(ushort address, byte data)
         {
-            nmtC.Poke(address & 0x3ff, ref data);
+            nmtC.Write(address & 0x3ff, data);
         }
 
-        private void PokeNmtD(ushort address, ref byte data)
+        private void PokeNmtD(ushort address, byte data)
         {
-            nmtD.Poke(address & 0x3ff, ref data);
+            nmtD.Write(address & 0x3ff, data);
         }
 
         private void Peek4800(ushort address, ref byte data)
@@ -90,65 +90,65 @@ namespace Beta.Famicom.Boards.Namcot
             data = (byte)(irqCounter >> 8);
         }
 
-        private void Poke4800(ushort address, ref byte data)
+        private void Poke4800(ushort address, byte data)
         {
             sound.Poke4800(data);
         }
 
-        private void Poke5000(ushort address, ref byte data)
+        private void Poke5000(ushort address, byte data)
         {
             Cpu.Irq(0);
             irqCounter = (irqCounter & ~0x00ff) | ((data & 0xff) << 0);
         }
 
-        private void Poke5800(ushort address, ref byte data)
+        private void Poke5800(ushort address, byte data)
         {
             Cpu.Irq(0);
             irqCounter = (irqCounter & ~0x7f00) | ((data & 0x7f) << 8);
             irqEnabled = (data & 0x80) != 0;
         }
 
-        private void Poke8000(ushort address, ref byte data)
+        private void Poke8000(ushort address, byte data)
         {
             chrPages[0] = data << 10;
         }
 
-        private void Poke8800(ushort address, ref byte data)
+        private void Poke8800(ushort address, byte data)
         {
             chrPages[1] = data << 10;
         }
 
-        private void Poke9000(ushort address, ref byte data)
+        private void Poke9000(ushort address, byte data)
         {
             chrPages[2] = data << 10;
         }
 
-        private void Poke9800(ushort address, ref byte data)
+        private void Poke9800(ushort address, byte data)
         {
             chrPages[3] = data << 10;
         }
 
-        private void PokeA000(ushort address, ref byte data)
+        private void PokeA000(ushort address, byte data)
         {
             chrPages[4] = data << 10;
         }
 
-        private void PokeA800(ushort address, ref byte data)
+        private void PokeA800(ushort address, byte data)
         {
             chrPages[5] = data << 10;
         }
 
-        private void PokeB000(ushort address, ref byte data)
+        private void PokeB000(ushort address, byte data)
         {
             chrPages[6] = data << 10;
         }
 
-        private void PokeB800(ushort address, ref byte data)
+        private void PokeB800(ushort address, byte data)
         {
             chrPages[7] = data << 10;
         }
 
-        private void PokeC000(ushort address, ref byte data)
+        private void PokeC000(ushort address, byte data)
         {
             if (data < 0xe0)
             {
@@ -162,7 +162,7 @@ namespace Beta.Famicom.Boards.Namcot
             }
         }
 
-        private void PokeC800(ushort address, ref byte data)
+        private void PokeC800(ushort address, byte data)
         {
             if (data < 0xe0)
             {
@@ -176,7 +176,7 @@ namespace Beta.Famicom.Boards.Namcot
             }
         }
 
-        private void PokeD000(ushort address, ref byte data)
+        private void PokeD000(ushort address, byte data)
         {
             if (data < 0xe0)
             {
@@ -190,7 +190,7 @@ namespace Beta.Famicom.Boards.Namcot
             }
         }
 
-        private void PokeD800(ushort address, ref byte data)
+        private void PokeD800(ushort address, byte data)
         {
             if (data < 0xe0)
             {
@@ -204,22 +204,22 @@ namespace Beta.Famicom.Boards.Namcot
             }
         }
 
-        private void PokeE000(ushort address, ref byte data)
+        private void PokeE000(ushort address, byte data)
         {
             prgPages[0] = (data & 0x3f) << 13;
         }
 
-        private void PokeE800(ushort address, ref byte data)
+        private void PokeE800(ushort address, byte data)
         {
             prgPages[1] = (data & 0x3f) << 13;
         }
 
-        private void PokeF000(ushort address, ref byte data)
+        private void PokeF000(ushort address, byte data)
         {
             prgPages[2] = (data & 0x3f) << 13;
         }
 
-        private void PokeF800(ushort address, ref byte data)
+        private void PokeF800(ushort address, byte data)
         {
             sound.PokeF800(data);
         }

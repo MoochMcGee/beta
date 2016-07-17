@@ -49,6 +49,7 @@ namespace Beta.Famicom
 
             broker.Subscribe<PpuAddressSignal>(board);
             broker.Subscribe<ClockSignal>(board);
+            broker.Subscribe<ClockSignal>(cpu);
             broker.Subscribe<ClockSignal>(ppu);
             broker.Subscribe<FrameSignal>(result);
             broker.Subscribe<VblNmiSignal>(cpu);
