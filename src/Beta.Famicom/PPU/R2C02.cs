@@ -1,4 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Messaging;
 using Beta.Platform;
 using Beta.Platform.Core;
@@ -9,10 +9,10 @@ namespace Beta.Famicom.PPU
 {
     public class R2C02 : Processor, IConsumer<ClockSignal>
     {
-        private readonly IBus bus;
+        private readonly R2C02Bus bus;
         private readonly IProducer<FrameSignal> frameProducer;
         private readonly IProducer<PpuAddressSignal> addressProducer;
-        private readonly IProducer<VblNmiSignal> vblNmiProducer;
+        private readonly IProducer<VblSignal> vblNmiProducer;
         private readonly IVideoBackend video;
 
         private Fetch fetch = new Fetch();
@@ -45,7 +45,7 @@ namespace Beta.Famicom.PPU
             R2C02Bus bus,
             IProducer<FrameSignal> frameProducer,
             IProducer<PpuAddressSignal> addressProducer,
-            IProducer<VblNmiSignal> vblNmiProducer,
+            IProducer<VblSignal> vblNmiProducer,
             IVideoBackend video)
         {
             this.bus = bus;
@@ -575,7 +575,7 @@ namespace Beta.Famicom.PPU
 
         private void VBL()
         {
-            var signal = new VblNmiSignal(vblFlag & vblEnabled);
+            var signal = new VblSignal(vblFlag & vblEnabled);
 
             vblNmiProducer.Produce(signal);
         }
@@ -997,7 +997,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void MapTo(IBus bus)
+        public void MapTo(R2A03Bus bus)
         {
             bus.Map("001- ---- ---- -000", writer: Write2000);
             bus.Map("001- ---- ---- -001", writer: Write2001);

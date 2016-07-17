@@ -1,7 +1,7 @@
 ﻿using Beta.Platform.Exceptions;
-using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Messaging;
+using Beta.Famicom.CPU;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
@@ -74,7 +74,7 @@ namespace Beta.Famicom.Boards.Nintendo
             return prgPages[(address >> 14) & 1] | (address & 0x3fff);
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

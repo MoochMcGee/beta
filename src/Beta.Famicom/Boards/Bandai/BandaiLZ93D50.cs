@@ -1,4 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Platform.Exceptions;
 using Beta.Platform.Messaging;
@@ -144,7 +144,7 @@ namespace Beta.Famicom.Boards.Bandai
             }
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

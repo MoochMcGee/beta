@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstractions\IBus.cs" />
     <Compile Include="Boards\Bandai\BandaiLZ93D50.cs" />
     <Compile Include="Boards\Board.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
@@ -127,7 +126,7 @@
     <Compile Include="Memory\Rom.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
     <Compile Include="Messaging\PpuAddressSignal.cs" />
-    <Compile Include="Messaging\VblNmiSignal.cs" />
+    <Compile Include="Messaging\VblSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Input\Joypad.cs" />
     <Compile Include="Input\StandardController.cs" />

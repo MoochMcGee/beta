@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Platform;
@@ -174,7 +173,7 @@ namespace Beta.Famicom.Boards.Konami
             Cpu.Hook(sound);
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

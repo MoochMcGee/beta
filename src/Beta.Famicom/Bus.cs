@@ -1,5 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
-using Beta.Platform;
+﻿using Beta.Platform;
 
 namespace Beta.Famicom
 {
@@ -7,7 +6,7 @@ namespace Beta.Famicom
 
     public delegate void Writer(ushort address, byte data);
 
-    public class Bus : IBus
+    public class Bus
     {
         private readonly Reader[] readers;
         private readonly Writer[] writers;

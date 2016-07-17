@@ -1,4 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Messaging;
 using Beta.Platform.Exceptions;
@@ -167,7 +167,7 @@ namespace Beta.Famicom.Boards.Nintendo
             Poke8000(0xe001, 0);
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

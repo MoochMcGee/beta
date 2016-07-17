@@ -52,7 +52,7 @@ namespace Beta.Famicom
             broker.Subscribe<ClockSignal>(cpu);
             broker.Subscribe<ClockSignal>(ppu);
             broker.Subscribe<FrameSignal>(result);
-            broker.Subscribe<VblNmiSignal>(cpu);
+            broker.Subscribe<VblSignal>(cpu);
 
             cpuBus.Map("000- ---- ---- ----", reader: result.PeekWRam, writer: result.PokeWRam);
             ppuBus.Map("  1- ---- ---- ----", reader: result.PeekVRam, writer: result.PokeVRam);

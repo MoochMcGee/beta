@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using Beta.Famicom.Abstractions;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Memory;
 using Beta.Famicom.Messaging;
+using Beta.Famicom.PPU;
 using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards
@@ -108,13 +108,13 @@ namespace Beta.Famicom.Boards
             Ram?.Write(address, data);
         }
 
-        public virtual void MapToCpu(IBus bus)
+        public virtual void MapToCpu(R2A03Bus bus)
         {
             bus.Map("011- ---- ---- ----", ReadRam, WriteRam);
             bus.Map("1--- ---- ---- ----", ReadPrg, WritePrg);
         }
 
-        public virtual void MapToPpu(IBus bus)
+        public virtual void MapToPpu(R2C02Bus bus)
         {
             bus.Map("000- ---- ---- ----", ReadChr, WriteChr);
         }

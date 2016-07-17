@@ -29,6 +29,7 @@ namespace Beta.Famicom
             container.RegisterSingleton<R2A03State>();
             container.RegisterSingleton<R2C02>();
             container.RegisterSingleton<R2C02Bus>();
+            container.RegisterSingleton<State>();
         }
     }
 }

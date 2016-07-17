@@ -1,4 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Platform.Messaging;
 
@@ -72,7 +72,7 @@ namespace Beta.Famicom.Boards.Konami
             return (address & 0x3fff) | prgPages[(address >> 14) & 1];
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

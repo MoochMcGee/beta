@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Beta.Famicom.Abstractions;
-using Beta.Famicom.Input;
+﻿using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
@@ -12,7 +9,7 @@ namespace Beta.Famicom.CPU
     public partial class R2A03
         : Core
         , IConsumer<ClockSignal>
-        , IConsumer<VblNmiSignal>
+        , IConsumer<VblSignal>
     {
         private static readonly int[][] square_lut = new[]
         {
@@ -188,7 +185,7 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        public void MapTo(IBus bus)
+        public void MapTo(R2A03Bus bus)
         {
             bus.Map("0100 0000 0000 0000", writer: sq1.Write);
             bus.Map("0100 0000 0000 0001", writer: sq1.Write);
@@ -221,7 +218,7 @@ namespace Beta.Famicom.CPU
             bus.Map("0100 0000 0001 0111", reader: Read4017, writer: Write4017);
         }
 
-        public void Consume(VblNmiSignal e)
+        public void Consume(VblSignal e)
         {
             Nmi(e.Value);
         }

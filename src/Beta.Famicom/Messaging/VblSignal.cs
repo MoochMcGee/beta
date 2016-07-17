@@ -1,10 +1,10 @@
 ﻿namespace Beta.Famicom.Messaging
 {
-    public sealed class VblNmiSignal
+    public sealed class VblSignal
     {
         public int Value { get; }
 
-        public VblNmiSignal(int value)
+        public VblSignal(int value)
         {
             this.Value = value;
         }

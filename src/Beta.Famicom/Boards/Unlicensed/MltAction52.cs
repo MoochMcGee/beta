@@ -1,6 +1,6 @@
 ﻿using Beta.Platform.Exceptions;
-using Beta.Famicom.Abstractions;
 using Beta.Famicom.Formats;
+using Beta.Famicom.CPU;
 
 namespace Beta.Famicom.Boards.Unlicensed
 {
@@ -71,7 +71,7 @@ namespace Beta.Famicom.Boards.Unlicensed
             mirroring = ((address & 0x2000) >> 13);
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

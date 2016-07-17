@@ -1,4 +1,4 @@
-﻿using Beta.Famicom.Abstractions;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 
 namespace Beta.Famicom.Boards.Camerica
@@ -38,7 +38,7 @@ namespace Beta.Famicom.Boards.Camerica
             prgPages[1] = -1 << 14;
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 

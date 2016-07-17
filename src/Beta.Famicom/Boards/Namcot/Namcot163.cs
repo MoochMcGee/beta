@@ -1,7 +1,7 @@
-﻿using Beta.Famicom.Abstractions;
-using Beta.Famicom.CPU;
+﻿using Beta.Famicom.CPU;
 using Beta.Famicom.Formats;
 using Beta.Famicom.Memory;
+using Beta.Famicom.PPU;
 using Beta.Platform;
 using Beta.Platform.Messaging;
 
@@ -268,7 +268,7 @@ namespace Beta.Famicom.Boards.Namcot
             sound.Initialize();
         }
 
-        public override void MapToCpu(IBus bus)
+        public override void MapToCpu(R2A03Bus bus)
         {
             base.MapToCpu(bus);
 
@@ -297,7 +297,7 @@ namespace Beta.Famicom.Boards.Namcot
             bus.Map("1111 1--- ---- ----", writer: PokeF800);
         }
 
-        public override void MapToPpu(IBus bus)
+        public override void MapToPpu(R2C02Bus bus)
         {
             base.MapToPpu(bus);
 
