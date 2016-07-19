@@ -10,9 +10,9 @@ namespace Beta.Famicom.PPU
     public class R2C02 : Processor, IConsumer<ClockSignal>
     {
         private readonly R2C02Bus bus;
-        private readonly IProducer<FrameSignal> frameProducer;
-        private readonly IProducer<PpuAddressSignal> addressProducer;
-        private readonly IProducer<VblSignal> vblNmiProducer;
+        private readonly IProducer<FrameSignal> frame;
+        private readonly IProducer<PpuAddressSignal> address;
+        private readonly IProducer<VblSignal> vbl;
         private readonly IVideoBackend video;
 
         private Fetch fetch = new Fetch();
@@ -43,15 +43,15 @@ namespace Beta.Famicom.PPU
 
         public R2C02(
             R2C02Bus bus,
-            IProducer<FrameSignal> frameProducer,
-            IProducer<PpuAddressSignal> addressProducer,
-            IProducer<VblSignal> vblNmiProducer,
+            IProducer<FrameSignal> frame,
+            IProducer<PpuAddressSignal> address,
+            IProducer<VblSignal> vbl,
             IVideoBackend video)
         {
             this.bus = bus;
-            this.frameProducer = frameProducer;
-            this.addressProducer = addressProducer;
-            this.vblNmiProducer = vblNmiProducer;
+            this.frame = frame;
+            this.address = address;
+            this.vbl = vbl;
             this.video = video;
 
             Single = 44;
@@ -570,14 +570,14 @@ namespace Beta.Famicom.PPU
 
         private void AddressUpdate(ushort address)
         {
-            addressProducer.Produce(new PpuAddressSignal(address));
+            this.address.Produce(new PpuAddressSignal(address));
         }
 
         private void VBL()
         {
             var signal = new VblSignal(vblFlag & vblEnabled);
 
-            vblNmiProducer.Produce(signal);
+            vbl.Produce(signal);
         }
 
         private void ActiveCycle()
@@ -985,7 +985,7 @@ namespace Beta.Famicom.PPU
                 {
                     vclock = 0;
 
-                    frameProducer.Produce(new FrameSignal());
+                    frame.Produce(new FrameSignal());
 
                     video.Render();
                 }
