@@ -12,18 +12,21 @@ namespace Beta.Famicom
     public sealed class DriverFactory : IDriverFactory
     {
         private readonly Container container;
+        private readonly InputConnector input;
         private readonly IBoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
         private readonly ISubscriptionBroker broker;
 
         public DriverFactory(
             Container container,
+            InputConnector input,
             IBoardFactory boardFactory,
             IJoypadFactory joypadFactory,
             ISubscriptionBroker broker)
         {
-            this.boardFactory = boardFactory;
             this.container = container;
+            this.input = input;
+            this.boardFactory = boardFactory;
             this.joypadFactory = joypadFactory;
             this.broker = broker;
         }
@@ -32,9 +35,9 @@ namespace Beta.Famicom
         {
             var cpu = container.GetInstance<R2A03>();
             var cpuBus = container.GetInstance<R2A03Bus>();
-            cpu.MapTo(cpuBus);
-            cpu.Joypad1 = joypadFactory.Create(0);
-            cpu.Joypad2 = joypadFactory.Create(1);
+
+            input.ConnectJoypad1(joypadFactory.Create(0));
+            input.ConnectJoypad2(joypadFactory.Create(1));
 
             var ppu = container.GetInstance<R2C02>();
             var ppuBus = container.GetInstance<R2C02Bus>();
@@ -51,10 +54,10 @@ namespace Beta.Famicom
             broker.Subscribe<ClockSignal>(board);
             broker.Subscribe<ClockSignal>(cpu);
             broker.Subscribe<ClockSignal>(ppu);
-            broker.Subscribe<FrameSignal>(result);
+            broker.Subscribe<FrameSignal>(input);
+            broker.Subscribe<IrqSignal>(cpu);
             broker.Subscribe<VblSignal>(cpu);
 
-            cpuBus.Map("000- ---- ---- ----", reader: result.PeekWRam, writer: result.PokeWRam);
             ppuBus.Map("  1- ---- ---- ----", reader: result.PeekVRam, writer: result.PokeVRam);
 
             result.Initialize();

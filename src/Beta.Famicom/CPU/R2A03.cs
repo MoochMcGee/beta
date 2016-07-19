@@ -1,5 +1,4 @@
-﻿using Beta.Famicom.Input;
-using Beta.Famicom.Messaging;
+﻿using Beta.Famicom.Messaging;
 using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP6502;
@@ -9,6 +8,7 @@ namespace Beta.Famicom.CPU
     public partial class R2A03
         : Core
         , IConsumer<ClockSignal>
+        , IConsumer<IrqSignal>
         , IConsumer<VblSignal>
     {
         private static readonly int[][] square_lut = new[]
@@ -28,44 +28,28 @@ namespace Beta.Famicom.CPU
         private readonly R2A03Bus bus;
         private readonly R2A03State state;
         private readonly IAudioBackend audio;
-        private readonly IProducer<ClockSignal> clockProducer;
-
-        private readonly Sq1StateManager sq1;
-        private readonly Sq2StateManager sq2;
-        private readonly TriStateManager tri;
-        private readonly NoiStateManager noi;
+        private readonly IProducer<ClockSignal> clock;
 
         private bool apuToggle;
-        private int strobe;
 
-        public Joypad Joypad1;
-        public Joypad Joypad2;
-
-        public R2A03(R2A03Bus bus, State state, IAudioBackend audio, IProducer<ClockSignal> clockProducer)
+        public R2A03(R2A03Bus bus, State state, IAudioBackend audio, IProducer<ClockSignal> clock)
         {
             this.bus = bus;
             this.state = state.r2a03;
             this.audio = audio;
-            this.clockProducer = clockProducer;
-
-            this.sq1 = new Sq1StateManager(state);
-            this.sq2 = new Sq2StateManager(state);
-            this.tri = new TriStateManager(state);
-            this.noi = new NoiStateManager(state);
-
-            Single = 132;
+            this.clock = clock;
         }
 
         protected override void Read(ushort address, ref byte data)
         {
-            clockProducer.Produce(new ClockSignal(Single));
+            clock.Produce(new ClockSignal(132));
 
             bus.Read(address, ref data);
         }
 
         protected override void Write(ushort address, byte data)
         {
-            clockProducer.Produce(new ClockSignal(Single));
+            clock.Produce(new ClockSignal(132));
 
             bus.Write(address, data);
         }
@@ -92,130 +76,9 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        private void Read4015(ushort address, ref byte data)
+        public void Consume(IrqSignal e)
         {
-            data = (byte)(
-                (state.sq1.duration.counter != 0 ? 0x01 : 0) |
-                (state.sq2.duration.counter != 0 ? 0x02 : 0) |
-                (state.tri.duration.counter != 0 ? 0x04 : 0) |
-                (state.noi.duration.counter != 0 ? 0x08 : 0) |
-                (state.irq_pending ? 0x40 : 0));
-
-            state.irq_pending = false;
-            Irq(0);
-        }
-
-        private void Read4016(ushort address, ref byte data)
-        {
-            data &= 0xe0;
-            data |= Joypad1.GetData(strobe);
-        }
-
-        private void Read4017(ushort address, ref byte data)
-        {
-            data &= 0xe0;
-            data |= Joypad2.GetData(strobe);
-        }
-
-        private void Write4014(ushort address, byte data)
-        {
-            state.dma_trigger = true;
-            state.dma_segment = data;
-        }
-
-        private void Write4015(ushort address, byte data)
-        {
-            state.sq1.enabled = (data & 0x01) != 0;
-
-            if (!state.sq1.enabled)
-            {
-                state.sq1.duration.counter = 0;
-            }
-
-            state.sq2.enabled = (data & 0x02) != 0;
-
-            if (!state.sq2.enabled)
-            {
-                state.sq2.duration.counter = 0;
-            }
-
-            state.tri.enabled = (data & 0x04) != 0;
-
-            if (!state.tri.enabled)
-            {
-                state.tri.duration.counter = 0;
-            }
-
-            state.noi.enabled = (data & 0x08) != 0;
-
-            if (!state.noi.enabled)
-            {
-                state.noi.duration.counter = 0;
-            }
-        }
-
-        private void Write4016(ushort address, byte data)
-        {
-            strobe = (data & 1);
-
-            if (strobe == 0)
-            {
-                Joypad1.SetData();
-                Joypad2.SetData();
-            }
-        }
-
-        private void Write4017(ushort address, byte data)
-        {
-            state.irq_enabled = (data & 0x40) == 0;
-
-            if (state.irq_enabled == false)
-            {
-                state.irq_pending = false;
-                Irq(0);
-            }
-
-            state.sequence_mode = (data >> 7) & 1;
-            state.sequence_time = 0;
-
-            if (state.sequence_mode == 1)
-            {
-                Quad();
-                Half();
-            }
-        }
-
-        public void MapTo(R2A03Bus bus)
-        {
-            bus.Map("0100 0000 0000 0000", writer: sq1.Write);
-            bus.Map("0100 0000 0000 0001", writer: sq1.Write);
-            bus.Map("0100 0000 0000 0010", writer: sq1.Write);
-            bus.Map("0100 0000 0000 0011", writer: sq1.Write);
-
-            bus.Map("0100 0000 0000 0100", writer: sq2.Write);
-            bus.Map("0100 0000 0000 0101", writer: sq2.Write);
-            bus.Map("0100 0000 0000 0110", writer: sq2.Write);
-            bus.Map("0100 0000 0000 0111", writer: sq2.Write);
-
-            bus.Map("0100 0000 0000 1000", writer: tri.Write);
-            bus.Map("0100 0000 0000 1001", writer: tri.Write);
-            bus.Map("0100 0000 0000 1010", writer: tri.Write);
-            bus.Map("0100 0000 0000 1011", writer: tri.Write);
-
-            bus.Map("0100 0000 0000 1100", writer: noi.Write);
-            bus.Map("0100 0000 0000 1101", writer: noi.Write);
-            bus.Map("0100 0000 0000 1110", writer: noi.Write);
-            bus.Map("0100 0000 0000 1111", writer: noi.Write);
-
-            // bus.Map("0100 0000 0001 0000", writer: dmc.PokeReg1);
-            // bus.Map("0100 0000 0001 0001", writer: dmc.PokeReg2);
-            // bus.Map("0100 0000 0001 0010", writer: dmc.PokeReg3);
-            // bus.Map("0100 0000 0001 0011", writer: dmc.PokeReg4);
-
-            bus.Map("0100 0000 0001 0100", writer: Write4014);
-            bus.Map("0100 0000 0001 0101", reader: Read4015, writer: Write4015);
-            bus.Map("0100 0000 0001 0110", reader: Read4016, writer: Write4016);
-            bus.Map("0100 0000 0001 0111", reader: Read4017, writer: Write4017);
+            Irq(e.Value);
         }
 
         public void Consume(VblSignal e)

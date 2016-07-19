@@ -117,6 +117,7 @@
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
     <Compile Include="Input\IJoypadFactory.cs" />
+    <Compile Include="Input\InputConnector.cs" />
     <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\CartridgeConnector.cs" />
     <Compile Include="Memory\IMemory.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\IrqSignal.cs" />
     <Compile Include="Messaging\PpuAddressSignal.cs" />
     <Compile Include="Messaging\VblSignal.cs" />
     <Compile Include="Package.cs" />

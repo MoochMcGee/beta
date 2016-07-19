@@ -24,11 +24,15 @@ namespace Beta.Famicom
             container.RegisterSingleton<IMemoryFactory, MemoryFactory>();
 
             container.RegisterSingleton<Driver>();
+            container.RegisterSingleton<InputConnector>();
             container.RegisterSingleton<R2A03>();
             container.RegisterSingleton<R2A03Bus>();
+            container.RegisterSingleton<R2A03MemoryMap>();
             container.RegisterSingleton<R2A03State>();
+            container.RegisterSingleton<R2A03StateManager>();
             container.RegisterSingleton<R2C02>();
             container.RegisterSingleton<R2C02Bus>();
+            container.RegisterSingleton<R2C02StateManager>();
             container.RegisterSingleton<State>();
         }
     }

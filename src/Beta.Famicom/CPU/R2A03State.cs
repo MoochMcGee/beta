@@ -11,7 +11,7 @@
         public bool irq_pending;
 
         public bool dma_trigger;
-        public int dma_segment;
+        public byte dma_segment;
 
         public readonly Sq1State sq1 = new Sq1State();
         public readonly Sq2State sq2 = new Sq2State();

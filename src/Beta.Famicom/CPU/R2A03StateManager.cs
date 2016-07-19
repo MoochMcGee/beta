@@ -1,15 +1,27 @@
-﻿namespace Beta.Famicom.CPU
+﻿using Beta.Famicom.Input;
+using Beta.Famicom.Messaging;
+using Beta.Platform.Messaging;
+
+namespace Beta.Famicom.CPU
 {
     public sealed class R2A03StateManager
     {
+        private readonly InputConnector input;
+        private readonly R2A03State r2a03;
+        private readonly IProducer<IrqSignal> irq;
+
         private readonly Sq1StateManager sq1;
         private readonly Sq2StateManager sq2;
         private readonly TriStateManager tri;
         private readonly NoiStateManager noi;
         private readonly DmcStateManager dmc;
 
-        public R2A03StateManager(State state)
+        public R2A03StateManager(InputConnector input, State state, IProducer<IrqSignal> irq)
         {
+            this.input = input;
+            this.r2a03 = state.r2a03;
+            this.irq = irq;
+
             this.sq1 = new Sq1StateManager(state);
             this.sq2 = new Sq2StateManager(state);
             this.tri = new TriStateManager(state);
@@ -29,9 +41,31 @@
             // }
 
             if (address == 0x4014) { }
-            if (address == 0x4015) { }
-            if (address == 0x4016) { }
-            if (address == 0x4017) { }
+
+            if (address == 0x4015)
+            {
+                data = (byte)(
+                    (r2a03.sq1.duration.counter != 0 ? 0x01 : 0) |
+                    (r2a03.sq2.duration.counter != 0 ? 0x02 : 0) |
+                    (r2a03.tri.duration.counter != 0 ? 0x04 : 0) |
+                    (r2a03.noi.duration.counter != 0 ? 0x08 : 0) |
+                    (r2a03.irq_pending ? 0x40 : 0));
+
+                r2a03.irq_pending = false;
+                irq.Produce(new IrqSignal(0));
+            }
+
+            if (address == 0x4016)
+            {
+                data &= 0xe0;
+                data |= input.ReadJoypad1();
+            }
+
+            if (address == 0x4017)
+            {
+                data &= 0xe0;
+                data |= input.ReadJoypad2();
+            }
         }
 
         public void Write(ushort address, byte data)
@@ -45,10 +79,49 @@
             case 0x4010: dmc.Write(address, data); break;
             }
 
-            if (address == 0x4014) { }
-            if (address == 0x4015) { }
-            if (address == 0x4016) { }
-            if (address == 0x4017) { }
+            if (address == 0x4014)
+            {
+                r2a03.dma_segment = data;
+                r2a03.dma_trigger = true;
+            }
+
+            if (address == 0x4015)
+            {
+                r2a03.sq1.enabled = (data & 0x01) != 0;
+                r2a03.sq2.enabled = (data & 0x02) != 0;
+                r2a03.tri.enabled = (data & 0x04) != 0;
+                r2a03.noi.enabled = (data & 0x08) != 0;
+
+                if (!r2a03.sq1.enabled) { r2a03.sq1.duration.counter = 0; }
+                if (!r2a03.sq2.enabled) { r2a03.sq2.duration.counter = 0; }
+                if (!r2a03.tri.enabled) { r2a03.tri.duration.counter = 0; }
+                if (!r2a03.noi.enabled) { r2a03.noi.duration.counter = 0; }
+            }
+
+            if (address == 0x4016)
+            {
+                input.Write(data);
+            }
+
+            if (address == 0x4017)
+            {
+                r2a03.irq_enabled = (data & 0x40) == 0;
+
+                if (r2a03.irq_enabled == false)
+                {
+                    r2a03.irq_pending = false;
+                    irq.Produce(new IrqSignal(0));
+                }
+
+                r2a03.sequence_mode = (data >> 7) & 1;
+                r2a03.sequence_time = 0;
+
+                // if (r2a03.sequence_mode == 1)
+                // {
+                //     Quad();
+                //     Half();
+                // }
+            }
         }
     }
 }
