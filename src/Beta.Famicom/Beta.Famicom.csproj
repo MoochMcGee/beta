@@ -83,6 +83,7 @@
     <Compile Include="CPU\DmcRegisters.cs" />
     <Compile Include="CPU\Duration.cs" />
     <Compile Include="CPU\Envelope.cs" />
+    <Compile Include="CPU\Mixer.cs" />
     <Compile Include="CPU\NoiState.cs" />
     <Compile Include="CPU\NoiRegisters.cs" />
     <Compile Include="CPU\R2A03.Apu.External.cs" />

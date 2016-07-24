@@ -11,20 +11,6 @@ namespace Beta.Famicom.CPU
         , IConsumer<IrqSignal>
         , IConsumer<VblSignal>
     {
-        private static readonly int[][] square_lut = new[]
-        {
-            new[] { 0, 1, 0, 0, 0, 0, 0, 0 },
-            new[] { 0, 1, 1, 0, 0, 0, 0, 0 },
-            new[] { 0, 1, 1, 1, 1, 0, 0, 0 },
-            new[] { 1, 0, 0, 1, 1, 1, 1, 1 }
-        };
-
-        private static readonly int[] triangle_lut = new[]
-        {
-            15, 14, 13, 12, 11, 10,  9,  8,  7,  6,  5,  4,  3,  2,  1,  0,
-             0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
-        };
-
         private readonly R2A03Bus bus;
         private readonly R2A03State state;
         private readonly IAudioBackend audio;
@@ -88,14 +74,6 @@ namespace Beta.Famicom.CPU
 
         public void Consume(ClockSignal e)
         {
-            state.sample_prescaler -= 48000;
-
-            if (state.sample_prescaler <= 0)
-            {
-                state.sample_prescaler += 1789772;
-                Sample();
-            }
-
             if (state.sequence_mode == 0)
             {
                 bool irq_pending = false;
@@ -178,93 +156,17 @@ namespace Beta.Famicom.CPU
 
         private void Half()
         {
-            DurationTick(state.sq1.duration);
-            DurationTick(state.sq2.duration);
-            DurationTick(state.tri.duration);
-            DurationTick(state.noi.duration);
-        }
-
-        private void DurationTick(Duration duration)
-        {
-            if (duration.counter != 0 && !duration.halted)
-            {
-                duration.counter--;
-            }
+            Duration.Tick(state.sq1.duration);
+            Duration.Tick(state.sq2.duration);
+            Duration.Tick(state.tri.duration);
+            Duration.Tick(state.noi.duration);
         }
 
         private void Quad()
         {
-            EnvelopeTick(state.sq1.envelope);
-            EnvelopeTick(state.sq2.envelope);
-            EnvelopeTick(state.noi.envelope);
-        }
-
-        private void EnvelopeTick(Envelope envelope)
-        {
-            if (envelope.start)
-            {
-                envelope.start = false;
-                envelope.timer = envelope.period + 1;
-                envelope.decay = 15;
-            }
-            else
-            {
-                if (envelope.timer == 0)
-                {
-                    envelope.timer = envelope.period + 1;
-
-                    if (envelope.decay != 0 || envelope.looping)
-                    {
-                        envelope.decay = (envelope.decay - 1) & 15;
-                    }
-                }
-                else
-                {
-                    envelope.timer--;
-                }
-            }
-        }
-
-        private int EnvelopeVolume(Envelope envelope)
-        {
-            return envelope.constant
-                ? envelope.period
-                : envelope.decay
-                ;
-        }
-
-        private void Sample()
-        {
-            var sq1 = state.sq1;
-            var sq1_volume = EnvelopeVolume(sq1.envelope);
-            var sq1_out = sq1.duration.counter != 0
-                ? sq1_volume * square_lut[sq1.duty_form][sq1.duty_step]
-                : 0
-                ;
-
-            var sq2 = state.sq2;
-            var sq2_volume = EnvelopeVolume(sq2.envelope);
-            var sq2_out = sq2.duration.counter != 0
-                ? sq2_volume * square_lut[sq2.duty_form][sq2.duty_step]
-                : 0
-                ;
-
-            var tri = state.tri;
-            var tri_out = tri.duration.counter != 0
-                ? triangle_lut[tri.step]
-                : 0
-                ;
-
-            var noi = state.noi;
-            var noi_volume = EnvelopeVolume(noi.envelope);
-            var noi_out = noi.duration.counter != 0
-                ? noi_volume * (~noi.lfsr & 1)
-                : 0
-                ;
-
-            var output = ((sq1_out + sq2_out + tri_out + noi_out) * 32767) / 16 / 4;
-
-            audio.Render(output);
+            Envelope.Tick(state.sq1.envelope);
+            Envelope.Tick(state.sq2.envelope);
+            Envelope.Tick(state.noi.envelope);
         }
     }
 }

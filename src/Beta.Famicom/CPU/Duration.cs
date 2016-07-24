@@ -11,5 +11,13 @@
         public bool halted;
         public int counter;
         public int latch;
+
+        public static void Tick(Duration duration)
+        {
+            if (duration.counter != 0 && !duration.halted)
+            {
+                duration.counter--;
+            }
+        }
     }
 }

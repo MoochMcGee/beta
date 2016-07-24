@@ -33,6 +33,8 @@ namespace Beta.Famicom
 
         public IDriver Create(byte[] binary)
         {
+            var mixer = container.GetInstance<Mixer>();
+
             var cpu = container.GetInstance<R2A03>();
             var cpuBus = container.GetInstance<R2A03Bus>();
 
@@ -54,6 +56,7 @@ namespace Beta.Famicom
             broker.Subscribe<ClockSignal>(board);
             broker.Subscribe<ClockSignal>(cpu);
             broker.Subscribe<ClockSignal>(ppu);
+            broker.Subscribe<ClockSignal>(mixer);
             broker.Subscribe<FrameSignal>(input);
             broker.Subscribe<IrqSignal>(cpu);
             broker.Subscribe<VblSignal>(cpu);

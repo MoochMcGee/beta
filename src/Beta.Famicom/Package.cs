@@ -25,6 +25,7 @@ namespace Beta.Famicom
 
             container.RegisterSingleton<Driver>();
             container.RegisterSingleton<InputConnector>();
+            container.RegisterSingleton<Mixer>();
             container.RegisterSingleton<R2A03>();
             container.RegisterSingleton<R2A03Bus>();
             container.RegisterSingleton<R2A03MemoryMap>();
