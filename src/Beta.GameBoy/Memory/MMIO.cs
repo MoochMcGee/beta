@@ -8,7 +8,7 @@ namespace Beta.GameBoy.Memory
         private readonly HRAM hram;
         private readonly Wave wave;
 
-        private readonly ApuStateManager apu;
+        private readonly ApuRegisters apu;
 
         public MMIO(State state, HRAM hram, Wave wave)
         {
@@ -16,7 +16,7 @@ namespace Beta.GameBoy.Memory
             this.hram = hram;
             this.wave = wave;
 
-            this.apu = new ApuStateManager(state);
+            this.apu = new ApuRegisters(state);
         }
 
         public byte Read(ushort address)

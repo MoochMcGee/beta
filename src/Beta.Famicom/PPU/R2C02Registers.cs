@@ -1,10 +1,10 @@
 ﻿namespace Beta.Famicom.PPU
 {
-    public sealed class R2C02StateManager
+    public sealed class R2C02Registers
     {
         private readonly R2C02State r2c02;
 
-        public R2C02StateManager(State state)
+        public R2C02Registers(State state)
         {
             this.r2c02 = state.r2c02;
         }

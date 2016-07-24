@@ -2,12 +2,12 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class WavStateManager
+    public sealed class WavRegisters
     {
         private readonly WavState wav;
         private readonly byte[] regs = new byte[5];
 
-        public WavStateManager(State state)
+        public WavRegisters(State state)
         {
             this.wav = state.apu.wav;
         }

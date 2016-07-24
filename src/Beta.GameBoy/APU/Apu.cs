@@ -50,11 +50,11 @@ namespace Beta.GameBoy.APU
                 {
                 case 0: DurationTick(); break;
                 case 1: break;
-                case 2: DurationTick(); SweepManager.Tick(sq1); break;
+                case 2: DurationTick(); Sweep.Tick(sq1); break;
                 case 3: break;
                 case 4: DurationTick(); break;
                 case 5: break;
-                case 6: DurationTick(); SweepManager.Tick(sq1); break;
+                case 6: DurationTick(); Sweep.Tick(sq1); break;
                 case 7: EnvelopeTick(); break;
                 }
 
@@ -113,17 +113,17 @@ namespace Beta.GameBoy.APU
 
         private void DurationTick()
         {
-            DurationManager.Tick(sq1.duration,  64, ref sq1.enabled);
-            DurationManager.Tick(sq2.duration,  64, ref sq2.enabled);
-            DurationManager.Tick(wav.duration, 256, ref wav.enabled);
-            DurationManager.Tick(noi.duration,  64, ref noi.enabled);
+            Duration.Tick(sq1.duration,  64, ref sq1.enabled);
+            Duration.Tick(sq2.duration,  64, ref sq2.enabled);
+            Duration.Tick(wav.duration, 256, ref wav.enabled);
+            Duration.Tick(noi.duration,  64, ref noi.enabled);
         }
 
         private void EnvelopeTick()
         {
-            EnvelopeManager.Tick(sq1.envelope);
-            EnvelopeManager.Tick(sq2.envelope);
-            EnvelopeManager.Tick(noi.envelope);
+            Envelope.Tick(sq1.envelope);
+            Envelope.Tick(sq2.envelope);
+            Envelope.Tick(noi.envelope);
         }
     }
 }

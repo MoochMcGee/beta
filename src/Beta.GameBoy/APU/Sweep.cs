@@ -1,6 +1,6 @@
 ﻿namespace Beta.GameBoy.APU
 {
-    public static class SweepManager
+    public static class Sweep
     {
         public static void Tick(Sq1State state)
         {
@@ -20,9 +20,9 @@
         public static void OverflowCheck(Sq1State state)
         {
             var period = state.sweep_direction == 0
-                                ? state.period + (state.period >> state.sweep_shift)
-                                : state.period - (state.period >> state.sweep_shift)
-                                ;
+                ? state.period + (state.period >> state.sweep_shift)
+                : state.period - (state.period >> state.sweep_shift)
+                ;
 
             if (period > 0x7ff)
             {

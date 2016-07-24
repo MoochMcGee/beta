@@ -2,12 +2,12 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class Sq1StateManager
+    public sealed class Sq1Registers
     {
         private readonly Sq1State sq1;
         private readonly byte[] regs = new byte[5];
 
-        public Sq1StateManager(State state)
+        public Sq1Registers(State state)
         {
             this.sq1 = state.apu.sq1;
         }

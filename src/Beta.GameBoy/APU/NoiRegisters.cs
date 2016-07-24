@@ -2,7 +2,7 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class NoiStateManager
+    public sealed class NoiRegisters
     {
         private static readonly int[] divisor_lut = new[]
         {
@@ -12,7 +12,7 @@ namespace Beta.GameBoy.APU
         private readonly NoiState noi;
         private readonly byte[] regs = new byte[5];
 
-        public NoiStateManager(State state)
+        public NoiRegisters(State state)
         {
             this.noi = state.apu.noi;
         }

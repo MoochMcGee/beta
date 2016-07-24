@@ -2,21 +2,21 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class ApuStateManager
+    public sealed class ApuRegisters
     {
         private readonly ApuState apu;
-        private readonly Sq1StateManager sq1;
-        private readonly Sq2StateManager sq2;
-        private readonly WavStateManager wav;
-        private readonly NoiStateManager noi;
+        private readonly Sq1Registers sq1;
+        private readonly Sq2Registers sq2;
+        private readonly WavRegisters wav;
+        private readonly NoiRegisters noi;
 
-        public ApuStateManager(State state)
+        public ApuRegisters(State state)
         {
             this.apu = state.apu;
-            this.sq1 = new Sq1StateManager(state);
-            this.sq2 = new Sq2StateManager(state);
-            this.wav = new WavStateManager(state);
-            this.noi = new NoiStateManager(state);
+            this.sq1 = new Sq1Registers(state);
+            this.sq2 = new Sq2Registers(state);
+            this.wav = new WavRegisters(state);
+            this.noi = new NoiRegisters(state);
         }
 
         public byte Read(ushort address)
