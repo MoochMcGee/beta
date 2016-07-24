@@ -1,6 +1,6 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class NoiStateManager
+    public sealed class NoiRegisters
     {
         private static readonly int[] period_lut = new[]
         {
@@ -9,7 +9,7 @@
 
         private readonly NoiState noi;
 
-        public NoiStateManager(State state)
+        public NoiRegisters(State state)
         {
             this.noi = state.r2a03.noi;
         }

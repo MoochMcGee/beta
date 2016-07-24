@@ -1,10 +1,10 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class TriStateManager
+    public sealed class TriRegisters
     {
         private readonly TriState tri;
 
-        public TriStateManager(State state)
+        public TriRegisters(State state)
         {
             this.tri = state.r2a03.tri;
         }

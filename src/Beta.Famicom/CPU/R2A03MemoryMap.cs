@@ -4,11 +4,11 @@ namespace Beta.Famicom.CPU
 {
     public sealed class R2A03MemoryMap
     {
-        private readonly R2A03StateManager r2a03;
+        private readonly R2A03Registers r2a03;
         private readonly R2C02StateManager r2c02;
         private readonly byte[] wram;
 
-        public R2A03MemoryMap(R2A03StateManager r2a03, R2C02StateManager r2c02)
+        public R2A03MemoryMap(R2A03Registers r2a03, R2C02StateManager r2c02)
         {
             this.r2a03 = r2a03;
             this.r2c02 = r2c02;

@@ -1,10 +1,10 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class Sq1StateManager
+    public sealed class Sq1Registers
     {
         private readonly Sq1State sq1;
 
-        public Sq1StateManager(State state)
+        public Sq1Registers(State state)
         {
             this.sq1 = state.r2a03.sq1;
         }

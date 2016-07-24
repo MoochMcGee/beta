@@ -4,29 +4,29 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class R2A03StateManager
+    public sealed class R2A03Registers
     {
         private readonly InputConnector input;
         private readonly R2A03State r2a03;
         private readonly IProducer<IrqSignal> irq;
 
-        private readonly Sq1StateManager sq1;
-        private readonly Sq2StateManager sq2;
-        private readonly TriStateManager tri;
-        private readonly NoiStateManager noi;
-        private readonly DmcStateManager dmc;
+        private readonly Sq1Registers sq1;
+        private readonly Sq2Registers sq2;
+        private readonly TriRegisters tri;
+        private readonly NoiRegisters noi;
+        private readonly DmcRegisters dmc;
 
-        public R2A03StateManager(InputConnector input, State state, IProducer<IrqSignal> irq)
+        public R2A03Registers(InputConnector input, State state, IProducer<IrqSignal> irq)
         {
             this.input = input;
             this.r2a03 = state.r2a03;
             this.irq = irq;
 
-            this.sq1 = new Sq1StateManager(state);
-            this.sq2 = new Sq2StateManager(state);
-            this.tri = new TriStateManager(state);
-            this.noi = new NoiStateManager(state);
-            this.dmc = new DmcStateManager(state);
+            this.sq1 = new Sq1Registers(state);
+            this.sq2 = new Sq2Registers(state);
+            this.tri = new TriRegisters(state);
+            this.noi = new NoiRegisters(state);
+            this.dmc = new DmcRegisters(state);
         }
 
         public void Read(ushort address, ref byte data)
