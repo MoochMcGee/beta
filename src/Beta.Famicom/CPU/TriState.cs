@@ -9,5 +9,10 @@
         public readonly Duration duration = new Duration();
 
         public int step;
+
+        public int linear_counter;
+        public int linear_counter_latch;
+        public bool linear_counter_control;
+        public bool linear_counter_reload;
     }
 }

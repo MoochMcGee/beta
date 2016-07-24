@@ -15,6 +15,8 @@
             {
             case 0:
                 tri.duration.halted = (data & 0x80) != 0;
+                tri.linear_counter_control = (data & 0x80) != 0;
+                tri.linear_counter_latch = (data & 0x7f);
                 break;
 
             case 1:
@@ -26,6 +28,7 @@
 
             case 3:
                 tri.period = (tri.period & 0x0ff) | ((data << 8) & 0x700);
+                tri.linear_counter_reload = true;
 
                 if (tri.enabled)
                 {

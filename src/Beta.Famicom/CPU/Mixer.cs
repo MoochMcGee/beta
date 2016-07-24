@@ -81,7 +81,7 @@ namespace Beta.Famicom.CPU
 
         private int GetTriOutput()
         {
-            return tri.duration.counter != 0
+            return tri.duration.counter != 0 && tri.linear_counter != 0
                 ? triangle_lut[tri.step]
                 : 0;
         }

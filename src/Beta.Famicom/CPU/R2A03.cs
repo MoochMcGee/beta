@@ -167,6 +167,23 @@ namespace Beta.Famicom.CPU
             Envelope.Tick(state.sq1.envelope);
             Envelope.Tick(state.sq2.envelope);
             Envelope.Tick(state.noi.envelope);
+
+            if (state.tri.linear_counter_reload)
+            {
+                state.tri.linear_counter = state.tri.linear_counter_latch;
+            }
+            else
+            {
+                if (state.tri.linear_counter != 0)
+                {
+                    state.tri.linear_counter--;
+                }
+            }
+
+            if (state.tri.linear_counter_control == false)
+            {
+                state.tri.linear_counter_reload = false;
+            }
         }
     }
 }
