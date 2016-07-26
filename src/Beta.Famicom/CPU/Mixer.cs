@@ -100,15 +100,19 @@ namespace Beta.Famicom.CPU
 
         private static int MixSamples(int sq1, int sq2, int tri, int noi, int dmc)
         {
-            var sqr = 95.88 / ((8128.0 / (sq1 + sq2)) + 100);
+            const double sqr_base = 95.52;
+            const double sqr_div = 8128.0;
 
-            var t = tri / 8227.0;
-            var n = noi / 12241.0;
-            var d = dmc / 22638.0;
+            const double tnd_base = 163.67;
+            const double tnd_div = 24329.0;
 
-            var tnd = 159.79 / ((1.0 / (t + n + d)) + 100);
+            var sqr_n = sq1 + sq2;
+            var sqr = sqr_base / (sqr_div / sqr_n + 100);
 
-            return (int)((sqr + tnd) * 32767);
+            var tnd_n = tri * 3 + noi * 2 + dmc;
+            var tnd = tnd_base / (tnd_div / tnd_n + 100);
+
+            return (int)(((sqr + tnd) * 65535) - 32768);
         }
     }
 }

@@ -12,16 +12,14 @@ namespace Beta.Famicom.CPU
         , IConsumer<VblSignal>
     {
         private readonly R2A03Bus bus;
-        private readonly R2A03State state;
+        private readonly R2A03State r2a03;
         private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clock;
-
-        private bool apuToggle;
 
         public R2A03(R2A03Bus bus, State state, IAudioBackend audio, IProducer<ClockSignal> clock)
         {
             this.bus = bus;
-            this.state = state.r2a03;
+            this.r2a03 = state.r2a03;
             this.audio = audio;
             this.clock = clock;
         }
@@ -44,11 +42,11 @@ namespace Beta.Famicom.CPU
         {
             base.Update();
 
-            if (state.dma_trigger)
+            if (r2a03.dma_trigger)
             {
-                state.dma_trigger = false;
+                r2a03.dma_trigger = false;
 
-                var dma_src_address = (ushort)(state.dma_segment << 8);
+                var dma_src_address = (ushort)(r2a03.dma_segment << 8);
                 var dma_dst_address = (ushort)(0x2004);
                 var dma_data = default(byte);
 
@@ -74,35 +72,26 @@ namespace Beta.Famicom.CPU
 
         public void Consume(ClockSignal e)
         {
-            if (state.sequence_mode == 0)
+            if (r2a03.sequence_mode == 0)
             {
-                bool irq_pending = false;
-
-                switch (state.sequence_time)
+                switch (r2a03.sequence_time)
                 {
-                case     0: /*           */ break;
+                case     0: /*           */ SequencerInterrupt(); break;
                 case  7457: Quad(); /*   */ break;
                 case 14913: Quad(); Half(); break;
                 case 22371: Quad(); /*   */ break;
-                case 29828: /*           */ irq_pending |= state.irq_enabled; break;
-                case 29829: Quad(); Half(); irq_pending |= state.irq_enabled; break;
-                case 29830: /*           */ irq_pending |= state.irq_enabled; break;
+                case 29828: /*           */ SequencerInterrupt(); break;
+                case 29829: Quad(); Half(); SequencerInterrupt(); break;
                 }
 
-                if (irq_pending)
+                if (++r2a03.sequence_time == 29830)
                 {
-                    state.irq_pending = irq_pending;
-                    Irq(1);
-                }
-
-                if (++state.sequence_time == 29830)
-                {
-                    state.sequence_time = 0;
+                    r2a03.sequence_time = 0;
                 }
             }
             else
             {
-                switch (state.sequence_time)
+                switch (r2a03.sequence_time)
                 {
                 case  7457: Quad(); /*   */ break;
                 case 14913: Quad(); Half(); break;
@@ -111,78 +100,52 @@ namespace Beta.Famicom.CPU
                 case 37281: Quad(); Half(); break;
                 }
 
-                if (++state.sequence_time == 37282)
+                if (++r2a03.sequence_time == 37282)
                 {
-                    state.sequence_time = 0;
+                    r2a03.sequence_time = 0;
                 }
             }
+        }
 
-            if (state.tri.timer != 0 && --state.tri.timer == 0)
+        private void SequencerInterrupt()
+        {
+            r2a03.sequence_irq_pending |= r2a03.sequence_irq_enabled;
+
+            if (r2a03.sequence_irq_pending)
             {
-                state.tri.timer = state.tri.period + 1;
-                state.tri.step = (state.tri.step + 1) & 31;
-            }
-
-            if (apuToggle = !apuToggle)
-            {
-                if (state.sq1.timer != 0 && --state.sq1.timer == 0)
-                {
-                    state.sq1.timer = state.sq1.period + 1;
-                    state.sq1.duty_step = (state.sq1.duty_step - 1) & 7;
-                }
-
-                if (state.sq2.timer != 0 && --state.sq2.timer == 0)
-                {
-                    state.sq2.timer = state.sq2.period + 1;
-                    state.sq2.duty_step = (state.sq2.duty_step - 1) & 7;
-                }
-
-                if (state.noi.timer != 0 && --state.noi.timer == 0)
-                {
-                    state.noi.timer = state.noi.period + 1;
-
-                    var tap0 = state.noi.lfsr;
-                    var tap1 = state.noi.lfsr_mode == 1
-                        ? state.noi.lfsr >> 6
-                        : state.noi.lfsr >> 1
-                        ;
-
-                    var feedback = (tap0 ^ tap1) & 1;
-
-                    state.noi.lfsr = (state.noi.lfsr >> 1) | (feedback << 14);
-                }
+                Irq(1);
             }
         }
 
         private void Half()
         {
-            Duration.Tick(state.sq1.duration);
-            Duration.Tick(state.sq2.duration);
-            Duration.Tick(state.tri.duration);
-            Duration.Tick(state.noi.duration);
+            Duration.Tick(r2a03.sq1.duration);
+            Duration.Tick(r2a03.sq2.duration);
+            Duration.Tick(r2a03.tri.duration);
+            Duration.Tick(r2a03.noi.duration);
         }
 
         private void Quad()
         {
-            Envelope.Tick(state.sq1.envelope);
-            Envelope.Tick(state.sq2.envelope);
-            Envelope.Tick(state.noi.envelope);
+            Envelope.Tick(r2a03.sq1.envelope);
+            Envelope.Tick(r2a03.sq2.envelope);
+            Envelope.Tick(r2a03.noi.envelope);
 
-            if (state.tri.linear_counter_reload)
+            if (r2a03.tri.linear_counter_reload)
             {
-                state.tri.linear_counter = state.tri.linear_counter_latch;
+                r2a03.tri.linear_counter = r2a03.tri.linear_counter_latch;
             }
             else
             {
-                if (state.tri.linear_counter != 0)
+                if (r2a03.tri.linear_counter != 0)
                 {
-                    state.tri.linear_counter--;
+                    r2a03.tri.linear_counter--;
                 }
             }
 
-            if (state.tri.linear_counter_control == false)
+            if (r2a03.tri.linear_counter_control == false)
             {
-                state.tri.linear_counter_reload = false;
+                r2a03.tri.linear_counter_reload = false;
             }
         }
     }

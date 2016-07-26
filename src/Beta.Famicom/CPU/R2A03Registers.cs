@@ -49,9 +49,9 @@ namespace Beta.Famicom.CPU
                     (r2a03.sq2.duration.counter != 0 ? 0x02 : 0) |
                     (r2a03.tri.duration.counter != 0 ? 0x04 : 0) |
                     (r2a03.noi.duration.counter != 0 ? 0x08 : 0) |
-                    (r2a03.irq_pending ? 0x40 : 0));
+                    (r2a03.sequence_irq_pending ? 0x40 : 0));
 
-                r2a03.irq_pending = false;
+                r2a03.sequence_irq_pending = false;
                 irq.Produce(new IrqSignal(0));
             }
 
@@ -105,11 +105,11 @@ namespace Beta.Famicom.CPU
 
             if (address == 0x4017)
             {
-                r2a03.irq_enabled = (data & 0x40) == 0;
+                r2a03.sequence_irq_enabled = (data & 0x40) == 0;
 
-                if (r2a03.irq_enabled == false)
+                if (r2a03.sequence_irq_enabled == false)
                 {
-                    r2a03.irq_pending = false;
+                    r2a03.sequence_irq_pending = false;
                     irq.Produce(new IrqSignal(0));
                 }
 

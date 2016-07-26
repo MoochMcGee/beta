@@ -61,6 +61,11 @@ namespace Beta.Famicom
             broker.Subscribe<IrqSignal>(cpu);
             broker.Subscribe<VblSignal>(cpu);
 
+            broker.Subscribe(container.GetInstance<Sq1>());
+            broker.Subscribe(container.GetInstance<Sq2>());
+            broker.Subscribe(container.GetInstance<Tri>());
+            broker.Subscribe(container.GetInstance<Noi>());
+
             ppuBus.Map("  1- ---- ---- ----", reader: result.PeekVRam, writer: result.PokeVRam);
 
             result.Initialize();

@@ -2,13 +2,12 @@
 {
     public sealed class R2A03State
     {
+        public bool sequence_irq_enabled;
+        public bool sequence_irq_pending;
         public int sequence_time;
         public int sequence_mode;
 
-        public int sample_prescaler = 1789772;
-
-        public bool irq_enabled;
-        public bool irq_pending;
+        public int sample_prescaler = 19687500;
 
         public bool dma_trigger;
         public byte dma_segment;
