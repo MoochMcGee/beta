@@ -63,22 +63,22 @@ namespace Beta.Famicom.PPU
 
         private void FetchBgName()
         {
-            fetch.Name = PeekByte(fetch.Address);
+            fetch.Name = ReadByte(fetch.Address);
         }
 
         private void FetchBgAttr()
         {
-            fetch.Attr = (byte)(PeekByte(fetch.Address) >> ((scroll.Address >> 4 & 4) | (scroll.Address & 2)));
+            fetch.Attr = (byte)(ReadByte(fetch.Address) >> ((scroll.Address >> 4 & 4) | (scroll.Address & 2)));
         }
 
         private void FetchBgBit0()
         {
-            fetch.Bit0 = PeekByte(fetch.Address);
+            fetch.Bit0 = ReadByte(fetch.Address);
         }
 
         private void FetchBgBit1()
         {
-            fetch.Bit1 = PeekByte(fetch.Address);
+            fetch.Bit1 = ReadByte(fetch.Address);
         }
 
         private void PointBgName()
@@ -113,8 +113,10 @@ namespace Beta.Famicom.PPU
 
             for (var i = 0; i < 8; i++, offset++, fetch.Bit0 <<= 1, fetch.Bit1 <<= 1)
             {
-                bkg.Pixels[offset] = 0x3f00 | ((fetch.Attr) << 2 & 12) | ((fetch.Bit0 >> 7) & 1) |
-                                     ((fetch.Bit1 >> 6) & 2);
+                bkg.Pixels[offset] =
+                    ((fetch.Attr << 2) & 12) |
+                    ((fetch.Bit0 >> 7) &  1) |
+                    ((fetch.Bit1 >> 6) &  2);
             }
         }
 
@@ -144,7 +146,7 @@ namespace Beta.Famicom.PPU
 
                 if ((spr.Pixels[offset] & 3) == 0 && color != 0)
                 {
-                    spr.Pixels[offset] = 0x3f10 | ((sprite.Attr << 10) & 0xc000) | ((sprite.Attr << 2) & 12) | color;
+                    spr.Pixels[offset] = 0x10 | ((sprite.Attr << 10) & 0xc000) | ((sprite.Attr << 2) & 12) | color;
                 }
             }
         }
@@ -306,7 +308,7 @@ namespace Beta.Famicom.PPU
 
             for (var i = 0; i < 0x100; i++)
             {
-                spr.Pixels[i] = 0x3f00;
+                spr.Pixels[i] = 0;
             }
         }
 
@@ -343,7 +345,7 @@ namespace Beta.Famicom.PPU
         {
             var sprite = sprFound[hclock >> 3 & 7];
 
-            fetch.Bit0 = PeekByte(fetch.Address);
+            fetch.Bit0 = ReadByte(fetch.Address);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -359,7 +361,7 @@ namespace Beta.Famicom.PPU
         {
             var sprite = sprFound[hclock >> 3 & 7];
 
-            fetch.Bit1 = PeekByte(fetch.Address);
+            fetch.Bit1 = ReadByte(fetch.Address);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -437,18 +439,16 @@ namespace Beta.Famicom.PPU
 
         private void Read2007(ushort address, ref byte data)
         {
-            byte tmp;
-
             if ((scroll.Address & 0x3f00) == 0x3f00)
             {
-                tmp = PeekByte(scroll.Address);
-                chr = PeekByte((ushort)(scroll.Address & 0x2fff));
+                data = ReadCgram(scroll.Address);
             }
             else
             {
-                tmp = chr;
-                chr = PeekByte(scroll.Address);
+                data = chr;
             }
+
+            chr = ReadByte(scroll.Address);
 
             if (Rendering)
             {
@@ -460,8 +460,6 @@ namespace Beta.Famicom.PPU
             }
 
             AddressUpdate(scroll.Address);
-
-            data = tmp;
         }
 
         private void Write2000(ushort address, byte data)
@@ -534,7 +532,14 @@ namespace Beta.Famicom.PPU
 
         private void Write2007(ushort address, byte data)
         {
-            PokeByte(scroll.Address, data);
+            if ((scroll.Address & 0x3f00) == 0x3f00)
+            {
+                WriteCgram(scroll.Address, data);
+            }
+            else
+            {
+                WriteByte(scroll.Address, data);
+            }
 
             if (Rendering)
             {
@@ -548,24 +553,22 @@ namespace Beta.Famicom.PPU
             AddressUpdate(scroll.Address);
         }
 
-        private void ReadPal0(ushort address, ref byte data)
+        private byte ReadCgram(int address)
         {
-            data = pal[address & 0x000c];
+            return pal[CgramAddress(address)];
         }
 
-        private void ReadPalN(ushort address, ref byte data)
+        private void WriteCgram(int address, byte data)
         {
-            data = pal[address & 0x001f];
+            pal[CgramAddress(address)] = data;
         }
 
-        private void WritePal0(ushort address, byte data)
+        private int CgramAddress(int address)
         {
-            pal[address & 0x000c] = (byte)(data & 0x3f);
-        }
-
-        private void WritePalN(ushort address, byte data)
-        {
-            pal[address & 0x001f] = (byte)(data & 0x3f);
+            return (address & 3) == 0
+                ? address & 0x000c
+                : address & 0x001f
+                ;
         }
 
         private void AddressUpdate(ushort address)
@@ -830,8 +833,9 @@ namespace Beta.Famicom.PPU
             if (hclock >= 256) return;
 
             var color = (scroll.Address & 0x3f00) == 0x3f00
-                ? PeekByte(scroll.Address)
-                : PeekByte(0x3f00);
+                ? ReadCgram(scroll.Address)
+                : ReadCgram(0)
+                ;
 
             raster[hclock] = Palette.Ntsc[(color & clipping) | emphasis];
         }
@@ -844,12 +848,12 @@ namespace Beta.Famicom.PPU
 
             if (!bkg.Enabled || (bkg.Clipped && hclock < 8))
             {
-                bkgPixel = 0x3f00;
+                bkgPixel = 0;
             }
 
             if (!spr.Enabled || (spr.Clipped && hclock < 8) || hclock == 255)
             {
-                sprPixel = 0x3f00;
+                sprPixel = 0;
             }
 
             if ((bkgPixel & 0x03) == 0)
@@ -872,7 +876,9 @@ namespace Beta.Famicom.PPU
                 }
             }
 
-            raster[hclock] = Palette.Ntsc[(PeekByte((ushort)(pixel | 0x3f00)) & clipping) | emphasis];
+            var color = ReadCgram(pixel);
+
+            raster[hclock] = Palette.Ntsc[(color & clipping) | emphasis];
         }
 
         private void Tick()
@@ -911,13 +917,7 @@ namespace Beta.Famicom.PPU
             hclock++;
         }
 
-        private void InitializeMemory()
-        {
-            bus.Map("0011 1111 ---- ----", reader: ReadPalN, writer: WritePalN);
-            bus.Map("0011 1111 ---- --00", reader: ReadPal0, writer: WritePal0);
-        }
-
-        private byte PeekByte(ushort address)
+        private byte ReadByte(ushort address)
         {
             byte data = 0;
 
@@ -927,7 +927,7 @@ namespace Beta.Famicom.PPU
             return data;
         }
 
-        private void PokeByte(ushort address, byte data)
+        private void WriteByte(ushort address, byte data)
         {
             address &= 0x3fff;
             bus.Write(address, data);
@@ -947,7 +947,6 @@ namespace Beta.Famicom.PPU
             Write2006(0x2006, 0);
             //  $2007: VRAM Data Port (Writing will modify public registers in an undesired manner)
 
-            InitializeMemory();
             InitializeSprite();
         }
 
