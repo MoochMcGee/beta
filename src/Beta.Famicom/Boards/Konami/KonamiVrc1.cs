@@ -80,15 +80,15 @@ namespace Beta.Famicom.Boards.Konami
             bus.Map("1111 ---- ---- ----", writer: PokeF000);
         }
 
-        public override int VRamA10(ushort address)
+        public override bool VRAM(ushort address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;
 
             switch (mirroring)
             {
-            case 0: return x;
-            case 1: return y;
+            case 0: a10 = x; return true;
+            case 1: a10 = y; return true;
             }
 
             throw new CompilerPleasingException();

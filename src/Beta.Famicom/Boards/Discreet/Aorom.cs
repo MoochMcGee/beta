@@ -24,9 +24,10 @@ namespace Beta.Famicom.Boards.Discreet
             prgPage = (data & 0x07) << 15;
         }
 
-        public override int VRamA10(ushort address)
+        public override bool VRAM(ushort address, out int a10)
         {
-            return mirroring;
+            a10 = mirroring;
+            return true;
         }
     }
 }

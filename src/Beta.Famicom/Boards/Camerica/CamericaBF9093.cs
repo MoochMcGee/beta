@@ -46,9 +46,10 @@ namespace Beta.Famicom.Boards.Camerica
             bus.Map("11-- ---- ---- ----", writer: PokeC000);
         }
 
-        public override int VRamA10(ushort address)
+        public override bool VRAM(ushort address, out int a10)
         {
-            return mirroring;
+            a10 = mirroring;
+            return true;
         }
     }
 }

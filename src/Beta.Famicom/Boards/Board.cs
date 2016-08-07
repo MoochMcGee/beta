@@ -108,6 +108,14 @@ namespace Beta.Famicom.Boards
             Ram?.Write(address, data);
         }
 
+        public virtual void R2C02Read(ushort address, ref byte data) { }
+
+        public virtual void R2C02Write(ushort address, byte data) { }
+
+        public virtual void R2A03Read(ushort address, ref byte data) { }
+
+        public virtual void R2A03Write(ushort address, byte data) { }
+
         public virtual void MapToCpu(R2A03Bus bus)
         {
             bus.Map("011- ---- ---- ----", ReadRam, WriteRam);
@@ -119,12 +127,14 @@ namespace Beta.Famicom.Boards
             bus.Map("000- ---- ---- ----", ReadChr, WriteChr);
         }
 
-        public virtual int VRamA10(ushort address)
+        public virtual bool VRAM(ushort address, out int a10)
         {
             var x = (address >> 10) & h;
             var y = (address >> 11) & v;
 
-            return x | y;
+            a10 = x | y;
+
+            return true;
         }
 
         public virtual void Initialize() { }

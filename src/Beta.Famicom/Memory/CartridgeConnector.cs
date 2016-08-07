@@ -1,13 +1,39 @@
-﻿namespace Beta.Famicom.Memory
+﻿using Beta.Famicom.Boards;
+
+namespace Beta.Famicom.Memory
 {
     public sealed class CartridgeConnector
     {
-        public void PpuRead(ushort address, ref byte data) { }
+        private Board board;
 
-        public void PpuWrite(ushort address, byte data) { }
+        public void InsertCartridge(Board board)
+        {
+            this.board = board;
+        }
 
-        public void CpuRead(ushort address, ref byte data) { }
+        public void R2C02Read(ushort address, ref byte data)
+        {
+            board.R2C02Read(address, ref data);
+        }
 
-        public void CpuWrite(ushort address, byte data) { }
+        public void R2C02Write(ushort address, byte data)
+        {
+            board.R2C02Write(address, data);
+        }
+
+        public void R2A03Read(ushort address, ref byte data)
+        {
+            board.R2A03Read(address, ref data);
+        }
+
+        public void R2A03Write(ushort address, byte data)
+        {
+            board.R2A03Write(address, data);
+        }
+
+        public bool VRAM(ushort address, out int a10)
+        {
+            return board.VRAM(address, out a10);
+        }
     }
 }

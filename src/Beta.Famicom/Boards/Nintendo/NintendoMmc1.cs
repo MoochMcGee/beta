@@ -124,17 +124,17 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public override int VRamA10(ushort address)
+        public override bool VRAM(ushort address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;
 
             switch (mirroring)
             {
-            case 0: return 0;
-            case 1: return 1;
-            case 2: return x;
-            case 3: return y;
+            case 0: a10 = 0; return true;
+            case 1: a10 = 1; return true;
+            case 2: a10 = x; return true;
+            case 3: a10 = y; return true;
             }
 
             throw new CompilerPleasingException();

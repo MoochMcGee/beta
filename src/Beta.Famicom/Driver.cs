@@ -24,12 +24,22 @@ namespace Beta.Famicom
 
         public void PeekVRam(ushort address, ref byte data)
         {
-            data = vram[(address & 0x3ff) | (board.VRamA10(address) << 10)];
+            int a10;
+
+            if (board.VRAM(address, out a10))
+            {
+                data = vram[(address & 0x3ff) | (a10 << 10)];
+            }
         }
 
         public void PokeVRam(ushort address, byte data)
         {
-            vram[(address & 0x3ff) | (board.VRamA10(address) << 10)] = data;
+            int a10;
+
+            if (board.VRAM(address, out a10))
+            {
+                vram[(address & 0x3ff) | (a10 << 10)] = data;
+            }
         }
 
         public void Initialize()
