@@ -1,15 +1,19 @@
 ﻿using Beta.Famicom.Memory;
+using Beta.Platform;
 
 namespace Beta.Famicom.PPU
 {
     public sealed class R2C02MemoryMap
     {
         private readonly CartridgeConnector cartridge;
-        private readonly byte[] vram = new byte[2048];
+        private readonly byte[] vram;
 
         public R2C02MemoryMap(CartridgeConnector cartridge)
         {
             this.cartridge = cartridge;
+
+            this.vram = new byte[2048];
+            this.vram.Initialize<byte>(0xff);
         }
 
         public void Read(ushort address, ref byte data)
@@ -25,7 +29,7 @@ namespace Beta.Famicom.PPU
 
             if (cartridge.VRAM(address, out a10))
             {
-                data = vram[a10 | (address & 0x3ff)];
+                data = vram[(a10 << 10) | (address & 0x3ff)];
             }
         }
 
@@ -42,7 +46,7 @@ namespace Beta.Famicom.PPU
 
             if (cartridge.VRAM(address, out a10))
             {
-                vram[a10 | (address & 0x3ff)] = data;
+                vram[(a10 << 10) | (address & 0x3ff)] = data;
             }
         }
     }
