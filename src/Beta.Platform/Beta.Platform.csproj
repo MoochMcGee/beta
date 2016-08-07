@@ -101,8 +101,8 @@
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />
     <Compile Include="Messaging\ClockSignal.cs" />
-    <Compile Include="Messaging\ISubscriptionBroker.cs" />
-    <Compile Include="Messaging\SubscriptionBroker.cs" />
+    <Compile Include="Messaging\ISignalBroker.cs" />
+    <Compile Include="Messaging\SignalBroker.cs" />
     <Compile Include="Messaging\IProducer.cs" />
     <Compile Include="Messaging\IConsumer.cs" />
     <Compile Include="Messaging\Producer.cs">

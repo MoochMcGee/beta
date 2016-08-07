@@ -15,7 +15,7 @@ namespace Beta.Platform
 
             container.RegisterSingleton<IHwndProvider>(new HwndProvider(handle));
 
-            container.RegisterSingleton<ISubscriptionBroker, SubscriptionBroker>();
+            container.RegisterSingleton<ISignalBroker, SignalBroker>();
             container.RegisterSingleton<IAudioBackend, AudioBackend>();
             container.RegisterSingleton<IVideoBackend, VideoBackend>();
             container.RegisterInitializer<IVideoBackend>(e => e.Initialize());

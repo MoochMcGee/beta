@@ -12,9 +12,9 @@ namespace Beta.SuperFamicom
     {
         private readonly Container container;
         private readonly State state;
-        private readonly ISubscriptionBroker broker;
+        private readonly ISignalBroker broker;
 
-        public DriverFactory(Container container, State state, ISubscriptionBroker broker)
+        public DriverFactory(Container container, State state, ISignalBroker broker)
         {
             this.container = container;
             this.state = state;
@@ -33,13 +33,13 @@ namespace Beta.SuperFamicom
             driver.Joypad1 = new Pad(state, 0);
             driver.Joypad2 = new Pad(state, 1);
 
-            broker.Subscribe<ClockSignal>(driver.Cpu);
-            broker.Subscribe<ClockSignal>(driver.Ppu);
-            broker.Subscribe<ClockSignal>(driver.Smp);
-            broker.Subscribe<FrameSignal>(driver.Joypad1);
-            broker.Subscribe<FrameSignal>(driver.Joypad2);
-            broker.Subscribe<HBlankSignal>(driver.Cpu);
-            broker.Subscribe<VBlankSignal>(driver.Cpu);
+            broker.Link<ClockSignal>(driver.Cpu);
+            broker.Link<ClockSignal>(driver.Ppu);
+            broker.Link<ClockSignal>(driver.Smp);
+            broker.Link<FrameSignal>(driver.Joypad1);
+            broker.Link<FrameSignal>(driver.Joypad2);
+            broker.Link<HBlankSignal>(driver.Cpu);
+            broker.Link<VBlankSignal>(driver.Cpu);
 
 #if LOROM
             var cart = new LoRomCartridge(binary);

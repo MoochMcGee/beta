@@ -2,16 +2,16 @@
 
 namespace Beta.Platform.Messaging
 {
-    public sealed class SubscriptionBroker : ISubscriptionBroker
+    public sealed class SignalBroker : ISignalBroker
     {
         private readonly Container container;
 
-        public SubscriptionBroker(Container container)
+        public SignalBroker(Container container)
         {
             this.container = container;
         }
 
-        public void Subscribe<T>(IConsumer<T> consumer)
+        public void Link<T>(IConsumer<T> consumer)
         {
             var producer = container.GetInstance<IProducer<T>>();
             producer.Subscribe(consumer);

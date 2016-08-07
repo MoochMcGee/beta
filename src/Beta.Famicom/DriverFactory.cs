@@ -17,7 +17,7 @@ namespace Beta.Famicom
         private readonly InputConnector input;
         private readonly IBoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
-        private readonly ISubscriptionBroker broker;
+        private readonly ISignalBroker broker;
 
         public DriverFactory(
             Container container,
@@ -25,7 +25,7 @@ namespace Beta.Famicom
             InputConnector input,
             IBoardFactory boardFactory,
             IJoypadFactory joypadFactory,
-            ISubscriptionBroker broker)
+            ISignalBroker broker)
         {
             this.container = container;
             this.cartridge = cartridge;
@@ -58,19 +58,19 @@ namespace Beta.Famicom
 
             var result = container.GetInstance<Driver>();
 
-            broker.Subscribe<PpuAddressSignal>(board);
-            broker.Subscribe<ClockSignal>(board);
-            broker.Subscribe<ClockSignal>(r2a03);
-            broker.Subscribe<ClockSignal>(r2c02);
-            broker.Subscribe<ClockSignal>(mixer);
-            broker.Subscribe<FrameSignal>(input);
-            broker.Subscribe<IrqSignal>(r2a03);
-            broker.Subscribe<VblSignal>(r2a03);
+            broker.Link<PpuAddressSignal>(board);
+            broker.Link<ClockSignal>(board);
+            broker.Link<ClockSignal>(r2a03);
+            broker.Link<ClockSignal>(r2c02);
+            broker.Link<ClockSignal>(mixer);
+            broker.Link<FrameSignal>(input);
+            broker.Link<IrqSignal>(r2a03);
+            broker.Link<VblSignal>(r2a03);
 
-            broker.Subscribe(container.GetInstance<Sq1>());
-            broker.Subscribe(container.GetInstance<Sq2>());
-            broker.Subscribe(container.GetInstance<Tri>());
-            broker.Subscribe(container.GetInstance<Noi>());
+            broker.Link(container.GetInstance<Sq1>());
+            broker.Link(container.GetInstance<Sq2>());
+            broker.Link(container.GetInstance<Tri>());
+            broker.Link(container.GetInstance<Noi>());
 
             r2c02.Initialize();
             board.Initialize();
