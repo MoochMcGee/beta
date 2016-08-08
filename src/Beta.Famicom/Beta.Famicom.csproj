@@ -54,6 +54,7 @@
     <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Discrete\NROM.cs" />
+    <Compile Include="Boards\Nintendo\SxROM.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="CPU\DMC\DmcState.cs" />
     <Compile Include="CPU\DMC\DmcRegisters.cs" />
@@ -105,8 +106,10 @@
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
+    <Compile Include="Messaging\HalfFrameSignal.cs" />
     <Compile Include="Messaging\IrqSignal.cs" />
     <Compile Include="Messaging\PpuAddressSignal.cs" />
+    <Compile Include="Messaging\QuadFrameSignal.cs" />
     <Compile Include="Messaging\VblSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Input\Joypad.cs" />

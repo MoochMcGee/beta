@@ -56,7 +56,7 @@ namespace Beta.Famicom.CPU
         {
             int sq1 = GetSq1Output();
             int sq2 = GetSq2Output();
-            int tri = GetTriOutput();
+            int tri = 0;// GetTriOutput();
             int noi = GetNoiOutput();
             int dmc = GetDmcOutput();
 

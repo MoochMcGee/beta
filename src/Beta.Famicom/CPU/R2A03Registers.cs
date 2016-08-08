@@ -9,6 +9,8 @@ namespace Beta.Famicom.CPU
         private readonly InputConnector input;
         private readonly R2A03State r2a03;
         private readonly IProducer<IrqSignal> irq;
+        private readonly IProducer<HalfFrameSignal> half;
+        private readonly IProducer<QuadFrameSignal> quad;
 
         private readonly Sq1Registers sq1;
         private readonly Sq2Registers sq2;
@@ -16,11 +18,18 @@ namespace Beta.Famicom.CPU
         private readonly NoiRegisters noi;
         private readonly DmcRegisters dmc;
 
-        public R2A03Registers(InputConnector input, State state, IProducer<IrqSignal> irq)
+        public R2A03Registers(
+            InputConnector input,
+            State state,
+            IProducer<IrqSignal> irq,
+            IProducer<HalfFrameSignal> half,
+            IProducer<QuadFrameSignal> quad)
         {
             this.input = input;
             this.r2a03 = state.r2a03;
             this.irq = irq;
+            this.half = half;
+            this.quad = quad;
 
             this.sq1 = new Sq1Registers(state);
             this.sq2 = new Sq2Registers(state);
@@ -116,11 +125,11 @@ namespace Beta.Famicom.CPU
                 r2a03.sequence_mode = (data >> 7) & 1;
                 r2a03.sequence_time = 0;
 
-                // if (r2a03.sequence_mode == 1)
-                // {
-                //     Quad();
-                //     Half();
-                // }
+                if (r2a03.sequence_mode == 1)
+                {
+                    half.Produce(null);
+                    quad.Produce(null);
+                }
             }
         }
     }

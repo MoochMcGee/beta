@@ -47,6 +47,8 @@ namespace Beta.Famicom
 
             cartridge.InsertCartridge(board);
 
+            broker.Link<HalfFrameSignal>(r2a03);
+            broker.Link<QuadFrameSignal>(r2a03);
             broker.Link<ClockSignal>(board);
             broker.Link<ClockSignal>(r2a03);
             broker.Link<ClockSignal>(r2c02);

@@ -1,5 +1,4 @@
 ﻿using Beta.Famicom.Messaging;
-using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP6502;
 
@@ -10,6 +9,8 @@ namespace Beta.Famicom.CPU
         , IConsumer<ClockSignal>
         , IConsumer<IrqSignal>
         , IConsumer<VblSignal>
+        , IConsumer<HalfFrameSignal>
+        , IConsumer<QuadFrameSignal>
     {
         private readonly R2A03Bus bus;
         private readonly R2A03State r2a03;
@@ -70,16 +71,19 @@ namespace Beta.Famicom.CPU
 
         public void Consume(ClockSignal e)
         {
+            const HalfFrameSignal half = null;
+            const QuadFrameSignal quad = null;
+
             if (r2a03.sequence_mode == 0)
             {
                 switch (r2a03.sequence_time)
                 {
-                case     0: /*           */ SequencerInterrupt(); break;
-                case  7457: Quad(); /*   */ break;
-                case 14913: Quad(); Half(); break;
-                case 22371: Quad(); /*   */ break;
-                case 29828: /*           */ SequencerInterrupt(); break;
-                case 29829: Quad(); Half(); SequencerInterrupt(); break;
+                case     0: /*                         */ SequencerInterrupt(); break;
+                case  7457: Consume(quad); /*          */ break;
+                case 14913: Consume(quad); Consume(half); break;
+                case 22371: Consume(quad); /*          */ break;
+                case 29828: /*                         */ SequencerInterrupt(); break;
+                case 29829: Consume(quad); Consume(half); SequencerInterrupt(); break;
                 }
 
                 if (++r2a03.sequence_time == 29830)
@@ -91,11 +95,11 @@ namespace Beta.Famicom.CPU
             {
                 switch (r2a03.sequence_time)
                 {
-                case  7457: Quad(); /*   */ break;
-                case 14913: Quad(); Half(); break;
-                case 22371: Quad(); /*   */ break;
-                case 29829: /*           */ break;
-                case 37281: Quad(); Half(); break;
+                case  7457: Consume(quad); /*          */ break;
+                case 14913: Consume(quad); Consume(half); break;
+                case 22371: Consume(quad); /*          */ break;
+                case 29829: /*                         */ break;
+                case 37281: Consume(quad); Consume(half); break;
                 }
 
                 if (++r2a03.sequence_time == 37282)
@@ -115,7 +119,7 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        private void Half()
+        public void Consume(HalfFrameSignal e)
         {
             var sq1 = r2a03.sq1;
             var sq2 = r2a03.sq2;
@@ -131,7 +135,7 @@ namespace Beta.Famicom.CPU
             sq2.period = Sweep.Tick(sq2.sweep, sq2.period, -sq2.period);
         }
 
-        private void Quad()
+        public void Consume(QuadFrameSignal e)
         {
             Envelope.Tick(r2a03.sq1.envelope);
             Envelope.Tick(r2a03.sq2.envelope);

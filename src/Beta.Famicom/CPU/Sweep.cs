@@ -28,14 +28,17 @@
                 {
                     e.timer = e.period;
 
-                    e.target = e.negated
-                        ? period + (negate >> e.shift)
-                        : period + (period >> e.shift)
-                        ;
-
-                    if (e.target >= 0 && e.target <= 0x7ff)
+                    if (e.enabled && e.shift != 0)
                     {
-                        return e.target;
+                        e.target = e.negated
+                            ? period + (negate >> e.shift)
+                            : period + (period >> e.shift)
+                            ;
+
+                        if (e.target >= 0 && e.target <= 0x7ff)
+                        {
+                            return e.target;
+                        }
                     }
                 }
             }
