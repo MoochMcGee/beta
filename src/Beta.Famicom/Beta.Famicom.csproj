@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Boards\Discrete\UxROM.cs" />
     <Compile Include="Boards\IBoard.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
