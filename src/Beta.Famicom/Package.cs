@@ -15,18 +15,18 @@ namespace Beta.Famicom
     {
         public void RegisterServices(Container container)
         {
-            container.RegisterSingleton<IBoardFactory, BoardFactory>();
-            container.RegisterSingleton<ICartridgeFactory, CartridgeFactory>();
             container.RegisterSingleton<IDatabase, DatabaseService>();
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
             container.RegisterSingleton<IJoypadFactory, JoypadFactory>();
             container.RegisterSingleton<IMemoryFactory, MemoryFactory>();
 
-            container.RegisterSingleton<Driver>();
-            container.RegisterSingleton<State>();
+            container.RegisterSingleton<BoardFactory>();
             container.RegisterSingleton<CartridgeConnector>();
+            container.RegisterSingleton<CartridgeFactory>();
+            container.RegisterSingleton<Driver>();
             container.RegisterSingleton<InputConnector>();
+            container.RegisterSingleton<State>();
             container.RegisterSingleton<Mixer>();
 
             container.RegisterSingleton<R2A03>();
@@ -36,7 +36,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<R2A03State>();
 
             container.RegisterSingleton<R2C02>();
-            container.RegisterSingleton<R2C02Bus>();
             container.RegisterSingleton<R2C02MemoryMap>();
             container.RegisterSingleton<R2C02Registers>();
             container.RegisterSingleton<R2C02State>();

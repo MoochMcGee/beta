@@ -9,7 +9,7 @@ namespace Beta.Famicom.PPU
 {
     public class R2C02 : Processor, IConsumer<ClockSignal>
     {
-        private readonly R2C02Bus bus;
+        private readonly R2C02MemoryMap memory;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<PpuAddressSignal> address;
         private readonly IProducer<VblSignal> vbl;
@@ -42,19 +42,29 @@ namespace Beta.Famicom.PPU
         }
 
         public R2C02(
-            R2C02Bus bus,
+            R2A03Bus r2a03,
+            R2C02MemoryMap memory,
             IProducer<FrameSignal> frame,
             IProducer<PpuAddressSignal> address,
             IProducer<VblSignal> vbl,
             IVideoBackend video)
         {
-            this.bus = bus;
+            this.memory = memory;
             this.frame = frame;
             this.address = address;
             this.vbl = vbl;
             this.video = video;
 
             Single = 44;
+
+            r2a03.Map("001- ---- ---- -000", writer: Write2000);
+            r2a03.Map("001- ---- ---- -001", writer: Write2001);
+            r2a03.Map("001- ---- ---- -010", reader: Read2002);
+            r2a03.Map("001- ---- ---- -011", writer: Write2003);
+            r2a03.Map("001- ---- ---- -100", reader: Read2004, writer: Write2004);
+            r2a03.Map("001- ---- ---- -101", writer: Write2005);
+            r2a03.Map("001- ---- ---- -110", writer: Write2006);
+            r2a03.Map("001- ---- ---- -111", reader: Read2007, writer: Write2007);
 
             EvaluationReset();
         }
@@ -63,22 +73,28 @@ namespace Beta.Famicom.PPU
 
         private void FetchBgName()
         {
-            fetch.Name = ReadByte(fetch.Address);
+            memory.Read(fetch.Address, ref fetch.Name);
         }
 
         private void FetchBgAttr()
         {
-            fetch.Attr = (byte)(ReadByte(fetch.Address) >> ((scroll.Address >> 4 & 4) | (scroll.Address & 2)));
+            memory.Read(fetch.Address, ref fetch.Attr);
+
+            var x = (scroll.Address >> 0) & 2;
+            var y = (scroll.Address >> 5) & 2;
+            var shift = (y << 1) | x;
+
+            fetch.Attr = (byte)(fetch.Attr >> shift);
         }
 
         private void FetchBgBit0()
         {
-            fetch.Bit0 = ReadByte(fetch.Address);
+            memory.Read(fetch.Address, ref fetch.Bit0);
         }
 
         private void FetchBgBit1()
         {
-            fetch.Bit1 = ReadByte(fetch.Address);
+            memory.Read(fetch.Address, ref fetch.Bit1);
         }
 
         private void PointBgName()
@@ -345,7 +361,7 @@ namespace Beta.Famicom.PPU
         {
             var sprite = sprFound[hclock >> 3 & 7];
 
-            fetch.Bit0 = ReadByte(fetch.Address);
+            memory.Read(fetch.Address, ref fetch.Bit0);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -361,7 +377,7 @@ namespace Beta.Famicom.PPU
         {
             var sprite = sprFound[hclock >> 3 & 7];
 
-            fetch.Bit1 = ReadByte(fetch.Address);
+            memory.Read(fetch.Address, ref fetch.Bit1);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -448,7 +464,7 @@ namespace Beta.Famicom.PPU
                 data = chr;
             }
 
-            chr = ReadByte(scroll.Address);
+            memory.Read(scroll.Address, ref chr);
 
             if (Rendering)
             {
@@ -538,7 +554,7 @@ namespace Beta.Famicom.PPU
             }
             else
             {
-                WriteByte(scroll.Address, data);
+                memory.Write(scroll.Address, data);
             }
 
             if (Rendering)
@@ -917,22 +933,6 @@ namespace Beta.Famicom.PPU
             hclock++;
         }
 
-        private byte ReadByte(ushort address)
-        {
-            byte data = 0;
-
-            address &= 0x3fff;
-            bus.Read(address, ref data);
-
-            return data;
-        }
-
-        private void WriteByte(ushort address, byte data)
-        {
-            address &= 0x3fff;
-            bus.Write(address, data);
-        }
-
         public void Initialize()
         {
             vclock = 261;
@@ -994,18 +994,6 @@ namespace Beta.Famicom.PPU
                     raster = video.GetRaster(vclock);
                 }
             }
-        }
-
-        public void MapTo(R2A03Bus bus)
-        {
-            bus.Map("001- ---- ---- -000", writer: Write2000);
-            bus.Map("001- ---- ---- -001", writer: Write2001);
-            bus.Map("001- ---- ---- -010", reader: Read2002);
-            bus.Map("001- ---- ---- -011", writer: Write2003);
-            bus.Map("001- ---- ---- -100", reader: Read2004, writer: Write2004);
-            bus.Map("001- ---- ---- -101", writer: Write2005);
-            bus.Map("001- ---- ---- -110", writer: Write2006);
-            bus.Map("001- ---- ---- -111", reader: Read2007, writer: Write2007);
         }
 
         public void Consume(ClockSignal e)

@@ -50,34 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Boards\Bandai\BandaiLZ93D50.cs" />
-    <Compile Include="Boards\Board.cs" />
+    <Compile Include="Boards\IBoard.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
-    <Compile Include="Boards\Camerica\CamericaBF9093.cs" />
-    <Compile Include="Boards\Camerica\CamericaBF9096.cs" />
-    <Compile Include="Boards\Discreet\Anrom.cs" />
-    <Compile Include="Boards\Discreet\Aorom.cs" />
-    <Compile Include="Boards\Discreet\Cnrom.cs" />
-    <Compile Include="Boards\Discreet\Cprom.cs" />
-    <Compile Include="Boards\Discreet\Nrom128.cs" />
-    <Compile Include="Boards\Discreet\Nrom256.cs" />
-    <Compile Include="Boards\Discreet\Unrom.cs" />
-    <Compile Include="Boards\Discreet\Uorom.cs" />
-    <Compile Include="Boards\IBoardFactory.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc1.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc2.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc3.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc4.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc6.cs" />
-    <Compile Include="Boards\Konami\KonamiVrc7.cs" />
-    <Compile Include="Boards\Namcot\Namcot163.cs" />
-    <Compile Include="Boards\Nintendo\NintendoMmc1.cs" />
-    <Compile Include="Boards\Nintendo\NintendoMmc2.cs" />
-    <Compile Include="Boards\Nintendo\NintendoMmc3.cs" />
-    <Compile Include="Boards\Nintendo\NintendoMmc4.cs" />
-    <Compile Include="Boards\Unlicensed\ColorDreams74x377.cs" />
-    <Compile Include="Boards\Unlicensed\MltAction52.cs" />
+    <Compile Include="Boards\Discrete\NROM.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="CPU\DMC\DmcState.cs" />
     <Compile Include="CPU\DMC\DmcRegisters.cs" />
@@ -87,7 +63,6 @@
     <Compile Include="CPU\NOI\Noi.cs" />
     <Compile Include="CPU\NOI\NoiState.cs" />
     <Compile Include="CPU\NOI\NoiRegisters.cs" />
-    <Compile Include="CPU\R2A03.Channel.cs" />
     <Compile Include="CPU\R2A03.cs" />
     <Compile Include="CPU\R2A03Bus.cs" />
     <Compile Include="CPU\R2A03MemoryMap.cs" />
@@ -118,7 +93,6 @@
     <Compile Include="Database\Rom.cs" />
     <Compile Include="Formats\CartridgeFactory.cs" />
     <Compile Include="Formats\CartridgeImage.cs" />
-    <Compile Include="Formats\ICartridgeFactory.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
     <Compile Include="Input\IJoypadFactory.cs" />
@@ -139,7 +113,6 @@
     <Compile Include="Input\StandardController.cs" />
     <Compile Include="Palettes.cs" />
     <Compile Include="PPU\R2C02.cs" />
-    <Compile Include="PPU\R2C02Bus.cs" />
     <Compile Include="PPU\R2C02MemoryMap.cs" />
     <Compile Include="PPU\R2C02State.cs" />
     <Compile Include="PPU\R2C02Registers.cs" />

@@ -9,6 +9,8 @@
 
             Map("0100 0000 0000 ----", memory.Read, memory.Write);
             Map("0100 0000 0001 0---", memory.Read, memory.Write);
+
+            Map("1--- ---- ---- ----", memory.Read, memory.Write);
         }
     }
 }

@@ -4,9 +4,9 @@ namespace Beta.Famicom.Memory
 {
     public sealed class CartridgeConnector
     {
-        private Board board;
+        private IBoard board;
 
-        public void InsertCartridge(Board board)
+        public void InsertCartridge(IBoard board)
         {
             this.board = board;
         }

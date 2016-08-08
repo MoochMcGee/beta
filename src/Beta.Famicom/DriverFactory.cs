@@ -15,7 +15,7 @@ namespace Beta.Famicom
         private readonly Container container;
         private readonly CartridgeConnector cartridge;
         private readonly InputConnector input;
-        private readonly IBoardFactory boardFactory;
+        private readonly BoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
         private readonly ISignalBroker broker;
 
@@ -23,7 +23,7 @@ namespace Beta.Famicom
             Container container,
             CartridgeConnector cartridge,
             InputConnector input,
-            IBoardFactory boardFactory,
+            BoardFactory boardFactory,
             IJoypadFactory joypadFactory,
             ISignalBroker broker)
         {
@@ -41,24 +41,12 @@ namespace Beta.Famicom
             input.ConnectJoypad2(joypadFactory.Create(1));
 
             var mixer = container.GetInstance<Mixer>();
-
             var r2a03 = container.GetInstance<R2A03>();
-            var r2a03Bus = container.GetInstance<R2A03Bus>();
-
             var r2c02 = container.GetInstance<R2C02>();
-            var r2c02Bus = container.GetInstance<R2C02Bus>();
-            r2c02.MapTo(r2a03Bus);
-
             var board = boardFactory.GetBoard(binary);
-            board.Cpu = r2a03;
-            board.MapToCpu(r2a03Bus);
-            board.MapToPpu(r2c02Bus);
 
             cartridge.InsertCartridge(board);
 
-            var result = container.GetInstance<Driver>();
-
-            broker.Link<PpuAddressSignal>(board);
             broker.Link<ClockSignal>(board);
             broker.Link<ClockSignal>(r2a03);
             broker.Link<ClockSignal>(r2c02);
@@ -73,9 +61,8 @@ namespace Beta.Famicom
             broker.Link(container.GetInstance<Noi>());
 
             r2c02.Initialize();
-            board.Initialize();
 
-            return result;
+            return container.GetInstance<Driver>();
         }
     }
 }

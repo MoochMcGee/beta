@@ -5,7 +5,7 @@ using Beta.Famicom.Memory;
 
 namespace Beta.Famicom.Formats
 {
-    public sealed class CartridgeFactory : ICartridgeFactory
+    public sealed class CartridgeFactory
     {
         private readonly IDatabase database;
         private readonly IMemoryFactory factory;
@@ -35,14 +35,13 @@ namespace Beta.Famicom.Formats
 
             return new CartridgeImage
             {
-                PRG = prgRoms.ToArray(),
-                CHR = chrRoms.Concat(chrRams).ToArray(),
-                WRAM = wram.ToArray(),
-                VRAM = vram.ToArray(),
-                Chips = board.Chip.ToArray(),
-                Mapper = board.Type,
-                H = board.SolderPad?.H ?? 0,
-                V = board.SolderPad?.V ?? 0
+                prg = prgRoms.First(),
+                chr = chrRoms.Concat(chrRams).First(),
+                wram = wram.FirstOrDefault(),
+                vram = vram.FirstOrDefault(),
+                mapper = board.Type,
+                h = board.SolderPad?.H ?? 0,
+                v = board.SolderPad?.V ?? 0
             };
         }
     }

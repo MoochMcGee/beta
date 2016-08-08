@@ -5,11 +5,11 @@ namespace Beta.Famicom.Boards
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class BoardNameAttribute : Attribute
     {
-        public string Name { get; }
+        public string Pattern { get; }
 
-        public BoardNameAttribute(string name)
+        public BoardNameAttribute(string pattern)
         {
-            this.Name = name;
+            this.Pattern = pattern;
         }
     }
 }
