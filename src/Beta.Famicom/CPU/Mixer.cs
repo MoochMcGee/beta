@@ -67,30 +67,44 @@ namespace Beta.Famicom.CPU
 
         private int GetSq1Output()
         {
+            if (sq1.period < 8 || (sq1.sweep.target & 0x800) != 0)
+            {
+                return 0;
+            }
+
             return sq1.duration.counter != 0 && square_lut[sq1.duty_form][sq1.duty_step] == 1
                 ? Envelope.Volume(sq1.envelope)
-                : 0;
+                : 0
+                ;
         }
 
         private int GetSq2Output()
         {
+            if (sq2.period < 8 || (sq2.sweep.target & 0x800) != 0)
+            {
+                return 0;
+            }
+
             return sq2.duration.counter != 0 && square_lut[sq2.duty_form][sq2.duty_step] == 1
                 ? Envelope.Volume(sq2.envelope)
-                : 0;
+                : 0
+                ;
         }
 
         private int GetTriOutput()
         {
             return tri.duration.counter != 0 && tri.linear_counter != 0
                 ? triangle_lut[tri.step]
-                : 0;
+                : 0
+                ;
         }
 
         private int GetNoiOutput()
         {
             return noi.duration.counter != 0 && (noi.lfsr & 1) == 0
                 ? Envelope.Volume(noi.envelope)
-                : 0;
+                : 0
+                ;
         }
 
         private int GetDmcOutput()
@@ -112,7 +126,7 @@ namespace Beta.Famicom.CPU
             var tnd_n = tri * 3 + noi * 2 + dmc;
             var tnd = tnd_base / (tnd_div / tnd_n + 100);
 
-            return (int)(((sqr + tnd) * 65535) - 32768);
+            return (int)((sqr + tnd) * 16383);
         }
     }
 }

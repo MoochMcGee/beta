@@ -13,14 +13,12 @@ namespace Beta.Famicom.CPU
     {
         private readonly R2A03Bus bus;
         private readonly R2A03State r2a03;
-        private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clock;
 
-        public R2A03(R2A03Bus bus, State state, IAudioBackend audio, IProducer<ClockSignal> clock)
+        public R2A03(R2A03Bus bus, State state, IProducer<ClockSignal> clock)
         {
             this.bus = bus;
             this.r2a03 = state.r2a03;
-            this.audio = audio;
             this.clock = clock;
         }
 
@@ -119,10 +117,18 @@ namespace Beta.Famicom.CPU
 
         private void Half()
         {
-            Duration.Tick(r2a03.sq1.duration);
-            Duration.Tick(r2a03.sq2.duration);
-            Duration.Tick(r2a03.tri.duration);
-            Duration.Tick(r2a03.noi.duration);
+            var sq1 = r2a03.sq1;
+            var sq2 = r2a03.sq2;
+            var tri = r2a03.tri;
+            var noi = r2a03.noi;
+
+            Duration.Tick(sq1.duration);
+            Duration.Tick(sq2.duration);
+            Duration.Tick(tri.duration);
+            Duration.Tick(noi.duration);
+
+            sq1.period = Sweep.Tick(sq1.sweep, sq1.period, ~sq1.period);
+            sq2.period = Sweep.Tick(sq2.sweep, sq2.period, -sq2.period);
         }
 
         private void Quad()
@@ -131,21 +137,22 @@ namespace Beta.Famicom.CPU
             Envelope.Tick(r2a03.sq2.envelope);
             Envelope.Tick(r2a03.noi.envelope);
 
-            if (r2a03.tri.linear_counter_reload)
+            var tri = r2a03.tri;
+            if (tri.linear_counter_reload)
             {
-                r2a03.tri.linear_counter = r2a03.tri.linear_counter_latch;
+                tri.linear_counter = tri.linear_counter_latch;
             }
             else
             {
-                if (r2a03.tri.linear_counter != 0)
+                if (tri.linear_counter != 0)
                 {
-                    r2a03.tri.linear_counter--;
+                    tri.linear_counter--;
                 }
             }
 
-            if (r2a03.tri.linear_counter_control == false)
+            if (tri.linear_counter_control == false)
             {
-                r2a03.tri.linear_counter_reload = false;
+                tri.linear_counter_reload = false;
             }
         }
     }

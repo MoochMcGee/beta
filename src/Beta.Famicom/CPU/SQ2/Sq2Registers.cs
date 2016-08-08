@@ -22,6 +22,11 @@
                 break;
 
             case 1:
+                sq2.sweep.enabled = (data & 0x80) != 0;
+                sq2.sweep.period = (data >> 4) & 7;
+                sq2.sweep.negated = (data & 0x08) != 0;
+                sq2.sweep.shift = (data >> 0) & 7;
+                sq2.sweep.reload = true;
                 break;
 
             case 2:

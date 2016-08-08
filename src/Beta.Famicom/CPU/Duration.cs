@@ -14,7 +14,12 @@
 
         public static void Tick(Duration duration)
         {
-            if (duration.counter != 0 && !duration.halted)
+            if (duration.halted)
+            {
+                return;
+            }
+
+            if (duration.counter != 0)
             {
                 duration.counter--;
             }

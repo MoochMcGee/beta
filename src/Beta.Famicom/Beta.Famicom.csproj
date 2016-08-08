@@ -99,6 +99,7 @@
     <Compile Include="CPU\SQ2\Sq2.cs" />
     <Compile Include="CPU\SQ2\Sq2State.cs" />
     <Compile Include="CPU\SQ2\Sq2Registers.cs" />
+    <Compile Include="CPU\Sweep.cs" />
     <Compile Include="CPU\TRI\Tri.cs" />
     <Compile Include="CPU\TRI\TriState.cs" />
     <Compile Include="CPU\TRI\TriRegisters.cs" />
