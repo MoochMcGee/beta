@@ -11,7 +11,6 @@ namespace Beta.Famicom.PPU
     {
         private readonly R2C02MemoryMap memory;
         private readonly IProducer<FrameSignal> frame;
-        private readonly IProducer<PpuAddressSignal> address;
         private readonly IProducer<VblSignal> vbl;
         private readonly IVideoBackend video;
 
@@ -45,13 +44,11 @@ namespace Beta.Famicom.PPU
             R2A03Bus r2a03,
             R2C02MemoryMap memory,
             IProducer<FrameSignal> frame,
-            IProducer<PpuAddressSignal> address,
             IProducer<VblSignal> vbl,
             IVideoBackend video)
         {
             this.memory = memory;
             this.frame = frame;
-            this.address = address;
             this.vbl = vbl;
             this.video = video;
 
@@ -100,27 +97,24 @@ namespace Beta.Famicom.PPU
         private void PointBgName()
         {
             fetch.Address = (ushort)(0x2000 | (scroll.Address & 0xfff));
-            AddressUpdate(fetch.Address);
         }
 
         private void PointBgAttr()
         {
-            fetch.Address =
-                (ushort)
-                    (0x23c0 | (scroll.Address & 0xc00) | ((scroll.Address >> 4) & 0x38) | ((scroll.Address >> 2) & 7));
-            AddressUpdate(fetch.Address);
+            var x = ((scroll.Address >> 2) & 7);
+            var y = ((scroll.Address >> 4) & 0x38);
+
+            fetch.Address = (ushort)(0x23c0 | (scroll.Address & 0xc00) | y | x);
         }
 
         private void PointBgBit0()
         {
             fetch.Address = (ushort)(bkg.Address | (fetch.Name << 4) | 0 | ((scroll.Address >> 12) & 7));
-            AddressUpdate(fetch.Address);
         }
 
         private void PointBgBit1()
         {
             fetch.Address = (ushort)(bkg.Address | (fetch.Name << 4) | 8 | ((scroll.Address >> 12) & 7));
-            AddressUpdate(fetch.Address);
         }
 
         private void SynthesizeBg()
@@ -348,13 +342,11 @@ namespace Beta.Famicom.PPU
             }
 
             fetch.Address |= 0;
-            AddressUpdate(fetch.Address);
         }
 
         private void PointSpBit1()
         {
             fetch.Address |= 8;
-            AddressUpdate(fetch.Address);
         }
 
         private void FetchSpBit0()
@@ -474,8 +466,6 @@ namespace Beta.Famicom.PPU
             {
                 scroll.Address = (ushort)((scroll.Address + scroll.Step) & 0x7fff);
             }
-
-            AddressUpdate(scroll.Address);
         }
 
         private void Write2000(ushort address, byte data)
@@ -517,9 +507,7 @@ namespace Beta.Famicom.PPU
 
         private void Write2005(ushort address, byte data)
         {
-            scroll.Swap = !scroll.Swap;
-
-            if (scroll.Swap)
+            if (scroll.Swap = !scroll.Swap)
             {
                 scroll.Temp = (ushort)((scroll.Temp & ~0x001f) | ((data & ~7) >> 3));
                 scroll.Fine = (data & 0x07);
@@ -532,8 +520,7 @@ namespace Beta.Famicom.PPU
 
         private void Write2006(ushort address, byte data)
         {
-            scroll.Swap = !scroll.Swap;
-            if (scroll.Swap)
+            if (scroll.Swap = !scroll.Swap)
             {
                 scroll.Temp = (ushort)((scroll.Temp & ~0xff00) | ((data & 0x3f) << 8));
             }
@@ -542,7 +529,7 @@ namespace Beta.Famicom.PPU
                 scroll.Temp = (ushort)((scroll.Temp & ~0x00ff) | ((data & 0xff) << 0));
                 scroll.Address = (scroll.Temp);
 
-                AddressUpdate(scroll.Address);
+                Read(address);
             }
         }
 
@@ -565,8 +552,6 @@ namespace Beta.Famicom.PPU
             {
                 scroll.Address = (ushort)((scroll.Address + scroll.Step) & 0x7fff);
             }
-
-            AddressUpdate(scroll.Address);
         }
 
         private byte ReadCgram(int address)
@@ -585,11 +570,6 @@ namespace Beta.Famicom.PPU
                 ? address & 0x000c
                 : address & 0x001f
                 ;
-        }
-
-        private void AddressUpdate(ushort address)
-        {
-            this.address.Produce(new PpuAddressSignal(address));
         }
 
         private void VBL()
@@ -774,10 +754,10 @@ namespace Beta.Famicom.PPU
             {
                 switch (hclock & 7)
                 {
-                case 0: AddressUpdate(0x2000); break;
-                case 2: AddressUpdate(0x23c0); break;
-                case 4: AddressUpdate(bkg.Address); break;
-                case 6: AddressUpdate(bkg.Address); break;
+                case 0: Read(0x2000); break;
+                case 2: Read(0x23c0); break;
+                case 4: Read(bkg.Address); break;
+                case 6: Read(bkg.Address); break;
 
                 case 7:
                     if (hclock != 0xff)
@@ -801,10 +781,10 @@ namespace Beta.Famicom.PPU
 
                 switch (hclock & 7)
                 {
-                case 0: AddressUpdate(0x2000); break;
-                case 2: AddressUpdate(0x23c0); break;
-                case 4: AddressUpdate(spr.Address); break;
-                case 6: AddressUpdate(spr.Address); break;
+                case 0: Read(0x2000); break;
+                case 2: Read(0x23c0); break;
+                case 4: Read(spr.Address); break;
+                case 6: Read(spr.Address); break;
                 }
             }
             else if (hclock < 336)
@@ -825,8 +805,8 @@ namespace Beta.Famicom.PPU
             {
                 switch (hclock)
                 {
-                case 336: AddressUpdate(0x2000); break;
-                case 338: AddressUpdate(0x2000); break;
+                case 336: Read(0x2000); break;
+                case 338: Read(0x2000); break;
                 }
             }
 
@@ -897,16 +877,25 @@ namespace Beta.Famicom.PPU
             raster[hclock] = Palette.Ntsc[(color & clipping) | emphasis];
         }
 
+        private byte Read(int address)
+        {
+            byte data = 0;
+            memory.Read((ushort)address, ref data);
+            return data;
+        }
+
         private void Tick()
         {
             if (vclock == 240 && hclock == 340)
             {
                 vblHold = 1;
             }
+
             if (vclock == 241 && hclock == 0)
             {
                 vblFlag = vblHold;
             }
+
             if (vclock == 241 && hclock == 2)
             {
                 VBL();
@@ -917,14 +906,17 @@ namespace Beta.Famicom.PPU
                 sprOverrun = false;
                 sprZerohit = false;
             }
+
             if (vclock == 260 && hclock == 340)
             {
                 vblHold = 0;
             }
+
             if (vclock == 261 && hclock == 0)
             {
                 vblFlag = vblHold;
             }
+
             if (vclock == 261 && hclock == 2)
             {
                 VBL();
@@ -942,10 +934,10 @@ namespace Beta.Famicom.PPU
             Write2001(0x2001, 0);
             //  $2002: Unimplemented/Invalid
             Write2003(0x2003, 0);
-            //  $2004: ORAM Data Port (Writing will modify public registers in an undesired manner)
+            //  $2004: OAM Data Port
             Write2005(0x2005, 0);
             Write2006(0x2006, 0);
-            //  $2007: VRAM Data Port (Writing will modify public registers in an undesired manner)
+            //  $2007: VRAM Data Port
 
             InitializeSprite();
         }

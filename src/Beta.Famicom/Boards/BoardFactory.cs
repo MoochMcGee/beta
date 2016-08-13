@@ -3,15 +3,18 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Beta.Famicom.Formats;
+using SimpleInjector;
 
 namespace Beta.Famicom.Boards
 {
     public sealed class BoardFactory
     {
         private readonly CartridgeFactory factory;
+        private readonly Container container;
 
-        public BoardFactory(CartridgeFactory factory)
+        public BoardFactory(Container container, CartridgeFactory factory)
         {
+            this.container = container;
             this.factory = factory;
         }
 
@@ -20,7 +23,10 @@ namespace Beta.Famicom.Boards
             var info = factory.Create(binary);
             var type = GetBoardType(info.mapper);
 
-            return (IBoard)Activator.CreateInstance(type, info);
+            var instance = (IBoard)container.GetInstance(type);
+            instance.ApplyImage(info);
+
+            return instance;
         }
 
         private Type GetBoardType(string boardType)

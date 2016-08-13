@@ -49,7 +49,6 @@ namespace Beta.Famicom
 
             broker.Link<HalfFrameSignal>(r2a03);
             broker.Link<QuadFrameSignal>(r2a03);
-            broker.Link<ClockSignal>(board);
             broker.Link<ClockSignal>(r2a03);
             broker.Link<ClockSignal>(r2c02);
             broker.Link<ClockSignal>(mixer);

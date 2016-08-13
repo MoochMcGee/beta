@@ -1,9 +1,11 @@
-﻿using Beta.Platform.Messaging;
+﻿using Beta.Famicom.Formats;
 
 namespace Beta.Famicom.Boards
 {
-    public interface IBoard : IConsumer<ClockSignal>
+    public interface IBoard
     {
+        void ApplyImage(CartridgeImage image);
+
         void R2C02Read(ushort address, ref byte data);
 
         void R2C02Write(ushort address, byte data);

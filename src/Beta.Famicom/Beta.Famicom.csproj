@@ -56,6 +56,7 @@
     <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Discrete\NROM.cs" />
     <Compile Include="Boards\Nintendo\SxROM.cs" />
+    <Compile Include="Boards\Nintendo\TxROM.cs" />
     <Compile Include="Bus.cs" />
     <Compile Include="CPU\DMC\DmcState.cs" />
     <Compile Include="CPU\DMC\DmcRegisters.cs" />

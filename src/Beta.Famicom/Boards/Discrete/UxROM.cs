@@ -1,16 +1,14 @@
 ﻿using Beta.Famicom.Formats;
-using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Discrete
 {
-    [BoardName("U(.*)ROM")]
+    [BoardName("U(.+)ROM")]
     public sealed class UxROM : IBoard
     {
-        private readonly CartridgeImage image;
-
+        private CartridgeImage image;
         private int prg_page;
 
-        public UxROM(CartridgeImage image)
+        public void ApplyImage(CartridgeImage image)
         {
             this.image = image;
         }
@@ -64,7 +62,5 @@ namespace Beta.Famicom.Boards.Discrete
 
             return true;
         }
-
-        public void Consume(ClockSignal e) { }
     }
 }

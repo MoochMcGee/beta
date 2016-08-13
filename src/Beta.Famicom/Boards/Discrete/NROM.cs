@@ -1,14 +1,13 @@
 ﻿using Beta.Famicom.Formats;
-using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Discrete
 {
     [BoardName("(HVC|NES)-NROM-(128|256)")]
     public class NROM : IBoard
     {
-        private readonly CartridgeImage image;
+        private CartridgeImage image;
 
-        public NROM(CartridgeImage image)
+        public void ApplyImage(CartridgeImage image)
         {
             this.image = image;
         }
@@ -48,7 +47,5 @@ namespace Beta.Famicom.Boards.Discrete
 
             return true;
         }
-
-        public void Consume(ClockSignal e) { }
     }
 }

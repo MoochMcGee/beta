@@ -1,13 +1,12 @@
 ﻿using Beta.Famicom.Formats;
 using Beta.Platform.Exceptions;
-using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
-    [BoardName("NES-S(.*)ROM")]
+    [BoardName("NES-S(.+)ROM")]
     public sealed class SxROM : IBoard
     {
-        private readonly CartridgeImage image;
+        private CartridgeImage image;
 
         private int chr_mode;
         private int chr_page_0;
@@ -22,7 +21,7 @@ namespace Beta.Famicom.Boards.Nintendo
         private int latch;
         private int shift;
 
-        public SxROM(CartridgeImage image)
+        public void ApplyImage(CartridgeImage image)
         {
             this.image = image;
         }
@@ -149,7 +148,5 @@ namespace Beta.Famicom.Boards.Nintendo
 
             throw new CompilerPleasingException();
         }
-
-        public void Consume(ClockSignal e) { }
     }
 }
