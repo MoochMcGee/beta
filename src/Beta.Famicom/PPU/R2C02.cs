@@ -1,5 +1,4 @@
-﻿using Beta.Famicom.CPU;
-using Beta.Famicom.Memory;
+﻿using Beta.Famicom.Memory;
 using Beta.Famicom.Messaging;
 using Beta.Platform;
 using Beta.Platform.Messaging;
@@ -16,15 +15,14 @@ namespace Beta.Famicom.PPU
         private readonly IProducer<VblSignal> vbl;
         private readonly IVideoBackend video;
 
-        private int[] bkg = new int[256 + 16];
-        private int[] spr = new int[256];
+        private int[] bg = new int[256 + 16];
+        private int[] sp = new int[256];
         private int[] raster;
 
         private int cycles;
 
         public R2C02(
             CGRAM cgram,
-            R2A03Bus r2a03,
             R2C02MemoryMap memory,
             State state,
             IProducer<FrameSignal> frame,
@@ -37,15 +35,6 @@ namespace Beta.Famicom.PPU
             this.frame = frame;
             this.vbl = vbl;
             this.video = video;
-
-            r2a03.Map("001- ---- ---- -000", writer: Write2000);
-            r2a03.Map("001- ---- ---- -001", writer: Write2001);
-            r2a03.Map("001- ---- ---- -010", reader: Read2002);
-            r2a03.Map("001- ---- ---- -011", writer: Write2003);
-            r2a03.Map("001- ---- ---- -100", reader: Read2004, writer: Write2004);
-            r2a03.Map("001- ---- ---- -101", writer: Write2005);
-            r2a03.Map("001- ---- ---- -110", writer: Write2006);
-            r2a03.Map("001- ---- ---- -111", reader: Read2007, writer: Write2007);
 
             EvaluationReset();
 
@@ -115,7 +104,7 @@ namespace Beta.Famicom.PPU
 
             for (var i = 0; i < 8; i++)
             {
-                bkg[offset + i] =
+                bg[offset + i] =
                     ((state.fetch_attr << 2) & 12) |
                     ((state.fetch_bit0 >> 7) &  1) |
                     ((state.fetch_bit1 >> 6) &  2);
@@ -129,11 +118,11 @@ namespace Beta.Famicom.PPU
 
         #region Sprite
 
-        private Sprite[] sprFound = new Sprite[8];
-        private byte sprLatch;
-        private int sprCount;
-        private int sprIndex;
-        private int sprPhase;
+        private Sprite[] spFound = new Sprite[8];
+        private byte spLatch;
+        private int spCount;
+        private int spIndex;
+        private int spPhase;
 
         private void SynthesizeSp()
         {
@@ -142,7 +131,7 @@ namespace Beta.Famicom.PPU
                 return;
             }
 
-            var sprite = sprFound[(state.h >> 3) & 7];
+            var sprite = spFound[(state.h >> 3) & 7];
             int offset = sprite.X;
 
             for (var i = 0; i < 8 && offset < 256; i++, offset++)
@@ -151,9 +140,9 @@ namespace Beta.Famicom.PPU
                     ((state.fetch_bit0 >> 7) & 1) |
                     ((state.fetch_bit1 >> 6) & 2);
 
-                if ((spr[offset] & 3) == 0 && color != 0)
+                if ((sp[offset] & 3) == 0 && color != 0)
                 {
-                    spr[offset] = 0x10 | ((sprite.Attr << 10) & 0xc000) | ((sprite.Attr << 2) & 12) | color;
+                    sp[offset] = 0x10 | ((sprite.Attr << 10) & 0xc000) | ((sprite.Attr << 2) & 12) | color;
                 }
 
                 state.fetch_bit0 <<= 1;
@@ -163,7 +152,7 @@ namespace Beta.Famicom.PPU
 
         private void SpriteEvaluation0()
         {
-            sprLatch = (byte)(state.h < 64 ? 0xff : state.oam[state.oam_address]);
+            spLatch = (byte)(state.h < 64 ? 0xff : state.oam[state.oam_address]);
         }
 
         private void SpriteEvaluation1()
@@ -172,37 +161,37 @@ namespace Beta.Famicom.PPU
             {
                 switch ((state.h >> 1) & 3)
                 {
-                case 0: sprFound[(state.h >> 3) & 7].Y    = sprLatch; break;
-                case 1: sprFound[(state.h >> 3) & 7].Name = sprLatch; break;
-                case 2: sprFound[(state.h >> 3) & 7].Attr = sprLatch &= 0xe3; break;
-                case 3: sprFound[(state.h >> 3) & 7].X    = sprLatch; break;
+                case 0: spFound[(state.h >> 3) & 7].Y    = spLatch; break;
+                case 1: spFound[(state.h >> 3) & 7].Name = spLatch; break;
+                case 2: spFound[(state.h >> 3) & 7].Attr = spLatch &= 0xe3; break;
+                case 3: spFound[(state.h >> 3) & 7].X    = spLatch; break;
                 }
             }
             else
             {
-                switch (sprPhase)
+                switch (spPhase)
                 {
                 case 0:
                     {
-                        sprCount++;
+                        spCount++;
 
-                        var raster = (state.v - sprLatch) & 0x1ff;
+                        var raster = (state.v - spLatch) & 0x1ff;
                         if (raster < state.obj_rasters)
                         {
                             state.oam_address++;
-                            sprFound[sprIndex].Y = sprLatch;
-                            sprPhase++;
+                            spFound[spIndex].Y = spLatch;
+                            spPhase++;
                         }
                         else
                         {
-                            if (sprCount != 64)
+                            if (spCount != 64)
                             {
                                 state.oam_address += 4;
                             }
                             else
                             {
                                 state.oam_address = 0;
-                                sprPhase = 8;
+                                spPhase = 8;
                             }
                         }
                     }
@@ -210,44 +199,44 @@ namespace Beta.Famicom.PPU
 
                 case 1:
                     state.oam_address++;
-                    sprFound[sprIndex].Name = sprLatch;
-                    sprPhase++;
+                    spFound[spIndex].Name = spLatch;
+                    spPhase++;
                     break;
 
                 case 2:
                     state.oam_address++;
-                    sprFound[sprIndex].Attr = sprLatch &= 0xe3;
-                    sprPhase++;
+                    spFound[spIndex].Attr = spLatch &= 0xe3;
+                    spPhase++;
 
-                    if (sprCount == 1)
+                    if (spCount == 1)
                     {
-                        sprFound[sprIndex].Attr |= Sprite.SPR_ZERO;
+                        spFound[spIndex].Attr |= Sprite.SPR_ZERO;
                     }
                     break;
 
                 case 3:
-                    sprFound[sprIndex].X = sprLatch;
-                    sprIndex++;
+                    spFound[spIndex].X = spLatch;
+                    spIndex++;
 
-                    if (sprCount != 64)
+                    if (spCount != 64)
                     {
-                        sprPhase = (sprIndex != 8 ? 0 : 4);
+                        spPhase = (spIndex != 8 ? 0 : 4);
                         state.oam_address++;
                     }
                     else
                     {
-                        sprPhase = 8;
+                        spPhase = 8;
                         state.oam_address = 0;
                     }
                     break;
 
                 case 4:
                     {
-                        var raster = (state.v - sprLatch) & 0x1ff;
+                        var raster = (state.v - spLatch) & 0x1ff;
                         if (raster < state.obj_rasters)
                         {
                             state.obj_overflow = true;
-                            sprPhase++;
+                            spPhase++;
                             state.oam_address++;
                         }
                         else
@@ -256,7 +245,7 @@ namespace Beta.Famicom.PPU
 
                             if (state.oam_address <= 5)
                             {
-                                sprPhase = 8;
+                                spPhase = 8;
                                 state.oam_address &= 0xfc;
                             }
                         }
@@ -264,17 +253,17 @@ namespace Beta.Famicom.PPU
                     break;
 
                 case 5:
-                    sprPhase = 6;
+                    spPhase = 6;
                     state.oam_address++;
                     break;
 
                 case 6:
-                    sprPhase = 7;
+                    spPhase = 7;
                     state.oam_address++;
                     break;
 
                 case 7:
-                    sprPhase = 8;
+                    spPhase = 8;
                     state.oam_address++;
                     break;
 
@@ -289,9 +278,9 @@ namespace Beta.Famicom.PPU
         {
             state.oam_address = 0;
 
-            sprCount = 0;
-            sprIndex = 0;
-            sprPhase = 0;
+            spCount = 0;
+            spIndex = 0;
+            spPhase = 0;
         }
 
         private void EvaluationReset()
@@ -300,13 +289,13 @@ namespace Beta.Famicom.PPU
 
             for (var i = 0; i < 0x100; i++)
             {
-                spr[i] = 0;
+                sp[i] = 0;
             }
         }
 
         private void PointSpBit0()
         {
-            var sprite = sprFound[(state.h >> 3) & 7];
+            var sprite = spFound[(state.h >> 3) & 7];
             var raster = state.v - sprite.Y;
 
             if ((sprite.Attr & Sprite.V_FLIP) != 0)
@@ -333,7 +322,7 @@ namespace Beta.Famicom.PPU
 
         private void FetchSpBit0()
         {
-            var sprite = sprFound[(state.h >> 3) & 7];
+            var sprite = spFound[(state.h >> 3) & 7];
 
             memory.Read(state.fetch_address, ref state.fetch_bit0);
 
@@ -349,7 +338,7 @@ namespace Beta.Famicom.PPU
 
         private void FetchSpBit1()
         {
-            var sprite = sprFound[(state.h >> 3) & 7];
+            var sprite = spFound[(state.h >> 3) & 7];
 
             memory.Read(state.fetch_address, ref state.fetch_bit1);
 
@@ -367,21 +356,21 @@ namespace Beta.Famicom.PPU
         {
             for (var i = 0; i < 8; i++)
             {
-                sprFound[i] = new Sprite();
+                spFound[i] = new Sprite();
             }
 
-            sprLatch = 0;
-            sprCount = 0;
-            sprIndex = 0;
-            sprPhase = 0;
+            spLatch = 0;
+            spCount = 0;
+            spIndex = 0;
+            spPhase = 0;
         }
 
         private void ResetSprite()
         {
-            sprLatch = 0;
-            sprCount = 0;
-            sprIndex = 0;
-            sprPhase = 0;
+            spLatch = 0;
+            spCount = 0;
+            spIndex = 0;
+            spPhase = 0;
 
             state.oam_address = 0;
         }
@@ -401,142 +390,6 @@ namespace Beta.Famicom.PPU
 
         #endregion
 
-        private void Read2002(ushort address, ref byte data)
-        {
-            data &= 0x1f;
-
-            if (state.vbl_flag > 0) data |= 0x80;
-            if (state.obj_zero_hit) data |= 0x40;
-            if (state.obj_overflow) data |= 0x20;
-
-            state.vbl_hold = 0;
-            state.vbl_flag = 0;
-            state.scroll_swap = false;
-            VBL();
-        }
-
-        private void Read2004(ushort address, ref byte data)
-        {
-            if (Rendering())
-            {
-                data = sprLatch;
-            }
-            else
-            {
-                data = state.oam[state.oam_address];
-            }
-        }
-
-        private void Read2007(ushort address, ref byte data)
-        {
-            if ((state.scroll_address & 0x3f00) == 0x3f00)
-            {
-                data = cgram.Read(state.scroll_address);
-            }
-            else
-            {
-                data = state.chr;
-            }
-
-            memory.Read(state.scroll_address, ref state.chr);
-
-            if (Rendering())
-            {
-                ClockY();
-            }
-            else
-            {
-                state.scroll_address += state.scroll_step;
-                state.scroll_address &= 0x7fff;
-            }
-        }
-
-        private void Write2000(ushort address, byte data)
-        {
-            state.scroll_temp = (ushort)((state.scroll_temp & 0x73ff) | ((data << 10) & 0x0c00));
-            state.scroll_step = (ushort)((data & 0x04) != 0 ? 0x0020 : 0x0001);
-            state.obj_address = (ushort)((data & 0x08) != 0 ? 0x1000 : 0x0000);
-            state.bkg_address = (ushort)((data & 0x10) != 0 ? 0x1000 : 0x0000);
-            state.obj_rasters = (data & 0x20) != 0 ? 0x0010 : 0x0008;
-            state.vbl_enabled = (data & 0x80) >> 7;
-
-            VBL();
-        }
-
-        private void Write2001(ushort address, byte data)
-        {
-            state.bkg_clipped = (data & 0x02) == 0;
-            state.obj_clipped = (data & 0x04) == 0;
-            state.bkg_enabled = (data & 0x08) != 0;
-            state.obj_enabled = (data & 0x10) != 0;
-
-            state.clipping = (data & 0x01) != 0 ? 0x30 : 0x3f;
-            state.emphasis = (data & 0xe0) << 1;
-        }
-
-        private void Write2003(ushort address, byte data)
-        {
-            state.oam_address = data;
-        }
-
-        private void Write2004(ushort address, byte data)
-        {
-            if ((state.oam_address & 3) == 2)
-                data &= 0xe3;
-
-            state.oam[state.oam_address++] = data;
-        }
-
-        private void Write2005(ushort address, byte data)
-        {
-            if (state.scroll_swap = !state.scroll_swap)
-            {
-                state.scroll_temp = (ushort)((state.scroll_temp & ~0x001f) | ((data & ~7) >> 3));
-                state.scroll_fine = (data & 0x07);
-            }
-            else
-            {
-                state.scroll_temp = (ushort)((state.scroll_temp & ~0x73e0) | ((data & 7) << 12) | ((data & ~7) << 2));
-            }
-        }
-
-        private void Write2006(ushort address, byte data)
-        {
-            if (state.scroll_swap = !state.scroll_swap)
-            {
-                state.scroll_temp = (ushort)((state.scroll_temp & ~0xff00) | ((data & 0x3f) << 8));
-            }
-            else
-            {
-                state.scroll_temp = (ushort)((state.scroll_temp & ~0x00ff) | ((data & 0xff) << 0));
-                state.scroll_address = state.scroll_temp;
-
-                Read(address);
-            }
-        }
-
-        private void Write2007(ushort address, byte data)
-        {
-            if ((state.scroll_address & 0x3f00) == 0x3f00)
-            {
-                cgram.Write(state.scroll_address, data);
-            }
-            else
-            {
-                memory.Write(state.scroll_address, data);
-            }
-
-            if (Rendering())
-            {
-                ClockY();
-            }
-            else
-            {
-                state.scroll_address += state.scroll_step;
-                state.scroll_address &= 0x7fff;
-            }
-        }
-
         private bool Rendering()
         {
             return (state.bkg_enabled || state.obj_enabled) && state.v < 240;
@@ -555,13 +408,13 @@ namespace Beta.Famicom.PPU
 
             if ((h & 0x100) == 0x000)
             {
-                BkgTick(h & 7);
+                BgTick(h & 7);
                 RenderPixel();
                 EvaluationTick();
             }
-            else if ((h & 0x1c0) == 0x100) { ObjTick(h & 7); }
-            else if ((h & 0x1f0) == 0x140) { BkgTick(h & 7); }
-            else if ((h & 0x1fc) == 0x150) { BkgTick(h & 1); }
+            else if ((h & 0x1c0) == 0x100) { SpTick(h & 7); }
+            else if ((h & 0x1f0) == 0x140) { BgTick(h & 7); }
+            else if ((h & 0x1fc) == 0x150) { BgTick(h & 1); }
 
             ScrollTick();
         }
@@ -582,10 +435,10 @@ namespace Beta.Famicom.PPU
         {
             var h = state.h;
 
-            if ((h & 0x100) == 0x000) { BkgTick(h & 7); }
-            else if ((h & 0x1c0) == 0x100) { ObjTick(h & 7); }
-            else if ((h & 0x1f0) == 0x140) { BkgTick(h & 7); }
-            else if ((h & 0x1fc) == 0x150) { BkgTick(h & 1); }
+            if ((h & 0x100) == 0x000) { BgTick(h & 7); }
+            else if ((h & 0x1c0) == 0x100) { SpTick(h & 7); }
+            else if ((h & 0x1f0) == 0x140) { BgTick(h & 7); }
+            else if ((h & 0x1fc) == 0x150) { BgTick(h & 1); }
 
             ScrollTick();
 
@@ -595,7 +448,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void BkgTick(int step)
+        private void BgTick(int step)
         {
             switch (step)
             {
@@ -610,7 +463,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        private void ObjTick(int step)
+        private void SpTick(int step)
         {
             switch (step)
             {
@@ -671,8 +524,8 @@ namespace Beta.Famicom.PPU
 
         private int ColorMultiplexer()
         {
-            int bkg = GetBkgPixel();
-            int obj = GetObjPixel();
+            int bkg = GetBgPixel();
+            int obj = GetSpPixel();
 
             if ((bkg & 3) == 0) { return obj; }
             if ((obj & 3) == 0) { return bkg; }
@@ -688,31 +541,24 @@ namespace Beta.Famicom.PPU
                 ;
         }
 
-        private int GetBkgPixel()
+        private int GetBgPixel()
         {
             if (!state.bkg_enabled || (state.bkg_clipped && state.h < 8))
             {
                 return 0;
             }
 
-            return bkg[state.h + state.scroll_fine];
+            return bg[state.h + state.scroll_fine];
         }
 
-        private int GetObjPixel()
+        private int GetSpPixel()
         {
             if (!state.obj_enabled || (state.obj_clipped && state.h < 8) || state.h == 255)
             {
                 return 0;
             }
 
-            return spr[state.h];
-        }
-
-        private byte Read(int address)
-        {
-            byte data = 0;
-            memory.Read((ushort)address, ref data);
-            return data;
+            return sp[state.h];
         }
 
         private void Tick()
@@ -744,7 +590,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void Update()
+        private void Update()
         {
             if (state.bkg_enabled || state.obj_enabled)
             {
@@ -784,7 +630,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void ClockX()
+        private void ClockX()
         {
             if ((state.scroll_address & 0x001f) == 0x001f)
             {
@@ -796,7 +642,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void ClockY()
+        private void ClockY()
         {
             if ((state.scroll_address & 0x7000) == 0x7000)
             {
@@ -818,13 +664,13 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void ResetX()
+        private void ResetX()
         {
             state.scroll_address &= 0x7be0;
             state.scroll_address |= (ushort)(state.scroll_temp & 0x041f);
         }
 
-        public void ResetY()
+        private void ResetY()
         {
             state.scroll_address &= 0x041f;
             state.scroll_address |= (ushort)(state.scroll_temp & 0x7be0);
