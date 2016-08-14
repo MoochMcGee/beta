@@ -24,6 +24,7 @@ namespace Beta.Famicom
             container.RegisterSingleton<BoardFactory>();
             container.RegisterSingleton<CartridgeConnector>();
             container.RegisterSingleton<CartridgeFactory>();
+            container.RegisterSingleton<CGRAM>();
             container.RegisterSingleton<Driver>();
             container.RegisterSingleton<InputConnector>();
             container.RegisterSingleton<State>();

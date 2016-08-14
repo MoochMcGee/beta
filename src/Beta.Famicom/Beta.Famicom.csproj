@@ -102,6 +102,7 @@
     <Compile Include="Input\InputConnector.cs" />
     <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\CartridgeConnector.cs" />
+    <Compile Include="Memory\CGRAM.cs" />
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\IMemoryFactory.cs" />
     <Compile Include="Memory\MemoryFactory.cs" />

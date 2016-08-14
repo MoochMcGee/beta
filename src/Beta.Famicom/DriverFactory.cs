@@ -61,8 +61,6 @@ namespace Beta.Famicom
             broker.Link(container.GetInstance<Tri>());
             broker.Link(container.GetInstance<Noi>());
 
-            r2c02.Initialize();
-
             return container.GetInstance<Driver>();
         }
     }
