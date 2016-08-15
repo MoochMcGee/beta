@@ -12,11 +12,11 @@ namespace Beta.Famicom.CPU
         , IConsumer<HalfFrameSignal>
         , IConsumer<QuadFrameSignal>
     {
-        private readonly R2A03Bus bus;
+        private readonly R2A03MemoryMap bus;
         private readonly R2A03State r2a03;
         private readonly IProducer<ClockSignal> clock;
 
-        public R2A03(R2A03Bus bus, State state, IProducer<ClockSignal> clock)
+        public R2A03(R2A03MemoryMap bus, State state, IProducer<ClockSignal> clock)
         {
             this.bus = bus;
             this.r2a03 = state.r2a03;

@@ -31,7 +31,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<Mixer>();
 
             container.RegisterSingleton<R2A03>();
-            container.RegisterSingleton<R2A03Bus>();
             container.RegisterSingleton<R2A03MemoryMap>();
             container.RegisterSingleton<R2A03Registers>();
             container.RegisterSingleton<R2A03State>();

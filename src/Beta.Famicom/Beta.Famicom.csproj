@@ -67,7 +67,6 @@
     <Compile Include="CPU\NOI\NoiState.cs" />
     <Compile Include="CPU\NOI\NoiRegisters.cs" />
     <Compile Include="CPU\R2A03.cs" />
-    <Compile Include="CPU\R2A03Bus.cs" />
     <Compile Include="CPU\R2A03MemoryMap.cs" />
     <Compile Include="CPU\R2A03State.cs" />
     <Compile Include="CPU\R2A03Registers.cs" />

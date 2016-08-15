@@ -18,7 +18,11 @@ namespace Beta.Famicom.CPU
             if (tri.timer == 0)
             {
                 tri.timer = tri.period + 1;
-                tri.step = (tri.step + 1) & 31;
+
+                if (tri.duration.counter != 0 && tri.linear_counter != 0)
+                {
+                    tri.step = (tri.step + 1) & 31;
+                }
             }
         }
     }

@@ -2,7 +2,7 @@
 {
     public sealed class R2A03State
     {
-        public bool sequence_irq_enabled;
+        public bool sequence_irq_enabled = true;
         public bool sequence_irq_pending;
         public int sequence_time;
         public int sequence_mode;

@@ -56,7 +56,7 @@ namespace Beta.Famicom.CPU
         {
             int sq1 = GetSq1Output();
             int sq2 = GetSq2Output();
-            int tri = 0;// GetTriOutput();
+            int tri = GetTriOutput();
             int noi = GetNoiOutput();
             int dmc = GetDmcOutput();
 
@@ -93,10 +93,14 @@ namespace Beta.Famicom.CPU
 
         private int GetTriOutput()
         {
-            return tri.duration.counter != 0 && tri.linear_counter != 0
-                ? triangle_lut[tri.step]
-                : 0
-                ;
+            if (tri.period == 0 || tri.period == 1)
+            {
+                return 7;
+            }
+            else
+            {
+                return triangle_lut[tri.step];
+            }
         }
 
         private int GetNoiOutput()
@@ -126,7 +130,7 @@ namespace Beta.Famicom.CPU
             var tnd_n = tri * 3 + noi * 2 + dmc;
             var tnd = tnd_base / (tnd_div / tnd_n + 100);
 
-            return (int)((sqr + tnd) * 16383);
+            return (int)((sqr + tnd) * 32767);
         }
     }
 }
