@@ -55,6 +55,7 @@
     <Compile Include="Boards\BoardFactory.cs" />
     <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Discrete\NROM.cs" />
+    <Compile Include="Boards\Konami\VRC2.cs" />
     <Compile Include="Boards\Nintendo\SxROM.cs" />
     <Compile Include="Boards\Nintendo\TxROM.cs" />
     <Compile Include="Bus.cs" />
