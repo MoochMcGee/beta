@@ -3,7 +3,7 @@
 namespace Beta.Famicom.Boards.Discrete
 {
     [BoardName("(HVC|NES)-NROM-(128|256)")]
-    public class NROM : IBoard
+    public sealed class NROM : IBoard
     {
         private CartridgeImage image;
 

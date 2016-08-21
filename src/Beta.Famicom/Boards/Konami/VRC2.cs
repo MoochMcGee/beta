@@ -7,6 +7,7 @@ namespace Beta.Famicom.Boards.Konami
     public sealed class VRC2 : IBoard
     {
         private CartridgeImage image;
+
         private int nmt_mode;
         private int[] chr_page = new int[8];
         private int[] prg_page = new int[2];
@@ -20,7 +21,7 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x8000) == 0x8000)
             {
-                image.prg.Read(MapCpuAddress(address), ref data);
+                image.prg.Read(MapR2A03Address(address), ref data);
             }
         }
 
@@ -77,7 +78,7 @@ namespace Beta.Famicom.Boards.Konami
             }
         }
 
-        private int MapCpuAddress(int address)
+        private int MapR2A03Address(int address)
         {
             switch (address & 0xe000)
             {
@@ -94,7 +95,7 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(MapPpuAddress(address), ref data);
+                image.chr.Read(MapR2C02Address(address), ref data);
             }
         }
 
@@ -102,11 +103,11 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Write(MapPpuAddress(address), data);
+                image.chr.Write(MapR2C02Address(address), data);
             }
         }
 
-        private int MapPpuAddress(int address)
+        private int MapR2C02Address(int address)
         {
             const int chr_shift = 10;
 

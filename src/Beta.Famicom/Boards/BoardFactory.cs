@@ -41,7 +41,7 @@ namespace Beta.Famicom.Boards
             var match = linq.FirstOrDefault();
             if (match == null)
             {
-                throw new NotSupportedException($"Mapper \"{boardType}\" isn't supported.");
+                throw new NotSupportedException($"Mapper '{boardType}' isn't supported.");
             }
 
             return match;

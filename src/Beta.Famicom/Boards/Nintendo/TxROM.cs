@@ -15,10 +15,10 @@ namespace Beta.Famicom.Boards.Nintendo
         private int chr_mode;
         private int nmt_mode;
         private int prg_mode;
-        private int port_address;
+        private int reg_address;
 
-        private int[] chr_page = new int[6];
-        private int[] prg_page = new int[2];
+        private int[] chr_page = new int[8];
+        private int[] prg_page = new int[4];
 
         private bool irq_enabled;
         private int irq_address;
@@ -29,6 +29,9 @@ namespace Beta.Famicom.Boards.Nintendo
         public TxROM(IProducer<IrqSignal> irq, ISignalBroker broker)
         {
             this.irq = irq;
+
+            prg_page[2] = ~1 << 13;
+            prg_page[3] = ~0 << 13;
 
             broker.Link(this);
         }
@@ -53,18 +56,26 @@ namespace Beta.Famicom.Boards.Nintendo
             case 0x8000:
                 chr_mode = (data << 5) & 0x1000;
                 prg_mode = (data << 8) & 0x4000;
-                port_address = (data >> 0) & 7;
+                reg_address = (data >> 0) & 7;
                 break;
 
             case 0x8001:
-                switch (port_address)
+                switch (reg_address)
                 {
-                case 0: chr_page[0] = data << 10; break;
-                case 1: chr_page[1] = data << 10; break;
-                case 2: chr_page[2] = data << 10; break;
-                case 3: chr_page[3] = data << 10; break;
-                case 4: chr_page[4] = data << 10; break;
-                case 5: chr_page[5] = data << 10; break;
+                case 0:
+                    chr_page[0] = ((data << 10) & 0x3f800) | 0x000;
+                    chr_page[1] = ((data << 10) & 0x3f800) | 0x400;
+                    break;
+
+                case 1:
+                    chr_page[2] = ((data << 10) & 0x3f800) | 0x000;
+                    chr_page[3] = ((data << 10) & 0x3f800) | 0x400;
+                    break;
+
+                case 2: chr_page[4] = data << 10; break;
+                case 3: chr_page[5] = data << 10; break;
+                case 4: chr_page[6] = data << 10; break;
+                case 5: chr_page[7] = data << 10; break;
                 case 6: prg_page[0] = data << 13; break;
                 case 7: prg_page[1] = data << 13; break;
                 }
@@ -99,15 +110,9 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             address ^= (ushort)(prg_mode & ~(address << 1));
 
-            switch (address & 0xe000)
-            {
-            case 0x8000: return (address & 0x1fff) | prg_page[0];
-            case 0xa000: return (address & 0x1fff) | prg_page[1];
-            case 0xc000: return (address & 0x1fff) | (~1 << 13);
-            case 0xe000: return (address & 0x1fff) | (~0 << 13);
-            }
+            int page = (address >> 13) & 3;
 
-            throw new CompilerPleasingException();
+            return (address & 0x1fff) | (prg_page[page] & 0x1fe000);
         }
 
         public void R2C02Read(ushort address, ref byte data)
@@ -134,19 +139,9 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             address ^= (ushort)(chr_mode);
 
-            switch (address & 0x1c00)
-            {
-            case 0x0000:
-            case 0x0400: return (address & 0x7ff) | (chr_page[0] & 0x3f800);
-            case 0x0800:
-            case 0x0c00: return (address & 0x7ff) | (chr_page[1] & 0x3f800);
-            case 0x1000: return (address & 0x3ff) | (chr_page[2] & 0x3fc00);
-            case 0x1400: return (address & 0x3ff) | (chr_page[3] & 0x3fc00);
-            case 0x1800: return (address & 0x3ff) | (chr_page[4] & 0x3fc00);
-            case 0x1c00: return (address & 0x3ff) | (chr_page[5] & 0x3fc00);
-            }
+            int page = (address >> 10) & 7;
 
-            throw new CompilerPleasingException();
+            return (address & 0x3ff) | (chr_page[page] & 0x3fc00);
         }
 
         private void ScanlineCounter(ushort address)

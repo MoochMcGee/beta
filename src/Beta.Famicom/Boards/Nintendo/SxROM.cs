@@ -30,7 +30,7 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             if ((address & 0x8000) == 0x8000)
             {
-                image.prg.Read(MapPrgAddress(address), ref data);
+                image.prg.Read(MapR2A03Address(address), ref data);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        private int MapPrgAddress(ushort address)
+        private int MapR2A03Address(int address)
         {
             if (prg_mode == 0)
             {
@@ -106,7 +106,7 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(MapChrAddress(address), ref data);
+                image.chr.Read(MapR2C02Address(address), ref data);
             }
         }
 
@@ -114,11 +114,11 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Write(MapChrAddress(address), data);
+                image.chr.Write(MapR2C02Address(address), data);
             }
         }
 
-        private int MapChrAddress(ushort address)
+        private int MapR2C02Address(int address)
         {
             if (chr_mode == 0)
             {

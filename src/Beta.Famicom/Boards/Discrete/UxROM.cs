@@ -17,7 +17,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x8000) == 0x8000)
             {
-                this.image.prg.Read(MapPrgAddress(address), ref data);
+                this.image.prg.Read(MapR2A03Address(address), ref data);
             }
         }
 
@@ -29,7 +29,7 @@ namespace Beta.Famicom.Boards.Discrete
             }
         }
 
-        private int MapPrgAddress(ushort address)
+        private int MapR2A03Address(ushort address)
         {
             return (address & 0xc000) == 0x8000
                 ? (address & 0x3fff) | (prg_page << 14)
