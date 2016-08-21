@@ -503,7 +503,7 @@ namespace Beta.Famicom.PPU
             var pixel = ForcedBlankPixel();
             var color = cgram.Read(pixel);
 
-            raster[state.h] = Palette.Ntsc[(color & state.clipping) | state.emphasis];
+            raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
         }
 
         private int ForcedBlankPixel()
@@ -519,7 +519,7 @@ namespace Beta.Famicom.PPU
             var pixel = ColorMultiplexer();
             var color = cgram.Read(pixel);
 
-            raster[state.h] = Palette.Ntsc[(color & state.clipping) | state.emphasis];
+            raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
         }
 
         private int ColorMultiplexer()

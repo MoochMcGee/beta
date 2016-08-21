@@ -118,7 +118,7 @@
     <Compile Include="Package.cs" />
     <Compile Include="Input\Joypad.cs" />
     <Compile Include="Input\StandardController.cs" />
-    <Compile Include="Palettes.cs" />
+    <Compile Include="Palette.cs" />
     <Compile Include="PPU\R2C02.cs" />
     <Compile Include="PPU\R2C02MemoryMap.cs" />
     <Compile Include="PPU\R2C02State.cs" />
