@@ -43,7 +43,12 @@ namespace Beta.Famicom.Boards.Nintendo
 
         public void R2A03Read(ushort address, ref byte data)
         {
-            if ((address & 0x8000) != 0)
+            if ((address & 0xe000) == 0x6000)
+            {
+                image.wram.Read(address, ref data);
+            }
+
+            if ((address & 0x8000) == 0x8000)
             {
                 image.prg.Read(MapR2A03Address(address), ref data);
             }
@@ -51,6 +56,11 @@ namespace Beta.Famicom.Boards.Nintendo
 
         public void R2A03Write(ushort address, byte data)
         {
+            if ((address & 0xe000) == 0x6000)
+            {
+                image.wram.Write(address, data);
+            }
+
             switch (address & 0xe001)
             {
             case 0x8000:
