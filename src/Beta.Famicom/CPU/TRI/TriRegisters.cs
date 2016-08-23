@@ -9,7 +9,7 @@
             this.tri = state.r2a03.tri;
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             switch (address - 0x4008)
             {

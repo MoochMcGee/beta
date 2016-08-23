@@ -200,13 +200,13 @@ namespace Beta.Famicom.PPU
 
             if (state.obj_rasters == 8)
             {
-                state.fetch_address = (ushort)((sprite.Name << 4) | (raster & 7) | state.obj_address);
+                state.fetch_address = (sprite.Name << 4) | (raster & 7) | state.obj_address;
             }
             else
             {
                 sprite.Name = (byte)((sprite.Name >> 1) | (sprite.Name << 7));
 
-                state.fetch_address = (ushort)((sprite.Name << 5) | (raster & 7) | (raster << 1 & 0x10));
+                state.fetch_address = (sprite.Name << 5) | (raster & 7) | (raster << 1 & 0x10);
             }
 
             state.fetch_address |= 0;

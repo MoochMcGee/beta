@@ -9,7 +9,7 @@
             this.dmc = state.r2a03.dmc;
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
         }
     }

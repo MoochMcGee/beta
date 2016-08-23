@@ -16,7 +16,7 @@ namespace Beta.Famicom.PPU
             this.vram.Initialize<byte>(0xff);
         }
 
-        public void Read(ushort address, ref byte data)
+        public void Read(int address, ref byte data)
         {
             cartridge.R2C02Read(address, ref data);
 
@@ -33,7 +33,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             cartridge.R2C02Write(address, data);
 

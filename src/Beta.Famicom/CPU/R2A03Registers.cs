@@ -38,7 +38,7 @@ namespace Beta.Famicom.CPU
             this.dmc = new DmcRegisters(state);
         }
 
-        public void Read(ushort address, ref byte data)
+        public void Read(int address, ref byte data)
         {
             // switch (address & ~3)
             // {
@@ -77,7 +77,7 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             switch (address & ~3)
             {

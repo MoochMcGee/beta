@@ -18,23 +18,23 @@
 
         public bool bkg_clipped = true;
         public bool bkg_enabled;
-        public ushort bkg_address;
+        public int bkg_address;
 
         public bool obj_clipped = true;
         public bool obj_enabled;
-        public ushort obj_address;
+        public int obj_address;
         public int obj_rasters = 8;
 
         public bool scroll_swap;
         public int scroll_fine;
-        public ushort scroll_step = 1;
-        public ushort scroll_address;
-        public ushort scroll_temp;
+        public int scroll_step = 1;
+        public int scroll_address;
+        public int scroll_temp;
 
         public byte fetch_attr;
         public byte fetch_bit0;
         public byte fetch_bit1;
         public byte fetch_name;
-        public ushort fetch_address;
+        public int fetch_address;
     }
 }

@@ -302,13 +302,13 @@ namespace Beta.Famicom.PPU
         private void ResetX()
         {
             state.scroll_address &= 0x7be0;
-            state.scroll_address |= (ushort)(state.scroll_temp & 0x041f);
+            state.scroll_address |= state.scroll_temp & 0x041f;
         }
 
         private void ResetY()
         {
             state.scroll_address &= 0x041f;
-            state.scroll_address |= (ushort)(state.scroll_temp & 0x7be0);
+            state.scroll_address |= state.scroll_temp & 0x7be0;
         }
     }
 }

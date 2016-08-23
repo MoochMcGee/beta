@@ -23,14 +23,14 @@ namespace Beta.Famicom.CPU
             this.clock = clock;
         }
 
-        protected override void Read(ushort address, ref byte data)
+        protected override void Read(int address, ref byte data)
         {
             clock.Produce(new ClockSignal(132));
 
             bus.Read(address, ref data);
         }
 
-        protected override void Write(ushort address, byte data)
+        protected override void Write(int address, byte data)
         {
             clock.Produce(new ClockSignal(132));
 
@@ -45,8 +45,8 @@ namespace Beta.Famicom.CPU
             {
                 r2a03.dma_trigger = false;
 
-                var dma_src_address = (ushort)(r2a03.dma_segment << 8);
-                var dma_dst_address = (ushort)(0x2004);
+                var dma_src_address = r2a03.dma_segment << 8;
+                var dma_dst_address = 0x2004;
                 var dma_data = default(byte);
 
                 for (var i = 0; i < 256; i++)

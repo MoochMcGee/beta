@@ -19,7 +19,7 @@ namespace Beta.Famicom.PPU
             this.vbl = vbl;
         }
 
-        public void Read(ushort address, ref byte data)
+        public void Read(int address, ref byte data)
         {
             switch (address & 0x2007)
             {
@@ -71,7 +71,7 @@ namespace Beta.Famicom.PPU
             r2c02.scroll_address &= 0x7fff;
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             switch (address & 0x2007)
             {
@@ -88,10 +88,10 @@ namespace Beta.Famicom.PPU
 
         private void Write2000(byte data)
         {
-            r2c02.scroll_temp = (ushort)((r2c02.scroll_temp & 0x73ff) | ((data << 10) & 0x0c00));
-            r2c02.scroll_step = (ushort)((data & 0x04) != 0 ? 0x0020 : 0x0001);
-            r2c02.obj_address = (ushort)((data & 0x08) != 0 ? 0x1000 : 0x0000);
-            r2c02.bkg_address = (ushort)((data & 0x10) != 0 ? 0x1000 : 0x0000);
+            r2c02.scroll_temp = (r2c02.scroll_temp & 0x73ff) | ((data << 10) & 0x0c00);
+            r2c02.scroll_step = (data & 0x04) != 0 ? 0x0020 : 0x0001;
+            r2c02.obj_address = (data & 0x08) != 0 ? 0x1000 : 0x0000;
+            r2c02.bkg_address = (data & 0x10) != 0 ? 0x1000 : 0x0000;
             r2c02.obj_rasters = (data & 0x20) != 0 ? 0x0010 : 0x0008;
             r2c02.vbl_enabled = (data & 0x80) >> 7;
 
@@ -126,12 +126,12 @@ namespace Beta.Famicom.PPU
         {
             if (r2c02.scroll_swap = !r2c02.scroll_swap)
             {
-                r2c02.scroll_temp = (ushort)((r2c02.scroll_temp & ~0x001f) | ((data & ~7) >> 3));
+                r2c02.scroll_temp = (r2c02.scroll_temp & ~0x001f) | ((data & ~7) >> 3);
                 r2c02.scroll_fine = (data & 0x07);
             }
             else
             {
-                r2c02.scroll_temp = (ushort)((r2c02.scroll_temp & ~0x73e0) | ((data & 7) << 12) | ((data & ~7) << 2));
+                r2c02.scroll_temp = (r2c02.scroll_temp & ~0x73e0) | ((data & 7) << 12) | ((data & ~7) << 2);
             }
         }
 
@@ -139,11 +139,11 @@ namespace Beta.Famicom.PPU
         {
             if (r2c02.scroll_swap = !r2c02.scroll_swap)
             {
-                r2c02.scroll_temp = (ushort)((r2c02.scroll_temp & ~0xff00) | ((data & 0x3f) << 8));
+                r2c02.scroll_temp = (r2c02.scroll_temp & ~0xff00) | ((data & 0x3f) << 8);
             }
             else
             {
-                r2c02.scroll_temp = (ushort)((r2c02.scroll_temp & ~0x00ff) | ((data & 0xff) << 0));
+                r2c02.scroll_temp = (r2c02.scroll_temp & ~0x00ff) | ((data & 0xff) << 0);
                 r2c02.scroll_address = r2c02.scroll_temp;
 
                 memory.Read(r2c02.scroll_address, ref data);

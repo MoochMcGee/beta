@@ -6,14 +6,14 @@ namespace Beta.Famicom.Boards
     {
         void ApplyImage(CartridgeImage image);
 
-        void R2C02Read(ushort address, ref byte data);
+        void R2C02Read(int address, ref byte data);
 
-        void R2C02Write(ushort address, byte data);
+        void R2C02Write(int address, byte data);
 
-        void R2A03Read(ushort address, ref byte data);
+        void R2A03Read(int address, ref byte data);
 
-        void R2A03Write(ushort address, byte data);
+        void R2A03Write(int address, byte data);
 
-        bool VRAM(ushort address, out int a10);
+        bool VRAM(int address, out int a10);
     }
 }

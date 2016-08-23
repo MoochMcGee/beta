@@ -41,7 +41,7 @@
 
         public void PointName()
         {
-            state.fetch_address = (ushort)(0x2000 | (state.scroll_address & 0xfff));
+            state.fetch_address = 0x2000 | (state.scroll_address & 0xfff);
         }
 
         public void PointAttr()
@@ -49,21 +49,21 @@
             var x = ((state.scroll_address >> 2) & 7);
             var y = ((state.scroll_address >> 4) & 0x38);
 
-            state.fetch_address = (ushort)(0x23c0 | (state.scroll_address & 0xc00) | y | x);
+            state.fetch_address = 0x23c0 | (state.scroll_address & 0xc00) | y | x;
         }
 
         public void PointBit0()
         {
             var line = (state.scroll_address >> 12) & 7;
 
-            state.fetch_address = (ushort)(state.bkg_address | (state.fetch_name << 4) | 0 | line);
+            state.fetch_address = state.bkg_address | (state.fetch_name << 4) | 0 | line;
         }
 
         public void PointBit1()
         {
             var line = (state.scroll_address >> 12) & 7;
 
-            state.fetch_address = (ushort)(state.bkg_address | (state.fetch_name << 4) | 8 | line);
+            state.fetch_address = state.bkg_address | (state.fetch_name << 4) | 8 | line;
         }
 
         public void Synthesize()

@@ -19,7 +19,7 @@ namespace Beta.Famicom.CPU
             this.wram = new byte[0x800];
         }
 
-        public void Read(ushort address, ref byte data)
+        public void Read(int address, ref byte data)
         {
             cartridge.R2A03Read(address, ref data);
 
@@ -37,7 +37,7 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             cartridge.R2A03Write(address, data);
 

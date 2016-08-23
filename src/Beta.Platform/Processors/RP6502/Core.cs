@@ -817,9 +817,9 @@ namespace Beta.Platform.Processors.RP6502
 
         #endregion
 
-        protected abstract void Read(ushort address, ref byte data);
+        protected abstract void Read(int address, ref byte data);
 
-        protected abstract void Write(ushort address, byte data);
+        protected abstract void Write(int address, byte data);
 
         public virtual void ResetHard()
         {
@@ -872,7 +872,7 @@ namespace Beta.Platform.Processors.RP6502
             interrupts.NmiLatch = value;
         }
 
-        protected byte Read(ushort address, bool last = false)
+        protected byte Read(int address, bool last = false)
         {
             rwOld = rw;
             rw = 1;
@@ -887,7 +887,7 @@ namespace Beta.Platform.Processors.RP6502
             return open;
         }
 
-        protected void Write(ushort address, byte data, bool last = false)
+        protected void Write(int address, byte data, bool last = false)
         {
             rwOld = rw;
             rw = 0;

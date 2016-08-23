@@ -26,7 +26,7 @@ namespace Beta.Famicom.Boards.Nintendo
             this.image = image;
         }
 
-        public void R2A03Read(ushort address, ref byte data)
+        public void R2A03Read(int address, ref byte data)
         {
             if ((address & 0x8000) == 0x8000)
             {
@@ -34,7 +34,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2A03Write(ushort address, byte data)
+        public void R2A03Write(int address, byte data)
         {
             if ((address & 0x8000) != 0x8000)
             {
@@ -102,7 +102,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Read(ushort address, ref byte data)
+        public void R2C02Read(int address, ref byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -110,7 +110,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Write(ushort address, byte data)
+        public void R2C02Write(int address, byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -133,7 +133,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public bool VRAM(ushort address, out int a10)
+        public bool VRAM(int address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;

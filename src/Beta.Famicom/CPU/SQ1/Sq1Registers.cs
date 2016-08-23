@@ -9,7 +9,7 @@
             this.sq1 = state.r2a03.sq1;
         }
 
-        public void Write(ushort address, byte data)
+        public void Write(int address, byte data)
         {
             switch (address - 0x4000)
             {

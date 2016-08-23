@@ -41,7 +41,7 @@ namespace Beta.Famicom.Boards.Nintendo
             this.image = image;
         }
 
-        public void R2A03Read(ushort address, ref byte data)
+        public void R2A03Read(int address, ref byte data)
         {
             if ((address & 0xe000) == 0x6000)
             {
@@ -54,7 +54,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2A03Write(ushort address, byte data)
+        public void R2A03Write(int address, byte data)
         {
             if ((address & 0xe000) == 0x6000)
             {
@@ -116,16 +116,16 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        private int MapR2A03Address(ushort address)
+        private int MapR2A03Address(int address)
         {
-            address ^= (ushort)(prg_mode & ~(address << 1));
+            address ^= prg_mode & ~(address << 1);
 
             int page = (address >> 13) & 3;
 
             return (address & 0x1fff) | (prg_page[page] & 0x1fe000);
         }
 
-        public void R2C02Read(ushort address, ref byte data)
+        public void R2C02Read(int address, ref byte data)
         {
             ScanlineCounter(address);
 
@@ -135,7 +135,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Write(ushort address, byte data)
+        public void R2C02Write(int address, byte data)
         {
             ScanlineCounter(address);
 
@@ -145,16 +145,16 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        private int MapR2C02Address(ushort address)
+        private int MapR2C02Address(int address)
         {
-            address ^= (ushort)(chr_mode);
+            address ^= chr_mode;
 
             int page = (address >> 10) & 7;
 
             return (address & 0x3ff) | (chr_page[page] & 0x3fc00);
         }
 
-        private void ScanlineCounter(ushort address)
+        private void ScanlineCounter(int address)
         {
             if ((irq_address & 0x1000) < (address & 0x1000))
             {
@@ -181,7 +181,7 @@ namespace Beta.Famicom.Boards.Nintendo
             irq_address = address;
         }
 
-        public bool VRAM(ushort address, out int a10)
+        public bool VRAM(int address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;
