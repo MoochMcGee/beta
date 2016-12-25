@@ -424,14 +424,14 @@ namespace Beta.Platform.Processors
 
         private void Ret()
         {
-            Dispatch();
-
             if (code == 0xc9 || Flag())
             {
                 if (code != 0xc9) Dispatch();
                 registers.pcl = Read(registers.sp++);
                 registers.pch = Read(registers.sp++);
             }
+
+            Dispatch();
         }
 
         private void Reti()
