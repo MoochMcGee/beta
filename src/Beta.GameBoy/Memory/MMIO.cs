@@ -1,4 +1,6 @@
 ﻿using Beta.GameBoy.APU;
+using Beta.GameBoy.Messaging;
+using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy.Memory
 {
@@ -9,12 +11,14 @@ namespace Beta.GameBoy.Memory
         private readonly Wave wave;
 
         private readonly ApuRegisters apu;
+        private readonly IProducer<ResetDividerSignal> resetDivider;
 
-        public MMIO(State state, HRAM hram, Wave wave)
+        public MMIO(State state, HRAM hram, Wave wave, IProducer<ResetDividerSignal> resetDivider)
         {
             this.state = state;
             this.hram = hram;
             this.wave = wave;
+            this.resetDivider = resetDivider;
 
             this.apu = new ApuRegisters(state);
         }
@@ -41,10 +45,10 @@ namespace Beta.GameBoy.Memory
                 if (state.pad.p14) return state.pad.p14_latch;
                 return 0xff;
 
-            case 0xff04: return state.tma.divider;
-            case 0xff05: return state.tma.counter;
-            case 0xff06: return state.tma.modulus;
-            case 0xff07: return state.tma.control;
+            case 0xff04: return (byte)(state.tma.divider);
+            case 0xff05: return (byte)(state.tma.counter);
+            case 0xff06: return (byte)(state.tma.modulus);
+            case 0xff07: return (byte)(state.tma.control);
 
             case 0xff0f: return state.cpu.irf;
 
@@ -90,7 +94,7 @@ namespace Beta.GameBoy.Memory
                     state.pad.p14 = (data & 0x10) == 0;
                     break;
 
-                case 0xff04: state.tma.divider = 0x00; break;
+                case 0xff04: resetDivider.Produce(null); break;
                 case 0xff05: state.tma.counter = data; break;
                 case 0xff06: state.tma.modulus = data; break;
                 case 0xff07: state.tma.control = data; break;

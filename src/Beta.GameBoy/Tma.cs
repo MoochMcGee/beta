@@ -4,14 +4,16 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public sealed class Tma : IConsumer<ClockSignal>
+    public sealed class Tma
+        : IConsumer<ClockSignal>
+        , IConsumer<ResetDividerSignal>
     {
-        private static int[] lut = new[]
+        private static readonly int[] lut = new[]
         {
-            0x400, // (4,194,304 Hz / 1024) =   4,096 Hz
-            0x010, // (4,194,304 Hz /   16) = 262,144 Hz
-            0x040, // (4,194,304 Hz /   64) =  65,536 Hz
-            0x100  // (4,194,304 Hz /  256) =  16,384 Hz
+            9, //   4,096 Hz
+            3, // 262,144 Hz
+            5, //  65,536 Hz
+            7  //  16,384 Hz
         };
 
         private readonly IProducer<InterruptSignal> ints;
@@ -21,9 +23,6 @@ namespace Beta.GameBoy
         {
             this.ints = ints;
             this.regs = regs.tma;
-
-            this.regs.divider_prescaler = lut[3];
-            this.regs.counter_prescaler = lut[0];
         }
 
         public void Consume(ClockSignal e)
@@ -34,32 +33,43 @@ namespace Beta.GameBoy
             }
         }
 
+        public void Consume(ResetDividerSignal e)
+        {
+            WriteDivider(0);
+        }
+
         private void Tick()
         {
-            regs.divider_prescaler--;
+            WriteDivider(regs.divider + 1);
+        }
 
-            if (regs.divider_prescaler == 0)
+        private void WriteDivider(int next)
+        {
+            int prev = regs.divider;
+
+            if ((regs.control & 4) != 0)
             {
-                regs.divider_prescaler = lut[3];
-                regs.divider++;
+                int bit = lut[regs.control & 3];
+                int prev_bit = (prev >> bit) & 1;
+                int next_bit = (next >> bit) & 1;
+
+                if (prev_bit == 1 && next_bit == 0)
+                {
+                    TickCounter();
+                }
             }
 
-            regs.counter_prescaler--;
+            regs.divider = next;
+        }
 
-            if (regs.counter_prescaler == 0)
+        private void TickCounter()
+        {
+            regs.counter++;
+
+            if (regs.counter == 0)
             {
-                regs.counter_prescaler = lut[regs.control & 3];
-
-                if ((regs.control & 4) != 0)
-                {
-                    regs.counter++;
-
-                    if (regs.counter == 0)
-                    {
-                        regs.counter = regs.modulus;
-                        ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
-                    }
-                }
+                regs.counter = regs.modulus;
+                ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
             }
         }
     }

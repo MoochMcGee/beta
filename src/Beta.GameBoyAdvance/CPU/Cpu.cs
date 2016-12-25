@@ -1,5 +1,4 @@
-﻿using System;
-using Beta.GameBoyAdvance.Memory;
+﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors;

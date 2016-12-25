@@ -1,6 +1,7 @@
 ﻿using Beta.GameBoy.APU;
 using Beta.GameBoy.CPU;
 using Beta.GameBoy.Memory;
+using Beta.GameBoy.Messaging;
 using Beta.GameBoy.PPU;
 using Beta.Platform.Core;
 using Beta.Platform.Messaging;
@@ -22,7 +23,8 @@ namespace Beta.GameBoy
             broker.Link(cpu);
             broker.Link(pad);
             broker.Link(ppu);
-            broker.Link(tma);
+            broker.Link<ClockSignal>(tma);
+            broker.Link<ResetDividerSignal>(tma);
         }
 
         public IDriver Create(byte[] binary)

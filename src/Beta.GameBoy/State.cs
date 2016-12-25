@@ -55,12 +55,9 @@ namespace Beta.GameBoy
 
     public sealed class TmaState
     {
-        public byte divider;
-        public byte counter;
-        public byte control;
-        public byte modulus;
-
-        public int divider_prescaler;
-        public int counter_prescaler;
+        public int divider;
+        public int counter;
+        public int control;
+        public int modulus;
     }
 }
