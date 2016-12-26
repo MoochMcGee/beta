@@ -64,7 +64,7 @@ namespace Beta.GameBoy
 
         private void TickCounter()
         {
-            regs.counter++;
+            regs.counter = (regs.counter + 1) & 0xff;
 
             if (regs.counter == 0)
             {
