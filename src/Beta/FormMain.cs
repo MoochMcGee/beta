@@ -128,6 +128,13 @@ namespace Beta
 
         private void StartEmulation()
         {
+            if (driverThread != null)
+            {
+                driverThread.Abort();
+                driverThread.Join();
+                driverThread = null;
+            }
+
             driverThread = new Thread(driver.Main);
             driverThread.Start();
 
