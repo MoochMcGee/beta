@@ -10,12 +10,12 @@ namespace Beta.GameBoyAdvance
 {
     public partial class Driver : IDriver
     {
-        private readonly IMemoryMap memory;
-        private readonly IProducer<AddClockSignal> clock;
+        private readonly MemoryMap memory;
         private readonly Apu apu;
         private readonly Cpu cpu;
         private readonly Pad pad;
         private readonly Ppu ppu;
+        private readonly IProducer<AddClockSignal> clock;
 
         public Driver(
             DmaController dma,
@@ -24,7 +24,7 @@ namespace Beta.GameBoyAdvance
             Cpu cpu,
             Pad pad,
             Ppu ppu,
-            IMemoryMap memory,
+            MemoryMap memory,
             IProducer<AddClockSignal> clock,
             ISignalBroker broker)
         {

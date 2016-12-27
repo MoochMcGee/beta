@@ -1,6 +1,6 @@
-﻿using Beta.Platform;
-using Beta.Platform.Core;
+﻿using Beta.Platform.Core;
 using Beta.Platform.Exceptions;
+using half = System.UInt16;
 using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
@@ -14,7 +14,6 @@ namespace Beta.GameBoyAdvance.Memory
 
         private Reader[] readers = new Reader[SIZE];
         private Writer[] writers = new Writer[SIZE];
-        private Register32 latch;
         private byte[] ioMemory = new byte[1024];
 
         public MMIO(Registers regs)
@@ -57,12 +56,12 @@ namespace Beta.GameBoyAdvance.Memory
                 return 0;
             }
 
-            address = (address & 0x3ff);
+            address = address & MASK;
 
-            latch.ub0 = readers[address | 0](address | 0); if (size == 0) return latch.ub0;
-            latch.ub1 = readers[address | 1](address | 1); if (size == 1) return latch.uw0;
-            latch.ub2 = readers[address | 2](address | 2);
-            latch.ub3 = readers[address | 3](address | 3); if (size == 2) return latch.ud0;
+            var b0 = readers[address | 0](address | 0); if (size == 0) return b0;
+            var b1 = readers[address | 1](address | 1); if (size == 1) return (half)((b1 << 8) | b0);
+            var b2 = readers[address | 2](address | 2);
+            var b3 = readers[address | 3](address | 3); if (size == 2) return (word)((b3 << 24) | (b2 << 16) | (b1 << 8) | b0);
 
             throw new CompilerPleasingException();
         }
@@ -112,72 +111,76 @@ namespace Beta.GameBoyAdvance.Memory
 
         private byte Read130(uint address)
         {
-            return regs.pad.data.l;
+            return (byte)(regs.pad.data >> 0);
         }
 
         private byte Read131(uint address)
         {
-            return regs.pad.data.h;
+            return (byte)(regs.pad.data >> 8);
         }
 
         private byte Read132(uint address)
         {
-            return regs.pad.mask.l;
+            return (byte)(regs.pad.mask >> 0);
         }
 
         private byte Read133(uint address)
         {
-            return regs.pad.mask.h;
+            return (byte)(regs.pad.mask >> 8);
         }
 
         private void Write132(uint address, byte data)
         {
-            regs.pad.mask.l = data;
+            regs.pad.mask &= 0xff00;
+            regs.pad.mask |= data;
         }
 
         private void Write133(uint address, byte data)
         {
-            regs.pad.mask.h = data;
+            regs.pad.mask &= 0x00ff;
+            regs.pad.mask |= (half)(data << 8);
         }
 
         private byte Read200(uint address)
         {
-            return regs.cpu.ief.l;
+            return (byte)(regs.cpu.ief >> 0);
         }
 
         private byte Read201(uint address)
         {
-            return regs.cpu.ief.h;
+            return (byte)(regs.cpu.ief >> 8);
         }
 
         private byte Read202(uint address)
         {
-            return regs.cpu.irf.l;
+            return (byte)(regs.cpu.irf >> 0);
         }
 
         private byte Read203(uint address)
         {
-            return regs.cpu.irf.h;
+            return (byte)(regs.cpu.irf >> 8);
         }
 
         private void Write200(uint address, byte data)
         {
-            regs.cpu.ief.l = data;
+            regs.cpu.ief &= 0xff00;
+            regs.cpu.ief |= data;
         }
 
         private void Write201(uint address, byte data)
         {
-            regs.cpu.ief.h = data;
+            regs.cpu.ief &= 0x00ff;
+            regs.cpu.ief |= (half)(data << 8);
         }
 
         private void Write202(uint address, byte data)
         {
-            regs.cpu.irf.l &= (byte)~data;
+            regs.cpu.irf &= (half)~(data << 0);
         }
 
         private void Write203(uint address, byte data)
         {
-            regs.cpu.irf.h &= (byte)~data;
+            regs.cpu.irf &= (half)~(data << 8);
         }
 
         private byte Read208(uint address)

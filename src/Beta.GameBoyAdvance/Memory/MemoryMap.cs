@@ -7,7 +7,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class MemoryMap : IMemoryMap
+    public sealed class MemoryMap
     {
         private static int[][] timingTable = new[]
         {

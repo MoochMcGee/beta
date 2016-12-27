@@ -1,5 +1,4 @@
 ﻿using Beta.GameBoyAdvance.Memory;
-using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.PPU
 {
@@ -10,18 +9,17 @@ namespace Beta.GameBoyAdvance.PPU
 
         private readonly MMIO mmio;
 
-        private Register16 controlRegister;
-        private Register16 offsetXRegister;
-        private Register16 offsetYRegister;
+        private ushort controlRegister;
+        private ushort offsetXRegister;
+        private ushort offsetYRegister;
 
         // Affine Registers (Bg2, Bg3)
-        private Register16 paRegister;
-
-        private Register16 pbRegister;
-        private Register16 pcRegister;
-        private Register16 pdRegister;
-        private Register32 rxRegister;
-        private Register32 ryRegister;
+        private ushort paRegister;
+        private ushort pbRegister;
+        private ushort pcRegister;
+        private ushort pdRegister;
+        private uint rxRegister;
+        private uint ryRegister;
         private bool mosaic;
 
         public bool Depth;
@@ -33,12 +31,12 @@ namespace Beta.GameBoyAdvance.PPU
         public int Rx;
         public int Ry;
 
-        public short Scx { get { return (short)(offsetXRegister.w & 0x1ff); } }
-        public short Scy { get { return (short)(offsetYRegister.w & 0x1ff); } }
-        public short Dx { get { return (short)paRegister.w; } }
-        public short Dmx { get { return (short)pbRegister.w; } }
-        public short Dy { get { return (short)pcRegister.w; } }
-        public short Dmy { get { return (short)pdRegister.w; } }
+        public short Scx { get { return (short)(offsetXRegister & 0x1ff); } }
+        public short Scy { get { return (short)(offsetYRegister & 0x1ff); } }
+        public short Dx { get { return (short)paRegister; } }
+        public short Dmx { get { return (short)pbRegister; } }
+        public short Dy { get { return (short)pcRegister; } }
+        public short Dmy { get { return (short)pdRegister; } }
 
         public Bg(MMIO mmio)
         {
@@ -49,132 +47,156 @@ namespace Beta.GameBoyAdvance.PPU
 
         private byte ReadControl_0(uint address)
         {
-            return controlRegister.l;
+            return (byte)(controlRegister >> 0);
         }
 
         private byte ReadControl_1(uint address)
         {
-            return controlRegister.h;
+            return (byte)(controlRegister >> 8);
         }
 
         private void WriteControl_0(uint address, byte data)
         {
-            controlRegister.l = data &= 0xCF;
+            controlRegister &= 0xff00;
+            controlRegister |= (ushort)(data & 0xcf);
 
             Priority = (data & 0x03);
-            ChrBase = (data & 0x0C) >> 2;
+            ChrBase = (data & 0x0c) >> 2;
             mosaic = (data & 0x40) != 0;
             Depth = (data & 0x80) != 0;
         }
 
         private void WriteControl_1(uint address, byte data)
         {
-            controlRegister.h = data &= 0xFF;
+            controlRegister &= 0x00ff;
+            controlRegister |= (ushort)(data << 8);
 
-            NmtBase = (data & 0x1F);
+            NmtBase = (data & 0x1f);
             Wrap = (data & 0x20) != 0;
             Size = (data & 0xC0) >> 6;
         }
 
         private void WriteScrollX_0(uint address, byte data)
         {
-            offsetXRegister.l = data;
+            offsetXRegister &= 0x100;
+            offsetXRegister |= data;
         }
 
         private void WriteScrollX_1(uint address, byte data)
         {
-            offsetXRegister.h = data &= 0x01;
+            offsetXRegister &= 0x0ff;
+            offsetXRegister |= (ushort)((data << 8) & 0x100);
         }
 
         private void WriteScrollY_0(uint address, byte data)
         {
-            offsetYRegister.l = data;
+            offsetYRegister &= 0x100;
+            offsetYRegister |= data;
         }
 
         private void WriteScrollY_1(uint address, byte data)
         {
-            offsetYRegister.h = data &= 0x01;
+            offsetYRegister &= 0x0ff;
+            offsetYRegister |= (ushort)((data << 8) & 0x100);
         }
 
         // Affine Registers (Bg2, Bg3)
         private void WritePA_0(uint address, byte data)
         {
-            paRegister.l = data;
+            paRegister &= 0xff00;
+            paRegister |= data;
         }
 
         private void WritePA_1(uint address, byte data)
         {
-            paRegister.h = data;
+            paRegister &= 0x00ff;
+            paRegister |= (ushort)(data << 8);
         }
 
         private void WritePB_0(uint address, byte data)
         {
-            pbRegister.l = data;
+            pbRegister &= 0xff00;
+            pbRegister |= data;
         }
 
         private void WritePB_1(uint address, byte data)
         {
-            pbRegister.h = data;
+            pbRegister &= 0x00ff;
+            pbRegister |= (ushort)(data << 8);
         }
 
         private void WritePC_0(uint address, byte data)
         {
-            pcRegister.l = data;
+            pcRegister &= 0xff00;
+            pcRegister |= data;
         }
 
         private void WritePC_1(uint address, byte data)
         {
-            pcRegister.h = data;
+            pcRegister &= 0x00ff;
+            pcRegister |= (ushort)(data << 8);
         }
 
         private void WritePD_0(uint address, byte data)
         {
-            pdRegister.l = data;
+            pdRegister &= 0xff00;
+            pdRegister |= data;
         }
 
         private void WritePD_1(uint address, byte data)
         {
-            pdRegister.h = data;
+            pdRegister &= 0x00ff;
+            pdRegister |= (ushort)(data << 8);
         }
 
         private void WriteRX_0(uint address, byte data)
         {
-            rxRegister.ub0 = data;
+            rxRegister &= 0xffffff00;
+            rxRegister |= data;
         }
 
         private void WriteRX_1(uint address, byte data)
         {
-            rxRegister.ub1 = data;
+            rxRegister &= 0xffff00ff;
+            rxRegister |= (uint)(data << 8);
         }
 
         private void WriteRX_2(uint address, byte data)
         {
-            rxRegister.ub2 = data;
+            rxRegister &= 0xff00ffff;
+            rxRegister |= (uint)(data << 16);
         }
 
         private void WriteRX_3(uint address, byte data)
         {
-            rxRegister.ub3 = data; Rx = (int)rxRegister.ud0;
+            rxRegister &= 0x00ffffff;
+            rxRegister |= (uint)(data << 24);
+            Rx = (int)rxRegister;
         }
 
         private void WriteRY_0(uint address, byte data)
         {
-            ryRegister.ub0 = data;
+            ryRegister &= 0xffffff00;
+            ryRegister |= data;
         }
 
         private void WriteRY_1(uint address, byte data)
         {
-            ryRegister.ub1 = data;
+            ryRegister &= 0xffff00ff;
+            ryRegister |= (uint)(data << 8);
         }
 
         private void WriteRY_2(uint address, byte data)
         {
-            ryRegister.ub2 = data;
+            ryRegister &= 0xff00ffff;
+            ryRegister |= (uint)(data << 16);
         }
 
         private void WriteRY_3(uint address, byte data)
         {
-            ryRegister.ub3 = data; Ry = (int)ryRegister.ud0;
+            ryRegister &= 0x00ffffff;
+            ryRegister |= (uint)(data << 24);
+            Ry = (int)ryRegister;
         }
 
         #endregion
@@ -219,8 +241,8 @@ namespace Beta.GameBoyAdvance.PPU
 
         public void ResetAffine()
         {
-            Rx = (int)rxRegister.ud0;
-            Ry = (int)ryRegister.ud0;
+            Rx = (int)rxRegister;
+            Ry = (int)ryRegister;
         }
     }
 }

@@ -7,13 +7,13 @@ namespace Beta.GameBoyAdvance.CPU
 {
     public class Cpu : Arm7, IConsumer<InterruptSignal>, IConsumer<AddClockSignal>
     {
-        private readonly IMemoryMap memory;
-        private readonly IProducer<ClockSignal> clock;
+        private readonly MemoryMap memory;
         private readonly DmaController dma;
         private readonly CpuRegisters regs;
         private readonly TimerController timer;
+        private readonly IProducer<ClockSignal> clock;
 
-        public Cpu(Registers regs, IMemoryMap memory, DmaController dma, TimerController timer, IProducer<ClockSignal> clock)
+        public Cpu(Registers regs, MemoryMap memory, DmaController dma, TimerController timer, IProducer<ClockSignal> clock)
         {
             this.regs = regs.cpu;
             this.memory = memory;
@@ -60,14 +60,14 @@ namespace Beta.GameBoyAdvance.CPU
 
         public override void Update()
         {
-            interrupt = ((regs.ief.w & regs.irf.w) != 0) && regs.ime;
+            interrupt = ((regs.ief & regs.irf) != 0) && regs.ime;
 
             base.Update();
         }
 
         public void Consume(InterruptSignal e)
         {
-            regs.irf.w |= e.Flag;
+            regs.irf |= e.Flag;
         }
 
         public void Consume(AddClockSignal e)

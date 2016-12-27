@@ -1,6 +1,5 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
-using Beta.Platform;
 using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
@@ -17,16 +16,16 @@ namespace Beta.GameBoyAdvance
             1U, ~0U, 0U, 1U
         };
 
-        private readonly IMemoryMap memory;
-        private readonly IProducer<InterruptSignal> interrupt;
+        private readonly MemoryMap memory;
         private readonly MMIO mmio;
+        private readonly IProducer<InterruptSignal> interrupt;
 
         private ushort interruptType;
 
-        private Register16 controlRegister;
-        private Register16 lengthRegister;
-        private Register32 sourceRegister;
-        private Register32 targetRegister;
+        private ushort controlRegister;
+        private ushort lengthRegister;
+        private uint sourceRegister;
+        private uint targetRegister;
         private ushort length;
         private uint target;
         private uint targetStep;
@@ -37,10 +36,10 @@ namespace Beta.GameBoyAdvance
 
         public bool Pending;
 
-        public bool Enabled { get { return (controlRegister.w & 0x8000u) != 0; } }
-        public uint Type { get { return (controlRegister.w & 0x3000u); } }
+        public bool Enabled { get { return (controlRegister & 0x8000u) != 0; } }
+        public uint Type { get { return (controlRegister & 0x3000u); } }
 
-        public Dma(IMemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
+        public Dma(MemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
         {
             this.memory = memory;
             this.mmio = mmio;
@@ -68,81 +67,96 @@ namespace Beta.GameBoyAdvance
 
         private byte ReadControl_0(uint address)
         {
-            return controlRegister.l;
+            return (byte)(controlRegister >> 0);
         }
 
         private byte ReadControl_1(uint address)
         {
-            return controlRegister.h;
+            return (byte)(controlRegister >> 8);
         }
 
         private void WriteControl_0(uint address, byte data)
         {
-            controlRegister.l = data;
+            controlRegister &= 0xff00;
+            controlRegister |= data;
         }
 
         private void WriteControl_1(uint address, byte data)
         {
-            if (controlRegister.h < (data & 0x80))
+            int prev = (controlRegister >> 8) & 0x80;
+            int next = (data >> 0) & 0x80;
+
+            if (prev < next)
             {
-                length = lengthRegister.w;
-                target = targetRegister.ud0;
-                source = sourceRegister.ud0;
+                length = lengthRegister;
+                target = targetRegister;
+                source = sourceRegister;
 
                 if ((data & 0x30) == 0x00) Pending = true;
             }
 
-            controlRegister.h = data;
+            controlRegister &= 0x00ff;
+            controlRegister |= (ushort)(data << 8);
         }
 
         private void WriteCounter_0(uint address, byte data)
         {
-            lengthRegister.l = data;
+            lengthRegister &= 0xff00;
+            lengthRegister |= data;
         }
 
         private void WriteCounter_1(uint address, byte data)
         {
-            lengthRegister.h = data;
+            lengthRegister &= 0x00ff;
+            lengthRegister |= (ushort)(data << 8);
         }
 
         private void WriteDstAddr_0(uint address, byte data)
         {
-            targetRegister.ub0 = data;
+            targetRegister &= 0xffffff00;
+            targetRegister |= data;
         }
 
         private void WriteDstAddr_1(uint address, byte data)
         {
-            targetRegister.ub1 = data;
+            targetRegister &= 0xffff00ff;
+            targetRegister |= (uint)(data << 8);
         }
 
         private void WriteDstAddr_2(uint address, byte data)
         {
-            targetRegister.ub2 = data;
+            targetRegister &= 0xff00ffff;
+            targetRegister |= (uint)(data << 16);
         }
 
         private void WriteDstAddr_3(uint address, byte data)
         {
-            targetRegister.ub3 = data;
+            targetRegister &= 0x00ffffff;
+            targetRegister |= (uint)(data << 24);
         }
 
         private void WriteSrcAddr_0(uint address, byte data)
         {
-            sourceRegister.ub0 = data;
+            sourceRegister &= 0xffffff00;
+            sourceRegister |= data;
         }
 
         private void WriteSrcAddr_1(uint address, byte data)
         {
-            sourceRegister.ub1 = data;
+            sourceRegister &= 0xffff00ff;
+            sourceRegister |= (uint)(data << 8);
         }
 
         private void WriteSrcAddr_2(uint address, byte data)
         {
-            sourceRegister.ub2 = data;
+            sourceRegister &= 0xff00ffff;
+            sourceRegister |= (uint)(data << 16);
         }
 
         private void WriteSrcAddr_3(uint address, byte data)
         {
-            sourceRegister.ub3 = data;
+            sourceRegister &= 0x00ffffff;
+            sourceRegister |= (uint)(data << 24);
         }
 
         #endregion
@@ -165,11 +179,11 @@ namespace Beta.GameBoyAdvance
 
         public void Transfer()
         {
-            targetStep = stepLut[(controlRegister.w >> 5) & 3u];
-            sourceStep = stepLut[(controlRegister.w >> 7) & 3u];
+            targetStep = stepLut[(controlRegister >> 5) & 3u];
+            sourceStep = stepLut[(controlRegister >> 7) & 3u];
 
-            var count = (lengthRegister.w);
-            var width = (controlRegister.w & 0x0400) != 0 ? 2 : 1;
+            var count = (lengthRegister);
+            var width = (controlRegister & 0x0400) != 0 ? 2 : 1;
 
             if (Type == SPECIAL)
             {
@@ -180,11 +194,11 @@ namespace Beta.GameBoyAdvance
 
             Transfer(width, count);
 
-            if ((controlRegister.w & 0x0060) == 0x0060) { target = targetRegister.ud0; }
-            if ((controlRegister.w & 0x0200) == 0x0000) { controlRegister.w &= 0x7fff; }
-            if ((controlRegister.w & 0x0200) == 0x0200) { length = controlRegister.w; }
+            if ((controlRegister & 0x0060) == 0x0060) { target = targetRegister; }
+            if ((controlRegister & 0x0200) == 0x0000) { controlRegister &= 0x7fff; }
+            if ((controlRegister & 0x0200) == 0x0200) { length = controlRegister; }
 
-            if ((controlRegister.w & 0x4000) != 0)
+            if ((controlRegister & 0x4000) != 0)
             {
                 interrupt.Produce(new InterruptSignal(interruptType));
             }

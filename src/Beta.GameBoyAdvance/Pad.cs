@@ -30,22 +30,22 @@ namespace Beta.GameBoyAdvance
         {
             base.Update();
 
-            regs.data.w = 0;
+            regs.data = 0;
 
-            if (Pressed(0)) regs.data.w |= 0x0001;
-            if (Pressed(1)) regs.data.w |= 0x0002;
-            if (Pressed(2)) regs.data.w |= 0x0004;
-            if (Pressed(3)) regs.data.w |= 0x0008;
-            if (Pressed(4)) regs.data.w |= 0x0010;
-            if (Pressed(5)) regs.data.w |= 0x0020;
-            if (Pressed(6)) regs.data.w |= 0x0040;
-            if (Pressed(7)) regs.data.w |= 0x0080;
-            if (Pressed(8)) regs.data.w |= 0x0100;
-            if (Pressed(9)) regs.data.w |= 0x0200;
+            if (Pressed(0)) regs.data |= 0x0001;
+            if (Pressed(1)) regs.data |= 0x0002;
+            if (Pressed(2)) regs.data |= 0x0004;
+            if (Pressed(3)) regs.data |= 0x0008;
+            if (Pressed(4)) regs.data |= 0x0010;
+            if (Pressed(5)) regs.data |= 0x0020;
+            if (Pressed(6)) regs.data |= 0x0040;
+            if (Pressed(7)) regs.data |= 0x0080;
+            if (Pressed(8)) regs.data |= 0x0100;
+            if (Pressed(9)) regs.data |= 0x0200;
 
-            if ((regs.mask.w & 0x4000) != 0)
+            if ((regs.mask & 0x4000) != 0)
             {
-                if ((regs.mask.w & 0x8000) != 0)
+                if ((regs.mask & 0x8000) != 0)
                 {
                     // if ((data.w & mask.w) != 0)
                     // {
@@ -61,7 +61,7 @@ namespace Beta.GameBoyAdvance
                 }
             }
 
-            regs.data.w ^= 0x3ff;
+            regs.data ^= 0x3ff;
         }
     }
 }

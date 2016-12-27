@@ -14,7 +14,7 @@ namespace Beta.GameBoyAdvance
         {
             container.RegisterSingleton<IDriver, Driver>();
             container.RegisterSingleton<IDriverFactory, DriverFactory>();
-            container.RegisterSingleton<IMemoryMap, MemoryMap>();
+            container.RegisterSingleton<MemoryMap>();
 
             container.RegisterSingleton<DmaController>();
             container.RegisterSingleton<TimerController>();

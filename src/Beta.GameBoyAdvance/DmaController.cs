@@ -11,7 +11,7 @@ namespace Beta.GameBoyAdvance
     {
         public Dma[] Channels;
 
-        public DmaController(IMemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt)
+        public DmaController(MemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt)
         {
             Channels = new[]
             {

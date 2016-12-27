@@ -1,6 +1,4 @@
-﻿using Beta.Platform;
-
-namespace Beta.GameBoyAdvance.Memory
+﻿namespace Beta.GameBoyAdvance.Memory
 {
     public sealed class Registers
     {
@@ -10,14 +8,14 @@ namespace Beta.GameBoyAdvance.Memory
 
     public sealed class CpuRegisters
     {
-        public Register16 ief;
-        public Register16 irf;
+        public ushort ief;
+        public ushort irf;
         public bool ime;
     }
 
     public sealed class PadRegisters
     {
-        public Register16 data;
-        public Register16 mask;
+        public ushort data;
+        public ushort mask;
     }
 }

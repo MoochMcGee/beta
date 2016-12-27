@@ -28,7 +28,6 @@ namespace Beta.GameBoyAdvance
         private readonly IProducer<AddClockSignal> clock;
         private readonly byte[] binary;
 
-        private Register32 latch;
         private half[] buffer;
         private word counter;
         private word mask;
@@ -96,10 +95,10 @@ namespace Beta.GameBoyAdvance
 
         private word ReadRomWord(word address)
         {
-            latch.uw0 = ReadRomHalf(address & ~2u);
-            latch.uw1 = ReadRomHalf(address | 2u);
+            var lower = ReadRomHalf(address & ~2u);
+            var upper = ReadRomHalf(address | 2u);
 
-            return latch.ud0;
+            return (word)((upper << 16) | lower);
         }
 
         public word ReadRam(int size, word address)
