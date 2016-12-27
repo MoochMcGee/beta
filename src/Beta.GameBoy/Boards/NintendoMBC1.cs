@@ -28,6 +28,11 @@
             }
         }
 
+        private byte Read_A000_BFFF(ushort address)
+        {
+            return Ram[((address & 0x1fff) | ramPage) & RamMask];
+        }
+
         private void Write_0000_1FFF(ushort address, byte data)
         {
         }
@@ -52,19 +57,26 @@
             romMode = (data & 0x01) == 0;
         }
 
+        private void Write_A000_BFFF(ushort address, byte data)
+        {
+            Ram[((address & 0x1fff) | ramPage) & RamMask] = data;
+        }
+
         public override byte Read(ushort address)
         {
-            if (address >= 0x0000 && address <= 0x3FFF) return Read_0000_3FFF(address);
-            if (address >= 0x4000 && address <= 0x7FFF) return Read_4000_7FFF(address);
+            if (address >= 0x0000 && address <= 0x3fff) return Read_0000_3FFF(address);
+            if (address >= 0x4000 && address <= 0x7fff) return Read_4000_7FFF(address);
+            if (address >= 0xa000 && address <= 0xbfff) return Read_A000_BFFF(address);
             return 0xff;
         }
 
         public override void Write(ushort address, byte data)
         {
-            if (address >= 0x0000 && address <= 0x1FFF) Write_0000_1FFF(address, data);
-            if (address >= 0x2000 && address <= 0x3FFF) Write_2000_3FFF(address, data);
-            if (address >= 0x4000 && address <= 0x5FFF) Write_4000_5FFF(address, data);
-            if (address >= 0x6000 && address <= 0x7FFF) Write_6000_7FFF(address, data);
+            if (address >= 0x0000 && address <= 0x1fff) Write_0000_1FFF(address, data);
+            if (address >= 0x2000 && address <= 0x3fff) Write_2000_3FFF(address, data);
+            if (address >= 0x4000 && address <= 0x5fff) Write_4000_5FFF(address, data);
+            if (address >= 0x6000 && address <= 0x7fff) Write_6000_7FFF(address, data);
+            if (address >= 0xa000 && address <= 0xbfff) Write_A000_BFFF(address, data);
         }
     }
 }

@@ -26,10 +26,10 @@ namespace Beta.GameBoy.PPU
 
         private static readonly int[] shadeTable = new[]
         {
-            ColorHelper.FromRGB(196, 207, 161),
-            ColorHelper.FromRGB(139, 149, 109),
-            ColorHelper.FromRGB( 77,  83,  60),
-            ColorHelper.FromRGB( 31,  31,  31)
+            ColorHelper.FromRGB(224, 248, 208),
+            ColorHelper.FromRGB(136, 192, 112),
+            ColorHelper.FromRGB( 48, 104,  80),
+            ColorHelper.FromRGB(  8,  24,  32)
         };
 
         private readonly PpuState regs;
