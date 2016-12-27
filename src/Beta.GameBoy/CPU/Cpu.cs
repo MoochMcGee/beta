@@ -22,8 +22,6 @@ namespace Beta.GameBoy.CPU
             this.cpu = state.cpu;
             this.memory = memory;
             this.clock = clock;
-
-            Single = 4;
         }
 
         protected override void Dispatch()
@@ -34,7 +32,7 @@ namespace Beta.GameBoy.CPU
                 interrupt.ff1 = 1;
             }
 
-            clock.Produce(new ClockSignal(Single));
+            clock.Produce(new ClockSignal(4));
         }
 
         protected override byte Read(ushort address)

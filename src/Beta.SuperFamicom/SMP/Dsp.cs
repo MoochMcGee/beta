@@ -3,7 +3,7 @@ using Beta.Platform.Core;
 
 namespace Beta.SuperFamicom.SMP
 {
-    public sealed class Dsp : Processor
+    public sealed class Dsp
     {
         private const int MVOLL = 0x0c;
         private const int MVOLR = 0x1c;
@@ -119,12 +119,11 @@ namespace Beta.SuperFamicom.SMP
         private State state = new State();
         private Voice[] voice = new Voice[8];
 
+        private int cycles;
         private int step;
 
         public Dsp(IAudioBackend audio, PSRAM psram)
         {
-            Single = 1;
-
             this.audio = audio;
             this.psram = psram;
 
@@ -176,7 +175,7 @@ namespace Beta.SuperFamicom.SMP
             }
         }
 
-        public override void Update()
+        public void Update()
         {
             switch (step)
             {
@@ -215,6 +214,14 @@ namespace Beta.SuperFamicom.SMP
             }
 
             step = (step + 1) & 0x1f;
+        }
+
+        public void Update(int cycles)
+        {
+            for (this.cycles += cycles; this.cycles >= 1; this.cycles -= 1)
+            {
+                Update();
+            }
         }
 
         private int gaussian_interpolate(Voice v)

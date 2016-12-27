@@ -5,7 +5,7 @@ using half = System.UInt16;
 
 namespace Beta.Platform.Processors
 {
-    public abstract class Arm7 : Processor
+    public abstract class Arm7
     {
         private Action[] armv4Codes;
         private Action[] thumbCodes;
@@ -29,6 +29,7 @@ namespace Beta.Platform.Processors
         private Register[] registers = new Register[16];
         private uint code;
 
+        public int cycles;
         public bool halt;
         public bool interrupt;
 
@@ -218,7 +219,7 @@ namespace Beta.Platform.Processors
 
         private uint Mul(uint a, uint b, uint c)
         {
-            Cycles += MultiplierCycles(b);
+            cycles += MultiplierCycles(b);
 
             a += b * c;
 
@@ -1198,7 +1199,7 @@ namespace Beta.Platform.Processors
 
             registers[rd].value = LoadWord((pc.value & ~2u) + (code & 0xFF) * 4);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStrReg()
@@ -1225,28 +1226,28 @@ namespace Beta.Platform.Processors
                 registers[code & 0x7].value |= 0xFFFFFF00;
             }
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpLdrReg()
         {
             registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpLdrhReg()
         {
             registers[code & 0x7].value = Read(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpLdrbReg()
         {
             registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpLdrshReg()
@@ -1258,7 +1259,7 @@ namespace Beta.Platform.Processors
                 registers[code & 0x7].value |= 0xFFFF0000;
             }
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStrImm()
@@ -1270,7 +1271,7 @@ namespace Beta.Platform.Processors
         {
             registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStrbImm()
@@ -1282,7 +1283,7 @@ namespace Beta.Platform.Processors
         {
             registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F));
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStrhImm()
@@ -1294,7 +1295,7 @@ namespace Beta.Platform.Processors
         {
             registers[code & 7].value = Read(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1f) * 2);
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStrSp()
@@ -1361,7 +1362,7 @@ namespace Beta.Platform.Processors
                 pipeline.refresh = true;
             }
 
-            Cycles++;
+            cycles++;
         }
 
         private void ThumbOpStmia()
@@ -1449,11 +1450,11 @@ namespace Beta.Platform.Processors
             ThumbInitialize();
         }
 
-        public override void Update()
+        public virtual void Update()
         {
             if (halt)
             {
-                Cycles += 1;
+                cycles += 1;
             }
             else
             {
@@ -1462,7 +1463,7 @@ namespace Beta.Platform.Processors
             }
 
             Dispatch();
-            Cycles = 0;
+            cycles = 0;
         }
 
         public uint GetProgramCursor()

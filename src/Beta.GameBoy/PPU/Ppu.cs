@@ -8,7 +8,7 @@ using Beta.Platform.Video;
 
 namespace Beta.GameBoy.PPU
 {
-    public sealed class Ppu : Processor, IConsumer<ClockSignal>
+    public sealed class Ppu : IConsumer<ClockSignal>
     {
         private const int PRIORITY_CLR = 0;
         private const int PRIORITY_BKG = 1;
@@ -53,8 +53,6 @@ namespace Beta.GameBoy.PPU
             this.frame = frame;
             this.interrupt = interrupt;
             this.video = video;
-
-            Single = 1;
         }
 
         private void ChangeSequence(int sequence)
@@ -282,10 +280,13 @@ namespace Beta.GameBoy.PPU
 
         public void Consume(ClockSignal e)
         {
-            Update(e.Cycles);
+            for (int i = 0; i < e.Cycles; i++)
+            {
+                Update();
+            }
         }
 
-        public override void Update()
+        public void Update()
         {
             if (regs.dma_trigger)
             {

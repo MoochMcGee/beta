@@ -26,7 +26,7 @@ namespace Beta.GameBoyAdvance.CPU
         {
             dma.Transfer();
 
-            clock.Produce(new ClockSignal(Cycles));
+            clock.Produce(new ClockSignal(cycles));
         }
 
         protected override uint Read(int size, uint address)
@@ -72,7 +72,7 @@ namespace Beta.GameBoyAdvance.CPU
 
         public void Consume(AddClockSignal e)
         {
-            Cycles += e.Cycles;
+            cycles += e.Cycles;
         }
 
         public static class Source

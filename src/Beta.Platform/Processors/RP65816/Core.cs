@@ -3,7 +3,7 @@ using Beta.Platform.Core;
 
 namespace Beta.Platform.Processors.RP65816
 {
-    public abstract partial class Core : Processor
+    public abstract partial class Core
     {
         private Registers regs;
         private Status p;
@@ -28,7 +28,7 @@ namespace Beta.Platform.Processors.RP65816
             p.i = true;
         }
 
-        public override void Update()
+        public virtual void Update()
         {
             switch (code = Read(regs.pcb, regs.pc++))
             {

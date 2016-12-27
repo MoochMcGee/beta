@@ -6,7 +6,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance.APU
 {
-    public partial class Apu : Processor, IConsumer<ClockSignal>
+    public partial class Apu : IConsumer<ClockSignal>
     {
         private readonly IAudioBackend audio;
         private readonly DmaController dma;
@@ -34,7 +34,6 @@ namespace Beta.GameBoyAdvance.APU
             this.dma = dma;
             this.audio = audio;
             this.mmio = mmio;
-            Single = 1;
 
             courseTiming.Period = 16777216 / 512;
             courseTiming.Single = 1;
@@ -269,7 +268,7 @@ namespace Beta.GameBoyAdvance.APU
             DirectSound2.Initialize(dma.Channels[2], 0x0a4);
         }
 
-        public override void Update(int cycles)
+        public void Update(int cycles)
         {
             courseTiming.Cycles += cycles * courseTiming.Single;
 

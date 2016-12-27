@@ -91,7 +91,6 @@
     <Compile Include="Core\IPowerButton.cs" />
     <Compile Include="Core\IProcessor.cs" />
     <Compile Include="Core\IResetButton.cs" />
-    <Compile Include="Core\Processor.cs" />
     <Compile Include="Exceptions\CompilerPleasingException.cs" />
     <Compile Include="Exceptions\ProcessorJammedException.cs" />
     <Compile Include="FileExtension.cs" />

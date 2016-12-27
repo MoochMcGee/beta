@@ -9,7 +9,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.PPU
 {
-    public partial class Ppu : Processor, IConsumer<ClockSignal>
+    public partial class Ppu : IConsumer<ClockSignal>
     {
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<InterruptSignal> interrupt;
@@ -43,6 +43,7 @@ namespace Beta.GameBoyAdvance.PPU
         private ushort hclock;
         private ushort vclock;
         private int bgMode;
+        private int cycles;
 
         static Ppu()
         {
@@ -84,8 +85,6 @@ namespace Beta.GameBoyAdvance.PPU
             this.pram = pram;
             this.vram = vram;
             this.video = video;
-
-            Single = 4;
 
             bg0 = new Bg(mmio);
             bg1 = new Bg(mmio);
@@ -413,7 +412,7 @@ namespace Beta.GameBoyAdvance.PPU
 
         #endregion
 
-        public override void Update()
+        public void Update()
         {
             UpdateHClock();
 
@@ -425,7 +424,10 @@ namespace Beta.GameBoyAdvance.PPU
 
         public void Consume(ClockSignal e)
         {
-            Update(e.Cycles);
+            for (cycles += e.Cycles; cycles >= 4; cycles -= 4)
+            {
+                Update();
+            }
         }
 
         private struct Blend

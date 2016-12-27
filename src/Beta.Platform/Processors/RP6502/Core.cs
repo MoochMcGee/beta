@@ -4,7 +4,7 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.Platform.Processors.RP6502
 {
-    public abstract class Core : Processor
+    public abstract class Core
     {
         private Action[] codes;
         private Action[] modes;
@@ -844,7 +844,7 @@ namespace Beta.Platform.Processors.RP6502
             interrupts.Poll(p.I);
         }
 
-        public override void Update()
+        public virtual void Update()
         {
             ir = Read(registers.PC++);
 

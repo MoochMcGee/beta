@@ -5,7 +5,7 @@ using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PPU
 {
-    public sealed partial class Ppu : Processor, IConsumer<ClockSignal>
+    public sealed partial class Ppu : IConsumer<ClockSignal>
     {
         private static int[][][] priorityLut = new[]
         {
@@ -50,6 +50,7 @@ namespace Beta.SuperFamicom.PPU
         private int colorMathEnabled;
         private int mathType;
         private int product;
+        private int cycles;
 
         static Ppu()
         {
@@ -82,8 +83,6 @@ namespace Beta.SuperFamicom.PPU
             IProducer<HBlankSignal> hblank,
             IProducer<VBlankSignal> vblank)
         {
-            Single = 4;
-
             this.sppu = state.sppu;
             this.video = video;
             this.frame = frame;
@@ -506,7 +505,7 @@ namespace Beta.SuperFamicom.PPU
             sppu.bg_offset_latch = data;
         }
 
-        public override void Update()
+        public void Update()
         {
             hclock++;
 
@@ -586,7 +585,10 @@ namespace Beta.SuperFamicom.PPU
 
         public void Consume(ClockSignal e)
         {
-            Update(e.Cycles);
+            for (cycles += e.Cycles; cycles >= 4; cycles -= 4)
+            {
+                Update();
+            }
         }
     }
 }

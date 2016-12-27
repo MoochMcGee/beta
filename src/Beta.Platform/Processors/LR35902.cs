@@ -4,7 +4,7 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.Platform.Processors
 {
-    public abstract class LR35902 : Processor
+    public abstract class LR35902
     {
         private Status sr;
         private Registers registers;
@@ -618,7 +618,7 @@ namespace Beta.Platform.Processors
 
         protected abstract void Write(ushort address, byte data);
 
-        public override void Update()
+        public virtual void Update()
         {
             StdCode();
         }

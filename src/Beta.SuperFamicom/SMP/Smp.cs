@@ -5,7 +5,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.SuperFamicom.SMP
 {
-    public sealed class Smp : Processor, IConsumer<ClockSignal>
+    public sealed class Smp : IConsumer<ClockSignal>
     {
         static readonly int[] instrTimes =
         {// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -51,11 +51,11 @@ namespace Beta.SuperFamicom.SMP
         private bool flagN = false;
         private int timerCycles1 = 0;
         private int timerCycles2 = 0;
+        private int cycles;
+
 
         public Smp(Dsp dsp, PSRAM psram)
         {
-            Single = 1;
-
             this.psram = psram;
 
             codeTable = new Action[]
@@ -273,7 +273,7 @@ namespace Beta.SuperFamicom.SMP
 
         private void AddCycles(int amount)
         {
-            Cycles += amount * (39375 * 24);
+            cycles += amount * (39375 * 24);
             timerCycles1 += amount;
             timerCycles2 += amount;
             dsp.Update(amount);
@@ -512,9 +512,9 @@ namespace Beta.SuperFamicom.SMP
             SetZnWord(left);
         }
 
-        public override void Update(int cycles)
+        public void Update(int cycles)
         {
-            while (Cycles < cycles)
+            while (this.cycles < cycles)
             {
                 var opcode = ImmediateByte();
 
@@ -523,7 +523,7 @@ namespace Beta.SuperFamicom.SMP
                 AddCycles(instrTimes[opcode]);
             }
 
-            Cycles -= cycles;
+            this.cycles -= cycles;
         }
 
         public byte ReadPort(ushort address)
