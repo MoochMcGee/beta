@@ -30,7 +30,14 @@
 
         private byte Read_A000_BFFF(ushort address)
         {
-            return Ram[((address & 0x1fff) | ramPage) & RamMask];
+            if (Ram != null)
+            {
+                return Ram[((address & 0x1fff) | ramPage) & RamMask];
+            }
+            else
+            {
+                return 0xff;
+            }
         }
 
         private void Write_0000_1FFF(ushort address, byte data)
@@ -59,7 +66,10 @@
 
         private void Write_A000_BFFF(ushort address, byte data)
         {
-            Ram[((address & 0x1fff) | ramPage) & RamMask] = data;
+            if (Ram != null)
+            {
+                Ram[((address & 0x1fff) | ramPage) & RamMask] = data;
+            }
         }
 
         public override byte Read(ushort address)
