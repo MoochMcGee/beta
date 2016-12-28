@@ -88,7 +88,6 @@ namespace Beta.GameBoyAdvance.APU
 
         private void WriteReg(uint address, byte data)
         {
-            registers[address & 15] = data;
         }
 
         private byte Read084(uint address)
@@ -107,7 +106,7 @@ namespace Beta.GameBoyAdvance.APU
 
         private void Write080(uint address, byte data)
         {
-            registers[0] = data;
+            registers[0] = data &= 0x77;
 
             //  0-2   Sound 1-4 Master Volume RIGHT (0-7)
             //  3     Not used
@@ -120,7 +119,7 @@ namespace Beta.GameBoyAdvance.APU
 
         private void Write081(uint address, byte data)
         {
-            registers[1] = data;
+            registers[1] = data &= 0xff;
 
             //  0-3   Sound 1-4 Enable Flags RIGHT (each Bit 0-3, 0=Disable, 1=Enable)
             //  4-7   Sound 1-4 Enable Flags LEFT (each Bit 4-7, 0=Disable, 1=Enable)
@@ -142,7 +141,7 @@ namespace Beta.GameBoyAdvance.APU
             //  2     DMA Sound A Volume   (0=50%, 1=100%)
             //  3     DMA Sound B Volume   (0=50%, 1=100%)
             //  4-7   Not used
-            registers[2] = data;
+            registers[2] = data &= 0x0f;
 
             psgShift = data & 3;
             DirectSound1.Shift = (~data >> 2) & 1;
@@ -151,7 +150,7 @@ namespace Beta.GameBoyAdvance.APU
 
         private void Write083(uint address, byte data)
         {
-            registers[3] = data;
+            registers[3] = data &= 0x77;
 
             DirectSound1.renable = (data & 0x01) != 0; //  0     DMA Sound A Enable RIGHT (0=Disable, 1=Enable)
             DirectSound2.renable = (data & 0x10) != 0; //  4     DMA Sound B Enable RIGHT (0=Disable, 1=Enable)

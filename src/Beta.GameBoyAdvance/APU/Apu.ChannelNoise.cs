@@ -57,19 +57,17 @@ namespace Beta.GameBoyAdvance.APU
 
             protected override void WriteRegister1(uint address, byte data)
             {
-                base.WriteRegister1(address, data);
-
                 duration.Refresh = (data & 0x3F);
                 duration.Counter = 64 - duration.Refresh;
             }
 
             protected override void WriteRegister2(uint address, byte data)
             {
-                base.WriteRegister2(address, data);
-
                 envelope.Level = (data >> 4 & 0xF);
                 envelope.Delta = (data >> 2 & 0x2) - 1;
                 envelope.Timing.Period = (data & 0x7);
+
+                base.WriteRegister2(address, data);
             }
 
             protected override void WriteRegister3(uint address, byte data)
@@ -82,17 +80,15 @@ namespace Beta.GameBoyAdvance.APU
 
             protected override void WriteRegister5(uint address, byte data)
             {
-                base.WriteRegister5(address, data);
-
                 shift = data & 0x8;
 
                 timing.Period = (divisorTable[data & 0x7] << (data >> 4)) * 4 * timing.Single;
+
+                base.WriteRegister5(address, data);
             }
 
             protected override void WriteRegister6(uint address, byte data)
             {
-                base.WriteRegister6(address, data);
-
                 if (data >= 0x80)
                 {
                     active = true;
@@ -108,7 +104,11 @@ namespace Beta.GameBoyAdvance.APU
                 duration.Enabled = (data & 0x40) != 0;
 
                 if ((registers[1] & 0xF8) == 0)
+                {
                     active = false;
+                }
+
+                base.WriteRegister6(address, data &= 0x40);
             }
 
             protected override void WriteRegister7(uint address, byte data)

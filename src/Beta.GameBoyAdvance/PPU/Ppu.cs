@@ -115,10 +115,10 @@ namespace Beta.GameBoyAdvance.PPU
             mmio.Map(0x045, (a, data) => window0.Y1 = data);
             mmio.Map(0x046, (a, data) => window1.Y2 = data);
             mmio.Map(0x047, (a, data) => window1.Y1 = data);
-            mmio.Map(0x048, a => window0.Flags, (a, data) => window0.Flags = data);
-            mmio.Map(0x049, a => window1.Flags, (a, data) => window1.Flags = data);
-            mmio.Map(0x04a, a => windowOutFlags, (a, data) => windowOutFlags = data);
-            mmio.Map(0x04b, a => windowObjFlags, (a, data) => windowObjFlags = data);
+            mmio.Map(0x048, a => window0.Flags, Write048);
+            mmio.Map(0x049, a => window1.Flags, Write049);
+            mmio.Map(0x04a, a => windowOutFlags, Write04a);
+            mmio.Map(0x04b, a => windowObjFlags, Write04b);
             mmio.Map(0x04c, ReadReg, Write04C);
             mmio.Map(0x04d, ReadReg, Write04D);
             // 04e - 04f
@@ -363,7 +363,27 @@ namespace Beta.GameBoyAdvance.PPU
             vcheck = data;
         }
 
-        //           006-04B
+        //           006-047
+        private void Write048(uint address, byte data)
+        {
+            window0.Flags = (byte)(data & 0x3f);
+        }
+
+        private void Write049(uint address, byte data)
+        {
+            window1.Flags = (byte)(data & 0x3f);
+        }
+
+        private void Write04a(uint address, byte data)
+        {
+            windowOutFlags = (byte)(data & 0x3f);
+        }
+
+        private void Write04b(uint address, byte data)
+        {
+            windowObjFlags = (byte)(data & 0x3f);
+        }
+
         private void Write04C(word address, byte data)
         {
             Bg.MosaicH = (data >> 0) & 15;
@@ -379,33 +399,32 @@ namespace Beta.GameBoyAdvance.PPU
         //           04E-04F
         private void Write050(word address, byte data)
         {
-            registers[0x50] = data;
-            blend.Target1 = (data & 0x3f);
-            blend.Type = (data & 0xc0) >> 6;
+            registers[0x50] = data &= 0xff;
+            blend.Target1 = (data >> 0) & 63;
+            blend.Type    = (data >> 6) & 3;
         }
 
         private void Write051(word address, byte data)
         {
-            registers[0x51] = data;
-            blend.Target2 = (data & 0x3f);
+            registers[0x51] = data &= 0x3f;
+            blend.Target2 = (data >> 0) & 63;
         }
 
         private void Write052(word address, byte data)
         {
-            registers[0x52] = data;
-            blend.Eva = Math.Min(data & 31, 16);
+            registers[0x52] = data &= 0x1f;
+            blend.Eva = (data & 0x1f) > 16 ? 16 : data;
         }
 
         private void Write053(word address, byte data)
         {
-            registers[0x53] = data;
-            blend.Evb = Math.Min(data & 31, 16);
+            registers[0x53] = data &= 0x1f;
+            blend.Evb = (data & 0x1f) > 16 ? 16 : data;
         }
 
         private void Write054(word address, byte data)
         {
-            registers[0x54] = data;
-            blend.Evy = Math.Min(data & 31, 16);
+            blend.Evy = (data & 0x1f) > 16 ? 16 : data;
         }
 
         //           055-05F

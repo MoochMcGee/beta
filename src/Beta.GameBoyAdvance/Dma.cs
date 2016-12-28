@@ -1,4 +1,5 @@
-﻿using Beta.GameBoyAdvance.Memory;
+﻿using System;
+using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
 
@@ -67,12 +68,20 @@ namespace Beta.GameBoyAdvance
 
         private byte ReadControl_0(uint address)
         {
-            return (byte)(controlRegister >> 0);
+            return (byte)((controlRegister >> 0) & 0xe0);
         }
 
         private byte ReadControl_1(uint address)
         {
-            return (byte)(controlRegister >> 8);
+            switch (address)
+            {
+            case 0xba+1: return (byte)((controlRegister >> 8) & 0xf7);
+            case 0xc6+1: return (byte)((controlRegister >> 8) & 0xf7);
+            case 0xd2+1: return (byte)((controlRegister >> 8) & 0xf7);
+            case 0xde+1: return (byte)((controlRegister >> 8) & 0xff);
+            }
+
+            throw new ArgumentOutOfRangeException();
         }
 
         private void WriteControl_0(uint address, byte data)

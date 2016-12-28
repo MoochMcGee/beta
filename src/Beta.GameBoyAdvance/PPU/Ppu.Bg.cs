@@ -58,7 +58,7 @@ namespace Beta.GameBoyAdvance.PPU
         private void WriteControl_0(uint address, byte data)
         {
             controlRegister &= 0xff00;
-            controlRegister |= (ushort)(data & 0xcf);
+            controlRegister |= (ushort)(data & 0xff);
 
             Priority = (data & 0x03);
             ChrBase = (data & 0x0c) >> 2;
@@ -68,8 +68,18 @@ namespace Beta.GameBoyAdvance.PPU
 
         private void WriteControl_1(uint address, byte data)
         {
-            controlRegister &= 0x00ff;
-            controlRegister |= (ushort)(data << 8);
+            if (Index == 0 ||
+                Index == 1)
+            {
+                controlRegister &= 0x00ff;
+                controlRegister |= (ushort)((data << 8) & 0xdf00);
+            }
+            else
+            {
+                controlRegister &= 0x00ff;
+                controlRegister |= (ushort)((data << 8) & 0xff00);
+
+            }
 
             NmtBase = (data & 0x1f);
             Wrap = (data & 0x20) != 0;

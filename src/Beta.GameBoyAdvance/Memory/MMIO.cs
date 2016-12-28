@@ -14,7 +14,6 @@ namespace Beta.GameBoyAdvance.Memory
 
         private Reader[] readers = new Reader[SIZE];
         private Writer[] writers = new Writer[SIZE];
-        private byte[] ioMemory = new byte[1024];
 
         public MMIO(Registers regs)
         {
@@ -41,12 +40,11 @@ namespace Beta.GameBoyAdvance.Memory
 
         private byte ReadOpenBus(word address)
         {
-            return ioMemory[address & 0x3ff];
+            return 0;
         }
 
         private void WriteOpenBus(word address, byte data)
         {
-            ioMemory[address & 0x3ff] = data;
         }
 
         public uint Read(int size, uint address)

@@ -34,34 +34,42 @@ namespace Beta.GameBoyAdvance.APU
 
             protected override void WriteRegister1(uint address, byte data)
             {
-                base.WriteRegister1(address, data);
-
                 form = data >> 6;
                 duration.Refresh = (data & 0x3F);
                 duration.Counter = 64 - duration.Refresh;
+
+                base.WriteRegister1(address, data &= 0xc0);
             }
 
             protected override void WriteRegister2(uint address, byte data)
             {
-                base.WriteRegister2(address, data);
-
                 envelope.Level = (data >> 4 & 0xF);
                 envelope.Delta = (data >> 2 & 0x2) - 1;
                 envelope.Timing.Period = (data & 0x7);
+
+                base.WriteRegister2(address, data &= 0xff);
+            }
+
+            protected override void WriteRegister3(uint address, byte data)
+            {
+                base.WriteRegister3(address, 0);
+            }
+
+            protected override void WriteRegister4(uint address, byte data)
+            {
+                base.WriteRegister4(address, 0);
             }
 
             protected override void WriteRegister5(uint address, byte data)
             {
-                base.WriteRegister5(address, data);
-
                 frequency = (frequency & 0x700) | (data << 0 & 0x0FF);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;
+
+                base.WriteRegister5(address, data &= 0x00);
             }
 
             protected override void WriteRegister6(uint address, byte data)
             {
-                base.WriteRegister6(address, data);
-
                 frequency = (frequency & 0x0FF) | (data << 8 & 0x700);
                 timing.Period = (2048 - frequency) * 16 * timing.Single;
 
@@ -80,7 +88,21 @@ namespace Beta.GameBoyAdvance.APU
                 duration.Enabled = (data & 0x40) != 0;
 
                 if ((registers[1] & 0xF8) == 0)
+                {
                     active = false;
+                }
+
+                base.WriteRegister6(address, data &= 0x40);
+            }
+
+            protected override void WriteRegister7(uint address, byte data)
+            {
+                base.WriteRegister7(address, 0);
+            }
+
+            protected override void WriteRegister8(uint address, byte data)
+            {
+                base.WriteRegister8(address, 0);
             }
 
             public void ClockEnvelope()

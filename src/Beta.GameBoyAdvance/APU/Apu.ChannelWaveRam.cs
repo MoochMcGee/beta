@@ -43,58 +43,49 @@ namespace Beta.GameBoyAdvance.APU
                 amp[bank ^ 1][address | 0x01] = (byte)(data >> 0 & 0xF);
             }
 
-            protected override byte ReadRegister1(uint address)
-            {
-                byte data = 0;
-
-                if (dimension != 0) data |= 0x20;
-                if (bank != 0) data |= 0x40;
-
-                return data;
-            }
-
             protected override void WriteRegister1(uint address, byte data)
             {
-                base.WriteRegister1(address, data);
-
                 dimension = (data >> 5) & 1;
                 bank = (data >> 6) & 1;
 
                 if ((data & 0x80) == 0)
+                {
                     active = false;
+                }
+
+                base.WriteRegister1(address, data &= 0xe0);
             }
 
             protected override void WriteRegister2(uint address, byte data)
             {
+                base.WriteRegister2(address, 0);
             }
 
             protected override void WriteRegister3(uint address, byte data)
             {
-                base.WriteRegister3(address, data);
-
                 duration.Refresh = data;
                 duration.Counter = 256 - duration.Refresh;
+
+                base.WriteRegister3(address, 0);
             }
 
             protected override void WriteRegister4(uint address, byte data)
             {
-                base.WriteRegister4(address, data);
-
                 shift = volumeTable[data >> 5 & 0x3];
+
+                base.WriteRegister4(address, data &= 0xe0);
             }
 
             protected override void WriteRegister5(uint address, byte data)
             {
-                base.WriteRegister5(address, data);
-
                 frequency = (frequency & ~0x0FF) | (data << 0 & 0x0FF);
                 timing.Period = (2048 - frequency) * 8 * timing.Single;
+
+                base.WriteRegister5(address, 0);
             }
 
             protected override void WriteRegister6(uint address, byte data)
             {
-                base.WriteRegister6(address, data);
-
                 frequency = (frequency & ~0x700) | (data << 8 & 0x700);
                 timing.Period = (2048 - frequency) * 8 * timing.Single;
 
@@ -109,14 +100,18 @@ namespace Beta.GameBoyAdvance.APU
                 }
 
                 duration.Enabled = (data & 0x40) != 0;
+
+                base.WriteRegister6(address, data &= 0x40);
             }
 
             protected override void WriteRegister7(uint address, byte data)
             {
+                base.WriteRegister7(address, 0);
             }
 
             protected override void WriteRegister8(uint address, byte data)
             {
+                base.WriteRegister8(address, 0);
             }
 
             public int Render(int cycles)
