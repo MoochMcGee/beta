@@ -5,7 +5,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class VRAM : MemoryChip, IMemory
+    public sealed class VRAM : MemoryChip
     {
         private const int SIZE = (3 << 15);
 

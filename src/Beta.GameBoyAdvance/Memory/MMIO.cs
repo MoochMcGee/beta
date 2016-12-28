@@ -5,7 +5,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class MMIO : IMemory
+    public sealed class MMIO
     {
         private const uint SIZE = (1u << 10);
         private const uint MASK = (SIZE - 1u);

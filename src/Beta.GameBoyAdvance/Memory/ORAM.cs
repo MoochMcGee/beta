@@ -5,7 +5,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class ORAM : MemoryChip, IMemory
+    public sealed class ORAM : MemoryChip
     {
         private const int SIZE = (1 << 10);
         private const int MASK = (SIZE - 1);

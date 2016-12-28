@@ -4,7 +4,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
-    public sealed class BIOS : MemoryChip, IMemory
+    public sealed class BIOS : MemoryChip
     {
         private Cpu cpu;
         private word openBus;
