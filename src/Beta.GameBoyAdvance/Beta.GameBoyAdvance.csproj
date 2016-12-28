@@ -50,15 +50,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APU\Apu.Channel.cs" />
-    <Compile Include="APU\Apu.ChannelDirectSound.cs" />
-    <Compile Include="APU\Apu.ChannelNoise.cs" />
-    <Compile Include="APU\Apu.ChannelSquare1.cs" />
-    <Compile Include="APU\Apu.ChannelSquare2.cs" />
-    <Compile Include="APU\Apu.ChannelWaveRam.cs" />
+    <Compile Include="APU\Channel.cs" />
+    <Compile Include="APU\ChannelPCM.cs" />
+    <Compile Include="APU\ChannelNOI.cs" />
+    <Compile Include="APU\ChannelSQ1.cs" />
+    <Compile Include="APU\ChannelSQ2.cs" />
+    <Compile Include="APU\ChannelWAV.cs" />
     <Compile Include="APU\Apu.cs" />
-    <Compile Include="APU\Apu.Duration.cs" />
-    <Compile Include="APU\Apu.Envelope.cs" />
+    <Compile Include="APU\Duration.cs" />
+    <Compile Include="APU\Envelope.cs" />
     <Compile Include="CPU\Cpu.cs" />
     <Compile Include="Dma.cs" />
     <Compile Include="DmaController.cs" />

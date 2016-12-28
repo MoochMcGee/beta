@@ -96,8 +96,8 @@ namespace Beta.GameBoyAdvance
                 cycles -= OVERFLOW;
                 cycles += refresh << RESOLUTION;
 
-                if (apu.DirectSound1.Timer == number) { apu.DirectSound1.Clock(); }
-                if (apu.DirectSound2.Timer == number) { apu.DirectSound2.Clock(); }
+                if (apu.PCM1.Timer == number) { apu.PCM1.Clock(); }
+                if (apu.PCM2.Timer == number) { apu.PCM2.Clock(); }
 
                 if ((control & 0x40) != 0)
                 {
