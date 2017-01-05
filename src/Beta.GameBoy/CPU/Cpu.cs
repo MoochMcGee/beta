@@ -1,11 +1,11 @@
 ﻿using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
 using Beta.Platform.Messaging;
-using Beta.Platform.Processors;
+using Beta.Platform.Processors.LR35902;
 
 namespace Beta.GameBoy.CPU
 {
-    public class Cpu : LR35902, IConsumer<InterruptSignal>
+    public class Cpu : Core, IConsumer<InterruptSignal>
     {
         public const byte INT_VBLANK = (1 << 0);
         public const byte INT_STATUS = (1 << 1);
@@ -72,11 +72,11 @@ namespace Beta.GameBoy.CPU
 
             if ((cpu.ief & e.Flag) != 0)
             {
-                Halt = false;
+                halt = false;
 
                 if (e.Flag == INT_JOYPAD)
                 {
-                    Stop = false;
+                    stop = false;
                 }
             }
         }

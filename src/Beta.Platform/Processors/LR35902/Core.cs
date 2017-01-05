@@ -1,19 +1,16 @@
-﻿using System.Runtime.InteropServices;
-using Beta.Platform.Core;
-using Beta.Platform.Exceptions;
+﻿using Beta.Platform.Exceptions;
 
-namespace Beta.Platform.Processors
+namespace Beta.Platform.Processors.LR35902
 {
-    public abstract class LR35902
+    public abstract class Core
     {
         private Status sr;
         private Registers registers;
         private byte code;
 
-        protected bool Halt;
-        protected bool Stop;
-
-        public Interrupt interrupt;
+        protected Interrupt interrupt;
+        protected bool halt;
+        protected bool stop;
 
         private static int CarryBits(int a, int b, int r)
         {
@@ -88,13 +85,12 @@ namespace Beta.Platform.Processors
             switch (code = Read(registers.pc++))
             {
             case 0x00: break;
-            case 0x10: /*stop = true;
-                while ( stop ) gameSystem.Dispatch( );*/
-                OnStop();
-                break; // todo: find out why gb cpu test rom uses this without joypad interrupts enabled.
+            case 0x10:
+                stop = true;
+                while (stop) Dispatch(); break;
             case 0x76:
-                Halt = true;
-                while (Halt) Dispatch(); break;
+                halt = true;
+                while (halt) Dispatch(); break;
             case 0xcb: ExtCode(); break;
             case 0xf3: interrupt.ff1 = 0; break;
             case 0xfb: interrupt.ff1 = 1; break;
@@ -604,14 +600,6 @@ namespace Beta.Platform.Processors
 
         #endregion
 
-        protected virtual void OnStop()
-        {
-        }
-
-        protected virtual void OnHalt()
-        {
-        }
-
         protected abstract void Dispatch();
 
         protected abstract byte Read(ushort address);
@@ -621,105 +609,6 @@ namespace Beta.Platform.Processors
         public virtual void Update()
         {
             StdCode();
-        }
-
-        private struct Status
-        {
-            public int Z;
-            public int N;
-            public int H;
-            public int C;
-
-            public void Load(byte value)
-            {
-                Z = (value >> 7) & 1;
-                N = (value >> 6) & 1;
-                H = (value >> 5) & 1;
-                C = (value >> 4) & 1;
-            }
-
-            public byte Save()
-            {
-                return (byte)(
-                    (Z << 7) |
-                    (N << 6) |
-                    (H << 5) |
-                    (C << 4));
-            }
-        }
-
-        public struct Interrupt
-        {
-            public int ff1;
-            public int ff2;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        private struct Registers
-        {
-            [FieldOffset(1)]
-            public byte b;
-
-            [FieldOffset(0)]
-            public byte c;
-
-            [FieldOffset(3)]
-            public byte d;
-
-            [FieldOffset(2)]
-            public byte e;
-
-            [FieldOffset(5)]
-            public byte h;
-
-            [FieldOffset(4)]
-            public byte l;
-
-            [FieldOffset(7)]
-            public byte a;
-
-            [FieldOffset(6)]
-            public byte f;
-
-            //
-            [FieldOffset(8)]
-            public byte spl;
-
-            [FieldOffset(9)]
-            public byte sph;
-
-            [FieldOffset(10)]
-            public byte pcl;
-
-            [FieldOffset(11)]
-            public byte pch;
-
-            [FieldOffset(12)]
-            public byte aal;
-
-            [FieldOffset(13)]
-            public byte aah;
-
-            [FieldOffset(0)]
-            public ushort bc;
-
-            [FieldOffset(2)]
-            public ushort de;
-
-            [FieldOffset(4)]
-            public ushort hl;
-
-            [FieldOffset(6)]
-            public ushort af;
-
-            [FieldOffset(8)]
-            public ushort sp;
-
-            [FieldOffset(10)]
-            public ushort pc;
-
-            [FieldOffset(12)]
-            public ushort aa;
         }
     }
 }
