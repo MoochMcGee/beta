@@ -1,11 +1,13 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
-using Beta.Platform.Processors;
+using Beta.Platform.Processors.ARM7;
 
 namespace Beta.GameBoyAdvance.CPU
 {
-    public class Cpu : Arm7, IConsumer<InterruptSignal>, IConsumer<AddClockSignal>
+    public class Cpu : Core
+        , IConsumer<InterruptSignal>
+        , IConsumer<AddClockSignal>
     {
         private readonly MemoryMap memory;
         private readonly DmaController dma;

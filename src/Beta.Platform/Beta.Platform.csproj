@@ -107,7 +107,15 @@
     <Compile Include="Messaging\Producer.cs">
       <DependentUpon>IProducer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Processors\ARM7.cs" />
+    <Compile Include="Processors\ARM7\Core.ALU.cs" />
+    <Compile Include="Processors\ARM7\Core.ARMv4.cs" />
+    <Compile Include="Processors\ARM7\Core.cs" />
+    <Compile Include="Processors\ARM7\Core.THUMB.cs" />
+    <Compile Include="Processors\ARM7\Flags.cs" />
+    <Compile Include="Processors\ARM7\Mode.cs" />
+    <Compile Include="Processors\ARM7\Pipeline.cs" />
+    <Compile Include="Processors\ARM7\Register.cs" />
+    <Compile Include="Processors\ARM7\Vector.cs" />
     <Compile Include="Processors\LR35902.cs" />
     <Compile Include="Processors\RP6502\ALU.cs" />
     <Compile Include="Processors\RP6502\Core.cs" />
