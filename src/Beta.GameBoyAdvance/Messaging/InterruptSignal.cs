@@ -2,7 +2,7 @@
 {
     public sealed class InterruptSignal
     {
-        public ushort Flag { get; }
+        public readonly ushort Flag;
 
         public InterruptSignal(ushort flag)
         {

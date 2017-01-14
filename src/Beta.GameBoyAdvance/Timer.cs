@@ -1,134 +1,15 @@
-﻿using Beta.GameBoyAdvance.APU;
-using Beta.GameBoyAdvance.Memory;
-using Beta.GameBoyAdvance.Messaging;
-using Beta.Platform.Messaging;
-
-namespace Beta.GameBoyAdvance
+﻿namespace Beta.GameBoyAdvance
 {
     public sealed class Timer
     {
-        private const int RESOLUTION = 10;
-        private const int OVERFLOW = (1 << 16) << RESOLUTION;
+        public ushort interrupt;
+        public int control;
+        public int counter;
+        public int refresh;
 
-        private static int[] resolutionLut = new[]
+        public Timer(ushort interrupt)
         {
-            10, // Log2( 1024 ) - Log2(    1 ),
-             4, // Log2( 1024 ) - Log2(   64 ),
-             2, // Log2( 1024 ) - Log2(  256 ),
-             0  // Log2( 1024 ) - Log2( 1024 )
-        };
-
-        private readonly IProducer<InterruptSignal> interrupt;
-        private readonly Apu apu;
-        private readonly MMIO mmio;
-
-        private ushort interruptType;
-        private int control;
-        private int counter;
-        private int refresh;
-        private int cycles;
-        private int number;
-
-        public Timer NextTimer;
-
-        public bool Countup { get { return (control & 0x0084) == 0x0084; } }
-        public bool Enabled { get { return (control & 0x0084) == 0x0080; } }
-
-        public Timer(Apu apu, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType, int number)
-        {
-            this.apu = apu;
-            this.mmio = mmio;
             this.interrupt = interrupt;
-            this.interruptType = interruptType;
-            this.number = number;
-        }
-
-        #region Registers
-
-        private byte ReadCounter_0(uint address)
-        {
-            return (byte)(counter);
-        }
-
-        private byte ReadCounter_1(uint address)
-        {
-            return (byte)(counter >> 8);
-        }
-
-        private byte ReadControl_0(uint address)
-        {
-            return (byte)(control);
-        }
-
-        private byte ReadControl_1(uint address)
-        {
-            return (byte)(control >> 8);
-        }
-
-        private void WriteCounter_0(uint address, byte value)
-        {
-            refresh = (refresh & ~0x00ff) | (value << 0);
-        }
-
-        private void WriteCounter_1(uint address, byte value)
-        {
-            refresh = (refresh & ~0xff00) | (value << 8);
-        }
-
-        private void WriteControl_0(uint address, byte value)
-        {
-            control = (control & ~0x00ff) | (value << 0);
-        }
-
-        private void WriteControl_1(uint address, byte value)
-        {
-            control = (control & ~0xff00) | (value << 8);
-        }
-
-        #endregion
-
-        private void Clock(int amount = 1 << RESOLUTION)
-        {
-            cycles += amount;
-
-            if (cycles >= OVERFLOW)
-            {
-                cycles -= OVERFLOW;
-                cycles += refresh << RESOLUTION;
-
-                if (apu.PCM1.Timer == number) { apu.PCM1.Clock(); }
-                if (apu.PCM2.Timer == number) { apu.PCM2.Clock(); }
-
-                if ((control & 0x40) != 0)
-                {
-                    interrupt.Produce(new InterruptSignal(interruptType));
-                }
-
-                if (NextTimer != null && NextTimer.Countup)
-                {
-                    NextTimer.Update();
-                }
-            }
-
-            counter = cycles >> RESOLUTION;
-        }
-
-        public void Initialize(uint address)
-        {
-            mmio.Map(address + 0u, ReadCounter_0, WriteCounter_0);
-            mmio.Map(address + 1u, ReadCounter_1, WriteCounter_1);
-            mmio.Map(address + 2u, ReadControl_0, WriteControl_0);
-            mmio.Map(address + 3u, ReadControl_1, WriteControl_1);
-        }
-
-        public void Update()
-        {
-            Clock();
-        }
-
-        public void Update(int amount)
-        {
-            Clock(amount << resolutionLut[control & 3]);
         }
     }
 }

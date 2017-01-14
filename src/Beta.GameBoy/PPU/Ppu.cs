@@ -2,7 +2,6 @@
 using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
 using Beta.Platform;
-using Beta.Platform.Core;
 using Beta.Platform.Messaging;
 using Beta.Platform.Video;
 

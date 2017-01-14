@@ -79,18 +79,11 @@ namespace Beta.GameBoyAdvance
         private half ReadRomHalf(word address)
         {
             var region = (address >> 25) & 3u;
-            var compare = (address >>= 1) & 0xffffu;
-
-            if (counter != compare)
-            {
-                clock.Produce(new AddClockSignal(romAccess1[region]));
-                counter = compare;
-            }
 
             clock.Produce(new AddClockSignal(romAccess2[region]));
             counter++;
 
-            return buffer[address & mask];
+            return buffer[(address >> 1) & mask];
         }
 
         private word ReadRomWord(word address)

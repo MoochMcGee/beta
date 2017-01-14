@@ -1,8 +1,6 @@
-﻿using System;
-using Beta.GameBoyAdvance.CPU;
+﻿using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
-using Beta.Platform.Core;
 using Beta.Platform.Messaging;
 using Beta.Platform.Video;
 using word = System.UInt32;

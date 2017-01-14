@@ -1,5 +1,4 @@
 ﻿using Beta.Platform.Audio;
-using Beta.Platform.Core;
 
 namespace Beta.SuperFamicom.SMP
 {

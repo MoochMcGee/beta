@@ -1,5 +1,4 @@
-﻿using Beta.Platform.Core;
-using Beta.Platform.Messaging;
+﻿using Beta.Platform.Messaging;
 using Beta.Platform.Video;
 using Beta.SuperFamicom.Messaging;
 

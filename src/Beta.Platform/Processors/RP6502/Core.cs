@@ -1,5 +1,4 @@
 ﻿using System;
-using Beta.Platform.Core;
 using Beta.Platform.Exceptions;
 
 namespace Beta.Platform.Processors.RP6502

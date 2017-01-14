@@ -69,7 +69,7 @@ namespace Beta.GameBoyAdvance.CPU
 
         public void Consume(InterruptSignal e)
         {
-            regs.irf |= e.Flag;
+            regs.irf |= (ushort)e.Flag;
         }
 
         public void Consume(AddClockSignal e)

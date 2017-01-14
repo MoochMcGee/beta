@@ -1,7 +1,6 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.Platform;
 using Beta.Platform.Audio;
-using Beta.Platform.Core;
 using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance.APU

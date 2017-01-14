@@ -1,5 +1,4 @@
 ﻿using System;
-using Beta.Platform.Core;
 
 namespace Beta.Platform.Processors.RP65816
 {

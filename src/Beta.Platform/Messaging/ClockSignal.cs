@@ -2,7 +2,7 @@
 {
     public sealed class ClockSignal
     {
-        public int Cycles { get; }
+        public readonly int Cycles;
 
         public ClockSignal(int cycles)
         {
