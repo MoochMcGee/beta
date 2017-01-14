@@ -83,7 +83,7 @@ namespace Beta.Platform.Processors.ARM7
             var mask = Armv4Encode(BitString.Mask(pattern));
             var test = Armv4Encode(BitString.Test(pattern));
 
-            for (var i = 0; i <= armv4Codes.Length; i++)
+            for (var i = 0; i < armv4Codes.Length; i++)
             {
                 if ((i & mask) == test)
                 {
@@ -249,7 +249,7 @@ namespace Beta.Platform.Processors.ARM7
             var nn = (ih << 4) + (il << 0);
 
             if (p == 1) rn = u != 0 ? rn + nn : rn - nn;
-            if (l == 1) registers[d].value = Read(1, rn); // todo: load half
+            if (l == 1) registers[d].value = ReadHalf(rn);
             if (l == 0) Write(1, rn, (half)registers[d].value); // todo: store half
             if (p == 0) rn = u != 0 ? rn + nn : rn - nn;
             if (p == 0 || w == 1 && n != d) registers[n].value = rn;
@@ -271,7 +271,7 @@ namespace Beta.Platform.Processors.ARM7
             var rm = registers[m].value;
 
             if (p == 1) rn = u != 0 ? rn + rm : rn - rm;
-            if (l == 1) registers[d].value = Read(1, rn); // todo: load half
+            if (l == 1) registers[d].value = ReadHalf(rn);
             if (l == 0) Write(1, rn, (half)registers[d].value); // todo: store half
             if (p == 0) rn = u != 0 ? rn + rm : rn - rm;
             if (p == 0 || w == 1 && n != d) registers[n].value = rn;
@@ -297,11 +297,11 @@ namespace Beta.Platform.Processors.ARM7
 
             if (h != 0)
             {
-                registers[d].value = (uint)(short)Read(1, rn); // todo: load half
+                registers[d].value = ReadHalfSignExtended(rn);
             }
             else
             {
-                registers[d].value = (uint)(sbyte)Read(0, rn); // todo: load byte
+                registers[d].value = ReadByteSignExtended(rn);
             }
 
             if (p == 0) rn = u != 0 ? rn + nn : rn - nn;
@@ -327,11 +327,11 @@ namespace Beta.Platform.Processors.ARM7
 
             if (h != 0)
             {
-                registers[d].value = (uint)(short)Read(1, rn); // todo: load half
+                registers[d].value = ReadHalfSignExtended(rn);
             }
             else
             {
-                registers[d].value = (uint)(sbyte)Read(0, rn); // todo: load byte
+                registers[d].value = ReadByteSignExtended(rn);
             }
 
             if (p == 0) rn = u != 0 ? rn + rm : rn - rm;
@@ -350,13 +350,13 @@ namespace Beta.Platform.Processors.ARM7
             switch ((code >> 22) & 1)
             {
             case 0:
-                tmp = LoadWord(registers[rn].value);
+                tmp = ReadWord(registers[rn].value);
                 Write(2, registers[rn].value, registers[rm].value);
                 registers[rd].value = tmp;
                 break;
 
             case 1:
-                tmp = Read(0, registers[rn].value);
+                tmp = ReadByte(registers[rn].value);
                 Write(0, registers[rn].value, registers[rm].value);
                 registers[rd].value = tmp;
                 break;
@@ -518,7 +518,7 @@ namespace Beta.Platform.Processors.ARM7
             if (u == 0) { offset = 0 - offset; }
             if (p == 1) { address += offset; }
 
-            registers[d].value = b == 1 ? Read(0, address) : LoadWord(address);
+            registers[d].value = b == 1 ? ReadByte(address) : ReadWord(address);
 
             if (d == 15)
             {
@@ -602,7 +602,7 @@ namespace Beta.Platform.Processors.ARM7
                         registers[rn].value = storeAddress;
                     }
 
-                    registers[i].value = LoadWord(address);
+                    registers[i].value = Read(2, address & ~3U);
                     address += 4;
                 }
             }

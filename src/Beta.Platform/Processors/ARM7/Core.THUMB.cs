@@ -77,7 +77,7 @@ namespace Beta.Platform.Processors.ARM7
             var mask = ThumbEncode(BitString.Mask(pattern));
             var test = ThumbEncode(BitString.Test(pattern));
 
-            for (var i = 0; i <= thumbCodes.Length; i++)
+            for (var i = 0; i < thumbCodes.Length; i++)
             {
                 if ((i & mask) == test)
                 {
@@ -237,10 +237,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrPc()
         {
-            var rd = (code >> 8) & 0x7;
-
-            registers[rd].value = LoadWord((pc.value & ~2u) + (code & 0xFF) * 4);
-
+            registers[(code >> 8) & 0x7].value = LoadWord((pc.value & ~2u) + (code & 0xFF) * 4);
             cycles++;
         }
 
@@ -261,46 +258,31 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrsbReg()
         {
-            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
-
-            if ((registers[code & 0x7].value & (1 << 7)) != 0)
-            {
-                registers[code & 0x7].value |= 0xFFFFFF00;
-            }
-
+            registers[code & 0x7].value = ReadByteSignExtended(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
             cycles++;
         }
 
         private void ThumbOpLdrReg()
         {
             registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
-
             cycles++;
         }
 
         private void ThumbOpLdrhReg()
         {
-            registers[code & 0x7].value = Read(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
-
+            registers[code & 0x7].value = ReadHalf(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
             cycles++;
         }
 
         private void ThumbOpLdrbReg()
         {
-            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
-
+            registers[code & 0x7].value = ReadByte(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
             cycles++;
         }
 
         private void ThumbOpLdrshReg()
         {
-            registers[code & 0x7].value = Read(1, registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
-
-            if ((registers[code & 0x7].value & (1 << 15)) != 0)
-            {
-                registers[code & 0x7].value |= 0xFFFF0000;
-            }
-
+            registers[code & 0x7].value = ReadHalfSignExtended(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
             cycles++;
         }
 
@@ -312,7 +294,6 @@ namespace Beta.Platform.Processors.ARM7
         private void ThumbOpLdrImm()
         {
             registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4);
-
             cycles++;
         }
 
@@ -323,8 +304,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrbImm()
         {
-            registers[code & 0x7].value = Read(0, registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F));
-
+            registers[code & 0x7].value = ReadByte(registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F));
             cycles++;
         }
 
@@ -335,8 +315,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrhImm()
         {
-            registers[code & 7].value = Read(1, registers[(code >> 3) & 7].value + ((code >> 6) & 0x1f) * 2);
-
+            registers[code & 7].value = ReadHalf(registers[(code >> 3) & 7].value + ((code >> 6) & 0x1f) * 2);
             cycles++;
         }
 
@@ -431,7 +410,7 @@ namespace Beta.Platform.Processors.ARM7
             {
                 if (((code >> i) & 1) != 0)
                 {
-                    registers[i].value = Read(2, address & ~3u);
+                    registers[i].value = Read(2, address & ~3U);
                     address += 4;
                 }
             }

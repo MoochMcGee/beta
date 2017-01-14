@@ -110,6 +110,7 @@
     <Compile Include="Processors\ARM7\Core.ALU.cs" />
     <Compile Include="Processors\ARM7\Core.ARMv4.cs" />
     <Compile Include="Processors\ARM7\Core.cs" />
+    <Compile Include="Processors\ARM7\Core.IO.cs" />
     <Compile Include="Processors\ARM7\Core.THUMB.cs" />
     <Compile Include="Processors\ARM7\Flags.cs" />
     <Compile Include="Processors\ARM7\Mode.cs" />

@@ -29,7 +29,6 @@ namespace Beta.GameBoyAdvance
         private readonly byte[] binary;
 
         private half[] buffer;
-        private word counter;
         private word mask;
         private int ramAccess;
         private int[] romAccess1 = new int[3];
@@ -78,10 +77,14 @@ namespace Beta.GameBoyAdvance
 
         private half ReadRomHalf(word address)
         {
-            var region = (address >> 25) & 3u;
-
+            var region = (address >> 25) & 3;
             clock.Produce(new AddClockSignal(romAccess2[region]));
-            counter++;
+
+            var compare = (address & 0x01ffffff) >> 1;
+            if (compare > mask)
+            {
+                return ((half)compare);
+            }
 
             return buffer[(address >> 1) & mask];
         }
