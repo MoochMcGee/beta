@@ -119,6 +119,10 @@ namespace Beta.Platform.Processors.ARM7
         {
             ChangeMode(mode);
 
+            lr.value = cpsr.t == 1 ? pc.value - 2 : pc.value - 4;
+            pc.value = vector;
+            pipeline.refresh = true;
+
             if (vector == Vector.FIQ ||
                 vector == Vector.RST)
             {
@@ -128,10 +132,6 @@ namespace Beta.Platform.Processors.ARM7
             cpsr.t = 0;
             cpsr.i = 1;
             cpsr.m = mode;
-
-            lr.value = pipeline.decode.address;
-            pc.value = vector;
-            pipeline.refresh = true;
         }
 
         private uint LoadWord(uint address)

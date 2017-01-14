@@ -1,16 +1,10 @@
 ﻿namespace Beta.Platform.Processors.ARM7
 {
-    public sealed class Pipeline
+    public struct Pipeline
     {
-        public Stage execute;
-        public Stage decode;
-        public Stage fetch;
+        public uint execute;
+        public uint decode;
+        public uint fetch;
         public bool refresh;
-
-        public struct Stage
-        {
-            public uint address;
-            public uint data;
-        }
     }
 }

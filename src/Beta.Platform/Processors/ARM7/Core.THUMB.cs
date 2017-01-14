@@ -14,8 +14,7 @@ namespace Beta.Platform.Processors.ARM7
             if (pipeline.refresh)
             {
                 pipeline.refresh = false;
-                pipeline.fetch.address = pc.value & ~1u;
-                pipeline.fetch.data = Read(1, pipeline.fetch.address);
+                pipeline.fetch = Read(1, pc.value & ~1U);
 
                 ThumbStep();
             }
@@ -29,7 +28,7 @@ namespace Beta.Platform.Processors.ARM7
                 return;
             }
 
-            code = pipeline.execute.data;
+            code = pipeline.execute;
 
             thumbCodes[ThumbEncode(code)]();
         }
@@ -76,12 +75,11 @@ namespace Beta.Platform.Processors.ARM7
         private void ThumbMap(string pattern, Action code)
         {
             var mask = ThumbEncode(BitString.Mask(pattern));
-            var zero = ThumbEncode(BitString.Min(pattern));
-            var full = ThumbEncode(BitString.Max(pattern));
+            var test = ThumbEncode(BitString.Test(pattern));
 
-            for (var i = zero; i <= full; i++)
+            for (var i = 0; i <= thumbCodes.Length; i++)
             {
-                if ((i & mask) == zero)
+                if ((i & mask) == test)
                 {
                     thumbCodes[i] = code;
                 }
@@ -94,8 +92,7 @@ namespace Beta.Platform.Processors.ARM7
 
             pipeline.execute = pipeline.decode;
             pipeline.decode = pipeline.fetch;
-            pipeline.fetch.address = pc.value & ~1u;
-            pipeline.fetch.data = Read(1, pipeline.fetch.address);
+            pipeline.fetch = Read(1, pc.value & ~1U);
         }
 
         #region Opcodes
@@ -469,8 +466,9 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpBl2()
         {
+            var link = pc.value - 2;
             pc.value = lr.value + ((code & 0x7ff) << 1);
-            lr.value = pipeline.decode.address | 1;
+            lr.value = link | 1;
             pipeline.refresh = true;
         }
 

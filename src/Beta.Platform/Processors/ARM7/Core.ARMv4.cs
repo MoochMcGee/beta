@@ -15,8 +15,7 @@ namespace Beta.Platform.Processors.ARM7
             if (pipeline.refresh)
             {
                 pipeline.refresh = false;
-                pipeline.fetch.address = pc.value & ~3U;
-                pipeline.fetch.data = Read(2, pipeline.fetch.address);
+                pipeline.fetch = Read(2, pc.value & ~3U);
 
                 Armv4Step();
             }
@@ -29,7 +28,7 @@ namespace Beta.Platform.Processors.ARM7
                 return;
             }
 
-            code = pipeline.execute.data;
+            code = pipeline.execute;
 
             if (GetCondition(code >> 28))
             {
@@ -82,12 +81,11 @@ namespace Beta.Platform.Processors.ARM7
         private void Armv4Map(string pattern, Action code)
         {
             var mask = Armv4Encode(BitString.Mask(pattern));
-            var zero = Armv4Encode(BitString.Min(pattern));
-            var full = Armv4Encode(BitString.Max(pattern));
+            var test = Armv4Encode(BitString.Test(pattern));
 
-            for (var i = zero; i <= full; i++)
+            for (var i = 0; i <= armv4Codes.Length; i++)
             {
-                if ((i & mask) == zero)
+                if ((i & mask) == test)
                 {
                     armv4Codes[i] = code;
                 }
@@ -100,8 +98,7 @@ namespace Beta.Platform.Processors.ARM7
 
             pipeline.execute = pipeline.decode;
             pipeline.decode = pipeline.fetch;
-            pipeline.fetch.address = pc.value & ~3U;
-            pipeline.fetch.data = Read(2, pipeline.fetch.address);
+            pipeline.fetch = Read(2, pc.value & ~3U);
         }
 
         #region Opcodes
@@ -544,7 +541,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void OpBl()
         {
-            lr.value = pipeline.decode.address;
+            lr.value = pc.value - 4;
             pc.value += MathHelper.SignExtend(code, 24) << 2;
             pipeline.refresh = true;
         }
