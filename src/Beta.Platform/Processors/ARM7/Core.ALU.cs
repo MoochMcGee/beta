@@ -13,38 +13,7 @@ namespace Beta.Platform.Processors.ARM7
             return 4;
         }
 
-        private uint BarrelShifter()
-        {
-            var value = registers[code & 0xf].value;
-            var shift = (code >> 7) & 0x1f;
-
-            switch ((code >> 5) & 3)
-            {
-            case 0: return Lsl(value, shift);
-            case 1: return Lsr(value, shift);
-            case 2: return Asr(value, shift);
-            case 3: return Ror(value, shift);
-            }
-
-            throw new CompilerPleasingException();
-        }
-
-        private void OverflowCarryAdd(uint a, uint b, uint r)
-        {
-            var overflow = ~(a ^ b) & (a ^ r);
-
-            cpsr.n = r >> 31;
-            cpsr.z = r == 0 ? 1u : 0u;
-            cpsr.c = (overflow ^ a ^ b ^ r) >> 31;
-            cpsr.v = (overflow) >> 31;
-        }
-
-        private void OverflowCarrySub(uint a, uint b, uint r)
-        {
-            OverflowCarryAdd(a, ~b, r);
-        }
-
-        private uint carryout;
+        private uint carry;
 
         private uint Add(uint a, uint b, uint carry = 0)
         {
@@ -72,15 +41,15 @@ namespace Beta.Platform.Processors.ARM7
         {
             cycles += MultiplierCycles(b);
 
-            a += b * c;
+            var result = (a * b) + c;
 
             if (cpsr.t != 0U || (code & (1 << 20)) != 0)
             {
-                cpsr.n = a >> 31;
-                cpsr.z = a == 0U ? 1U : 0U;
+                cpsr.n = result >> 31;
+                cpsr.z = result == 0U ? 1U : 0U;
             }
 
-            return a;
+            return result;
         }
 
         private uint Mov(uint value)
@@ -89,65 +58,84 @@ namespace Beta.Platform.Processors.ARM7
             {
                 cpsr.n = value >> 31;
                 cpsr.z = value == 0U ? 1U : 0U;
-                cpsr.c = carryout;
+                cpsr.c = carry;
             }
 
             return value;
         }
 
-        private uint Lsl(uint value, uint shift)
+        private uint LSL(uint value, uint shift)
         {
-            shift = (shift & 255U);
+            if (shift == 0)
+            {
+                carry = cpsr.c;
+            }
+            else
+            {
+                var s = ((int)shift);
 
-            carryout = cpsr.c;
-            if (shift == 0) return value;
+                carry = shift > 32 ? 0 : (value >> (32 - s)) & 1U;
+                value = shift > 31 ? 0 : (value << s);
+            }
 
-            carryout = shift > 32 ? 0 : (value >> (int)(32 - shift)) & 1U;
-            value = shift > 31 ? 0 : (value << (int)shift);
             return value;
         }
 
-        private uint Lsr(uint value, uint shift)
+        private uint LSR(uint value, uint shift)
         {
-            shift = (shift & 255U);
+            if (shift == 0)
+            {
+                carry = cpsr.c;
+            }
+            else
+            {
+                var s = ((int)shift);
 
-            carryout = cpsr.c;
-            if (shift == 0) return value;
+                carry = shift > 32 ? 0 : (value >> (s - 1)) & 1U;
+                value = shift > 31 ? 0 : (value >> s);
+            }
 
-            carryout = shift > 32 ? 0 : (value >> (int)(shift - 1)) & 1U;
-            value = shift > 31 ? 0 : (value >> (int)shift);
             return value;
         }
 
-        private uint Asr(uint value, uint shift)
+        private uint ASR(uint value, uint shift)
         {
-            shift = (shift & 255U);
+            if (shift == 0)
+            {
+                carry = cpsr.c;
+            }
+            else
+            {
+                var s = ((int)shift);
+                var v = ((int)value);
 
-            carryout = cpsr.c;
-            if (shift == 0) return value;
+                carry = (uint)(shift > 32 ? (v >> 31) : (v >> (s - 1))) & 1U;
+                value = (uint)(shift > 31 ? (v >> 31) : (v >> s));
+            }
 
-            carryout = shift > 32 ? (value >> 31) : (value >> (int)(shift - 1)) & 1U;
-            value = shift > 31 ? (uint)((int)value >> 31) : (uint)((int)value >> (int)shift);
             return value;
         }
 
-        private uint Ror(uint value, uint shift)
+        private uint ROR(uint value, uint shift)
         {
-            shift = (shift & 255U);
+            if (shift == 0)
+            {
+                carry = cpsr.c;
+            }
+            else
+            {
+                var s = ((int)shift) & 31;
 
-            carryout = cpsr.c;
-            if (shift == 0) return value;
+                carry = (value >> (s - 1)) & 1;
+                value = (value >> s) | (value << (32 - s));
+            }
 
-            if ((shift &= 31) != 0)
-                value = (value >> (int)shift) | (value << (int)(32 - shift));
-
-            carryout = (value >> 31);
             return value;
         }
 
-        private uint Rrx(uint value)
+        private uint RRX(uint value)
         {
-            carryout = value & 1U;
+            carry = value & 1U;
             return (value >> 1) | (cpsr.c << 31);
         }
     }

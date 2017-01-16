@@ -45,5 +45,11 @@
 
             return (uint)(sbyte)(value);
         }
+
+        protected abstract void Dispatch();
+
+        protected abstract uint Read(int size, uint address);
+
+        protected abstract void Write(int size, uint address, uint data);
     }
 }

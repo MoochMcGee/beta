@@ -106,9 +106,9 @@ namespace Beta.Platform.Processors.ARM7
 
             switch ((code >> 11) & 0x03)
             {
-            case 0x00: registers[rd].value = Mov(Lsl(registers[rm].value, nn)); break;
-            case 0x01: registers[rd].value = Mov(Lsr(registers[rm].value, nn == 0U ? 32U : nn)); break;
-            case 0x02: registers[rd].value = Mov(Asr(registers[rm].value, nn == 0U ? 32U : nn)); break;
+            case 0x00: registers[rd].value = Mov(LSL(registers[rm].value, nn)); break;
+            case 0x01: registers[rd].value = Mov(LSR(registers[rm].value, nn == 0U ? 32U : nn)); break;
+            case 0x02: registers[rd].value = Mov(ASR(registers[rm].value, nn == 0U ? 32U : nn)); break;
             }
         }
 
@@ -169,18 +169,18 @@ namespace Beta.Platform.Processors.ARM7
             {
             case 0x0: registers[rd].value = Mov(registers[rd].value & registers[rn].value); break;
             case 0x1: registers[rd].value = Mov(registers[rd].value ^ registers[rn].value); break;
-            case 0x2: registers[rd].value = Mov(Lsl(registers[rd].value, registers[rn].value & 0xff)); break;
-            case 0x3: registers[rd].value = Mov(Lsr(registers[rd].value, registers[rn].value & 0xff)); break;
-            case 0x4: registers[rd].value = Mov(Asr(registers[rd].value, registers[rn].value & 0xff)); break;
+            case 0x2: registers[rd].value = Mov(LSL(registers[rd].value, registers[rn].value & 0xff)); break;
+            case 0x3: registers[rd].value = Mov(LSR(registers[rd].value, registers[rn].value & 0xff)); break;
+            case 0x4: registers[rd].value = Mov(ASR(registers[rd].value, registers[rn].value & 0xff)); break;
             case 0x5: registers[rd].value = Add(registers[rd].value, registers[rn].value, cpsr.c); break;
             case 0x6: registers[rd].value = Sub(registers[rd].value, registers[rn].value, cpsr.c); break;
-            case 0x7: registers[rd].value = Mov(Ror(registers[rd].value, registers[rn].value & 0xff)); break;
+            case 0x7: registers[rd].value = Mov(ROR(registers[rd].value, registers[rn].value & 0xff)); break;
             case 0x8: Mov(registers[rd].value & registers[rn].value); break;
             case 0x9: registers[rd].value = Sub(0U, registers[rn].value); break;
             case 0xa: Sub(registers[rd].value, registers[rn].value); break;
             case 0xb: Add(registers[rd].value, registers[rn].value); break;
             case 0xc: registers[rd].value = Mov(registers[rd].value | registers[rn].value); break;
-            case 0xd: registers[rd].value = Mul(0U, registers[rd].value, registers[rn].value); break;
+            case 0xd: registers[rd].value = Mul(registers[rd].value, registers[rn].value, 0U); break;
             case 0xe: registers[rd].value = Mov(registers[rd].value & ~registers[rn].value); break;
             case 0xf: registers[rd].value = Mov(~registers[rn].value); break;
             }
@@ -205,11 +205,7 @@ namespace Beta.Platform.Processors.ARM7
             var rd = ((code & (1 << 7)) >> 4) | (code & 0x7);
             var rm = (code >> 3) & 0xF;
 
-            var alu = registers[rd].value - registers[rm].value;
-
-            cpsr.n = alu >> 31;
-            cpsr.z = alu == 0 ? 1U : 0U;
-            OverflowCarrySub(registers[rd].value, registers[rm].value, alu);
+            Sub(registers[rd].value, registers[rm].value);
         }
 
         private void ThumbOpMovHi()
@@ -237,7 +233,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrPc()
         {
-            registers[(code >> 8) & 0x7].value = LoadWord((pc.value & ~2u) + (code & 0xFF) * 4);
+            registers[(code >> 8) & 0x7].value = ReadWord((pc.value & ~2u) + (code & 0xFF) * 4);
             cycles++;
         }
 
@@ -264,7 +260,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrReg()
         {
-            registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
+            registers[code & 0x7].value = ReadWord(registers[(code >> 3) & 0x7].value + registers[(code >> 6) & 0x7].value);
             cycles++;
         }
 
@@ -293,7 +289,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrImm()
         {
-            registers[code & 0x7].value = LoadWord(registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4);
+            registers[code & 0x7].value = ReadWord(registers[(code >> 3) & 0x7].value + ((code >> 6) & 0x1F) * 4);
             cycles++;
         }
 
@@ -326,7 +322,7 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpLdrSp()
         {
-            registers[(code >> 8) & 7].value = LoadWord(sp.value + ((code << 2) & 0x3fc));
+            registers[(code >> 8) & 7].value = ReadWord(sp.value + ((code << 2) & 0x3fc));
         }
 
         private void ThumbOpAddPc()
@@ -371,14 +367,14 @@ namespace Beta.Platform.Processors.ARM7
             {
                 if (((code >> i) & 1) != 0)
                 {
-                    registers[i].value = LoadWord(sp.value);
+                    registers[i].value = ReadWord(sp.value);
                     sp.value += 4u;
                 }
             }
 
             if ((code & 0x100) != 0)
             {
-                pc.value = LoadWord(sp.value) & ~1u;
+                pc.value = ReadWord(sp.value) & ~1u;
                 sp.value += 4u;
                 pipeline.refresh = true;
             }

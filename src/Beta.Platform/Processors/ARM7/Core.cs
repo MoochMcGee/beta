@@ -53,14 +53,6 @@ namespace Beta.Platform.Processors.ARM7
             Isr(Mode.SVC, Vector.RST);
         }
 
-        private void ChangeMode(uint mode)
-        {
-            ChangeRegisters(mode);
-
-            if (spsr != null)
-                spsr.Load(cpsr.Save());
-        }
-
         private void ChangeRegisters(uint mode)
         {
             Register[] smallBank = null;
@@ -68,8 +60,8 @@ namespace Beta.Platform.Processors.ARM7
                 ? registersFiq
                 : registersUsr;
 
-            registers[8] = largeBank[6];
-            registers[9] = largeBank[5];
+            registers[ 8] = largeBank[6];
+            registers[ 9] = largeBank[5];
             registers[10] = largeBank[4];
             registers[11] = largeBank[3];
             registers[12] = largeBank[2];
@@ -117,7 +109,12 @@ namespace Beta.Platform.Processors.ARM7
 
         private void Isr(uint mode, uint vector)
         {
-            ChangeMode(mode);
+            ChangeRegisters(mode);
+
+            if (spsr != null)
+            {
+                spsr.Load(cpsr.Save());
+            }
 
             lr.value = cpsr.t == 1 ? pc.value - 2 : pc.value - 4;
             pc.value = vector;
@@ -134,30 +131,15 @@ namespace Beta.Platform.Processors.ARM7
             cpsr.m = mode;
         }
 
-        private uint LoadWord(uint address)
+        private void MoveSPSRToCPSR()
         {
-            var data = Read(2, address & ~3u);
-
-            switch (address & 3)
-            {
-            case 0: return (data >> 0) | (data << 32);
-            case 1: return (data >> 8) | (data << 24);
-            case 2: return (data >> 16) | (data << 16);
-            case 3: return (data >> 24) | (data << 8);
-            }
-
-            throw new CompilerPleasingException();
+            cpsr.Load(spsr.Save());
+            ChangeRegisters(cpsr.m);
         }
-
-        protected abstract void Dispatch();
-
-        protected abstract uint Read(int size, uint address);
-
-        protected abstract void Write(int size, uint address, uint data);
 
         public virtual void Initialize()
         {
-            Armv4Initialize();
+            ARMv4Initialize();
             ThumbInitialize();
         }
 
@@ -169,7 +151,7 @@ namespace Beta.Platform.Processors.ARM7
             }
             else
             {
-                if (cpsr.t == 0) { Armv4Execute(); }
+                if (cpsr.t == 0) { ARMv4Execute(); }
                 if (cpsr.t == 1) { ThumbExecute(); }
             }
 
@@ -180,6 +162,31 @@ namespace Beta.Platform.Processors.ARM7
         public uint GetProgramCursor()
         {
             return pc.value;
+        }
+
+        public uint Get(uint index, uint r15Offset = 0)
+        {
+            if (index == 15)
+            {
+                return registers[index].value + r15Offset;
+            }
+            else
+            {
+                return registers[index].value;
+            }
+        }
+
+        public void Set(uint index, uint value)
+        {
+            if (index == 15)
+            {
+                registers[index].value = value;
+                pipeline.refresh = true;
+            }
+            else
+            {
+                registers[index].value = value;
+            }
         }
     }
 }
