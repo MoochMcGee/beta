@@ -3,7 +3,7 @@ using Beta.GameBoy.CPU;
 using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
 using Beta.GameBoy.PPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 using Beta.Platform.Messaging;
 using SimpleInjector;
 

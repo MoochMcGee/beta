@@ -7,7 +7,6 @@ using System.Windows.Forms;
 using Beta.Hosting;
 using Beta.Platform;
 using Beta.Platform.Configuration;
-using Beta.Platform.Core;
 
 namespace Beta
 {

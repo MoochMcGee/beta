@@ -3,7 +3,7 @@ using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.GameBoyAdvance.PPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance

@@ -1,4 +1,4 @@
-﻿using Beta.Platform.Core;
+﻿using Beta.Platform;
 using SimpleInjector;
 
 namespace Beta.GameBoyAdvance

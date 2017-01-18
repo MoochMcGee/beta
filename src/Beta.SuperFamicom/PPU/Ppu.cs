@@ -34,7 +34,6 @@ namespace Beta.SuperFamicom.PPU
         private byte ppu2Open;
         private byte ppu1Stat = 1;
         private byte ppu2Stat = 2;
-        private byte vramLatch;
         private int forceMainToBlack;
         private int fixedColor;
         private int brightness;

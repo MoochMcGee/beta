@@ -1,10 +1,13 @@
-﻿using Beta.Platform.Core;
-using Beta.Platform.Exceptions;
+﻿using Beta.Platform.Exceptions;
 using half = System.UInt16;
 using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.Memory
 {
+    public delegate byte Reader(uint address);
+
+    public delegate void Writer(uint address, byte data);
+
     public sealed class MMIO
     {
         private const uint SIZE = (1u << 10);

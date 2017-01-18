@@ -33,8 +33,6 @@ namespace Beta.GameBoyAdvance
         private uint source;
         private uint sourceStep;
 
-        private bool Reload;
-
         public bool Pending;
 
         public bool Enabled { get { return (controlRegister & 0x8000u) != 0; } }

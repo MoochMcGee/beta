@@ -6,13 +6,13 @@ namespace Beta.SuperFamicom.PPU
     {
         private static int[][] colorLookup = Utility.CreateArray<int>(16, 0x8000);
 
-        private byte cram_data; // latch for cgram
-        private int cram_address;
-        private byte oam_data; // latch for oram
+        private byte cgram_data; // latch for cgram
+        private int cgram_address;
+        private byte oam_data; // latch for oam
         private int oam_address;
-
-        private byte vram_data;
+        private byte vram_data; // latch for vram
         private int vram_address;
+
         private MemoryChip cram = new MemoryChip(0x0200); // 256x15-bit
         private MemoryChip oam = new MemoryChip(0x0220); // 256x16-bit + 16x16-bit
         private byte[] vram_0 = new byte[0x8000];
@@ -36,9 +36,9 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek213B()
         {
-            var data = cram.b[cram_address];
+            var data = cram.b[cgram_address];
 
-            cram_address = (cram_address + 1) & 0x1ff;
+            cgram_address = (cgram_address + 1) & 0x1ff;
 
             return data;
         }
@@ -57,8 +57,8 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek2139()
         {
-            var data = vramLatch;
-            vramLatch = vram_0[MapVRamAddress(vram_address)];
+            var data = vram_data;
+            vram_data = vram_0[MapVRamAddress(vram_address)];
 
             if ((vram_control & 0x80) == 0) { vram_address += vram_step; }
 
@@ -67,8 +67,8 @@ namespace Beta.SuperFamicom.PPU
 
         public byte Peek213A()
         {
-            var data = vramLatch;
-            vramLatch = vram_1[MapVRamAddress(vram_address)];
+            var data = vram_data;
+            vram_data = vram_1[MapVRamAddress(vram_address)];
 
             if ((vram_control & 0x80) != 0) { vram_address += vram_step; }
 
@@ -77,24 +77,24 @@ namespace Beta.SuperFamicom.PPU
 
         public void Poke2121(byte data)
         {
-            cram_address = data << 1;
+            cgram_address = data << 1;
         }
 
         public void Poke2122(byte data)
         {
-            if ((cram_address & 1) == 0)
+            if ((cgram_address & 1) == 0)
             {
-                cram_data = data;
+                cgram_data = data;
             }
             else
             {
                 data &= 0x7f; // fix games that write $ffff for white
 
-                cram.b[cram_address & 0x1fe] = cram_data;
-                cram.b[cram_address & 0x1ff] = data;
+                cram.b[cgram_address & 0x1fe] = cgram_data;
+                cram.b[cgram_address & 0x1ff] = data;
             }
 
-            cram_address = (cram_address + 1) & 0x1ff;
+            cgram_address = (cgram_address + 1) & 0x1ff;
         }
 
         public void Poke2102(byte data)

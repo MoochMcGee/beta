@@ -13,17 +13,6 @@
             Single = single;
         }
 
-        public bool Clock()
-        {
-            if ((Cycles += Single) >= Period)
-            {
-                Cycles -= Period;
-                return true;
-            }
-
-            return false;
-        }
-
         public bool ClockDown()
         {
             if ((Cycles -= Single) <= 0)

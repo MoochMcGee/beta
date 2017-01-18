@@ -5,7 +5,7 @@ using Beta.Famicom.Formats;
 using Beta.Famicom.Input;
 using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 using SimpleInjector;
 using SimpleInjector.Packaging;
 

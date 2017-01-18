@@ -1,5 +1,5 @@
 ﻿using Beta.GameBoy.CPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 
 namespace Beta.GameBoy
 {

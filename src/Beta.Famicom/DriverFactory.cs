@@ -4,7 +4,7 @@ using Beta.Famicom.Input;
 using Beta.Famicom.Memory;
 using Beta.Famicom.Messaging;
 using Beta.Famicom.PPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 using Beta.Platform.Messaging;
 using SimpleInjector;
 

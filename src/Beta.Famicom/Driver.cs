@@ -1,5 +1,5 @@
 ﻿using Beta.Famicom.CPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 
 namespace Beta.Famicom
 {

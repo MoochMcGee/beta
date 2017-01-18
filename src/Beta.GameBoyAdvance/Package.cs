@@ -2,7 +2,7 @@ using Beta.GameBoyAdvance.APU;
 using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.PPU;
-using Beta.Platform.Core;
+using Beta.Platform;
 using SimpleInjector;
 using SimpleInjector.Packaging;
 

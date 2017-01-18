@@ -1,6 +1,4 @@
-﻿using Beta.Platform.Exceptions;
-
-namespace Beta.Platform.Processors.ARM7
+﻿namespace Beta.Platform.Processors.ARM7
 {
     public partial class Core
     {

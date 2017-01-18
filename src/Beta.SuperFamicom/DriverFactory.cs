@@ -1,5 +1,5 @@
 ﻿#define LOROM
-using Beta.Platform.Core;
+using Beta.Platform;
 using Beta.Platform.Messaging;
 using Beta.SuperFamicom.Cartridges;
 using Beta.SuperFamicom.Messaging;

@@ -1,4 +1,4 @@
-﻿namespace Beta.Platform.Core
+﻿namespace Beta.Platform
 {
     public interface IDriverFactory
     {

@@ -1,4 +1,4 @@
-﻿using Beta.Platform.Core;
+﻿using Beta.Platform;
 using Beta.SuperFamicom.CPU;
 using Beta.SuperFamicom.PAD;
 using Beta.SuperFamicom.PPU;
