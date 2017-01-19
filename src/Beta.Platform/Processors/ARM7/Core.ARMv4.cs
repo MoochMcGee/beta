@@ -97,11 +97,11 @@ namespace Beta.Platform.Processors.ARM7
             if (link == 1)
             {
                 Set(14, pc.value - 4);
-                Set(15, pc.value + (MathHelper.SignExtend(code, 24) << 2));
+                Set(15, pc.value + (MathHelper.SignExtend(24, code) << 2));
             }
             else
             {
-                Set(15, pc.value + (MathHelper.SignExtend(code, 24) << 2));
+                Set(15, pc.value + (MathHelper.SignExtend(24, code) << 2));
             }
         }
 

@@ -2,7 +2,7 @@
 
 namespace Beta.Platform
 {
-    public sealed class HwndProvider : IHwndProvider
+    public sealed class HwndProvider
     {
         private readonly IntPtr handle;
 

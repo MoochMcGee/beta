@@ -26,7 +26,7 @@ namespace Beta.GameBoyAdvance
             Ppu ppu,
             MemoryMap memory,
             IProducer<AddClockSignal> clock,
-            ISignalBroker broker)
+            SignalBroker broker)
         {
             this.memory = memory;
             this.clock = clock;
@@ -35,16 +35,16 @@ namespace Beta.GameBoyAdvance
             this.ppu = ppu;
             this.cpu = cpu;
 
-            broker.Link(ppu);
-            broker.Link(apu);
-            broker.Link(timer);
+            broker.Link<ClockSignal>(ppu.Consume);
+            broker.Link<ClockSignal>(apu.Consume);
+            broker.Link<ClockSignal>(timer.Consume);
 
-            broker.Link<AddClockSignal>(cpu);
-            broker.Link<InterruptSignal>(cpu);
-            broker.Link<HBlankSignal>(dma);
-            broker.Link<VBlankSignal>(dma);
+            broker.Link<AddClockSignal>(cpu.Consume);
+            broker.Link<InterruptSignal>(cpu.Consume);
+            broker.Link<HBlankSignal>(dma.Consume);
+            broker.Link<VBlankSignal>(dma.Consume);
 
-            broker.Link(pad);
+            broker.Link<FrameSignal>(pad.Consume);
         }
 
         public void Main()

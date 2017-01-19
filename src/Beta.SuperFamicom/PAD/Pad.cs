@@ -4,7 +4,7 @@ using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PAD
 {
-    public sealed class Pad : InputBackend, IConsumer<FrameSignal>
+    public sealed class Pad : InputBackend
     {
         private readonly State state;
         private readonly int index;

@@ -4,7 +4,7 @@ namespace Beta.Platform.Messaging
 {
     public sealed class Producer<T> : IProducer<T>
     {
-        private List<IConsumer<T>> consumers = new List<IConsumer<T>>();
+        private List<Consumer<T>> consumers = new List<Consumer<T>>();
 
         public void Produce(T e)
         {
@@ -12,11 +12,11 @@ namespace Beta.Platform.Messaging
 
             for (int i = 0; i < count; i++)
             {
-                consumers[i].Consume(e);
+                consumers[i](e);
             }
         }
 
-        public void Subscribe(IConsumer<T> consumer)
+        public void Subscribe(Consumer<T> consumer)
         {
             consumers.Add(consumer);
         }

@@ -4,7 +4,7 @@ using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PPU
 {
-    public sealed partial class Ppu : IConsumer<ClockSignal>
+    public sealed partial class Ppu
     {
         private static int[][][] priorityLut = new[]
         {

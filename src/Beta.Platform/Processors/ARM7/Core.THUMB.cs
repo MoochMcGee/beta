@@ -418,7 +418,7 @@ namespace Beta.Platform.Processors.ARM7
         {
             if (GetCondition(code >> 8))
             {
-                pc.value += MathHelper.SignExtend(code, 8) << 1;
+                pc.value += MathHelper.SignExtend(8, code) << 1;
                 pipeline.refresh = true;
             }
         }
@@ -430,13 +430,13 @@ namespace Beta.Platform.Processors.ARM7
 
         private void ThumbOpB()
         {
-            pc.value += MathHelper.SignExtend(code, 11) << 1;
+            pc.value += MathHelper.SignExtend(11, code) << 1;
             pipeline.refresh = true;
         }
 
         private void ThumbOpBl1()
         {
-            lr.value = pc.value + (MathHelper.SignExtend(code, 11) << 12);
+            lr.value = pc.value + (MathHelper.SignExtend(11, code) << 12);
         }
 
         private void ThumbOpBl2()

@@ -2,31 +2,40 @@
 {
     public static class BitString
     {
-        private static uint Decode(string pattern, uint capture0, uint capture1, uint dontCare)
+        public static uint Mask(string pattern, int index = 0, uint value = 0)
         {
-            var value = 0U;
-
-            foreach (var character in pattern)
+            if (index == pattern.Length)
             {
-                switch (character)
+                return value;
+            }
+            else
+            {
+                switch (pattern[index])
                 {
-                case '-': value = (value << 1) | dontCare; break;
-                case '0': value = (value << 1) | capture0; break;
-                case '1': value = (value << 1) | capture1; break;
+                case ' ': return Mask(pattern, index + 1, (value << 0) | 0);
+                case '0': return Mask(pattern, index + 1, (value << 1) | 1);
+                case '1': return Mask(pattern, index + 1, (value << 1) | 1);
+                default : return Mask(pattern, index + 1, (value << 1) | 0);
                 }
             }
-
-            return value;
         }
 
-        public static uint Mask(string pattern)
+        public static uint Test(string pattern, int index = 0, uint value = 0)
         {
-            return Decode(pattern, 1, 1, 0);
-        }
-
-        public static uint Test(string pattern)
-        {
-            return Decode(pattern, 0, 1, 0);
+            if (index == pattern.Length)
+            {
+                return value;
+            }
+            else
+            {
+                switch (pattern[index])
+                {
+                case ' ': return Test(pattern, index + 1, (value << 0) | 0);
+                case '0': return Test(pattern, index + 1, (value << 1) | 0);
+                case '1': return Test(pattern, index + 1, (value << 1) | 1);
+                default : return Test(pattern, index + 1, (value << 1) | 0);
+                }
+            }
         }
     }
 }

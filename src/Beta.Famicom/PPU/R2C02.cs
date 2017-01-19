@@ -5,7 +5,7 @@ using Beta.Platform.Video;
 
 namespace Beta.Famicom.PPU
 {
-    public sealed class R2C02 : IConsumer<ClockSignal>
+    public sealed class R2C02
     {
         private readonly BgUnit bg;
         private readonly SpUnit sp;

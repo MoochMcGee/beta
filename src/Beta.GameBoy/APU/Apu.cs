@@ -3,7 +3,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class Apu : IConsumer<ClockSignal>
+    public sealed class Apu
     {
         private readonly MemoryMap memory;
         private readonly Mixer mixer;

@@ -6,7 +6,7 @@ using Beta.Platform.Messaging;
 namespace Beta.Famicom.Boards.Nintendo
 {
     [BoardName("NES-T(.+)ROM")]
-    public sealed class TxROM : IBoard, IConsumer<ClockSignal>
+    public sealed class TxROM : IBoard
     {
         private readonly IProducer<IrqSignal> irq;
 
@@ -26,14 +26,14 @@ namespace Beta.Famicom.Boards.Nintendo
         private int irq_counter_latch;
         private int irq_timer;
 
-        public TxROM(IProducer<IrqSignal> irq, ISignalBroker broker)
+        public TxROM(IProducer<IrqSignal> irq, SignalBroker broker)
         {
             this.irq = irq;
 
             prg_page[2] = ~1 << 13;
             prg_page[3] = ~0 << 13;
 
-            broker.Link(this);
+            broker.Link<ClockSignal>(this.Consume);
         }
 
         public void ApplyImage(CartridgeImage image)

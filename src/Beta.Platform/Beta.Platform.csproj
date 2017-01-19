@@ -91,15 +91,13 @@
     <Compile Include="Exceptions\ProcessorJammedException.cs" />
     <Compile Include="FileExtension.cs" />
     <Compile Include="HwndProvider.cs" />
-    <Compile Include="IHwndProvider.cs" />
     <Compile Include="Input\InputBackend.cs" />
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />
     <Compile Include="Messaging\ClockSignal.cs" />
-    <Compile Include="Messaging\ISignalBroker.cs" />
     <Compile Include="Messaging\SignalBroker.cs" />
     <Compile Include="Messaging\IProducer.cs" />
-    <Compile Include="Messaging\IConsumer.cs" />
+    <Compile Include="Messaging\Consumer.cs" />
     <Compile Include="Messaging\Producer.cs">
       <DependentUpon>IProducer.cs</DependentUpon>
     </Compile>

@@ -15,7 +15,7 @@ namespace Beta.Platform.Audio
         private XAudio2 engine;
         private int length;
 
-        public AudioBackend(IHwndProvider hwndProvider, ConfigurationFile config)
+        public AudioBackend(HwndProvider hwndProvider, ConfigurationFile config)
         {
             engine = new XAudio2();
             engine.StartEngine();

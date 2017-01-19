@@ -5,7 +5,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance.APU
 {
-    public sealed class Apu : IConsumer<ClockSignal>
+    public sealed class Apu
     {
         private readonly IAudioBackend audio;
         private readonly DmaController dma;

@@ -4,7 +4,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {
-    public class Pad : InputBackend, IConsumer<FrameSignal>
+    public class Pad : InputBackend
     {
         private readonly State regs;
 

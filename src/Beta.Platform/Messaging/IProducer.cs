@@ -4,6 +4,6 @@
     {
         void Produce(T e);
 
-        void Subscribe(IConsumer<T> subscriber);
+        void Subscribe(Consumer<T> subscriber);
     }
 }

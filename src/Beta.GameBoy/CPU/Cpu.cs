@@ -5,7 +5,7 @@ using Beta.Platform.Processors.LR35902;
 
 namespace Beta.GameBoy.CPU
 {
-    public class Cpu : Core, IConsumer<InterruptSignal>
+    public class Cpu : Core
     {
         public const byte INT_VBLANK = (1 << 0);
         public const byte INT_STATUS = (1 << 1);

@@ -6,8 +6,6 @@ using Beta.Platform.Messaging;
 namespace Beta.GameBoyAdvance
 {
     public sealed class DmaController
-        : IConsumer<HBlankSignal>
-        , IConsumer<VBlankSignal>
     {
         public Dma[] Channels;
 

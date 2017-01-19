@@ -3,7 +3,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Input
 {
-    public sealed class InputConnector : IConsumer<FrameSignal>
+    public sealed class InputConnector
     {
         private Joypad joypad1;
         private Joypad joypad2;

@@ -4,11 +4,7 @@ using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.CPU
 {
-    public partial class Cpu
-        : Core
-        , IConsumer<ClockSignal>
-        , IConsumer<HBlankSignal>
-        , IConsumer<VBlankSignal>
+    public partial class Cpu : Core
     {
         private readonly IProducer<ClockSignal> clock;
         private readonly SCpuState scpu;

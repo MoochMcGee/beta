@@ -2,7 +2,7 @@
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class Sq2 : IConsumer<ClockSignal>
+    public sealed class Sq2
     {
         private readonly Sq2State sq2;
 

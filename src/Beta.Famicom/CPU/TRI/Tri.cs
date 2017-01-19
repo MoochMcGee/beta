@@ -2,7 +2,7 @@
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class Tri : IConsumer<ClockSignal>
+    public sealed class Tri
     {
         private readonly TriState tri;
 

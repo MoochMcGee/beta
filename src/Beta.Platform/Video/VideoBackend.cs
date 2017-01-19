@@ -22,7 +22,7 @@ namespace Beta.Platform.Video
         private SwapChain swapChain;
         private Texture2D texture;
 
-        public VideoBackend(IHwndProvider hwndProvider, ConfigurationFile config)
+        public VideoBackend(HwndProvider hwndProvider, ConfigurationFile config)
         {
             this.handle = hwndProvider.GetHandle();
             this.width = config.Video.Width;

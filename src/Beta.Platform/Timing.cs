@@ -15,7 +15,9 @@
 
         public bool ClockDown()
         {
-            if ((Cycles -= Single) <= 0)
+            Cycles -= Single;
+
+            if (Cycles <= 0)
             {
                 Cycles += Period;
                 return true;

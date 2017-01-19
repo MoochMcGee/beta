@@ -4,13 +4,7 @@ using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
 {
-    public partial class R2A03
-        : Core
-        , IConsumer<ClockSignal>
-        , IConsumer<IrqSignal>
-        , IConsumer<VblSignal>
-        , IConsumer<HalfFrameSignal>
-        , IConsumer<QuadFrameSignal>
+    public partial class R2A03 : Core
     {
         private readonly R2A03MemoryMap bus;
         private readonly R2A03State r2a03;

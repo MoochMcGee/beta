@@ -17,7 +17,7 @@ namespace Beta.Famicom
         private readonly InputConnector input;
         private readonly BoardFactory boardFactory;
         private readonly IJoypadFactory joypadFactory;
-        private readonly ISignalBroker broker;
+        private readonly SignalBroker broker;
 
         public DriverFactory(
             Container container,
@@ -25,7 +25,7 @@ namespace Beta.Famicom
             InputConnector input,
             BoardFactory boardFactory,
             IJoypadFactory joypadFactory,
-            ISignalBroker broker)
+            SignalBroker broker)
         {
             this.container = container;
             this.cartridge = cartridge;
@@ -47,19 +47,19 @@ namespace Beta.Famicom
 
             cartridge.InsertCartridge(board);
 
-            broker.Link<HalfFrameSignal>(r2a03);
-            broker.Link<QuadFrameSignal>(r2a03);
-            broker.Link<ClockSignal>(r2a03);
-            broker.Link<ClockSignal>(r2c02);
-            broker.Link<ClockSignal>(mixer);
-            broker.Link<FrameSignal>(input);
-            broker.Link<IrqSignal>(r2a03);
-            broker.Link<VblSignal>(r2a03);
+            broker.Link<HalfFrameSignal>(r2a03.Consume);
+            broker.Link<QuadFrameSignal>(r2a03.Consume);
+            broker.Link<ClockSignal>(r2a03.Consume);
+            broker.Link<ClockSignal>(r2c02.Consume);
+            broker.Link<ClockSignal>(mixer.Consume);
+            broker.Link<FrameSignal>(input.Consume);
+            broker.Link<IrqSignal>(r2a03.Consume);
+            broker.Link<VblSignal>(r2a03.Consume);
 
-            broker.Link(container.GetInstance<Sq1>());
-            broker.Link(container.GetInstance<Sq2>());
-            broker.Link(container.GetInstance<Tri>());
-            broker.Link(container.GetInstance<Noi>());
+            broker.Link<ClockSignal>(container.GetInstance<Sq1>().Consume);
+            broker.Link<ClockSignal>(container.GetInstance<Sq2>().Consume);
+            broker.Link<ClockSignal>(container.GetInstance<Tri>().Consume);
+            broker.Link<ClockSignal>(container.GetInstance<Noi>().Consume);
 
             return container.GetInstance<Driver>();
         }

@@ -3,7 +3,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class Mixer : IConsumer<ClockSignal>
+    public sealed class Mixer
     {
         private const int SAMPLE_STEP = 528000; // 11 * 48,000
         private const int SAMPLE_PERIOD = 19687500; // 11 * 1,789,772.72~

@@ -6,8 +6,6 @@ using Beta.Platform.Processors.ARM7;
 namespace Beta.GameBoyAdvance.CPU
 {
     public class Cpu : Core
-        , IConsumer<InterruptSignal>
-        , IConsumer<AddClockSignal>
     {
         private readonly MemoryMap memory;
         private readonly DmaController dma;

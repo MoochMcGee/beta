@@ -26,10 +26,10 @@ namespace Beta.Platform
             b /= gcf;
         }
 
-        public static uint SignExtend(uint number, int bits)
+        public static uint SignExtend(int bits, uint number)
         {
-            var mask = (1u << (bits)) - 1;
-            var sign = (1u << (bits - 1));
+            var mask = (1U << bits) - 1;
+            var sign = 1U << (bits - 1);
 
             return ((number & mask) ^ sign) - sign;
         }

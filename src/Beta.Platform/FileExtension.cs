@@ -9,9 +9,6 @@
             this.Extension = extension;
         }
 
-        public override string ToString()
-        {
-            return $"*.{Extension}";
-        }
+        public override string ToString() => $"*.{Extension}";
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class Noi : IConsumer<ClockSignal>
+    public sealed class Noi
     {
         private readonly NoiState noi;
 

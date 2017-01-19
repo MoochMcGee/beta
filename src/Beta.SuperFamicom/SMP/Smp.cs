@@ -4,7 +4,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.SuperFamicom.SMP
 {
-    public sealed class Smp : IConsumer<ClockSignal>
+    public sealed class Smp
     {
         static readonly int[] instrTimes =
         {// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F

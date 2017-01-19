@@ -7,7 +7,7 @@ using word = System.UInt32;
 
 namespace Beta.GameBoyAdvance.PPU
 {
-    public partial class Ppu : IConsumer<ClockSignal>
+    public partial class Ppu
     {
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<InterruptSignal> interrupt;

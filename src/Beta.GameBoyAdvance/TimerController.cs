@@ -6,7 +6,7 @@ using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
 {
-    public sealed class TimerController : IConsumer<ClockSignal>
+    public sealed class TimerController
     {
         private static readonly int[] shiftLut = { 0, 6, 8, 10 };
 

@@ -5,8 +5,6 @@ using Beta.Platform.Messaging;
 namespace Beta.GameBoy
 {
     public sealed class Tma
-        : IConsumer<ClockSignal>
-        , IConsumer<ResetDividerSignal>
     {
         private static readonly int[] lut = new[]
         {

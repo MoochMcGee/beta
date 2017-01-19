@@ -7,7 +7,7 @@ using Beta.Platform.Video;
 
 namespace Beta.GameBoy.PPU
 {
-    public sealed class Ppu : IConsumer<ClockSignal>
+    public sealed class Ppu
     {
         private const int PRIORITY_CLR = 0;
         private const int PRIORITY_BKG = 1;

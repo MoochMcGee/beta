@@ -14,17 +14,17 @@ namespace Beta.GameBoy
         private readonly CartridgeConnector cartridgeConnector;
         private readonly Container container;
 
-        public DriverFactory(Container container, Apu apu, Cpu cpu, Pad pad, Ppu ppu, Tma tma, CartridgeConnector cartridge, ISignalBroker broker)
+        public DriverFactory(Container container, Apu apu, Cpu cpu, Pad pad, Ppu ppu, Tma tma, CartridgeConnector cartridge, SignalBroker broker)
         {
             this.container = container;
             this.cartridgeConnector = cartridge;
 
-            broker.Link(apu);
-            broker.Link(cpu);
-            broker.Link(pad);
-            broker.Link(ppu);
-            broker.Link<ClockSignal>(tma);
-            broker.Link<ResetDividerSignal>(tma);
+            broker.Link<ClockSignal>(apu.Consume);
+            broker.Link<InterruptSignal>(cpu.Consume);
+            broker.Link<FrameSignal>(pad.Consume);
+            broker.Link<ClockSignal>(ppu.Consume);
+            broker.Link<ClockSignal>(tma.Consume);
+            broker.Link<ResetDividerSignal>(tma.Consume);
         }
 
         public IDriver Create(byte[] binary)
