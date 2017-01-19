@@ -4,19 +4,15 @@ namespace Beta.GameBoyAdvance.APU
 {
     public sealed class Envelope
     {
-        public Timing Timing;
         public bool CanUpdate = true;
         public int Delta;
         public int Level;
-
-        public Envelope()
-        {
-            Timing.Single = 1;
-        }
+        public int Cycles;
+        public int Period;
 
         public void Clock()
         {
-            if (Timing.Period != 0 && Timing.Cycles != 0 && Timing.ClockDown() && CanUpdate)
+            if (Period != 0 && Cycles != 0 && ClockDown() && CanUpdate)
             {
                 var value = (Level + Delta) & 0xFF;
 
@@ -29,6 +25,19 @@ namespace Beta.GameBoyAdvance.APU
                     CanUpdate = false;
                 }
             }
+        }
+
+        public bool ClockDown()
+        {
+            Cycles--;
+
+            if (Cycles <= 0)
+            {
+                Cycles += Period;
+                return true;
+            }
+
+            return false;
         }
     }
 }

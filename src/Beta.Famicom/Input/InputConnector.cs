@@ -1,5 +1,4 @@
 ﻿using Beta.Famicom.Messaging;
-using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Input
 {

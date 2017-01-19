@@ -1,7 +1,6 @@
 ﻿using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Input;
-using Beta.Platform.Messaging;
 
 namespace Beta.GameBoyAdvance
 {

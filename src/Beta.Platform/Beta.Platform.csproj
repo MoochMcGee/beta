@@ -127,7 +127,6 @@
     <Compile Include="Processors\RP65816\Registers.cs" />
     <Compile Include="Processors\RP65816\Status.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Timing.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Video\IVideoBackend.cs" />
     <Compile Include="Video\VideoBackend.cs" />

@@ -1,5 +1,4 @@
 ﻿using Beta.Platform.Input;
-using Beta.Platform.Messaging;
 using Beta.SuperFamicom.Messaging;
 
 namespace Beta.SuperFamicom.PAD

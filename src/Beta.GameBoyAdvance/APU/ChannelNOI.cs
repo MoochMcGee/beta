@@ -1,6 +1,5 @@
 ﻿using System;
 using Beta.GameBoyAdvance.Memory;
-using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
 {
@@ -14,12 +13,11 @@ namespace Beta.GameBoyAdvance.APU
         private int shift = 8;
         private int value = 0x6000;
 
-        public ChannelNOI(MMIO mmio, Timing timing)
-            : base(mmio, timing)
+        public ChannelNOI(MMIO mmio)
+            : base(mmio)
         {
-            this.timing.Cycles =
-            this.timing.Period = divisorTable[0] * 4 * timing.Single;
-            this.timing.Single = timing.Single;
+            cycles =
+            period = divisorTable[0] * 4 * Apu.Single;
         }
 
         // 4000078h - NR41 - Channel 4 Duration (R/W)
@@ -63,7 +61,7 @@ namespace Beta.GameBoyAdvance.APU
         {
             envelope.Level = (data >> 4 & 0xF);
             envelope.Delta = (data >> 2 & 0x2) - 1;
-            envelope.Timing.Period = (data & 0x7);
+            envelope.Period = (data & 0x7);
 
             base.WriteRegister2(address, data);
         }
@@ -80,7 +78,7 @@ namespace Beta.GameBoyAdvance.APU
         {
             shift = data & 0x8;
 
-            timing.Period = (divisorTable[data & 0x7] << (data >> 4)) * 4 * timing.Single;
+            period = (divisorTable[data & 0x7] << (data >> 4)) * 4 * Apu.Single;
 
             base.WriteRegister5(address, data);
         }
@@ -90,10 +88,10 @@ namespace Beta.GameBoyAdvance.APU
             if (data >= 0x80)
             {
                 active = true;
-                timing.Cycles = timing.Period;
+                cycles = period;
 
                 duration.Counter = 64 - duration.Refresh;
-                envelope.Timing.Cycles = envelope.Timing.Period;
+                envelope.Cycles = envelope.Period;
                 envelope.CanUpdate = true;
 
                 value = 0x4000 >> shift;
@@ -122,14 +120,14 @@ namespace Beta.GameBoyAdvance.APU
             envelope.Clock();
         }
 
-        public int Render(int cycles)
+        public int Render(int t)
         {
-            var sum = timing.Cycles;
-            timing.Cycles -= cycles;
+            var sum = cycles;
+            cycles -= t;
 
             if (active)
             {
-                if (timing.Cycles >= 0)
+                if (cycles >= 0)
                 {
                     if ((value & 0x1) != 0)
                         return (byte)envelope.Level;
@@ -139,7 +137,7 @@ namespace Beta.GameBoyAdvance.APU
                     if ((value & 0x1) == 0)
                         sum = 0;
 
-                    for (; timing.Cycles < 0; timing.Cycles += timing.Period)
+                    for (; cycles < 0; cycles += period)
                     {
                         //int feedback = (((value >> 1) ^ value) & 1);
                         //value = ((value >> 1) | (feedback << xor));
@@ -147,7 +145,7 @@ namespace Beta.GameBoyAdvance.APU
                         if ((value & 0x1) != 0)
                         {
                             value = (value >> 1) ^ (0x6000 >> shift);
-                            sum += Math.Min(-timing.Cycles, timing.Period);
+                            sum += Math.Min(-cycles, period);
                         }
                         else
                         {
@@ -155,12 +153,12 @@ namespace Beta.GameBoyAdvance.APU
                         }
                     }
 
-                    return (byte)((sum * envelope.Level) / cycles);
+                    return (byte)((sum * envelope.Level) / t);
                 }
             }
             else
             {
-                for (; timing.Cycles < 0; timing.Cycles += timing.Period)
+                for (; cycles < 0; cycles += period)
                 {
                     if ((value & 0x01) != 0)
                         value = (value >> 1) ^ (0x6000 >> shift);

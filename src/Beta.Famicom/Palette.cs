@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Beta.Platform;
 
 namespace Beta.Famicom
 {
@@ -21,6 +20,8 @@ namespace Beta.Famicom
 
             private static int GenerateColor(int pixel)
             {
+                const double tau = Math.PI * 2;
+
                 const double black = 0.518;
                 const double white = 1.962;
                 const double attenuation = 0.746;
@@ -56,15 +57,15 @@ namespace Beta.Famicom
                     }
 
                     var v = (spot - black) / (white - black);
-
+                    
                     y += (v / 12);
-                    i += (v / 12) * Math.Cos((MathHelper.Tau / 12f) * p);
-                    q += (v / 12) * Math.Sin((MathHelper.Tau / 12f) * p);
+                    i += (v / 12) * Math.Cos((tau / 12) * p);
+                    q += (v / 12) * Math.Sin((tau / 12) * p);
                 }
 
-                var r = Gamma(y + 0.946882f * i + 0.623557f * q);
-                var g = Gamma(y - 0.274788f * i - 0.635691f * q);
-                var b = Gamma(y - 1.108545f * i + 1.709007f * q);
+                var r = Gamma(y + 0.946882 * i + 0.623557 * q);
+                var g = Gamma(y - 0.274788 * i - 0.635691 * q);
+                var b = Gamma(y - 1.108545 * i + 1.709007 * q);
 
                 return (r << 16) | (g << 8) | (b << 0);
             }

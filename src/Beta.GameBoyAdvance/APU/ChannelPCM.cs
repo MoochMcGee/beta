@@ -1,5 +1,4 @@
 ﻿using Beta.GameBoyAdvance.Memory;
-using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
 {
@@ -15,10 +14,13 @@ namespace Beta.GameBoyAdvance.APU
         public int Shift;
         public int Timer;
 
-        public ChannelPCM(MMIO mmio, Timing timing)
-            : base(mmio, timing)
+        public ChannelPCM(MMIO mmio)
+            : base(mmio)
         {
             array = new sbyte[32];
+
+            cycles =
+            period = Apu.Frequency;
         }
 
         private void WriteFifo(uint address, byte data)
@@ -33,8 +35,6 @@ namespace Beta.GameBoyAdvance.APU
 
         public void Initialize(Dma dma, uint address)
         {
-            base.Initialize();
-
             channel = dma;
 
             mmio.Map(address + 0, WriteFifo);

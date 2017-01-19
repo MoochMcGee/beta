@@ -18,12 +18,11 @@ namespace Beta.GameBoyAdvance.APU
         private int dimension;
         private int shift = volumeTable[0];
 
-        public ChannelWAV(MMIO mmio, Timing timing)
-            : base(mmio, timing)
+        public ChannelWAV(MMIO mmio)
+            : base(mmio)
         {
-            this.timing.Cycles =
-            this.timing.Period = (2048 - frequency) * 8 * timing.Single;
-            this.timing.Single = timing.Single;
+            cycles =
+            period = (2048 - frequency) * 8 * Apu.Single;
         }
 
         public byte Read(uint address)
@@ -77,7 +76,7 @@ namespace Beta.GameBoyAdvance.APU
         protected override void WriteRegister5(uint address, byte data)
         {
             frequency = (frequency & ~0x0FF) | (data << 0 & 0x0FF);
-            timing.Period = (2048 - frequency) * 8 * timing.Single;
+            period = (2048 - frequency) * 8 * Apu.Single;
 
             base.WriteRegister5(address, 0);
         }
@@ -85,12 +84,12 @@ namespace Beta.GameBoyAdvance.APU
         protected override void WriteRegister6(uint address, byte data)
         {
             frequency = (frequency & ~0x700) | (data << 8 & 0x700);
-            timing.Period = (2048 - frequency) * 8 * timing.Single;
+            period = (2048 - frequency) * 8 * Apu.Single;
 
             if ((data & 0x80) != 0)
             {
                 active = true;
-                timing.Cycles = timing.Single;
+                cycles = period;
 
                 duration.Counter = 256 - duration.Refresh;
 
@@ -112,36 +111,36 @@ namespace Beta.GameBoyAdvance.APU
             base.WriteRegister8(address, 0);
         }
 
-        public int Render(int cycles)
+        public int Render(int t)
         {
             if ((registers[0] & 0x80) != 0)
             {
-                var sum = timing.Cycles;
-                timing.Cycles -= cycles;
+                var sum = cycles;
+                cycles -= t;
 
                 if (active)
                 {
-                    if (timing.Cycles < 0)
+                    if (cycles < 0)
                     {
                         sum *= amp[bank][count] >> shift;
 
-                        for (; timing.Cycles < 0; timing.Cycles += timing.Period)
+                        for (; cycles < 0; cycles += period)
                         {
                             count = (count + 1) & 0x1F;
 
                             if (count == 0)
                                 bank ^= dimension;
 
-                            sum += Math.Min(-timing.Cycles, timing.Period) * amp[bank][count] >> shift;
+                            sum += Math.Min(-cycles, period) * amp[bank][count] >> shift;
                         }
 
-                        return (byte)(sum / cycles);
+                        return (byte)(sum / t);
                     }
                 }
-                else if (timing.Cycles < 0)
+                else if (cycles < 0)
                 {
-                    var c = (~timing.Cycles + timing.Single) / timing.Single;
-                    timing.Cycles += (c * timing.Single);
+                    var c = (~cycles + Apu.Single) / Apu.Single;
+                    cycles += (c * Apu.Single);
                 }
             }
 

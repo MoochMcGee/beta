@@ -1,5 +1,4 @@
 ﻿using Beta.GameBoyAdvance.Memory;
-using Beta.Platform;
 
 namespace Beta.GameBoyAdvance.APU
 {
@@ -10,9 +9,10 @@ namespace Beta.GameBoyAdvance.APU
         protected Envelope envelope = new Envelope();
         protected byte[] registers = new byte[8];
 
-        protected Timing timing;
         protected bool active;
         protected int frequency;
+        protected int cycles;
+        protected int period;
 
         public bool lenable;
         public bool renable;
@@ -23,10 +23,9 @@ namespace Beta.GameBoyAdvance.APU
             set { active = value; }
         }
 
-        protected Channel(MMIO mmio, Timing timing)
+        protected Channel(MMIO mmio)
         {
             this.mmio = mmio;
-            this.timing = timing;
         }
 
         protected virtual byte ReadRegister1(uint address)
@@ -117,14 +116,8 @@ namespace Beta.GameBoyAdvance.APU
             }
         }
 
-        public virtual void Initialize()
-        {
-        }
-
         public void Initialize(uint address)
         {
-            Initialize();
-
             mmio.Map(address + 0, ReadRegister1, WriteRegister1);
             mmio.Map(address + 1, ReadRegister2, WriteRegister2);
             mmio.Map(address + 2, ReadRegister3, WriteRegister3);

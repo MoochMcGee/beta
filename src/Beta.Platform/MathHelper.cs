@@ -1,11 +1,7 @@
-﻿using System;
-
-namespace Beta.Platform
+﻿namespace Beta.Platform
 {
     public static class MathHelper
     {
-        public const double Tau = Math.PI * 2;
-
         private static int GreatestCommonFactor(int a, int b)
         {
             while (b != 0)

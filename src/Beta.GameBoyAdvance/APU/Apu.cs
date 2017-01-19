@@ -1,5 +1,4 @@
 ﻿using Beta.GameBoyAdvance.Memory;
-using Beta.Platform;
 using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 
@@ -7,6 +6,9 @@ namespace Beta.GameBoyAdvance.APU
 {
     public sealed class Apu
     {
+        public const int Frequency = 16777216;
+        public const int Single = 48000;
+
         private readonly IAudioBackend audio;
         private readonly DmaController dma;
         private readonly MMIO mmio;
@@ -16,8 +18,8 @@ namespace Beta.GameBoyAdvance.APU
         private ChannelSQ1 sq1;
         private ChannelSQ2 sq2;
 
-        private Timing courseTiming;
-        private Timing sampleTiming;
+        private int courseTimer;
+        private int sampleTimer;
         private byte[] registers = new byte[16];
         private int bias;
         private int course;
@@ -34,20 +36,12 @@ namespace Beta.GameBoyAdvance.APU
             this.audio = audio;
             this.mmio = mmio;
 
-            courseTiming.Period = 16777216 / 512;
-            courseTiming.Single = 1;
-
-            sampleTiming.Period = 16777216;
-            sampleTiming.Single = 48000;
-
-            MathHelper.Reduce(ref sampleTiming.Period, ref sampleTiming.Single);
-
-            PCM1 = new ChannelPCM(mmio, sampleTiming);
-            PCM2 = new ChannelPCM(mmio, sampleTiming);
-            noi = new ChannelNOI(mmio, sampleTiming);
-            wav = new ChannelWAV(mmio, sampleTiming);
-            sq1 = new ChannelSQ1(mmio, sampleTiming);
-            sq2 = new ChannelSQ2(mmio, sampleTiming);
+            PCM1 = new ChannelPCM(mmio);
+            PCM2 = new ChannelPCM(mmio);
+            noi  = new ChannelNOI(mmio);
+            wav  = new ChannelWAV(mmio);
+            sq1  = new ChannelSQ1(mmio);
+            sq2  = new ChannelSQ2(mmio);
         }
 
         #region Registers
@@ -192,10 +186,10 @@ namespace Beta.GameBoyAdvance.APU
         {
             var dsa = PCM1.Level >> PCM1.Shift;
             var dsb = PCM2.Level >> PCM2.Shift;
-            var sq1 = this.sq1.Render(sampleTiming.Period);
-            var sq2 = this.sq2.Render(sampleTiming.Period);
-            var wav = this.wav.Render(sampleTiming.Period);
-            var noi = this.noi.Render(sampleTiming.Period);
+            var sq1 = this.sq1.Render(Frequency);
+            var sq2 = this.sq2.Render(Frequency);
+            var wav = this.wav.Render(Frequency);
+            var noi = this.noi.Render(Frequency);
 
             var lsample = 0; // 0x200 - bias;
             var rsample = 0; // 0x200 - bias;
@@ -268,11 +262,11 @@ namespace Beta.GameBoyAdvance.APU
 
         public void Update(int cycles)
         {
-            courseTiming.Cycles += cycles * courseTiming.Single;
+            courseTimer += cycles * 512;
 
-            while (courseTiming.Cycles >= courseTiming.Period)
+            while (courseTimer >= Frequency)
             {
-                courseTiming.Cycles -= courseTiming.Period;
+                courseTimer -= Frequency;
 
                 switch (course)
                 {
@@ -304,11 +298,11 @@ namespace Beta.GameBoyAdvance.APU
                 course = (course + 1) & 7;
             }
 
-            sampleTiming.Cycles += cycles * sampleTiming.Single;
+            sampleTimer += cycles * Single;
 
-            while (sampleTiming.Cycles >= sampleTiming.Period)
+            while (sampleTimer >= Frequency)
             {
-                sampleTiming.Cycles -= sampleTiming.Period;
+                sampleTimer -= Frequency;
                 Sample();
             }
         }

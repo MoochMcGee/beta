@@ -1,6 +1,5 @@
 ﻿using Beta.GameBoy.Messaging;
 using Beta.Platform.Input;
-using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy
 {

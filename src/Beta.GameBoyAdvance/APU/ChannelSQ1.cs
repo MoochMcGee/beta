@@ -17,29 +17,27 @@ namespace Beta.GameBoyAdvance.APU
         private int form;
         private int step = 7;
 
-        private Timing sweepTiming;
         private bool sweepEnable;
+        private int sweepCycles;
         private int sweepDelta = 1;
         private int sweepShift;
         private int sweepShadow;
+        private int sweepPeriod;
 
         public override bool Enabled
         {
             get { return active; }
         }
 
-        public ChannelSQ1(MMIO mmio, Timing timing)
-            : base(mmio, timing)
+        public ChannelSQ1(MMIO mmio)
+            : base(mmio)
         {
-            this.timing.Cycles = timing.Period = (2048 - frequency) * 16 * timing.Single;
-            this.timing.Single = timing.Single;
-
-            sweepTiming.Single = 1;
+            cycles = period = (2048 - frequency) * 16 * Apu.Single;
         }
 
         protected override void WriteRegister1(uint address, byte data)
         {
-            sweepTiming.Period = (data >> 4 & 0x7);
+            sweepPeriod = (data >> 4 & 0x7);
             sweepDelta = 1 - (data >> 2 & 0x2);
             sweepShift = (data >> 0 & 0x7);
 
@@ -64,7 +62,7 @@ namespace Beta.GameBoyAdvance.APU
         {
             envelope.Level = (data >> 4 & 0xF);
             envelope.Delta = (data >> 2 & 0x2) - 1;
-            envelope.Timing.Period = (data & 0x7);
+            envelope.Period = (data & 0x7);
 
             base.WriteRegister4(address, data &= 0xff);
         }
@@ -72,7 +70,7 @@ namespace Beta.GameBoyAdvance.APU
         protected override void WriteRegister5(uint address, byte data)
         {
             frequency = (frequency & 0x700) | (data << 0 & 0x0FF);
-            timing.Period = (2048 - frequency) * 16 * timing.Single;
+            period = (2048 - frequency) * 16 * Apu.Single;
 
             base.WriteRegister5(address, data &= 0x00);
         }
@@ -80,20 +78,20 @@ namespace Beta.GameBoyAdvance.APU
         protected override void WriteRegister6(uint address, byte data)
         {
             frequency = (frequency & 0x0FF) | (data << 8 & 0x700);
-            timing.Period = (2048 - frequency) * 16 * timing.Single;
+            period = (2048 - frequency) * 16 * Apu.Single;
 
             if ((data & 0x80) != 0)
             {
                 active = true;
-                timing.Cycles = timing.Period;
+                cycles = period;
 
                 duration.Counter = 64 - duration.Refresh;
-                envelope.Timing.Cycles = envelope.Timing.Period;
+                envelope.Cycles = envelope.Period;
                 envelope.CanUpdate = true;
 
                 sweepShadow = frequency;
-                sweepTiming.Cycles = sweepTiming.Period;
-                sweepEnable = (sweepShift != 0 || sweepTiming.Period != 0);
+                sweepCycles = sweepPeriod;
+                sweepEnable = (sweepShift != 0 || sweepPeriod != 0);
 
                 step = 7;
             }
@@ -125,7 +123,7 @@ namespace Beta.GameBoyAdvance.APU
 
         public void ClockSweep()
         {
-            if (!sweepTiming.ClockDown() || !sweepEnable || sweepTiming.Period == 0)
+            if (!ClockDown() || !sweepEnable || sweepPeriod == 0)
             {
                 return;
             }
@@ -139,38 +137,52 @@ namespace Beta.GameBoyAdvance.APU
             else if (sweepShift != 0)
             {
                 sweepShadow = result;
-                timing.Period = (2048 - sweepShadow) * 16 * timing.Single;
+                period = (2048 - sweepShadow) * 16 * Apu.Single;
             }
         }
 
-        public int Render(int cycles)
+        public int Render(int t)
         {
-            var sum = timing.Cycles;
-            timing.Cycles -= cycles;
+            var sum = cycles;
+            cycles -= t;
 
             if (active)
             {
-                if (timing.Cycles >= 0)
+                if (cycles >= 0)
                 {
                     return (byte)(envelope.Level >> dutyTable[form][step]);
                 }
 
                 sum >>= dutyTable[form][step];
 
-                for (; timing.Cycles < 0; timing.Cycles += timing.Period)
+                for (; cycles < 0; cycles += period)
                 {
-                    sum += Math.Min(-timing.Cycles, timing.Period) >> dutyTable[form][step = (step - 1) & 0x7];
+                    sum += Math.Min(-cycles, period) >> dutyTable[form][step = (step - 1) & 0x7];
                 }
 
-                return (byte)((sum * envelope.Level) / cycles);
+                return (byte)((sum * envelope.Level) / t);
             }
 
-            for (; timing.Cycles < 0; timing.Cycles += timing.Period)
+            for (; cycles < 0; cycles += period)
             {
                 step = (step - 1) & 0x7;
             }
 
             return 0;
+        }
+
+
+        public bool ClockDown()
+        {
+            sweepCycles--;
+
+            if (sweepCycles <= 0)
+            {
+                sweepCycles += sweepPeriod;
+                return true;
+            }
+
+            return false;
         }
     }
 }
