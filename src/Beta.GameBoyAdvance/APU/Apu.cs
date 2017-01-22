@@ -36,12 +36,12 @@ namespace Beta.GameBoyAdvance.APU
             this.audio = audio;
             this.mmio = mmio;
 
-            PCM1 = new ChannelPCM(mmio);
-            PCM2 = new ChannelPCM(mmio);
-            noi  = new ChannelNOI(mmio);
-            wav  = new ChannelWAV(mmio);
-            sq1  = new ChannelSQ1(mmio);
-            sq2  = new ChannelSQ2(mmio);
+            PCM1 = new ChannelPCM();
+            PCM2 = new ChannelPCM();
+            noi  = new ChannelNOI();
+            wav  = new ChannelWAV();
+            sq1  = new ChannelSQ1();
+            sq2  = new ChannelSQ2();
         }
 
         #region Registers
@@ -89,10 +89,10 @@ namespace Beta.GameBoyAdvance.APU
 
             data &= 0x80;
 
-            if (sq1.Enabled) data |= 0x01;
-            if (sq2.Enabled) data |= 0x02;
-            if (wav.Enabled) data |= 0x04;
-            if (noi.Enabled) data |= 0x08;
+            if (sq1.active) data |= 0x01;
+            if (sq2.active) data |= 0x02;
+            if (wav.active) data |= 0x04;
+            if (noi.active) data |= 0x08;
 
             return data;
         }
@@ -162,8 +162,8 @@ namespace Beta.GameBoyAdvance.APU
         {
             registers[4] = data;
 
-            PCM1.Enabled = (data & 0x80) != 0;
-            PCM2.Enabled = (data & 0x80) != 0;
+            PCM1.enabled = (data & 0x80) != 0;
+            PCM2.enabled = (data & 0x80) != 0;
         }
 
         private void Write088(uint address, byte data)
@@ -232,10 +232,41 @@ namespace Beta.GameBoyAdvance.APU
 
         public void Initialize()
         {
-            sq1.Initialize(0x060);
-            sq2.Initialize(0x068);
-            wav.Initialize(0x070);
-            noi.Initialize(0x078);
+            mmio.Map(0x060, sq1.ReadRegister1, sq1.WriteRegister1);
+            mmio.Map(0x061, sq1.ReadRegister2, sq1.WriteRegister2);
+            mmio.Map(0x062, sq1.ReadRegister3, sq1.WriteRegister3);
+            mmio.Map(0x063, sq1.ReadRegister4, sq1.WriteRegister4);
+            mmio.Map(0x064, sq1.ReadRegister5, sq1.WriteRegister5);
+            mmio.Map(0x065, sq1.ReadRegister6, sq1.WriteRegister6);
+            mmio.Map(0x066, sq1.ReadRegister7, sq1.WriteRegister7);
+            mmio.Map(0x067, sq1.ReadRegister8, sq1.WriteRegister8);
+
+            mmio.Map(0x068, sq2.ReadRegister1, sq2.WriteRegister1);
+            mmio.Map(0x069, sq2.ReadRegister2, sq2.WriteRegister2);
+            mmio.Map(0x06a, sq2.ReadRegister3, sq2.WriteRegister3);
+            mmio.Map(0x06b, sq2.ReadRegister4, sq2.WriteRegister4);
+            mmio.Map(0x06c, sq2.ReadRegister5, sq2.WriteRegister5);
+            mmio.Map(0x06d, sq2.ReadRegister6, sq2.WriteRegister6);
+            mmio.Map(0x06e, sq2.ReadRegister7, sq2.WriteRegister7);
+            mmio.Map(0x06f, sq2.ReadRegister8, sq2.WriteRegister8);
+
+            mmio.Map(0x070, wav.ReadRegister1, wav.WriteRegister1);
+            mmio.Map(0x071, wav.ReadRegister2, wav.WriteRegister2);
+            mmio.Map(0x072, wav.ReadRegister3, wav.WriteRegister3);
+            mmio.Map(0x073, wav.ReadRegister4, wav.WriteRegister4);
+            mmio.Map(0x074, wav.ReadRegister5, wav.WriteRegister5);
+            mmio.Map(0x075, wav.ReadRegister6, wav.WriteRegister6);
+            mmio.Map(0x076, wav.ReadRegister7, wav.WriteRegister7);
+            mmio.Map(0x077, wav.ReadRegister8, wav.WriteRegister8);
+
+            mmio.Map(0x078, noi.ReadRegister1, noi.WriteRegister1);
+            mmio.Map(0x079, noi.ReadRegister2, noi.WriteRegister2);
+            mmio.Map(0x07a, noi.ReadRegister3, noi.WriteRegister3);
+            mmio.Map(0x07b, noi.ReadRegister4, noi.WriteRegister4);
+            mmio.Map(0x07c, noi.ReadRegister5, noi.WriteRegister5);
+            mmio.Map(0x07d, noi.ReadRegister6, noi.WriteRegister6);
+            mmio.Map(0x07e, noi.ReadRegister7, noi.WriteRegister7);
+            mmio.Map(0x07f, noi.ReadRegister8, noi.WriteRegister8);
 
             mmio.Map(0x080, ReadReg, Write080);
             mmio.Map(0x081, ReadReg, Write081);
@@ -256,8 +287,18 @@ namespace Beta.GameBoyAdvance.APU
 
             mmio.Map(0x090, 0x09f, wav.Read, wav.Write);
 
-            PCM1.Initialize(dma.Channels[1], 0x0a0);
-            PCM2.Initialize(dma.Channels[2], 0x0a4);
+            mmio.Map(0x0a0, PCM1.WriteFifo);
+            mmio.Map(0x0a1, PCM1.WriteFifo);
+            mmio.Map(0x0a2, PCM1.WriteFifo);
+            mmio.Map(0x0a3, PCM1.WriteFifo);
+
+            mmio.Map(0x0a4, PCM2.WriteFifo);
+            mmio.Map(0x0a5, PCM2.WriteFifo);
+            mmio.Map(0x0a6, PCM2.WriteFifo);
+            mmio.Map(0x0a7, PCM2.WriteFifo);
+
+            PCM1.Initialize(dma.Channels[1]);
+            PCM2.Initialize(dma.Channels[2]);
         }
 
         public void Update(int cycles)

@@ -1,6 +1,4 @@
-﻿using Beta.Platform;
-
-namespace Beta.GameBoyAdvance.APU
+﻿namespace Beta.GameBoyAdvance.APU
 {
     public sealed class Envelope
     {

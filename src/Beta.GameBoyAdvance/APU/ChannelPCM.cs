@@ -1,29 +1,27 @@
-﻿using Beta.GameBoyAdvance.Memory;
-
-namespace Beta.GameBoyAdvance.APU
+﻿namespace Beta.GameBoyAdvance.APU
 {
-    public sealed class ChannelPCM : Channel
+    public sealed class ChannelPCM
     {
-        private Dma channel;
+        private Dma dma;
         private sbyte[] array;
         private int count;
         private int index;
         private int write;
 
+        public bool enabled;
+        public bool lenable;
+        public bool renable;
+
         public int Level;
         public int Shift;
         public int Timer;
 
-        public ChannelPCM(MMIO mmio)
-            : base(mmio)
+        public ChannelPCM()
         {
             array = new sbyte[32];
-
-            cycles =
-            period = Apu.Frequency;
         }
 
-        private void WriteFifo(uint address, byte data)
+        public void WriteFifo(uint address, byte data)
         {
             if (count < 32)
             {
@@ -33,14 +31,9 @@ namespace Beta.GameBoyAdvance.APU
             }
         }
 
-        public void Initialize(Dma dma, uint address)
+        public void Initialize(Dma dma)
         {
-            channel = dma;
-
-            mmio.Map(address + 0, WriteFifo);
-            mmio.Map(address + 1, WriteFifo);
-            mmio.Map(address + 2, WriteFifo);
-            mmio.Map(address + 3, WriteFifo);
+            this.dma = dma;
         }
 
         public void Clear()
@@ -66,9 +59,9 @@ namespace Beta.GameBoyAdvance.APU
 
             if (count > 16) return;
 
-            if (channel.Enabled && channel.Type == Dma.SPECIAL)
+            if (dma.Enabled && dma.Type == Dma.SPECIAL)
             {
-                channel.Pending = true;
+                dma.Pending = true;
             }
         }
     }

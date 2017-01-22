@@ -1,20 +1,29 @@
 ﻿using System;
-using Beta.GameBoyAdvance.Memory;
 
 namespace Beta.GameBoyAdvance.APU
 {
-    public sealed class ChannelNOI : Channel
+    public sealed class ChannelNOI
     {
         private static int[] divisorTable = new[]
         {
             0x08, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70
         };
 
-        private int shift = 8;
-        private int value = 0x6000;
+        public Duration duration = new Duration();
+        public Envelope envelope = new Envelope();
+        public byte[] registers = new byte[8];
 
-        public ChannelNOI(MMIO mmio)
-            : base(mmio)
+        public bool active;
+        public int cycles;
+        public int period;
+
+        public bool lenable;
+        public bool renable;
+
+        public int shift = 8;
+        public int value = 0x6000;
+
+        public ChannelNOI()
         {
             cycles =
             period = divisorTable[0] * 4 * Apu.Single;
@@ -51,39 +60,51 @@ namespace Beta.GameBoyAdvance.APU
         // 400007Eh - Not Used
         // 400007Fh - Not Used
 
-        protected override void WriteRegister1(uint address, byte data)
+        public byte ReadRegister1(uint address) => registers[0];
+
+        public byte ReadRegister2(uint address) => registers[1];
+
+        public byte ReadRegister3(uint address) => registers[2];
+
+        public byte ReadRegister4(uint address) => registers[3];
+
+        public byte ReadRegister5(uint address) => registers[4];
+
+        public byte ReadRegister6(uint address) => registers[5];
+
+        public byte ReadRegister7(uint address) => registers[6];
+
+        public byte ReadRegister8(uint address) => registers[7];
+
+        public void WriteRegister1(uint address, byte data)
         {
             duration.Refresh = (data & 0x3F);
             duration.Counter = 64 - duration.Refresh;
         }
 
-        protected override void WriteRegister2(uint address, byte data)
+        public void WriteRegister2(uint address, byte data)
         {
             envelope.Level = (data >> 4 & 0xF);
             envelope.Delta = (data >> 2 & 0x2) - 1;
             envelope.Period = (data & 0x7);
 
-            base.WriteRegister2(address, data);
+            registers[1] = data;
         }
 
-        protected override void WriteRegister3(uint address, byte data)
-        {
-        }
+        public void WriteRegister3(uint address, byte data) { }
 
-        protected override void WriteRegister4(uint address, byte data)
-        {
-        }
+        public void WriteRegister4(uint address, byte data) { }
 
-        protected override void WriteRegister5(uint address, byte data)
+        public void WriteRegister5(uint address, byte data)
         {
             shift = data & 0x8;
 
             period = (divisorTable[data & 0x7] << (data >> 4)) * 4 * Apu.Single;
 
-            base.WriteRegister5(address, data);
+            registers[4] = data;
         }
 
-        protected override void WriteRegister6(uint address, byte data)
+        public void WriteRegister6(uint address, byte data)
         {
             if (data >= 0x80)
             {
@@ -104,15 +125,19 @@ namespace Beta.GameBoyAdvance.APU
                 active = false;
             }
 
-            base.WriteRegister6(address, data &= 0x40);
+            registers[5] = data &= 0x40;
         }
 
-        protected override void WriteRegister7(uint address, byte data)
-        {
-        }
+        public void WriteRegister7(uint address, byte data) { }
 
-        protected override void WriteRegister8(uint address, byte data)
+        public void WriteRegister8(uint address, byte data) { }
+
+        public void ClockDuration()
         {
+            if (duration.Clock())
+            {
+                active = false;
+            }
         }
 
         public void ClockEnvelope()

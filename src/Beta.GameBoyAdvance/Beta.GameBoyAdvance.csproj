@@ -50,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APU\Channel.cs" />
     <Compile Include="APU\ChannelPCM.cs" />
     <Compile Include="APU\ChannelNOI.cs" />
     <Compile Include="APU\ChannelSQ1.cs" />
