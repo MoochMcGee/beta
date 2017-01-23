@@ -12,220 +12,165 @@ namespace Beta.GameBoyAdvance.APU
             new byte[] { 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f }
         };
 
-        private int form;
-        private int step = 7;
+        private readonly Sq1State state;
 
-        private bool sweepEnable;
-        private int sweepCycles;
-        private int sweepDelta = 1;
-        private int sweepShift;
-        private int sweepShadow;
-        private int sweepPeriod;
+        public byte[] registers = new byte[8];
 
-        public ChannelSQ1()
+        public ChannelSQ1(ApuState state)
         {
-            cycles =
-            period = (2048 - frequency) * 16 * Apu.Single;
+            this.state = state.sound_1;
+            this.state.cycles =
+            this.state.period = FrequencyToPeriod(0);
         }
 
-        public void WriteRegister1(uint address, byte data)
-        {
-            sweepPeriod = (data >> 4) & 7;
-            sweepDelta = 1 - ((data >> 2) & 2);
-            sweepShift = (data >> 0) & 7;
+        public byte ReadReg(uint address) => registers[address & 7];
 
-            base_WriteRegister1(address, data &= 0x7f);
+        public void Write060(uint address, byte data)
+        {
+            state.sweep_period = (data >> 4) & 7;
+            state.sweep_delta = 1 - ((data >> 2) & 2);
+            state.sweep_shift = (data >> 0) & 7;
+
+            registers[0] = data &= 0x7f;
         }
 
-        public void WriteRegister2(uint address, byte data) { }
+        public void Write061(uint address, byte data) { }
 
-        public void WriteRegister3(uint address, byte data)
+        public void Write062(uint address, byte data)
         {
-            form = data >> 6;
-            duration.Refresh = (data & 0x3F);
-            duration.Counter = 64 - duration.Refresh;
+            state.duty_form = data >> 6;
+            state.duration.Write1(data);
 
-            base_WriteRegister3(address, data &= 0xc0);
+            registers[2] = data &= 0xc0;
         }
 
-        public void WriteRegister4(uint address, byte data)
+        public void Write063(uint address, byte data)
         {
-            envelope.Level = (data >> 4 & 0xF);
-            envelope.Delta = (data >> 2 & 0x2) - 1;
-            envelope.Period = (data & 0x7);
+            state.envelope.Write(data);
 
-            base_WriteRegister4(address, data);
+            registers[3] = data;
         }
 
-        public void WriteRegister5(uint address, byte data)
+        public void Write064(uint address, byte data)
         {
-            frequency = (frequency & 0x700) | (data << 0 & 0x0FF);
-            period = (2048 - frequency) * 16 * Apu.Single;
+            state.frequency = (state.frequency & 0x700) | ((data << 0) & 0x0ff);
+            state.period = FrequencyToPeriod(state.frequency);
         }
 
-        public void WriteRegister6(uint address, byte data)
+        public void Write065(uint address, byte data)
         {
-            frequency = (frequency & 0x0FF) | (data << 8 & 0x700);
-            period = (2048 - frequency) * 16 * Apu.Single;
+            state.frequency = (state.frequency & 0x0ff) | ((data << 8) & 0x700);
+            state.period = FrequencyToPeriod(state.frequency);
 
             if ((data & 0x80) != 0)
             {
-                active = true;
-                cycles = period;
+                state.active = true;
+                state.cycles = state.period;
 
-                duration.Counter = 64 - duration.Refresh;
-                envelope.Cycles = envelope.Period;
-                envelope.CanUpdate = true;
+                state.duration.Reset();
+                state.envelope.Reset();
 
-                sweepShadow = frequency;
-                sweepCycles = sweepPeriod;
-                sweepEnable = (sweepShift != 0 || sweepPeriod != 0);
+                state.sweep_shadow = state.frequency;
+                state.sweep_cycles = state.sweep_period;
+                state.sweep_enable = state.sweep_period != 0 || state.sweep_shift != 0;
 
-                step = 7;
+                state.duty_step = 7;
             }
 
-            duration.Enabled = (data & 0x40) != 0;
+            state.duration.Write2(data);
 
             if ((registers[3] & 0xF8) == 0)
             {
-                active = false;
+                state.active = false;
             }
 
-            base_WriteRegister6(address, data &= 0x40);
+            registers[5] = data &= 0x40;
         }
 
-        public void WriteRegister7(uint address, byte data) { }
+        public void Write066(uint address, byte data) { }
 
-        public void WriteRegister8(uint address, byte data) { }
-
-        public void ClockEnvelope()
-        {
-            envelope.Clock();
-        }
-
-        public void ClockSweep()
-        {
-            if (!ClockDown() || !sweepEnable || sweepPeriod == 0)
-            {
-                return;
-            }
-
-            var result = sweepShadow + ((sweepShadow >> sweepShift) * sweepDelta);
-
-            if (result > 0x7ff)
-            {
-                active = false;
-            }
-            else if (sweepShift != 0)
-            {
-                sweepShadow = result;
-                period = (2048 - sweepShadow) * 16 * Apu.Single;
-            }
-        }
-
-        public int Render(int t)
-        {
-            var sum = cycles;
-            cycles -= t;
-
-            if (active)
-            {
-                if (cycles >= 0)
-                {
-                    return (byte)(envelope.Level >> dutyTable[form][step]);
-                }
-
-                sum >>= dutyTable[form][step];
-
-                for (; cycles < 0; cycles += period)
-                {
-                    sum += Math.Min(-cycles, period) >> dutyTable[form][step = (step - 1) & 0x7];
-                }
-
-                return (byte)((sum * envelope.Level) / t);
-            }
-
-            for (; cycles < 0; cycles += period)
-            {
-                step = (step - 1) & 0x7;
-            }
-
-            return 0;
-        }
+        public void Write067(uint address, byte data) { }
 
         public bool ClockDown()
         {
-            sweepCycles--;
+            state.sweep_cycles--;
 
-            if (sweepCycles <= 0)
+            if (state.sweep_cycles <= 0)
             {
-                sweepCycles += sweepPeriod;
+                state.sweep_cycles += state.sweep_period;
                 return true;
             }
 
             return false;
         }
 
-
-
-
-
-
-
-
-
-
-
-        public Duration duration = new Duration();
-        public Envelope envelope = new Envelope();
-        public byte[] registers = new byte[8];
-
-        public bool active;
-        public int frequency;
-        public int cycles;
-        public int period;
-
-        public bool lenable;
-        public bool renable;
-
-        public byte ReadRegister1(uint address) { return registers[0]; }
-
-        public byte ReadRegister2(uint address) { return registers[1]; }
-
-        public byte ReadRegister3(uint address) { return registers[2]; }
-
-        public byte ReadRegister4(uint address) { return registers[3]; }
-
-        public byte ReadRegister5(uint address) { return registers[4]; }
-
-        public byte ReadRegister6(uint address) { return registers[5]; }
-
-        public byte ReadRegister7(uint address) { return registers[6]; }
-
-        public byte ReadRegister8(uint address) { return registers[7]; }
-
-        public void base_WriteRegister1(uint address, byte data) { registers[0] = data; }
-
-        public void base_WriteRegister2(uint address, byte data) { registers[1] = data; }
-
-        public void base_WriteRegister3(uint address, byte data) { registers[2] = data; }
-
-        public void base_WriteRegister4(uint address, byte data) { registers[3] = data; }
-
-        public void base_WriteRegister5(uint address, byte data) { registers[4] = data; }
-
-        public void base_WriteRegister6(uint address, byte data) { registers[5] = data; }
-
-        public void base_WriteRegister7(uint address, byte data) { registers[6] = data; }
-
-        public void base_WriteRegister8(uint address, byte data) { registers[7] = data; }
-
         public void ClockDuration()
         {
-            if (duration.Clock())
+            if (state.duration.Clock())
             {
-                active = false;
+                state.active = false;
             }
+        }
+
+        public void ClockEnvelope()
+        {
+            state.envelope.Clock();
+        }
+
+        public void ClockSweep()
+        {
+            if (!ClockDown() || !state.sweep_enable || state.sweep_period == 0)
+            {
+                return;
+            }
+
+            var result = state.sweep_shadow + ((state.sweep_shadow >> state.sweep_shift) * state.sweep_delta);
+
+            if (result > 0x7ff)
+            {
+                state.active = false;
+            }
+            else if (state.sweep_shift != 0)
+            {
+                state.sweep_shadow = result;
+                state.period = FrequencyToPeriod(state.sweep_shadow);
+            }
+        }
+
+        private static int FrequencyToPeriod(int f)
+        {
+            return (2048 - f) * 16 * Apu.Single;
+        }
+
+        public int Render(int t)
+        {
+            var sum = state.cycles;
+            state.cycles -= t;
+
+            if (state.active)
+            {
+                if (state.cycles >= 0)
+                {
+                    return (byte)(state.envelope.GetOutput() >> dutyTable[state.duty_form][state.duty_step]);
+                }
+
+                sum >>= dutyTable[state.duty_form][state.duty_step];
+
+                for (; state.cycles < 0; state.cycles += state.period)
+                {
+                    state.duty_step = (state.duty_step - 1) & 0x7;
+                    sum += Math.Min(-state.cycles, state.period) >> dutyTable[state.duty_form][state.duty_step];
+                }
+
+                return (byte)((sum * state.envelope.GetOutput()) / t);
+            }
+
+            for (; state.cycles < 0; state.cycles += state.period)
+            {
+                state.duty_step = (state.duty_step - 1) & 0x7;
+            }
+
+            return 0;
         }
     }
 }

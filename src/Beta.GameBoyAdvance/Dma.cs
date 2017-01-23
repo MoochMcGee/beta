@@ -1,4 +1,5 @@
 ﻿using System;
+using Beta.GameBoyAdvance.CPU;
 using Beta.GameBoyAdvance.Memory;
 using Beta.GameBoyAdvance.Messaging;
 using Beta.Platform.Messaging;
@@ -21,7 +22,7 @@ namespace Beta.GameBoyAdvance
         private readonly MMIO mmio;
         private readonly IProducer<InterruptSignal> interrupt;
 
-        private ushort interruptType;
+        private Interrupt interruptType;
 
         private ushort controlRegister;
         private ushort lengthRegister;
@@ -38,7 +39,7 @@ namespace Beta.GameBoyAdvance
         public bool Enabled { get { return (controlRegister & 0x8000u) != 0; } }
         public uint Type { get { return (controlRegister & 0x3000u); } }
 
-        public Dma(MemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt, ushort interruptType)
+        public Dma(MemoryMap memory, MMIO mmio, IProducer<InterruptSignal> interrupt, Interrupt interruptType)
         {
             this.memory = memory;
             this.mmio = mmio;

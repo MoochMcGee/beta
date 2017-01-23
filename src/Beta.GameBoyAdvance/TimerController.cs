@@ -11,25 +11,41 @@ namespace Beta.GameBoyAdvance
         private static readonly int[] shiftLut = { 0, 6, 8, 10 };
 
         private readonly Apu apu;
-        private readonly MMIO mmio;
+        private readonly Timer[] timers;
         private readonly IProducer<InterruptSignal> interrupt;
 
-        private Timer[] timers;
         private int counter;
 
         public TimerController(Apu apu, MMIO mmio, IProducer<InterruptSignal> interrupt)
         {
             this.apu = apu;
-            this.mmio = mmio;
             this.interrupt = interrupt;
 
-            timers = new Timer[4]
-            {
-                new Timer(Cpu.Source.Timer0),
-                new Timer(Cpu.Source.Timer1),
-                new Timer(Cpu.Source.Timer2),
-                new Timer(Cpu.Source.Timer3)
-            };
+            timers = new Timer[4];
+            timers[0] = new Timer(Interrupt.Timer0);
+            timers[1] = new Timer(Interrupt.Timer1);
+            timers[2] = new Timer(Interrupt.Timer2);
+            timers[3] = new Timer(Interrupt.Timer3);
+
+            mmio.Map(0x100, ReadCounter0, WriteCounter0);
+            mmio.Map(0x101, ReadCounter1, WriteCounter1);
+            mmio.Map(0x102, ReadControl0, WriteControl0);
+            mmio.Map(0x103, ReadControl1, WriteControl1);
+
+            mmio.Map(0x104, ReadCounter0, WriteCounter0);
+            mmio.Map(0x105, ReadCounter1, WriteCounter1);
+            mmio.Map(0x106, ReadControl0, WriteControl0);
+            mmio.Map(0x107, ReadControl1, WriteControl1);
+
+            mmio.Map(0x108, ReadCounter0, WriteCounter0);
+            mmio.Map(0x109, ReadCounter1, WriteCounter1);
+            mmio.Map(0x10a, ReadControl0, WriteControl0);
+            mmio.Map(0x10b, ReadControl1, WriteControl1);
+
+            mmio.Map(0x10c, ReadCounter0, WriteCounter0);
+            mmio.Map(0x10d, ReadCounter1, WriteCounter1);
+            mmio.Map(0x10e, ReadControl0, WriteControl0);
+            mmio.Map(0x10f, ReadControl1, WriteControl1);
         }
 
         #region Registers
@@ -122,7 +138,7 @@ namespace Beta.GameBoyAdvance
                     var delta = tnext - tprev;
                     if (delta > 0)
                     {
-                        ClockTimer(i, delta);
+                        TimerClock(i, delta);
                     }
                 }
             }
@@ -130,54 +146,37 @@ namespace Beta.GameBoyAdvance
             counter = next;
         }
 
-        private void ClockTimer(int n, int times)
+        private void TimerClock(int n, int times)
         {
             var timer = timers[n];
 
             var counter = (timer.counter + times) & 0xffff;
-            if (counter <= timer.counter)
+            if (counter < timer.counter)
             {
                 counter += timer.refresh;
 
-                if (apu.PCM1.Timer == n) { apu.PCM1.Clock(); }
-                if (apu.PCM2.Timer == n) { apu.PCM2.Clock(); }
-
-                if ((timer.control & 0x40) != 0)
-                {
-                    var irq = new InterruptSignal(timer.interrupt);
-                    interrupt.Produce(irq);
-                }
-
-                if (n < 3 && (timers[n + 1].control & 0x84) == 0x84)
-                {
-                    ClockTimer(n + 1, 1);
-                }
+                TimerCarry(n);
             }
 
             timer.counter = counter;
         }
 
-        public void Initialize()
+        private void TimerCarry(int n)
         {
-            mmio.Map(0x100, ReadCounter0, WriteCounter0);
-            mmio.Map(0x101, ReadCounter1, WriteCounter1);
-            mmio.Map(0x102, ReadControl0, WriteControl0);
-            mmio.Map(0x103, ReadControl1, WriteControl1);
+            if (apu.sound_a.timer == n) { apu.sound_a.Clock(); }
+            if (apu.sound_b.timer == n) { apu.sound_b.Clock(); }
 
-            mmio.Map(0x104, ReadCounter0, WriteCounter0);
-            mmio.Map(0x105, ReadCounter1, WriteCounter1);
-            mmio.Map(0x106, ReadControl0, WriteControl0);
-            mmio.Map(0x107, ReadControl1, WriteControl1);
+            var timer = timers[n];
+            if ((timer.control & 0x40) != 0)
+            {
+                var irq = new InterruptSignal(timer.interrupt);
+                interrupt.Produce(irq);
+            }
 
-            mmio.Map(0x108, ReadCounter0, WriteCounter0);
-            mmio.Map(0x109, ReadCounter1, WriteCounter1);
-            mmio.Map(0x10a, ReadControl0, WriteControl0);
-            mmio.Map(0x10b, ReadControl1, WriteControl1);
-
-            mmio.Map(0x10c, ReadCounter0, WriteCounter0);
-            mmio.Map(0x10d, ReadCounter1, WriteCounter1);
-            mmio.Map(0x10e, ReadControl0, WriteControl0);
-            mmio.Map(0x10f, ReadControl1, WriteControl1);
+            if (n < 3 && (timers[n + 1].control & 0x84) == 0x84)
+            {
+                TimerClock(n + 1, 1);
+            }
         }
     }
 }

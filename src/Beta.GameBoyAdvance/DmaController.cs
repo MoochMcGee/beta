@@ -13,10 +13,10 @@ namespace Beta.GameBoyAdvance
         {
             Channels = new[]
             {
-                new Dma(memory, mmio, interrupt, Cpu.Source.Dma0),
-                new Dma(memory, mmio, interrupt, Cpu.Source.Dma1),
-                new Dma(memory, mmio, interrupt, Cpu.Source.Dma2),
-                new Dma(memory, mmio, interrupt, Cpu.Source.Dma3)
+                new Dma(memory, mmio, interrupt, Interrupt.Dma0),
+                new Dma(memory, mmio, interrupt, Interrupt.Dma1),
+                new Dma(memory, mmio, interrupt, Interrupt.Dma2),
+                new Dma(memory, mmio, interrupt, Interrupt.Dma3)
             };
 
             Channels[0].Initialize(0x0b0);

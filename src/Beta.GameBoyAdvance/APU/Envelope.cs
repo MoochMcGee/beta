@@ -2,40 +2,42 @@
 {
     public sealed class Envelope
     {
-        public bool CanUpdate = true;
-        public int Delta;
-        public int Level;
-        public int Cycles;
-        public int Period;
+        private int upward;
+        private int volume;
+        private int cycles;
+        private int period;
 
         public void Clock()
         {
-            if (Period != 0 && Cycles != 0 && ClockDown() && CanUpdate)
+            if (cycles != 0 && period != 0)
             {
-                var value = (Level + Delta) & 0xFF;
+                cycles--;
 
-                if (value < 0x10)
+                if (cycles == 0)
                 {
-                    Level = value;
-                }
-                else
-                {
-                    CanUpdate = false;
+                    cycles = period;
+
+                    if (upward == 1 && volume < 0xf) { volume++; }
+                    if (upward == 0 && volume > 0x0) { volume--; }
                 }
             }
         }
 
-        public bool ClockDown()
+        public void Reset()
         {
-            Cycles--;
+            cycles = period;
+        }
 
-            if (Cycles <= 0)
-            {
-                Cycles += Period;
-                return true;
-            }
+        public void Write(byte data)
+        {
+            volume = (data >> 4) & 15;
+            upward = (data >> 3) & 1;
+            period = (data >> 0) & 7;
+        }
 
-            return false;
+        public int GetOutput()
+        {
+            return volume;
         }
     }
 }

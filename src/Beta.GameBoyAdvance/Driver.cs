@@ -50,7 +50,6 @@ namespace Beta.GameBoyAdvance
         public void Main()
         {
             cpu.Initialize();
-            apu.Initialize();
 
             while (true)
             {

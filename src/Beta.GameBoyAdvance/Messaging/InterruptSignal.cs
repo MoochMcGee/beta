@@ -1,10 +1,12 @@
-﻿namespace Beta.GameBoyAdvance.Messaging
+﻿using Beta.GameBoyAdvance.CPU;
+
+namespace Beta.GameBoyAdvance.Messaging
 {
     public sealed class InterruptSignal
     {
-        public readonly ushort Flag;
+        public readonly Interrupt Flag;
 
-        public InterruptSignal(ushort flag)
+        public InterruptSignal(Interrupt flag)
         {
             this.Flag = flag;
         }

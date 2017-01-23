@@ -137,7 +137,7 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (hblankIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.HBlank));
+                interrupt.Produce(new InterruptSignal(Interrupt.HBlank));
             }
 
             if (vclock < 160)
@@ -157,7 +157,7 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vblankIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.VBlank));
+                interrupt.Produce(new InterruptSignal(Interrupt.VBlank));
             }
 
             vblank_producer.Produce(VBlankSignal.Singleton);
@@ -277,7 +277,7 @@ namespace Beta.GameBoyAdvance.PPU
 
             if (vmatch && vmatchIrq)
             {
-                interrupt.Produce(new InterruptSignal(Cpu.Source.VCheck));
+                interrupt.Produce(new InterruptSignal(Interrupt.VCheck));
             }
         }
 

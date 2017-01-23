@@ -51,13 +51,6 @@ namespace Beta.GameBoyAdvance.CPU
             memory.Write(size, address, data);
         }
 
-        public override void Initialize()
-        {
-            base.Initialize();
-
-            timer.Initialize();
-        }
-
         public override void Update()
         {
             interrupt = ((regs.ief & regs.irf) != 0) && regs.ime;
@@ -73,26 +66,6 @@ namespace Beta.GameBoyAdvance.CPU
         public void Consume(AddClockSignal e)
         {
             cycles += e.Cycles;
-        }
-
-        public static class Source
-        {
-            public const ushort VBlank = 0x0001; // 0 - lcd v-blank
-            public const ushort HBlank = 0x0002; // 1 - lcd h-blank
-            public const ushort VCheck = 0x0004; // 2 - lcd v-counter match
-            public const ushort Timer0 = 0x0008; // 3 - timer 0 overflow
-            public const ushort Timer1 = 0x0010; // 4 - timer 1 overflow
-            public const ushort Timer2 = 0x0020; // 5 - timer 2 overflow
-            public const ushort Timer3 = 0x0040; // 6 - timer 3 overflow
-            public const ushort Serial = 0x0080; // 7 - serial communication
-            public const ushort Dma0   = 0x0100; // 8 - dma 0
-            public const ushort Dma1   = 0x0200; // 9 - dma 1
-            public const ushort Dma2   = 0x0400; // a - dma 2
-            public const ushort Dma3   = 0x0800; // b - dma 3
-            public const ushort Joypad = 0x1000; // c - keypad
-            public const ushort Cart   = 0x2000; // d - game pak
-            public const ushort Res0   = 0x4000; // e - not used
-            public const ushort Res1   = 0x8000; // f - not used
         }
     }
 }

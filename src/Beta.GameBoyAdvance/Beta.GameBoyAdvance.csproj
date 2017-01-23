@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APU\ApuState.cs" />
     <Compile Include="APU\ChannelPCM.cs" />
     <Compile Include="APU\ChannelNOI.cs" />
     <Compile Include="APU\ChannelSQ1.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="APU\Duration.cs" />
     <Compile Include="APU\Envelope.cs" />
     <Compile Include="CPU\Cpu.cs" />
+    <Compile Include="CPU\Interrupt.cs" />
     <Compile Include="Dma.cs" />
     <Compile Include="DmaController.cs" />
     <Compile Include="DriverFactory.cs" />

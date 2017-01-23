@@ -1,13 +1,16 @@
-﻿namespace Beta.GameBoyAdvance
+﻿using Beta.GameBoyAdvance.CPU;
+
+namespace Beta.GameBoyAdvance
 {
     public sealed class Timer
     {
-        public ushort interrupt;
+        public readonly Interrupt interrupt;
+
         public int control;
         public int counter;
         public int refresh;
 
-        public Timer(ushort interrupt)
+        public Timer(Interrupt interrupt)
         {
             this.interrupt = interrupt;
         }
