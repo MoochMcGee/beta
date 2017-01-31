@@ -93,30 +93,23 @@ namespace Beta.GameBoy.APU
             {
                 noi.timer = noi.period;
 
-                int feedback = (noi.lfsr ^ (noi.lfsr >> 1)) & 1;
-                noi.lfsr = noi.lfsr >> 1;
+                var tap0 = (noi.lfsr >> 0) & 1;
+                var tap1 = (noi.lfsr >> 1) & 1;
+                var next = (tap0 ^ tap1);
 
-                if (noi.lfsr_mode == 1)
-                {
-                    // the documentation says this is correct, but it sounds
-                    // wrong.
-                    // 
-                    // noi.lfsr |= feedback << 14;
-                    noi.lfsr |= feedback << 6;
-                }
-                else
-                {
-                    noi.lfsr |= feedback << 14;
-                }
+                noi.lfsr = noi.lfsr >> 1;
+                noi.lfsr = noi.lfsr_mode == 1
+                    ? (noi.lfsr & ~0x4040) | (next * 0x4040)
+                    : (noi.lfsr & ~0x4000) | (next * 0x4000);
             }
         }
 
         private void DurationTick()
         {
-            Duration.Tick(sq1.duration,  64, ref sq1.enabled);
-            Duration.Tick(sq2.duration,  64, ref sq2.enabled);
-            Duration.Tick(wav.duration, 256, ref wav.enabled);
-            Duration.Tick(noi.duration,  64, ref noi.enabled);
+            if (Duration.Tick(sq1.duration)) sq1.enabled = false;
+            if (Duration.Tick(sq2.duration)) sq2.enabled = false;
+            if (Duration.Tick(wav.duration)) wav.enabled = false;
+            if (Duration.Tick(noi.duration)) noi.enabled = false;
         }
 
         private void EnvelopeTick()

@@ -1,10 +1,8 @@
-﻿using static System.Math;
-
-namespace Beta.GameBoy.APU
+﻿namespace Beta.GameBoy.APU
 {
     public sealed class Envelope
     {
-        public int count;
+        public int counter;
         public int direction;
         public int latch;
         public int period;
@@ -12,20 +10,17 @@ namespace Beta.GameBoy.APU
 
         public static void Tick(Envelope e)
         {
-            if (e.period == 0 || e.timer == 0)
+            if (e.period == 0)
             {
                 return;
             }
 
-            e.timer--;
-
-            if (e.timer == 0)
+            if (e.timer != 0 && --e.timer == 0)
             {
                 e.timer = e.period;
-                e.count = e.direction == 0
-                    ? Max(e.count - 1, 0x0)
-                    : Min(e.count + 1, 0xf)
-                    ;
+
+                if (e.direction == 0 && e.counter > 0x0) { e.counter--; }
+                if (e.direction == 1 && e.counter < 0xf) { e.counter++; }
             }
         }
     }

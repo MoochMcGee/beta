@@ -40,8 +40,7 @@ namespace Beta.GameBoy.APU
 
             case 0xff11:
                 sq1.duty_form = (data >> 6) & 3;
-                sq1.duration.latch = (data >> 0) & 63;
-                sq1.duration.count = 64 - sq1.duration.latch;
+                sq1.duration.counter = 64 - (data & 63);
                 break;
 
             case 0xff12:
@@ -62,18 +61,18 @@ namespace Beta.GameBoy.APU
 
             case 0xff14:
                 sq1.period = (sq1.period & 0x0ff) | ((data << 8) & 0x700);
-                sq1.duration.loop = (data & 0x40) == 0;
+                sq1.duration.enabled = (data & 0x40) != 0;
 
                 if ((data & 0x80) != 0 && sq1.dac_power)
                 {
                     sq1.timer = (0x800 - sq1.period) * 4;
-                    sq1.envelope.count = sq1.envelope.latch;
+                    sq1.envelope.counter = sq1.envelope.latch;
                     sq1.envelope.timer = sq1.envelope.period;
                     sq1.enabled = true;
 
-                    if (sq1.duration.count == 0)
+                    if (sq1.duration.counter == 0)
                     {
-                        sq1.duration.count = 64;
+                        sq1.duration.counter = 64;
                     }
 
                     sq1.sweep_timer = sq1.sweep_period;

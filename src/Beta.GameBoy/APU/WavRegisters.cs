@@ -41,8 +41,7 @@ namespace Beta.GameBoy.APU
                 break;
 
             case 0xff1b:
-                wav.duration.latch = data;
-                wav.duration.count = 256 - wav.duration.latch;
+                wav.duration.counter = 256 - data;
                 break;
 
             case 0xff1c:
@@ -63,7 +62,7 @@ namespace Beta.GameBoy.APU
 
             case 0xff1e:
                 wav.period = (wav.period & 0x0ff) | ((data << 8) & 0x700);
-                wav.duration.loop = (data & 0x40) == 0;
+                wav.duration.enabled = (data & 0x40) != 0;
 
                 if ((data & 0x80) != 0 && wav.dac_power)
                 {
@@ -72,9 +71,9 @@ namespace Beta.GameBoy.APU
                     wav.wave_ram_shift = 4;
                     wav.enabled = true;
 
-                    if (wav.duration.count == 0)
+                    if (wav.duration.counter == 0)
                     {
-                        wav.duration.count = 256;
+                        wav.duration.counter = 256;
                     }
                 }
                 break;

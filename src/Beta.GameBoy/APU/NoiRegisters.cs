@@ -39,8 +39,7 @@ namespace Beta.GameBoy.APU
             {
             case 0xff1f: break;
             case 0xff20:
-                noi.duration.latch = (data >> 0) & 63;
-                noi.duration.count = 64 - noi.duration.latch;
+                noi.duration.counter = 64 - (data & 63);
                 break;
 
             case 0xff21:
@@ -64,19 +63,19 @@ namespace Beta.GameBoy.APU
                 break;
 
             case 0xff23:
-                noi.duration.loop = (data & 0x40) == 0;
+                noi.duration.enabled = (data & 0x40) != 0;
 
                 if ((data & 0x80) != 0 && noi.dac_power)
                 {
                     noi.timer = noi.period;
-                    noi.envelope.count = noi.envelope.latch;
+                    noi.envelope.counter = noi.envelope.latch;
                     noi.envelope.timer = noi.envelope.period;
                     noi.lfsr = 0x7fff;
                     noi.enabled = true;
 
-                    if (noi.duration.count == 0)
+                    if (noi.duration.counter == 0)
                     {
-                        noi.duration.count = 64;
+                        noi.duration.counter = 64;
                     }
                 }
                 break;

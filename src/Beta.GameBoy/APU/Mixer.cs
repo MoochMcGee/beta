@@ -33,12 +33,12 @@ namespace Beta.GameBoy.APU
         public void RenderSample()
         {
             int sq1_out = sq1.enabled
-                ? sq1.envelope.count * square_lut[sq1.duty_form][sq1.duty_step]
+                ? sq1.envelope.counter * square_lut[sq1.duty_form][sq1.duty_step]
                 : 0
                 ;
 
             int sq2_out = sq2.enabled
-                ? sq2.envelope.count * square_lut[sq2.duty_form][sq2.duty_step]
+                ? sq2.envelope.counter * square_lut[sq2.duty_form][sq2.duty_step]
                 : 0
                 ;
 
@@ -48,7 +48,7 @@ namespace Beta.GameBoy.APU
                 ;
 
             int noi_out = noi.enabled
-                ? noi.envelope.count * (~noi.lfsr & 1)
+                ? noi.envelope.counter * (~noi.lfsr & 1)
                 : 0
                 ;
 
