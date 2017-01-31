@@ -2,38 +2,30 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class NoiRegisters
+    public static class NoiRegisters
     {
         private static readonly int[] divisor_lut = new[]
         {
             8, 16, 32, 48, 64, 80, 96, 112
         };
 
-        private readonly NoiState noi;
-        private readonly byte[] regs = new byte[5];
-
-        public NoiRegisters(State state)
-        {
-            this.noi = state.apu.noi;
-        }
-
-        public byte Read(ushort address)
+        public static byte Read(NoiState noi, ushort address)
         {
             switch (address)
             {
-            case 0xff1f: return (byte)(0xff | regs[0]);
-            case 0xff20: return (byte)(0xff | regs[1]);
-            case 0xff21: return (byte)(0x00 | regs[2]);
-            case 0xff22: return (byte)(0x00 | regs[3]);
-            case 0xff23: return (byte)(0xbf | regs[4]);
+            case 0xff1f: return (byte)(0xff | noi.regs[0]);
+            case 0xff20: return (byte)(0xff | noi.regs[1]);
+            case 0xff21: return (byte)(0x00 | noi.regs[2]);
+            case 0xff22: return (byte)(0x00 | noi.regs[3]);
+            case 0xff23: return (byte)(0xbf | noi.regs[4]);
             }
 
             throw new CompilerPleasingException();
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(NoiState noi, ushort address, byte data)
         {
-            regs[address - 0xff1f] = data;
+            noi.regs[address - 0xff1f] = data;
 
             switch (address)
             {

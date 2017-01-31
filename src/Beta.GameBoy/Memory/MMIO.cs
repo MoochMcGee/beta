@@ -10,7 +10,6 @@ namespace Beta.GameBoy.Memory
         private readonly HRAM hram;
         private readonly Wave wave;
 
-        private readonly ApuRegisters apu;
         private readonly IProducer<ResetDividerSignal> resetDivider;
 
         public MMIO(State state, HRAM hram, Wave wave, IProducer<ResetDividerSignal> resetDivider)
@@ -19,15 +18,13 @@ namespace Beta.GameBoy.Memory
             this.hram = hram;
             this.wave = wave;
             this.resetDivider = resetDivider;
-
-            this.apu = new ApuRegisters(state);
         }
 
         public byte Read(ushort address)
         {
             if (address >= 0xff10 && address <= 0xff2f)
             {
-                return apu.Read(address);
+                return ApuRegisters.Read(state.apu, address);
             }
             else if (address >= 0xff30 && address <= 0xff3f)
             {
@@ -75,7 +72,7 @@ namespace Beta.GameBoy.Memory
         {
             if (address >= 0xff10 && address <= 0xff2f)
             {
-                apu.Write(address, data);
+                ApuRegisters.Write(state.apu, address, data);
             }
             else if (address >= 0xff30 && address <= 0xff3f)
             {

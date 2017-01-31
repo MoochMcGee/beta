@@ -16,5 +16,7 @@
         public int wave_ram_cursor;
         public int wave_ram_output;
         public int wave_ram_shift;
+
+        public byte[] regs = new byte[5];
     }
 }

@@ -2,72 +2,64 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class Sq2Registers
+    public static class Sq2Registers
     {
-        private readonly Sq2State sq2;
-        private readonly byte[] regs = new byte[5];
-
-        public Sq2Registers(State state)
-        {
-            this.sq2 = state.apu.sq2;
-        }
-
-        public byte Read(ushort address)
+        public static byte Read(Sq2State e, ushort address)
         {
             switch (address)
             {
-            case 0xff15: return (byte)(0xff | regs[0]);
-            case 0xff16: return (byte)(0x3f | regs[1]);
-            case 0xff17: return (byte)(0x00 | regs[2]);
-            case 0xff18: return (byte)(0xff | regs[3]);
-            case 0xff19: return (byte)(0xbf | regs[4]);
+            case 0xff15: return (byte)(0xff | e.regs[0]);
+            case 0xff16: return (byte)(0x3f | e.regs[1]);
+            case 0xff17: return (byte)(0x00 | e.regs[2]);
+            case 0xff18: return (byte)(0xff | e.regs[3]);
+            case 0xff19: return (byte)(0xbf | e.regs[4]);
             }
 
             throw new CompilerPleasingException();
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(Sq2State e, ushort address, byte data)
         {
-            regs[address - 0xff15] = data;
+            e.regs[address - 0xff15] = data;
 
             switch (address)
             {
             case 0xff15: break;
             case 0xff16:
-                sq2.duty_form = (data >> 6) & 3;
-                sq2.duration.counter = 64 - (data & 63);
+                e.duty_form = (data >> 6) & 3;
+                e.duration.counter = 64 - (data & 63);
                 break;
 
             case 0xff17:
-                sq2.dac_power = (data & 0xf8) != 0;
-                if (!sq2.dac_power)
+                e.dac_power = (data & 0xf8) != 0;
+                if (!e.dac_power)
                 {
-                    sq2.enabled = false;
+                    e.enabled = false;
                 }
 
-                sq2.envelope.latch = (data >> 4) & 15;
-                sq2.envelope.direction = (data >> 3) & 1;
-                sq2.envelope.period = (data >> 0) & 7;
+                e.envelope.latch = (data >> 4) & 15;
+                e.envelope.direction = (data >> 3) & 1;
+                e.envelope.period = (data >> 0) & 7;
                 break;
 
             case 0xff18:
-                sq2.period = (sq2.period & 0x700) | ((data << 0) & 0x0ff);
+                e.period = (e.period & 0x700) | ((data << 0) & 0x0ff);
                 break;
 
             case 0xff19:
-                sq2.period = (sq2.period & 0x0ff) | ((data << 8) & 0x700);
-                sq2.duration.enabled = (data & 0x40) != 0;
+                e.period = (e.period & 0x0ff) | ((data << 8) & 0x700);
+                e.duration.enabled = (data & 0x40) != 0;
 
-                if ((data & 0x80) != 0 && sq2.dac_power)
+                if ((data & 0x80) != 0 && e.dac_power)
                 {
-                    sq2.timer = (0x800 - sq2.period) * 4;
-                    sq2.envelope.counter = sq2.envelope.latch;
-                    sq2.envelope.timer = sq2.envelope.period;
-                    sq2.enabled = true;
+                    e.timer = (0x800 - e.period) * 4;
+                    e.envelope.counter = e.envelope.latch;
+                    e.envelope.timer = e.envelope.period;
+                    e.enabled = true;
 
-                    if (sq2.duration.counter == 0)
+                    if (e.duration.counter == 0)
                     {
-                        sq2.duration.counter = 64;
+                        e.duration.counter = 64;
                     }
                 }
                 break;

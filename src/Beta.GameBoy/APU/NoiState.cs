@@ -15,5 +15,7 @@
 
         public int lfsr_frequency;
         public int lfsr_divisor;
+
+        public byte[] regs = new byte[5];
     }
 }

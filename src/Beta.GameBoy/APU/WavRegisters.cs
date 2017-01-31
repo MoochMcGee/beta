@@ -2,78 +2,70 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class WavRegisters
+    public static class WavRegisters
     {
-        private readonly WavState wav;
-        private readonly byte[] regs = new byte[5];
-
-        public WavRegisters(State state)
-        {
-            this.wav = state.apu.wav;
-        }
-
-        public byte Read(ushort address)
+        public static byte Read(WavState e, ushort address)
         {
             switch (address)
             {
-            case 0xff1a: return (byte)(0x7f | regs[0]);
-            case 0xff1b: return (byte)(0xff | regs[1]);
-            case 0xff1c: return (byte)(0x9f | regs[2]);
-            case 0xff1d: return (byte)(0xff | regs[3]);
-            case 0xff1e: return (byte)(0xbf | regs[4]);
+            case 0xff1a: return (byte)(0x7f | e.regs[0]);
+            case 0xff1b: return (byte)(0xff | e.regs[1]);
+            case 0xff1c: return (byte)(0x9f | e.regs[2]);
+            case 0xff1d: return (byte)(0xff | e.regs[3]);
+            case 0xff1e: return (byte)(0xbf | e.regs[4]);
             }
 
             throw new CompilerPleasingException();
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(WavState e, ushort address, byte data)
         {
-            regs[address - 0xff1a] = data;
+            e.regs[address - 0xff1a] = data;
 
             switch (address)
             {
             case 0xff1a:
-                wav.dac_power = (data & 0x80) != 0;
-                if (!wav.dac_power)
+                e.dac_power = (data & 0x80) != 0;
+                if (!e.dac_power)
                 {
-                    wav.enabled = false;
+                    e.enabled = false;
                 }
                 break;
 
             case 0xff1b:
-                wav.duration.counter = 256 - data;
+                e.duration.counter = 256 - data;
                 break;
 
             case 0xff1c:
-                wav.volume_code = (data >> 5) & 3;
+                e.volume_code = (data >> 5) & 3;
 
-                switch (wav.volume_code)
+                switch (e.volume_code)
                 {
-                case 0: wav.volume_shift = 4; break;
-                case 1: wav.volume_shift = 0; break;
-                case 2: wav.volume_shift = 1; break;
-                case 3: wav.volume_shift = 2; break;
+                case 0: e.volume_shift = 4; break;
+                case 1: e.volume_shift = 0; break;
+                case 2: e.volume_shift = 1; break;
+                case 3: e.volume_shift = 2; break;
                 }
                 break;
 
             case 0xff1d:
-                wav.period = (wav.period & 0x700) | ((data << 0) & 0x0ff);
+                e.period = (e.period & 0x700) | ((data << 0) & 0x0ff);
                 break;
 
             case 0xff1e:
-                wav.period = (wav.period & 0x0ff) | ((data << 8) & 0x700);
-                wav.duration.enabled = (data & 0x40) != 0;
+                e.period = (e.period & 0x0ff) | ((data << 8) & 0x700);
+                e.duration.enabled = (data & 0x40) != 0;
 
-                if ((data & 0x80) != 0 && wav.dac_power)
+                if ((data & 0x80) != 0 && e.dac_power)
                 {
-                    wav.timer = (0x800 - wav.period) * 2;
-                    wav.wave_ram_cursor = 0;
-                    wav.wave_ram_shift = 4;
-                    wav.enabled = true;
+                    e.timer = (0x800 - e.period) * 2;
+                    e.wave_ram_cursor = 0;
+                    e.wave_ram_shift = 4;
+                    e.enabled = true;
 
-                    if (wav.duration.counter == 0)
+                    if (e.duration.counter == 0)
                     {
-                        wav.duration.counter = 256;
+                        e.duration.counter = 256;
                     }
                 }
                 break;

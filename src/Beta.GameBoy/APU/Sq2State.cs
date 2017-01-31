@@ -12,5 +12,7 @@
         public bool dac_power;
         public int duty_form;
         public int duty_step;
+
+        public byte[] regs = new byte[5];
     }
 }

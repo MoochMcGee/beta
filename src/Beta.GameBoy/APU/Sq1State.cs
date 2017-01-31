@@ -18,5 +18,7 @@
         public int sweep_period;
         public int sweep_timer;
         public int sweep_shift;
+
+        public byte[] regs = new byte[5];
     }
 }
