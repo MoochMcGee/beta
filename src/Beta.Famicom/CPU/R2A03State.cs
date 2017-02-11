@@ -12,10 +12,10 @@
         public bool dma_trigger;
         public byte dma_segment;
 
-        public readonly Sq1State sq1 = new Sq1State();
-        public readonly Sq2State sq2 = new Sq2State();
-        public readonly TriState tri = new TriState();
-        public readonly NoiState noi = new NoiState();
-        public readonly DmcState dmc = new DmcState();
+        public readonly SQ1State sq1 = new SQ1State();
+        public readonly SQ2State sq2 = new SQ2State();
+        public readonly TRIState tri = new TRIState();
+        public readonly NOIState noi = new NOIState();
+        public readonly DMCState dmc = new DMCState();
     }
 }

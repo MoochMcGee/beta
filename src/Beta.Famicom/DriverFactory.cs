@@ -51,15 +51,9 @@ namespace Beta.Famicom
             broker.Link<QuadFrameSignal>(r2a03.Consume);
             broker.Link<ClockSignal>(r2a03.Consume);
             broker.Link<ClockSignal>(r2c02.Consume);
-            broker.Link<ClockSignal>(mixer.Consume);
             broker.Link<FrameSignal>(input.Consume);
             broker.Link<IrqSignal>(r2a03.Consume);
             broker.Link<VblSignal>(r2a03.Consume);
-
-            broker.Link<ClockSignal>(container.GetInstance<Sq1>().Consume);
-            broker.Link<ClockSignal>(container.GetInstance<Sq2>().Consume);
-            broker.Link<ClockSignal>(container.GetInstance<Tri>().Consume);
-            broker.Link<ClockSignal>(container.GetInstance<Noi>().Consume);
 
             return container.GetInstance<Driver>();
         }

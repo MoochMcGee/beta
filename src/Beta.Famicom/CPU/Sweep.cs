@@ -1,17 +1,8 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class Sweep
+    public static class Sweep
     {
-        public bool enabled;
-        public int period;
-        public int timer;
-
-        public bool negated;
-        public bool reload;
-        public int shift;
-        public int target;
-
-        public static int Tick(Sweep e, int period, int negate)
+        public static int Tick(SweepState e, int period, int negate)
         {
             if (e.reload)
             {

@@ -1,46 +1,38 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class Envelope
+    public static class Envelope
     {
-        public int period;
-        public int timer;
-
-        public bool constant;
-        public bool looping;
-        public bool start;
-        public int decay;
-
-        public static void Tick(Envelope envelope)
+        public static void Tick(EnvelopeState e)
         {
-            if (envelope.start)
+            if (e.start)
             {
-                envelope.start = false;
-                envelope.timer = envelope.period + 1;
-                envelope.decay = 15;
+                e.start = false;
+                e.timer = e.period + 1;
+                e.decay = 15;
             }
             else
             {
-                if (envelope.timer == 0)
+                if (e.timer == 0)
                 {
-                    envelope.timer = envelope.period + 1;
+                    e.timer = e.period + 1;
 
-                    if (envelope.decay != 0 || envelope.looping)
+                    if (e.decay != 0 || e.looping)
                     {
-                        envelope.decay = (envelope.decay - 1) & 15;
+                        e.decay = (e.decay - 1) & 15;
                     }
                 }
                 else
                 {
-                    envelope.timer--;
+                    e.timer--;
                 }
             }
         }
 
-        public static int Volume(Envelope envelope)
+        public static int Volume(EnvelopeState e)
         {
-            return envelope.constant
-                ? envelope.period
-                : envelope.decay
+            return e.constant
+                ? e.period
+                : e.decay
                 ;
         }
     }

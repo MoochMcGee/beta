@@ -1,6 +1,6 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class DmcState
+    public sealed class DMCState
     {
     }
 }

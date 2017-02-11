@@ -12,12 +12,6 @@ namespace Beta.Famicom.CPU
         private readonly IProducer<HalfFrameSignal> half;
         private readonly IProducer<QuadFrameSignal> quad;
 
-        private readonly Sq1Registers sq1;
-        private readonly Sq2Registers sq2;
-        private readonly TriRegisters tri;
-        private readonly NoiRegisters noi;
-        private readonly DmcRegisters dmc;
-
         public R2A03Registers(
             InputConnector input,
             State state,
@@ -30,12 +24,6 @@ namespace Beta.Famicom.CPU
             this.irq = irq;
             this.half = half;
             this.quad = quad;
-
-            this.sq1 = new Sq1Registers(state);
-            this.sq2 = new Sq2Registers(state);
-            this.tri = new TriRegisters(state);
-            this.noi = new NoiRegisters(state);
-            this.dmc = new DmcRegisters(state);
         }
 
         public void Read(int address, ref byte data)
@@ -81,11 +69,11 @@ namespace Beta.Famicom.CPU
         {
             switch (address & ~3)
             {
-            case 0x4000: sq1.Write(address, data); break;
-            case 0x4004: sq2.Write(address, data); break;
-            case 0x4008: tri.Write(address, data); break;
-            case 0x400c: noi.Write(address, data); break;
-            case 0x4010: dmc.Write(address, data); break;
+            case 0x4000: SQ1.Write(r2a03.sq1, address, data); break;
+            case 0x4004: SQ2.Write(r2a03.sq2, address, data); break;
+            case 0x4008: TRI.Write(r2a03.tri, address, data); break;
+            case 0x400c: NOI.Write(r2a03.noi, address, data); break;
+            case 0x4010: DMC.Write(r2a03.dmc, address, data); break;
             }
 
             if (address == 0x4014)

@@ -41,11 +41,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<R2C02MemoryMap>();
             container.RegisterSingleton<R2C02Registers>();
             container.RegisterSingleton<R2C02State>();
-
-            container.RegisterSingleton<Sq1>();
-            container.RegisterSingleton<Sq2>();
-            container.RegisterSingleton<Tri>();
-            container.RegisterSingleton<Noi>();
         }
     }
 }

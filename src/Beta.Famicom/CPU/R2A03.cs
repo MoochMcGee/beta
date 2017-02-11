@@ -1,19 +1,22 @@
 ﻿using Beta.Famicom.Messaging;
+using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
 {
-    public partial class R2A03 : Core
+    public sealed class R2A03 : Core
     {
         private readonly R2A03MemoryMap bus;
         private readonly R2A03State r2a03;
+        private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clock;
 
-        public R2A03(R2A03MemoryMap bus, State state, IProducer<ClockSignal> clock)
+        public R2A03(R2A03MemoryMap bus, State state, IAudioBackend audio, IProducer<ClockSignal> clock)
         {
             this.bus = bus;
             this.r2a03 = state.r2a03;
+            this.audio = audio;
             this.clock = clock;
         }
 
@@ -101,6 +104,14 @@ namespace Beta.Famicom.CPU
                     r2a03.sequence_time = 0;
                 }
             }
+
+            SQ1.Tick(r2a03.sq1);
+            SQ2.Tick(r2a03.sq2);
+            TRI.Tick(r2a03.tri);
+            NOI.Tick(r2a03.noi);
+            DMC.Tick(r2a03.dmc);
+
+            Mixer.Tick(audio, r2a03);
         }
 
         private void SequencerInterrupt()

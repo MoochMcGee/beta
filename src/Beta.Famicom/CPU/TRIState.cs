@@ -1,12 +1,12 @@
 ﻿namespace Beta.Famicom.CPU
 {
-    public sealed class TriState
+    public sealed class TRIState
     {
         public bool enabled;
         public int period;
         public int timer = 1;
 
-        public readonly Duration duration = new Duration();
+        public readonly DurationState duration = new DurationState();
 
         public int step;
 
