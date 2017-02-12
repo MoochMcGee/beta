@@ -41,19 +41,13 @@ namespace Beta.Famicom
             input.ConnectJoypad2(joypadFactory.Create(1));
 
             var mixer = container.GetInstance<Mixer>();
-            var r2a03 = container.GetInstance<R2A03>();
             var r2c02 = container.GetInstance<R2C02>();
             var board = boardFactory.GetBoard(binary);
 
             cartridge.InsertCartridge(board);
 
-            broker.Link<HalfFrameSignal>(r2a03.Consume);
-            broker.Link<QuadFrameSignal>(r2a03.Consume);
-            broker.Link<ClockSignal>(r2a03.Consume);
             broker.Link<ClockSignal>(r2c02.Consume);
             broker.Link<FrameSignal>(input.Consume);
-            broker.Link<IrqSignal>(r2a03.Consume);
-            broker.Link<VblSignal>(r2a03.Consume);
 
             return container.GetInstance<Driver>();
         }

@@ -1,17 +1,17 @@
 ﻿namespace Beta.Platform.Processors.RP6502
 {
-    public static class Alu
+    public static class ALU
     {
-        public static int C;
-        public static int V;
+        public static int c;
+        public static int v;
 
         public static byte Add(byte a, byte b, int carry = 0)
         {
             var temp = (byte)((a + b) + carry);
             var bits = (byte)((a ^ temp) & ~(a ^ b));
 
-            C = (bits ^ a ^ b ^ temp) >> 7;
-            V = (bits) >> 7;
+            c = (bits ^ a ^ b ^ temp) >> 7;
+            v = (bits) >> 7;
 
             return temp;
         }

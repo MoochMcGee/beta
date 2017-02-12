@@ -1,7 +1,11 @@
-﻿namespace Beta.Famicom.CPU
+﻿using Beta.Platform.Processors.RP6502;
+
+namespace Beta.Famicom.CPU
 {
     public sealed class R2A03State
     {
+        public readonly R6502State r6502 = new R6502State();
+
         public bool sequence_irq_enabled = true;
         public bool sequence_irq_pending;
         public int sequence_time;

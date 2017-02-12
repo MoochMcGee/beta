@@ -1,152 +1,127 @@
 ﻿using Beta.Famicom.Messaging;
 using Beta.Platform.Audio;
-using Beta.Platform.Messaging;
 using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class R2A03 : Core
+    public static class R2A03
     {
-        private readonly R2A03MemoryMap bus;
-        private readonly R2A03State r2a03;
-        private readonly IAudioBackend audio;
-        private readonly IProducer<ClockSignal> clock;
-
-        public R2A03(R2A03MemoryMap bus, State state, IAudioBackend audio, IProducer<ClockSignal> clock)
+        private static void ReadInternal(int address, ref byte data)
         {
-            this.bus = bus;
-            this.r2a03 = state.r2a03;
-            this.audio = audio;
-            this.clock = clock;
         }
 
-        protected override void Read(int address, ref byte data)
+        private static void WriteInternal(int address, byte data)
         {
-            clock.Produce(new ClockSignal(132));
-
-            bus.Read(address, ref data);
         }
 
-        protected override void Write(int address, byte data)
+        public static void Update(R2A03State e)
         {
-            clock.Produce(new ClockSignal(132));
+            R6502.Update(e.r6502);
 
-            bus.Write(address, data);
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            if (r2a03.dma_trigger)
+            if (e.dma_trigger)
             {
-                r2a03.dma_trigger = false;
+                e.dma_trigger = false;
 
-                var dma_src_address = r2a03.dma_segment << 8;
-                var dma_dst_address = 0x2004;
-                var dma_data = default(byte);
+                var address = e.dma_segment << 8;
+                var data = default(byte);
 
                 for (var i = 0; i < 256; i++)
                 {
-                    dma_data = Read(dma_src_address);
-                    Write(dma_dst_address, dma_data);
+                    ReadInternal(address, ref data);
+                    WriteInternal(0x2004, data);
 
-                    dma_src_address++;
+                    address++;
                 }
             }
         }
 
-        public void Consume(IrqSignal e)
+        public static void IRQ(R2A03State e, int signal)
         {
-            Irq(e.Value);
+            Interrupts.IRQ(e.r6502.ints, signal);
         }
 
-        public void Consume(VblSignal e)
+        public static void NMI(R2A03State e, int signal)
         {
-            Nmi(e.Value);
+            Interrupts.NMI(e.r6502.ints, signal);
         }
 
-        public void Consume(ClockSignal e)
+        public static void Tick(IAudioBackend audio, R2A03State e)
         {
-            const HalfFrameSignal half = null;
-            const QuadFrameSignal quad = null;
-
-            if (r2a03.sequence_mode == 0)
+            if (e.sequence_mode == 0)
             {
-                switch (r2a03.sequence_time)
+                switch (e.sequence_time)
                 {
-                case     0: /*                         */ SequencerInterrupt(); break;
-                case  7457: Consume(quad); /*          */ break;
-                case 14913: Consume(quad); Consume(half); break;
-                case 22371: Consume(quad); /*          */ break;
-                case 29828: /*                         */ SequencerInterrupt(); break;
-                case 29829: Consume(quad); Consume(half); SequencerInterrupt(); break;
+                case     0: /*             */ /*             */ SequencerInterrupt(e); break;
+                case  7457: QuadFrameTick(e); /*             */ break;
+                case 14913: QuadFrameTick(e); HalfFrameTick(e); break;
+                case 22371: QuadFrameTick(e); /*             */ break;
+                case 29828: /*             */ /*             */ SequencerInterrupt(e); break;
+                case 29829: QuadFrameTick(e); HalfFrameTick(e); SequencerInterrupt(e); break;
                 }
 
-                if (++r2a03.sequence_time == 29830)
+                e.sequence_time++;
+                if (e.sequence_time == 29830)
                 {
-                    r2a03.sequence_time = 0;
+                    e.sequence_time = 0;
                 }
             }
             else
             {
-                switch (r2a03.sequence_time)
+                switch (e.sequence_time)
                 {
-                case  7457: Consume(quad); /*          */ break;
-                case 14913: Consume(quad); Consume(half); break;
-                case 22371: Consume(quad); /*          */ break;
-                case 29829: /*                         */ break;
-                case 37281: Consume(quad); Consume(half); break;
+                case  7457: QuadFrameTick(e); /*             */ break;
+                case 14913: QuadFrameTick(e); HalfFrameTick(e); break;
+                case 22371: QuadFrameTick(e); /*             */ break;
+                case 29829: /*             */ /*             */ break;
+                case 37281: QuadFrameTick(e); HalfFrameTick(e); break;
                 }
 
-                if (++r2a03.sequence_time == 37282)
+                e.sequence_time++;
+                if (e.sequence_time == 37282)
                 {
-                    r2a03.sequence_time = 0;
+                    e.sequence_time = 0;
                 }
             }
 
-            SQ1.Tick(r2a03.sq1);
-            SQ2.Tick(r2a03.sq2);
-            TRI.Tick(r2a03.tri);
-            NOI.Tick(r2a03.noi);
-            DMC.Tick(r2a03.dmc);
+            SQ1.Tick(e.sq1);
+            SQ2.Tick(e.sq2);
+            TRI.Tick(e.tri);
+            NOI.Tick(e.noi);
+            DMC.Tick(e.dmc);
 
-            Mixer.Tick(audio, r2a03);
+            Mixer.Tick(audio, e);
         }
 
-        private void SequencerInterrupt()
+        public static void SequencerInterrupt(R2A03State e)
         {
-            r2a03.sequence_irq_pending |= r2a03.sequence_irq_enabled;
-
-            if (r2a03.sequence_irq_pending)
+            if (e.sequence_irq_enabled)
             {
-                Irq(1);
+                e.sequence_irq_pending = true;
+                IRQ(e, 1);
             }
         }
 
-        public void Consume(HalfFrameSignal e)
+        public static void HalfFrameTick(R2A03State e)
         {
-            var sq1 = r2a03.sq1;
-            var sq2 = r2a03.sq2;
-            var tri = r2a03.tri;
-            var noi = r2a03.noi;
+            Duration.Tick(e.sq1.duration);
+            Duration.Tick(e.sq2.duration);
+            Duration.Tick(e.tri.duration);
+            Duration.Tick(e.noi.duration);
 
-            Duration.Tick(sq1.duration);
-            Duration.Tick(sq2.duration);
-            Duration.Tick(tri.duration);
-            Duration.Tick(noi.duration);
-
+            var sq1 = e.sq1;
             sq1.period = Sweep.Tick(sq1.sweep, sq1.period, ~sq1.period);
+
+            var sq2 = e.sq2;
             sq2.period = Sweep.Tick(sq2.sweep, sq2.period, -sq2.period);
         }
 
-        public void Consume(QuadFrameSignal e)
+        public static void QuadFrameTick(R2A03State e)
         {
-            Envelope.Tick(r2a03.sq1.envelope);
-            Envelope.Tick(r2a03.sq2.envelope);
-            Envelope.Tick(r2a03.noi.envelope);
+            Envelope.Tick(e.sq1.envelope);
+            Envelope.Tick(e.sq2.envelope);
+            Envelope.Tick(e.noi.envelope);
 
-            var tri = r2a03.tri;
+            var tri = e.tri;
             if (tri.linear_counter_reload)
             {
                 tri.linear_counter = tri.linear_counter_latch;

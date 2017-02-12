@@ -32,7 +32,6 @@ namespace Beta.Famicom
             container.RegisterSingleton<BgUnit>();
             container.RegisterSingleton<SpUnit>();
 
-            container.RegisterSingleton<R2A03>();
             container.RegisterSingleton<R2A03MemoryMap>();
             container.RegisterSingleton<R2A03Registers>();
             container.RegisterSingleton<R2A03State>();
