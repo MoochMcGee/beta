@@ -2,9 +2,9 @@
 {
     public sealed class InterruptSignal
     {
-        public byte Flag { get; }
+        public readonly int Flag;
 
-        public InterruptSignal(byte flag)
+        public InterruptSignal(int flag)
         {
             this.Flag = flag;
         }

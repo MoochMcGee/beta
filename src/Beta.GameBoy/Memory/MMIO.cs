@@ -1,6 +1,4 @@
 ﻿using Beta.GameBoy.APU;
-using Beta.GameBoy.Messaging;
-using Beta.Platform.Messaging;
 
 namespace Beta.GameBoy.Memory
 {
@@ -10,14 +8,11 @@ namespace Beta.GameBoy.Memory
         private readonly HRAM hram;
         private readonly Wave wave;
 
-        private readonly IProducer<ResetDividerSignal> resetDivider;
-
-        public MMIO(State state, HRAM hram, Wave wave, IProducer<ResetDividerSignal> resetDivider)
+        public MMIO(State state, HRAM hram, Wave wave)
         {
             this.state = state;
             this.hram = hram;
             this.wave = wave;
-            this.resetDivider = resetDivider;
         }
 
         public byte Read(ushort address)
@@ -42,10 +37,10 @@ namespace Beta.GameBoy.Memory
                 if (state.pad.p14) return state.pad.p14_latch;
                 return 0xff;
 
-            case 0xff04: return (byte)(state.tma.divider);
-            case 0xff05: return (byte)(state.tma.counter);
-            case 0xff06: return (byte)(state.tma.modulus);
-            case 0xff07: return (byte)(state.tma.control);
+            case 0xff04: return Tma.getDivider(state.tma);
+            case 0xff05: return Tma.getCounter(state.tma);
+            case 0xff06: return Tma.getModulus(state.tma);
+            case 0xff07: return Tma.getControl(state.tma);
 
             case 0xff0f: return state.cpu.irf;
 
@@ -91,10 +86,10 @@ namespace Beta.GameBoy.Memory
                     state.pad.p14 = (data & 0x10) == 0;
                     break;
 
-                case 0xff04: resetDivider.Produce(null); break;
-                case 0xff05: state.tma.counter = data; break;
-                case 0xff06: state.tma.modulus = data; break;
-                case 0xff07: state.tma.control = data; break;
+                case 0xff04: Tma.setDivider(state.tma, data); break;
+                case 0xff05: Tma.setCounter(state.tma, data); break;
+                case 0xff06: Tma.setModulus(state.tma, data); break;
+                case 0xff07: Tma.setControl(state.tma, data); break;
 
                 case 0xff0f: state.cpu.irf = data; break;
 

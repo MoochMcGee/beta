@@ -1,5 +1,6 @@
 ﻿using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
+using Beta.GameBoy.PPU;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.LR35902;
 
@@ -16,9 +17,11 @@ namespace Beta.GameBoy.CPU
         private readonly IProducer<ClockSignal> clock;
         private readonly MemoryMap memory;
         private readonly CpuState cpu;
+        private readonly State state;
 
         public Cpu(State state, MemoryMap memory, IProducer<ClockSignal> clock)
         {
+            this.state = state;
             this.cpu = state.cpu;
             this.memory = memory;
             this.clock = clock;
@@ -31,6 +34,9 @@ namespace Beta.GameBoy.CPU
                 interrupt.ff2 = 0;
                 interrupt.ff1 = 1;
             }
+
+            int tma = Tma.tick(state.tma);
+            if (tma == 1) Interrupt(INT_ELAPSE);
 
             clock.Produce(new ClockSignal(4));
         }
@@ -68,13 +74,18 @@ namespace Beta.GameBoy.CPU
 
         public void Consume(InterruptSignal e)
         {
-            cpu.irf |= e.Flag;
+            Interrupt((byte)e.Flag);
+        }
 
-            if ((cpu.ief & e.Flag) != 0)
+        private void Interrupt(byte flag)
+        {
+            cpu.irf |= flag;
+
+            if ((cpu.ief & flag) != 0)
             {
                 halt = false;
 
-                if (e.Flag == INT_JOYPAD)
+                if (flag == INT_JOYPAD)
                 {
                     stop = false;
                 }

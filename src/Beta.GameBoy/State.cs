@@ -55,6 +55,7 @@ namespace Beta.GameBoy
 
     public sealed class TmaState
     {
+        public bool divZero;
         public int divider;
         public int counter;
         public int control;

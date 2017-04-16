@@ -1,74 +1,82 @@
-﻿using Beta.GameBoy.CPU;
-using Beta.GameBoy.Messaging;
-using Beta.Platform.Messaging;
-
-namespace Beta.GameBoy
+﻿namespace Beta.GameBoy
 {
-    public sealed class Tma
+    public static class Tma
     {
-        private static readonly int[] lut = new[]
+        static readonly int[] lut = new[]
         {
-            9, //   4,096 Hz
-            3, // 262,144 Hz
-            5, //  65,536 Hz
-            7  //  16,384 Hz
+            1 << 8, //   4,096 Hz
+            1 << 2, // 262,144 Hz
+            1 << 4, //  65,536 Hz
+            1 << 6  //  16,384 Hz
         };
 
-        private readonly IProducer<InterruptSignal> ints;
-        private readonly TmaState regs;
-
-        public Tma(State regs, IProducer<InterruptSignal> ints)
+        public static int tick(TmaState e)
         {
-            this.ints = ints;
-            this.regs = regs.tma;
-        }
-
-        public void Consume(ClockSignal e)
-        {
-            for (int i = 0; i < e.Cycles; i++)
+            if (e.divZero)
             {
-                Tick();
+                e.divZero = false;
+                return writeDivider(e, 0);
+            }
+            else
+            {
+                return writeDivider(e, e.divider + 1);
             }
         }
 
-        public void Consume(ResetDividerSignal e)
+        static int writeDivider(TmaState e, int next)
         {
-            WriteDivider(0);
-        }
+            int prev;
 
-        private void Tick()
-        {
-            WriteDivider(regs.divider + 1);
-        }
+            prev = e.divider;
+            e.divider = next;
 
-        private void WriteDivider(int next)
-        {
-            int prev = regs.divider;
-
-            if ((regs.control & 4) != 0)
+            if ((e.control & 4) == 0)
             {
-                int bit = lut[regs.control & 3];
-                int prev_bit = (prev >> bit) & 1;
-                int next_bit = (next >> bit) & 1;
-
-                if (prev_bit == 1 && next_bit == 0)
+                return 0;
+            }
+            else
+            {
+                int mask = lut[e.control & 3];
+                int edge = prev & ~next & mask;
+                if (edge != 0)
                 {
-                    TickCounter();
+                    return tickCounter(e);
+                }
+                else
+                {
+                    return 0;
                 }
             }
-
-            regs.divider = next;
         }
 
-        private void TickCounter()
+        static int tickCounter(TmaState e)
         {
-            regs.counter = (regs.counter + 1) & 0xff;
-
-            if (regs.counter == 0)
+            if (e.counter == 0)
             {
-                regs.counter = regs.modulus;
-                ints.Produce(new InterruptSignal(Cpu.INT_ELAPSE));
+                e.counter = e.modulus;
+                return 1;
+            }
+            else
+            {
+                e.counter = (e.counter + 1) & 0xff;
+                return 0;
             }
         }
+
+        public static byte getControl(TmaState e) => (byte)(e.control);
+
+        public static byte getCounter(TmaState e) => (byte)(e.counter);
+
+        public static byte getDivider(TmaState e) => (byte)(e.divider >> 6);
+
+        public static byte getModulus(TmaState e) => (byte)(e.modulus);
+
+        public static void setControl(TmaState e, byte data) => e.control = data;
+
+        public static void setCounter(TmaState e, byte data) => e.counter = data;
+
+        public static void setDivider(TmaState e, byte data) => e.divZero = true;
+
+        public static void setModulus(TmaState e, byte data) => e.modulus = data;
     }
 }

@@ -29,7 +29,6 @@ namespace Beta.GameBoy
             container.RegisterSingleton<Pad>();
             container.RegisterSingleton<Ppu>();
             container.RegisterSingleton<State>();
-            container.RegisterSingleton<Tma>();
             container.RegisterSingleton<VRAM>();
             container.RegisterSingleton<Wave>();
             container.RegisterSingleton<WRAM>();
