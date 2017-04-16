@@ -1,6 +1,7 @@
-﻿using Beta.Platform.Audio;
+﻿using Beta.Famicom.CPU;
+using Beta.Platform.Audio;
 
-namespace Beta.Famicom.CPU
+namespace Beta.Famicom.APU
 {
     public sealed class Mixer
     {
@@ -20,11 +21,11 @@ namespace Beta.Famicom.CPU
 
         private static void Sample(R2A03State e, IAudioBackend audio)
         {
-            var sq1 = SQ1.GetOutput(e.sq1);
-            var sq2 = SQ2.GetOutput(e.sq2);
-            var tri = TRI.GetOutput(e.tri);
-            var noi = NOI.GetOutput(e.noi);
-            var dmc = DMC.GetOutput(e.dmc);
+            var sq1 = Sq1.getOutput(e.sq1);
+            var sq2 = Sq2.getOutput(e.sq2);
+            var tri = Tri.getOutput(e.tri);
+            var noi = Noi.getOutput(e.noi);
+            var dmc = Dmc.getOutput(e.dmc);
 
             var output = MixSamples(sq1, sq2, tri, noi, dmc);
 

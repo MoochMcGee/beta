@@ -1,6 +1,6 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
-    public sealed class TRIState
+    public sealed class TriState
     {
         public bool enabled;
         public int period;

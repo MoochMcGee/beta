@@ -1,4 +1,5 @@
-﻿using Beta.Platform.Audio;
+﻿using Beta.Famicom.APU;
+using Beta.Platform.Audio;
 using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
@@ -82,11 +83,11 @@ namespace Beta.Famicom.CPU
                 }
             }
 
-            SQ1.Tick(e.sq1);
-            SQ2.Tick(e.sq2);
-            TRI.Tick(e.tri);
-            NOI.Tick(e.noi);
-            DMC.Tick(e.dmc);
+            Sq1.tick(e.sq1);
+            Sq2.tick(e.sq2);
+            Tri.tick(e.tri);
+            Noi.tick(e.noi);
+            Dmc.tick(e.dmc);
 
             Mixer.Tick(e, audio);
         }
@@ -102,10 +103,10 @@ namespace Beta.Famicom.CPU
 
         public static void HalfFrameTick(R2A03State e)
         {
-            Duration.Tick(e.sq1.duration);
-            Duration.Tick(e.sq2.duration);
-            Duration.Tick(e.tri.duration);
-            Duration.Tick(e.noi.duration);
+            Duration.tick(e.sq1.duration);
+            Duration.tick(e.sq2.duration);
+            Duration.tick(e.tri.duration);
+            Duration.tick(e.noi.duration);
 
             var sq1 = e.sq1;
             sq1.period = Sweep.Tick(sq1.sweep, sq1.period, ~sq1.period);
@@ -116,9 +117,9 @@ namespace Beta.Famicom.CPU
 
         public static void QuadFrameTick(R2A03State e)
         {
-            Envelope.Tick(e.sq1.envelope);
-            Envelope.Tick(e.sq2.envelope);
-            Envelope.Tick(e.noi.envelope);
+            Envelope.tick(e.sq1.envelope);
+            Envelope.tick(e.sq2.envelope);
+            Envelope.tick(e.noi.envelope);
 
             var tri = e.tri;
             if (tri.linear_counter_reload)

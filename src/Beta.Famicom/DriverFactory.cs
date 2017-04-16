@@ -1,4 +1,5 @@
-﻿using Beta.Famicom.Boards;
+﻿using Beta.Famicom.APU;
+using Beta.Famicom.Boards;
 using Beta.Famicom.CPU;
 using Beta.Famicom.Input;
 using Beta.Famicom.Memory;

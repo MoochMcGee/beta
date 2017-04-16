@@ -1,21 +1,21 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
-    public static class NOI
+    public static class Noi
     {
-        private static readonly int[] period_lut =
+        static readonly int[] period_lut =
         {
             4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068
         };
 
-        public static int GetOutput(NOIState e)
+        public static int getOutput(NoiState e)
         {
             return e.duration.counter != 0 && (e.lfsr & 1) == 0
-                ? Envelope.Volume(e.envelope)
+                ? Envelope.volume(e.envelope)
                 : 0
                 ;
         }
 
-        public static void Tick(NOIState e)
+        public static void tick(NoiState e)
         {
             e.timer--;
 
@@ -35,7 +35,7 @@
             }
         }
 
-        public static void Write(NOIState e, int address, byte data)
+        public static void write(NoiState e, int address, byte data)
         {
             switch (address - 0x400c)
             {
@@ -59,7 +59,7 @@
 
                 if (e.enabled)
                 {
-                    e.duration.counter = Duration.duration_lut[data >> 3];
+                    Duration.write(e.duration, data);
                 }
                 break;
             }

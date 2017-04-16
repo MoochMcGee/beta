@@ -1,8 +1,8 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
     public static class Envelope
     {
-        public static void Tick(EnvelopeState e)
+        public static void tick(EnvelopeState e)
         {
             if (e.start)
             {
@@ -28,12 +28,16 @@
             }
         }
 
-        public static int Volume(EnvelopeState e)
+        public static int volume(EnvelopeState e)
         {
-            return e.constant
-                ? e.period
-                : e.decay
-                ;
+            if (e.constant)
+            {
+                return e.period;
+            }
+            else
+            {
+                return e.decay;
+            }
         }
     }
 }

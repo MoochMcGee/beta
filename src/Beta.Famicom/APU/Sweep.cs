@@ -1,4 +1,4 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
     public static class Sweep
     {

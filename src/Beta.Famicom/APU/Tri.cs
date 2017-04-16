@@ -1,8 +1,8 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
-    public static class TRI
+    public static class Tri
     {
-        public static int GetOutput(TRIState e)
+        public static int getOutput(TriState e)
         {
             if (e.period == 0 || e.period == 1)
             {
@@ -16,7 +16,7 @@
             }
         }
 
-        public static void Tick(TRIState e)
+        public static void tick(TriState e)
         {
             e.timer--;
 
@@ -31,7 +31,7 @@
             }
         }
 
-        public static void Write(TRIState e, int address, byte data)
+        public static void write(TriState e, int address, byte data)
         {
             switch (address - 0x4008)
             {
@@ -54,7 +54,7 @@
 
                 if (e.enabled)
                 {
-                    e.duration.counter = Duration.duration_lut[data >> 3];
+                    Duration.write(e.duration, data);
                 }
                 break;
             }

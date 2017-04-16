@@ -1,4 +1,5 @@
-﻿using Beta.Famicom.Input;
+﻿using Beta.Famicom.APU;
+using Beta.Famicom.Input;
 using Beta.Famicom.Messaging;
 using Beta.Platform.Messaging;
 
@@ -69,11 +70,11 @@ namespace Beta.Famicom.CPU
         {
             switch (address & ~3)
             {
-            case 0x4000: SQ1.Write(r2a03.sq1, address, data); break;
-            case 0x4004: SQ2.Write(r2a03.sq2, address, data); break;
-            case 0x4008: TRI.Write(r2a03.tri, address, data); break;
-            case 0x400c: NOI.Write(r2a03.noi, address, data); break;
-            case 0x4010: DMC.Write(r2a03.dmc, address, data); break;
+            case 0x4000: Sq1.write(r2a03.sq1, address, data); break;
+            case 0x4004: Sq2.write(r2a03.sq2, address, data); break;
+            case 0x4008: Tri.write(r2a03.tri, address, data); break;
+            case 0x400c: Noi.write(r2a03.noi, address, data); break;
+            case 0x4010: Dmc.write(r2a03.dmc, address, data); break;
             }
 
             if (address == 0x4014)

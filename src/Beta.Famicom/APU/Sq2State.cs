@@ -1,6 +1,6 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
-    public sealed class SQ2State
+    public sealed class Sq2State
     {
         public bool enabled;
         public int period;

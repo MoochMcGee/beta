@@ -1,8 +1,8 @@
-﻿namespace Beta.Famicom.CPU
+﻿namespace Beta.Famicom.APU
 {
-    public static class SQ1
+    public static class Sq1
     {
-        public static int GetOutput(SQ1State e)
+        public static int getOutput(Sq1State e)
         {
             if (e.period < 8 || (e.sweep.target & 0x800) != 0)
             {
@@ -17,10 +17,10 @@
             case 3: if ((~e.duty_step & 7) < 6) return 0; break;
             }
 
-            return Envelope.Volume(e.envelope);
+            return Envelope.volume(e.envelope);
         }
 
-        public static void Tick(SQ1State e)
+        public static void tick(Sq1State e)
         {
             e.timer--;
 
@@ -31,7 +31,7 @@
             }
         }
 
-        public static void Write(SQ1State e, int address, byte data)
+        public static void write(Sq1State e, int address, byte data)
         {
             switch (address - 0x4000)
             {
@@ -62,7 +62,7 @@
 
                 if (e.enabled)
                 {
-                    e.duration.counter = Duration.duration_lut[data >> 3];
+                    Duration.write(e.duration, data);
                 }
                 break;
             }
