@@ -2,6 +2,6 @@
 {
     public interface IJoypadFactory
     {
-        Joypad Create(int index);
+        IJoypad Create(int index);
     }
 }

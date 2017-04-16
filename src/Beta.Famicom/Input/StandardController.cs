@@ -1,24 +1,27 @@
-﻿namespace Beta.Famicom.Input
+﻿using Beta.Platform.Input;
+
+namespace Beta.Famicom.Input
 {
-    public class StandardController : Joypad
+    public class StandardController : IJoypad
     {
+        private HostInputDevice input;
         private int latch;
         private int value;
 
         public StandardController(int index)
-            : base(index, 10)
         {
-            Map(HostButton.A, 0);
-            Map(HostButton.X, 1);
-            Map(HostButton.Select, 2);
-            Map(HostButton.Start, 3);
-            Map(HostButton.DPadUp, 4);
-            Map(HostButton.DPadDown, 5);
-            Map(HostButton.DPadLeft, 6);
-            Map(HostButton.DPadRight, 7);
+            input = new HostInputDevice(index, 10);
+            input.Map(HostInputButton.A, 0);
+            input.Map(HostInputButton.X, 1);
+            input.Map(HostInputButton.Select, 2);
+            input.Map(HostInputButton.Start, 3);
+            input.Map(HostInputButton.DPadUp, 4);
+            input.Map(HostInputButton.DPadDown, 5);
+            input.Map(HostInputButton.DPadLeft, 6);
+            input.Map(HostInputButton.DPadRight, 7);
         }
 
-        public override byte GetData(int strobe)
+        public byte getData(int strobe)
         {
             var temp = value;
 
@@ -30,25 +33,25 @@
             return (byte)(temp & 1);
         }
 
-        public override void SetData()
+        public void setData()
         {
             value = latch;
         }
 
-        public override void Update()
+        public void update()
         {
-            base.Update();
+            input.Update();
 
             latch = 0;
 
-            if (Pressed(0)) latch |= 0x01;
-            if (Pressed(1)) latch |= 0x02;
-            if (Pressed(2)) latch |= 0x04;
-            if (Pressed(3)) latch |= 0x08;
-            if (Pressed(4)) latch |= 0x10;
-            if (Pressed(5)) latch |= 0x20;
-            if (Pressed(6)) latch |= 0x40;
-            if (Pressed(7)) latch |= 0x80;
+            if (input.Pressed(0)) latch |= 0x01;
+            if (input.Pressed(1)) latch |= 0x02;
+            if (input.Pressed(2)) latch |= 0x04;
+            if (input.Pressed(3)) latch |= 0x08;
+            if (input.Pressed(4)) latch |= 0x10;
+            if (input.Pressed(5)) latch |= 0x20;
+            if (input.Pressed(6)) latch |= 0x40;
+            if (input.Pressed(7)) latch |= 0x80;
         }
     }
 }

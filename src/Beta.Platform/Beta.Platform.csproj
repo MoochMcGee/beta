@@ -91,7 +91,8 @@
     <Compile Include="Exceptions\ProcessorJammedException.cs" />
     <Compile Include="FileExtension.cs" />
     <Compile Include="HwndProvider.cs" />
-    <Compile Include="Input\InputBackend.cs" />
+    <Compile Include="Input\HostInputButton.cs" />
+    <Compile Include="Input\HostInputDevice.cs" />
     <Compile Include="MathHelper.cs" />
     <Compile Include="MemoryChip.cs" />
     <Compile Include="Messaging\ClockSignal.cs" />

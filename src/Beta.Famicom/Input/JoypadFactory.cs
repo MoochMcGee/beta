@@ -2,7 +2,7 @@
 {
     public sealed class JoypadFactory : IJoypadFactory
     {
-        public Joypad Create(int index)
+        public IJoypad Create(int index)
         {
             return new StandardController(index);
         }
