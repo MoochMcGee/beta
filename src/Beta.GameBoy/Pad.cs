@@ -3,15 +3,15 @@ using Beta.Platform.Input;
 
 namespace Beta.GameBoy
 {
-    public class Pad
+    public sealed class Pad
     {
         private readonly HostInputDevice input;
-        private readonly PadState regs;
+        private readonly PadState state;
 
-        public Pad(State regs)
+        public Pad(State state)
         {
             this.input = new HostInputDevice(0, 10);
-            this.regs = regs.pad;
+            this.state = state.pad;
 
             input.Map(HostInputButton.A, 0);
             input.Map(HostInputButton.X, 1);
@@ -27,19 +27,19 @@ namespace Beta.GameBoy
         {
             input.Update();
 
-            regs.p15_latch = 0xff ^ 0x20;
+            state.p15_latch = 0xff ^ 0x20;
 
-            if (input.Pressed(0)) regs.p15_latch ^= 1;
-            if (input.Pressed(1)) regs.p15_latch ^= 2;
-            if (input.Pressed(2)) regs.p15_latch ^= 4;
-            if (input.Pressed(3)) regs.p15_latch ^= 8;
+            if (input.Pressed(0)) state.p15_latch ^= 1;
+            if (input.Pressed(1)) state.p15_latch ^= 2;
+            if (input.Pressed(2)) state.p15_latch ^= 4;
+            if (input.Pressed(3)) state.p15_latch ^= 8;
 
-            regs.p14_latch = 0xff ^ 0x10;
+            state.p14_latch = 0xff ^ 0x10;
 
-            if (input.Pressed(4)) regs.p14_latch ^= 1;
-            if (input.Pressed(5)) regs.p14_latch ^= 2;
-            if (input.Pressed(6)) regs.p14_latch ^= 4;
-            if (input.Pressed(7)) regs.p14_latch ^= 8;
+            if (input.Pressed(4)) state.p14_latch ^= 1;
+            if (input.Pressed(5)) state.p14_latch ^= 2;
+            if (input.Pressed(6)) state.p14_latch ^= 4;
+            if (input.Pressed(7)) state.p14_latch ^= 8;
         }
     }
 }

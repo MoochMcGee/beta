@@ -1,100 +1,89 @@
 ﻿namespace Beta.Famicom.PPU
 {
-    public sealed class BgUnit
+    public static class BgUnit
     {
-        private readonly R2C02MemoryMap memory;
-        private readonly R2C02State state;
-        private readonly int[] pixel;
-
-        public BgUnit(R2C02MemoryMap memory, State state)
+        public static void PointName(R2C02State e)
         {
-            this.memory = memory;
-            this.state = state.r2c02;
-            this.pixel = new int[256 + 16];
+            e.fetch_address = 0x2000 | (e.scroll_address & 0xfff);
         }
 
-        public void FetchName()
+        public static void PointAttr(R2C02State e)
         {
-            memory.Read(state.fetch_address, ref state.fetch_name);
+            var x = ((e.scroll_address >> 2) & 7);
+            var y = ((e.scroll_address >> 4) & 0x38);
+
+            e.fetch_address = 0x23c0 | (e.scroll_address & 0xc00) | y | x;
         }
 
-        public void FetchAttr()
+        public static void PointBit0(R2C02State e)
         {
-            memory.Read(state.fetch_address, ref state.fetch_attr);
+            var line = (e.scroll_address >> 12) & 7;
 
-            var x = (state.scroll_address >> 0) & 2;
-            var y = (state.scroll_address >> 5) & 2;
+            e.fetch_address = e.bkg_address | (e.fetch_name << 4) | 0 | line;
+        }
+
+        public static void PointBit1(R2C02State e)
+        {
+            var line = (e.scroll_address >> 12) & 7;
+
+            e.fetch_address = e.bkg_address | (e.fetch_name << 4) | 8 | line;
+        }
+
+        public static void FetchName(R2C02State e, R2C02MemoryMap memory)
+        {
+            memory.Read(e.fetch_address, ref e.fetch_name);
+        }
+
+        public static void FetchAttr(R2C02State e, R2C02MemoryMap memory)
+        {
+            memory.Read(e.fetch_address, ref e.fetch_attr);
+
+            var x = (e.scroll_address >> 0) & 2;
+            var y = (e.scroll_address >> 5) & 2;
             var shift = (y << 1) | x;
 
-            state.fetch_attr = (byte)(state.fetch_attr >> shift);
+            e.fetch_attr = (byte)(e.fetch_attr >> shift);
         }
 
-        public void FetchBit0()
+        public static void FetchBit0(R2C02State e, R2C02MemoryMap memory)
         {
-            memory.Read(state.fetch_address, ref state.fetch_bit0);
+            memory.Read(e.fetch_address, ref e.fetch_bit0);
         }
 
-        public void FetchBit1()
+        public static void FetchBit1(R2C02State e, R2C02MemoryMap memory)
         {
-            memory.Read(state.fetch_address, ref state.fetch_bit1);
+            memory.Read(e.fetch_address, ref e.fetch_bit1);
         }
 
-        public void PointName()
+        public static void Synthesize(R2C02State e)
         {
-            state.fetch_address = 0x2000 | (state.scroll_address & 0xfff);
-        }
-
-        public void PointAttr()
-        {
-            var x = ((state.scroll_address >> 2) & 7);
-            var y = ((state.scroll_address >> 4) & 0x38);
-
-            state.fetch_address = 0x23c0 | (state.scroll_address & 0xc00) | y | x;
-        }
-
-        public void PointBit0()
-        {
-            var line = (state.scroll_address >> 12) & 7;
-
-            state.fetch_address = state.bkg_address | (state.fetch_name << 4) | 0 | line;
-        }
-
-        public void PointBit1()
-        {
-            var line = (state.scroll_address >> 12) & 7;
-
-            state.fetch_address = state.bkg_address | (state.fetch_name << 4) | 8 | line;
-        }
-
-        public void Synthesize()
-        {
-            var offset = (state.h + 9) % 336;
+            var offset = (e.h + 9) % 336;
 
             for (var i = 0; i < 8; i++)
             {
-                pixel[offset + i] =
-                    ((state.fetch_attr << 2) & 12) |
-                    ((state.fetch_bit0 >> 7) & 1) |
-                    ((state.fetch_bit1 >> 6) & 2);
+                e.bgPixel[offset + i] =
+                    ((e.fetch_attr << 2) & 12) |
+                    ((e.fetch_bit0 >> 7) & 1) |
+                    ((e.fetch_bit1 >> 6) & 2);
 
-                state.fetch_bit0 <<= 1;
-                state.fetch_bit1 <<= 1;
+                e.fetch_bit0 <<= 1;
+                e.fetch_bit1 <<= 1;
             }
         }
 
-        public int GetPixel()
+        public static int GetPixel(R2C02State e)
         {
-            if (state.bkg_enabled == false)
+            if (e.bkg_enabled == false)
             {
                 return 0;
             }
 
-            if (state.bkg_clipped && state.h < 8)
+            if (e.bkg_clipped && e.h < 8)
             {
                 return 0;
             }
 
-            return pixel[state.h + state.scroll_fine];
+            return e.bgPixel[e.h + e.scroll_fine];
         }
     }
 }

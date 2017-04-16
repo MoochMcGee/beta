@@ -1,5 +1,4 @@
-﻿using Beta.Famicom.Messaging;
-using Beta.Platform.Audio;
+﻿using Beta.Platform.Audio;
 using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
@@ -45,7 +44,7 @@ namespace Beta.Famicom.CPU
             Interrupts.NMI(e.r6502.ints, signal);
         }
 
-        public static void Tick(IAudioBackend audio, R2A03State e)
+        public static void Tick(R2A03State e, IAudioBackend audio)
         {
             if (e.sequence_mode == 0)
             {
@@ -89,7 +88,7 @@ namespace Beta.Famicom.CPU
             NOI.Tick(e.noi);
             DMC.Tick(e.dmc);
 
-            Mixer.Tick(audio, e);
+            Mixer.Tick(e, audio);
         }
 
         public static void SequencerInterrupt(R2A03State e)

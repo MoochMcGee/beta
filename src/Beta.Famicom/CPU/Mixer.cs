@@ -7,18 +7,18 @@ namespace Beta.Famicom.CPU
         private const int SAMPLE_STEP = 528000; // 11 * 48,000
         private const int SAMPLE_PERIOD = 19687500; // 11 * 1,789,772.72~
 
-        public static void Tick(IAudioBackend audio, R2A03State e)
+        public static void Tick(R2A03State e, IAudioBackend audio)
         {
             e.sample_prescaler += SAMPLE_STEP;
 
             if (e.sample_prescaler >= SAMPLE_PERIOD)
             {
                 e.sample_prescaler -= SAMPLE_PERIOD;
-                Sample(audio, e);
+                Sample(e, audio);
             }
         }
 
-        private static void Sample(IAudioBackend audio, R2A03State e)
+        private static void Sample(R2A03State e, IAudioBackend audio)
         {
             var sq1 = SQ1.GetOutput(e.sq1);
             var sq2 = SQ2.GetOutput(e.sq2);

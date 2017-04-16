@@ -7,9 +7,6 @@ namespace Beta.Famicom.PPU
 {
     public sealed class R2C02
     {
-        private readonly BgUnit bg;
-        private readonly SpUnit sp;
-        private readonly CGRAM cgram;
         private readonly R2C02MemoryMap memory;
         private readonly R2C02State state;
         private readonly IProducer<FrameSignal> frame;
@@ -20,29 +17,22 @@ namespace Beta.Famicom.PPU
         private int[] raster;
 
         public R2C02(
-            BgUnit bg,
-            SpUnit sp,
-            CGRAM cgram,
             R2C02MemoryMap memory,
             State state,
             IProducer<FrameSignal> frame,
             IProducer<VblSignal> vbl,
             IVideoBackend video)
         {
-            this.bg = bg;
-            this.sp = sp;
             this.memory = memory;
-            this.cgram = cgram;
             this.state = state.r2c02;
             this.frame = frame;
             this.vbl = vbl;
             this.video = video;
 
-            sp.EvaluationReset();
-
             raster = video.GetRaster(0);
 
-            sp.InitializeSprite();
+            SpUnit.EvaluationReset(this.state);
+            SpUnit.InitializeSprite(this.state);
         }
 
         private bool Rendering()
@@ -78,12 +68,12 @@ namespace Beta.Famicom.PPU
         {
             switch (state.h & 1)
             {
-            case 0: sp.Evaluation0(); break;
-            case 1: sp.Evaluation1(); break;
+            case 0: SpUnit.Evaluation0(state); break;
+            case 1: SpUnit.Evaluation1(state); break;
             }
 
-            if (state.h == 0x3f) sp.EvaluationBegin();
-            if (state.h == 0xff) sp.EvaluationReset();
+            if (state.h == 0x3f) SpUnit.EvaluationBegin(state);
+            if (state.h == 0xff) SpUnit.EvaluationReset(state);
         }
 
         private void BufferCycle()
@@ -107,14 +97,14 @@ namespace Beta.Famicom.PPU
         {
             switch (step)
             {
-            case 0: bg.PointName(); break;
-            case 1: bg.FetchName(); break;
-            case 2: bg.PointAttr(); break;
-            case 3: bg.FetchAttr(); break;
-            case 4: bg.PointBit0(); break;
-            case 5: bg.FetchBit0(); break;
-            case 6: bg.PointBit1(); break;
-            case 7: bg.FetchBit1(); bg.Synthesize(); break;
+            case 0: BgUnit.PointName(state); break;
+            case 1: BgUnit.FetchName(state, memory); break;
+            case 2: BgUnit.PointAttr(state); break;
+            case 3: BgUnit.FetchAttr(state, memory); break;
+            case 4: BgUnit.PointBit0(state); break;
+            case 5: BgUnit.FetchBit0(state, memory); break;
+            case 6: BgUnit.PointBit1(state); break;
+            case 7: BgUnit.FetchBit1(state, memory); BgUnit.Synthesize(state); break;
             }
         }
 
@@ -122,14 +112,14 @@ namespace Beta.Famicom.PPU
         {
             switch (step)
             {
-            case 0: bg.PointName(); break;
-            case 1: bg.FetchName(); break;
-            case 2: bg.PointAttr(); break;
-            case 3: bg.FetchAttr(); break;
-            case 4: sp.PointBit0(); break;
-            case 5: sp.FetchBit0(); break;
-            case 6: sp.PointBit1(); break;
-            case 7: sp.FetchBit1(); sp.Synthesize(); break;
+            case 0: BgUnit.PointName(state); break;
+            case 1: BgUnit.FetchName(state, memory); break;
+            case 2: BgUnit.PointAttr(state); break;
+            case 3: BgUnit.FetchAttr(state, memory); break;
+            case 4: SpUnit.PointBit0(state); break;
+            case 5: SpUnit.FetchBit0(state, memory); break;
+            case 6: SpUnit.PointBit1(state); break;
+            case 7: SpUnit.FetchBit1(state, memory); SpUnit.Synthesize(state); break;
             }
         }
 
@@ -156,7 +146,7 @@ namespace Beta.Famicom.PPU
             if (state.h >= 256) return;
 
             var pixel = ForcedBlankPixel();
-            var color = cgram.Read(pixel);
+            var color = CGRAM.Read(state, pixel);
 
             raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
         }
@@ -172,15 +162,15 @@ namespace Beta.Famicom.PPU
         private void RenderPixel()
         {
             var pixel = ColorMultiplexer();
-            var color = cgram.Read(pixel);
+            var color = CGRAM.Read(state, pixel);
 
             raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
         }
 
         private int ColorMultiplexer()
         {
-            int bkg = bg.GetPixel();
-            int obj = sp.GetPixel();
+            int bkg = BgUnit.GetPixel(state);
+            int obj = SpUnit.GetPixel(state);
 
             if ((bkg & 3) == 0) { return obj; }
             if ((obj & 3) == 0) { return bkg; }

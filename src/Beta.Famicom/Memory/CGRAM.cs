@@ -1,25 +1,20 @@
-﻿namespace Beta.Famicom.Memory
+﻿using Beta.Famicom.PPU;
+
+namespace Beta.Famicom.Memory
 {
-    public sealed class CGRAM
+    public static class CGRAM
     {
-        private readonly byte[] cgram;
-
-        public CGRAM()
+        public static byte Read(R2C02State e, int address)
         {
-            cgram = new byte[32];
+            return e.cgram[MapAddress(address)];
         }
 
-        public byte Read(int address)
+        public static void Write(R2C02State e, int address, byte data)
         {
-            return cgram[MapAddress(address)];
+            e.cgram[MapAddress(address)] = data;
         }
 
-        public void Write(int address, byte data)
-        {
-            cgram[MapAddress(address)] = data;
-        }
-
-        private int MapAddress(int address)
+        private static int MapAddress(int address)
         {
             return (address & 3) == 0
                 ? address & 0x000c

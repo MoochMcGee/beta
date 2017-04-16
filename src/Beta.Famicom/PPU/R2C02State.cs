@@ -36,5 +36,29 @@
         public byte fetch_bit1;
         public byte fetch_name;
         public int fetch_address;
+
+        public readonly byte[] cgram = new byte[32];
+
+        public readonly int[] bgPixel = new int[256 + 16];
+        public readonly int[] spPixel = new int[256];
+
+        public Sprite[] spFound = new Sprite[8];
+        public byte spLatch;
+        public int spCount;
+        public int spIndex;
+        public int spPhase;
+
+        public class Sprite
+        {
+            public const int V_FLIP = 0x80;
+            public const int H_FLIP = 0x40;
+            public const int PRIORITY = 0x20;
+            public const int SPR_ZERO = 0x10;
+
+            public byte Y = 0xff;
+            public byte Name = 0xff;
+            public byte Attr = 0xe3;
+            public byte X = 0xff;
+        }
     }
 }

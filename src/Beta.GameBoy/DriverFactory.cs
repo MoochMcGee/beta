@@ -1,5 +1,4 @@
-﻿using Beta.GameBoy.APU;
-using Beta.GameBoy.Boards;
+﻿using Beta.GameBoy.Boards;
 using Beta.GameBoy.CPU;
 using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;

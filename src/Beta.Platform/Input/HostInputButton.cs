@@ -15,6 +15,6 @@ namespace Beta.Platform.Input
         A = (int)GamepadButtonFlags.A,
         B = (int)GamepadButtonFlags.B,
         X = (int)GamepadButtonFlags.X,
-        Y = (int)GamepadButtonFlags.Y,
+        Y = (int)GamepadButtonFlags.Y
     }
 }
