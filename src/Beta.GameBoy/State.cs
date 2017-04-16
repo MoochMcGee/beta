@@ -1,9 +1,13 @@
-﻿using Beta.GameBoy.APU;
+﻿using System.IO;
+using Beta.GameBoy.APU;
+using Beta.GameBoy.Boards;
 
 namespace Beta.GameBoy
 {
     public sealed class State
     {
+        public Board cart;
+
         public ApuState apu = new ApuState();
         public CpuState cpu = new CpuState();
         public PadState pad = new PadState();
@@ -11,6 +15,13 @@ namespace Beta.GameBoy
         public TmaState tma = new TmaState();
 
         public bool boot_rom_enabled = true;
+
+        public readonly byte[] bios = File.ReadAllBytes("drivers/gb.sys/boot.rom");
+        public readonly byte[] hram = new byte[0x007f];
+        public readonly byte[]  oam = new byte[0x00a0];
+        public readonly byte[] vram = new byte[0x2000];
+        public readonly byte[] wave = new byte[0x0010];
+        public readonly byte[] wram = new byte[0x2000];
     }
 
     public sealed class CpuState

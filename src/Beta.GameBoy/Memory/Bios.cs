@@ -1,22 +1,13 @@
-﻿using System.IO;
-
-namespace Beta.GameBoy.Memory
+﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class BIOS
+    public static class BIOS
     {
-        private readonly byte[] bios;
-
-        public BIOS()
+        public static byte Read(State state, ushort address)
         {
-            bios = File.ReadAllBytes("drivers/gb.sys/boot.rom");
+            return state.bios[address & 0x00ff];
         }
 
-        public byte Read(ushort address)
-        {
-            return bios[address & 0x00ff];
-        }
-
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
             // Read-only :-)
         }

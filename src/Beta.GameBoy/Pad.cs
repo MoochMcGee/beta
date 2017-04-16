@@ -5,12 +5,12 @@ namespace Beta.GameBoy
 {
     public class Pad : InputBackend
     {
-        private readonly State regs;
+        private readonly PadState regs;
 
         public Pad(State regs)
             : base(0, 10)
         {
-            this.regs = regs;
+            this.regs = regs.pad;
 
             Map(0, "A");
             Map(1, "X");
@@ -28,19 +28,19 @@ namespace Beta.GameBoy
         {
             base.Update();
 
-            regs.pad.p15_latch = 0xff ^ 0x20;
+            regs.p15_latch = 0xff ^ 0x20;
 
-            if (Pressed(0)) regs.pad.p15_latch ^= 0x1;
-            if (Pressed(1)) regs.pad.p15_latch ^= 0x2;
-            if (Pressed(2)) regs.pad.p15_latch ^= 0x4;
-            if (Pressed(3)) regs.pad.p15_latch ^= 0x8;
+            if (Pressed(0)) regs.p15_latch ^= 1;
+            if (Pressed(1)) regs.p15_latch ^= 2;
+            if (Pressed(2)) regs.p15_latch ^= 4;
+            if (Pressed(3)) regs.p15_latch ^= 8;
 
-            regs.pad.p14_latch = 0xff ^ 0x10;
+            regs.p14_latch = 0xff ^ 0x10;
 
-            if (Pressed(4)) regs.pad.p14_latch ^= 0x1;
-            if (Pressed(5)) regs.pad.p14_latch ^= 0x2;
-            if (Pressed(6)) regs.pad.p14_latch ^= 0x4;
-            if (Pressed(7)) regs.pad.p14_latch ^= 0x8;
+            if (Pressed(4)) regs.p14_latch ^= 1;
+            if (Pressed(5)) regs.p14_latch ^= 2;
+            if (Pressed(6)) regs.p14_latch ^= 4;
+            if (Pressed(7)) regs.p14_latch ^= 8;
         }
     }
 }

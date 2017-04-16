@@ -2,37 +2,24 @@
 
 namespace Beta.GameBoy.Memory
 {
-    public sealed class CartridgeConnector
+    public static class CartridgeConnector
     {
-        private readonly BoardFactory factory;
-        private readonly BIOS boot;
-        private readonly State regs;
-
-        private Board cart;
-
-        public CartridgeConnector(BoardFactory factory, BIOS boot, State regs)
+        public static void InsertCartridge(State state, Board cart)
         {
-            this.factory = factory;
-            this.boot = boot;
-            this.regs = regs;
+            state.cart = cart;
         }
 
-        public void InsertCartridge(byte[] cartridgeImage)
+        public static byte Read(State state, ushort address)
         {
-            this.cart = factory.Create(cartridgeImage);
-        }
-
-        public byte Read(ushort address)
-        {
-            return (regs.boot_rom_enabled && address <= 0x00ff)
-                ? boot.Read(address)
-                : cart.Read(address)
+            return (state.boot_rom_enabled && address <= 0x00ff)
+                ? BIOS.Read(state, address)
+                : state.cart.Read(address)
                 ;
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
-            cart.Write(address, data);
+            state.cart.Write(address, data);
         }
     }
 }

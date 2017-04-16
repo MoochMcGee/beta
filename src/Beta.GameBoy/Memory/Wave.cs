@@ -1,17 +1,15 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class Wave
+    public static class Wave
     {
-        private byte[] wave = new byte[16];
-
-        public byte Read(ushort address)
+        public static byte Read(State state, ushort address)
         {
-            return wave[address & 0xf];
+            return state.wave[address & 0xf];
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
-            wave[address & 0xf] = data;
+            state.wave[address & 0xf] = data;
         }
     }
 }

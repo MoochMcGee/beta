@@ -2,9 +2,9 @@
 
 namespace Beta.GameBoy.APU
 {
-    public sealed class Mixer
+    public static class Mixer
     {
-        private static int[][] square_lut = new[]
+        private static readonly int[][] square_lut = new[]
         {
             new[] { 0, 0, 0, 0, 0, 0, 0, 1 },
             new[] { 1, 0, 0, 0, 0, 0, 0, 1 },
@@ -12,56 +12,23 @@ namespace Beta.GameBoy.APU
             new[] { 0, 1, 1, 1, 1, 1, 1, 0 }
         };
 
-        private readonly IAudioBackend audio;
-        private readonly ApuState apu;
-        private readonly Sq1State sq1;
-        private readonly Sq2State sq2;
-        private readonly WavState wav;
-        private readonly NoiState noi;
-
-        public Mixer(IAudioBackend audio, State state)
+        public static void RenderSample(ApuState e, IAudioBackend audio)
         {
-            this.audio = audio;
-
-            this.apu = state.apu;
-            this.sq1 = state.apu.sq1;
-            this.sq2 = state.apu.sq2;
-            this.wav = state.apu.wav;
-            this.noi = state.apu.noi;
-        }
-
-        public void RenderSample()
-        {
-            int sq1_out = sq1.enabled
-                ? sq1.envelope.counter * square_lut[sq1.duty_form][sq1.duty_step]
-                : 0
-                ;
-
-            int sq2_out = sq2.enabled
-                ? sq2.envelope.counter * square_lut[sq2.duty_form][sq2.duty_step]
-                : 0
-                ;
-
-            int wav_out = wav.enabled
-                ? wav.wave_ram_output >> wav.volume_shift
-                : 0
-                ;
-
-            int noi_out = noi.enabled
-                ? noi.envelope.counter * (~noi.lfsr & 1)
-                : 0
-                ;
+            var sq1 = RenderSq1Sample(e.sq1);
+            var sq2 = RenderSq2Sample(e.sq2);
+            var wav = RenderWavSample(e.wav);
+            var noi = RenderNoiSample(e.noi);
 
             for (int speaker = 0; speaker < 2; speaker++)
             {
                 var sample = 0;
-                var select = apu.speaker_select[speaker];
-                var volume = apu.speaker_volume[speaker];
+                var select = e.speaker_select[speaker];
+                var volume = e.speaker_volume[speaker];
 
-                if ((select & 8) != 0) sample += noi_out;
-                if ((select & 4) != 0) sample += wav_out;
-                if ((select & 2) != 0) sample += sq2_out;
-                if ((select & 1) != 0) sample += sq1_out;
+                if ((select & 1) != 0) sample += sq1;
+                if ((select & 2) != 0) sample += sq2;
+                if ((select & 4) != 0) sample += wav;
+                if ((select & 8) != 0) sample += noi;
 
                 // apply volume correction
 
@@ -69,6 +36,38 @@ namespace Beta.GameBoy.APU
 
                 audio.Render(sample);
             }
+        }
+
+        static int RenderSq1Sample(Sq1State e)
+        {
+            return e.enabled
+                ? e.envelope.counter * square_lut[e.duty_form][e.duty_step]
+                : 0
+                ;
+        }
+
+        static int RenderSq2Sample(Sq2State e)
+        {
+            return e.enabled
+                ? e.envelope.counter * square_lut[e.duty_form][e.duty_step]
+                : 0
+                ;
+        }
+
+        static int RenderWavSample(WavState e)
+        {
+            return e.enabled
+                ? e.wave_ram_output >> e.volume_shift
+                : 0
+                ;
+        }
+
+        static int RenderNoiSample(NoiState e)
+        {
+            return e.enabled
+                ? e.envelope.counter * (~e.lfsr & 1)
+                : 0
+                ;
         }
     }
 }

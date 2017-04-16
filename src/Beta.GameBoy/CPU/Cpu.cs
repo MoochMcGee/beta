@@ -1,6 +1,7 @@
-﻿using Beta.GameBoy.Memory;
+﻿using Beta.GameBoy.APU;
+using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
-using Beta.GameBoy.PPU;
+using Beta.Platform.Audio;
 using Beta.Platform.Messaging;
 using Beta.Platform.Processors.LR35902;
 
@@ -14,16 +15,18 @@ namespace Beta.GameBoy.CPU
         public const byte INT_SERIAL = (1 << 3);
         public const byte INT_JOYPAD = (1 << 4);
 
+        private readonly IAudioBackend audio;
         private readonly IProducer<ClockSignal> clock;
         private readonly MemoryMap memory;
         private readonly CpuState cpu;
         private readonly State state;
 
-        public Cpu(State state, MemoryMap memory, IProducer<ClockSignal> clock)
+        public Cpu(State state, MemoryMap memory, IAudioBackend audio, IProducer<ClockSignal> clock)
         {
             this.state = state;
             this.cpu = state.cpu;
             this.memory = memory;
+            this.audio = audio;
             this.clock = clock;
         }
 
@@ -34,6 +37,11 @@ namespace Beta.GameBoy.CPU
                 interrupt.ff2 = 0;
                 interrupt.ff1 = 1;
             }
+
+            Apu.tick(state.apu, memory, audio);
+            Apu.tick(state.apu, memory, audio);
+            Apu.tick(state.apu, memory, audio);
+            Apu.tick(state.apu, memory, audio);
 
             int tma = Tma.tick(state.tma);
             if (tma == 1) Interrupt(INT_ELAPSE);

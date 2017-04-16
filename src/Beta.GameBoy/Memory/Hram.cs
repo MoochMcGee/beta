@@ -1,17 +1,15 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class HRAM
+    public static class HRAM
     {
-        private readonly byte[] hram = new byte[0x007f];
-
-        public byte Read(ushort address)
+        public static byte Read(State state, ushort address)
         {
-            return hram[address & 0x007f];
+            return state.hram[address & 0x007f];
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
-            hram[address & 0x007f] = data;
+            state.hram[address & 0x007f] = data;
         }
     }
 }

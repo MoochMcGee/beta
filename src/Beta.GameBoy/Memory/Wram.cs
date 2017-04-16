@@ -1,17 +1,15 @@
 ﻿namespace Beta.GameBoy.Memory
 {
-    public sealed class WRAM
+    public static class WRAM
     {
-        private readonly byte[] wram = new byte[0x2000];
-
-        public byte Read(ushort address)
+        public static byte Read(State state, ushort address)
         {
-            return wram[address & 0x1fff];
+            return state.wram[address & 0x1fff];
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
-            wram[address & 0x1fff] = data;
+            state.wram[address & 0x1fff] = data;
         }
     }
 }

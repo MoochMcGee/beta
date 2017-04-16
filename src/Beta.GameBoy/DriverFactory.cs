@@ -1,4 +1,5 @@
 ﻿using Beta.GameBoy.APU;
+using Beta.GameBoy.Boards;
 using Beta.GameBoy.CPU;
 using Beta.GameBoy.Memory;
 using Beta.GameBoy.Messaging;
@@ -11,23 +12,24 @@ namespace Beta.GameBoy
 {
     public sealed class DriverFactory : IDriverFactory
     {
-        private readonly CartridgeConnector cartridgeConnector;
         private readonly Container container;
 
-        public DriverFactory(Container container, Apu apu, Cpu cpu, Pad pad, Ppu ppu, CartridgeConnector cartridge, SignalBroker broker)
+        public DriverFactory(Container container)
         {
             this.container = container;
-            this.cartridgeConnector = cartridge;
 
-            broker.Link<ClockSignal>(apu.Consume);
-            broker.Link<InterruptSignal>(cpu.Consume);
-            broker.Link<FrameSignal>(pad.Consume);
-            broker.Link<ClockSignal>(ppu.Consume);
+            var broker = container.GetInstance<SignalBroker>();
+            broker.Link<InterruptSignal>(container.GetInstance<Cpu>().Consume);
+            broker.Link<FrameSignal>(container.GetInstance<Pad>().Consume);
+            broker.Link<ClockSignal>(container.GetInstance<Ppu>().Consume);
         }
 
         public IDriver Create(byte[] binary)
         {
-            cartridgeConnector.InsertCartridge(binary);
+            var state = container.GetInstance<State>();
+            var board = BoardFactory.Create(binary);
+
+            CartridgeConnector.InsertCartridge(state, board);
 
             return container.GetInstance<Driver>();
         }

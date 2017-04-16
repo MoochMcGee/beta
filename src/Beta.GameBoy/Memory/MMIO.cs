@@ -2,20 +2,9 @@
 
 namespace Beta.GameBoy.Memory
 {
-    public sealed class MMIO
+    public static class MMIO
     {
-        private readonly State state;
-        private readonly HRAM hram;
-        private readonly Wave wave;
-
-        public MMIO(State state, HRAM hram, Wave wave)
-        {
-            this.state = state;
-            this.hram = hram;
-            this.wave = wave;
-        }
-
-        public byte Read(ushort address)
+        public static byte Read(State state, ushort address)
         {
             if (address >= 0xff10 && address <= 0xff2f)
             {
@@ -23,11 +12,11 @@ namespace Beta.GameBoy.Memory
             }
             else if (address >= 0xff30 && address <= 0xff3f)
             {
-                return wave.Read(address);
+                return Wave.Read(state, address);
             }
             else if (address >= 0xff80 && address <= 0xfffe)
             {
-                return hram.Read(address);
+                return HRAM.Read(state, address);
             }
 
             switch (address)
@@ -63,7 +52,7 @@ namespace Beta.GameBoy.Memory
             return 0xff;
         }
 
-        public void Write(ushort address, byte data)
+        public static void Write(State state, ushort address, byte data)
         {
             if (address >= 0xff10 && address <= 0xff2f)
             {
@@ -71,11 +60,11 @@ namespace Beta.GameBoy.Memory
             }
             else if (address >= 0xff30 && address <= 0xff3f)
             {
-                wave.Write(address, data);
+                Wave.Write(state, address, data);
             }
             else if (address >= 0xff80 && address <= 0xfffe)
             {
-                hram.Write(address, data);
+                HRAM.Write(state, address, data);
             }
             else
             {

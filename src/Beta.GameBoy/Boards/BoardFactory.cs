@@ -2,9 +2,9 @@
 
 namespace Beta.GameBoy.Boards
 {
-    public sealed class BoardFactory
+    public static class BoardFactory
     {
-        public Board Create(byte[] binary)
+        public static Board Create(byte[] binary)
         {
             var type = binary[0x0147];
 
