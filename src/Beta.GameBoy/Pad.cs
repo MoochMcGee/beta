@@ -12,16 +12,14 @@ namespace Beta.GameBoy
         {
             this.regs = regs.pad;
 
-            Map(0, "A");
-            Map(1, "X");
-            Map(2, "Back");
-            Map(3, "Menu");
-            Map(4, "DPad-R");
-            Map(5, "DPad-L");
-            Map(6, "DPad-U");
-            Map(7, "DPad-D");
-            Map(8, "B");
-            Map(9, "Y");
+            Map(HostButton.A, 0);
+            Map(HostButton.X, 1);
+            Map(HostButton.Select, 2);
+            Map(HostButton.Start, 3);
+            Map(HostButton.DPadRight, 4);
+            Map(HostButton.DPadLeft, 5);
+            Map(HostButton.DPadUp, 6);
+            Map(HostButton.DPadDown, 7);
         }
 
         public void Consume(FrameSignal e)

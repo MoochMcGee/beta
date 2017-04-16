@@ -13,16 +13,16 @@ namespace Beta.GameBoyAdvance
         {
             this.regs = regs.pad;
 
-            Map(0, "A");          // 0 - Button A (0=Pressed, 1=Released)
-            Map(1, "X");          // 1 - Button B (etc.)
-            Map(2, "Back");       // 2 - Select   (etc.)
-            Map(3, "Menu");       // 3 - Start    (etc.)
-            Map(4, "DPad-R");     // 4 - Right    (etc.)
-            Map(5, "DPad-L");     // 5 - Left     (etc.)
-            Map(6, "DPad-U");     // 6 - Up       (etc.)
-            Map(7, "DPad-D");     // 7 - Down     (etc.)
-            Map(8, "R-Shoulder"); // 8 - Button R (etc.)
-            Map(9, "L-Shoulder"); // 9 - Button L (etc.)
+            Map(HostButton.A, 0);             // 0 - Button A (0=Pressed, 1=Released)
+            Map(HostButton.X, 1);             // 1 - Button B (etc.)
+            Map(HostButton.Select, 2);        // 2 - Select   (etc.)
+            Map(HostButton.Start, 3);         // 3 - Start    (etc.)
+            Map(HostButton.DPadRight, 4);     // 4 - Right    (etc.)
+            Map(HostButton.DPadLeft, 5);      // 5 - Left     (etc.)
+            Map(HostButton.DPadUp, 6);        // 6 - Up       (etc.)
+            Map(HostButton.DPadDown, 7);      // 7 - Down     (etc.)
+            Map(HostButton.RightShoulder, 8); // 8 - Button R (etc.)
+            Map(HostButton.LeftShoulder, 9);  // 9 - Button L (etc.)
         }
 
         public void Consume(FrameSignal e)

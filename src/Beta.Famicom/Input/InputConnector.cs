@@ -41,8 +41,6 @@ namespace Beta.Famicom.Input
 
         public void Consume(FrameSignal e)
         {
-            Joypad.AutofireState = !Joypad.AutofireState;
-
             joypad1.Update();
             joypad2.Update();
         }

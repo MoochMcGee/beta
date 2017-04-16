@@ -14,18 +14,18 @@ namespace Beta.SuperFamicom.PAD
             this.state = state;
             this.index = index;
 
-            Map(0, "A");
-            Map(1, "X");
-            Map(2, "Back");
-            Map(3, "Menu");
-            Map(4, "DPad-U");
-            Map(5, "DPad-D");
-            Map(6, "DPad-L");
-            Map(7, "DPad-R");
-            Map(8, "B");
-            Map(9, "Y");
-            Map(10, "L-Shoulder");
-            Map(11, "R-Shoulder");
+            Map(HostButton.A, 0);
+            Map(HostButton.X, 1);
+            Map(HostButton.Select, 2);
+            Map(HostButton.Start, 3);
+            Map(HostButton.DPadUp, 4);
+            Map(HostButton.DPadDown, 5);
+            Map(HostButton.DPadLeft, 6);
+            Map(HostButton.DPadRight, 7);
+            Map(HostButton.B, 8);
+            Map(HostButton.Y, 9);
+            Map(HostButton.LeftShoulder, 10);
+            Map(HostButton.RightShoulder, 11);
         }
 
         public void Consume(FrameSignal e)

@@ -2,22 +2,20 @@
 {
     public class StandardController : Joypad
     {
-        private byte latch;
-        private byte value;
+        private int latch;
+        private int value;
 
         public StandardController(int index)
             : base(index, 10)
         {
-            Map(0, "A");
-            Map(1, "X");
-            Map(2, "Back");
-            Map(3, "Menu");
-            Map(4, "DPad-U");
-            Map(5, "DPad-D");
-            Map(6, "DPad-L");
-            Map(7, "DPad-R");
-            Map(8, "B");
-            Map(9, "Y");
+            Map(HostButton.A, 0);
+            Map(HostButton.X, 1);
+            Map(HostButton.Select, 2);
+            Map(HostButton.Start, 3);
+            Map(HostButton.DPadUp, 4);
+            Map(HostButton.DPadDown, 5);
+            Map(HostButton.DPadLeft, 6);
+            Map(HostButton.DPadRight, 7);
         }
 
         public override byte GetData(int strobe)
@@ -26,8 +24,7 @@
 
             if (strobe == 0)
             {
-                value >>= 1;
-                value |= 0x80;
+                value = (value >> 1) | 0x80;
             }
 
             return (byte)(temp & 1);
@@ -52,13 +49,6 @@
             if (Pressed(5)) latch |= 0x20;
             if (Pressed(6)) latch |= 0x40;
             if (Pressed(7)) latch |= 0x80;
-
-            if (AutofireState)
-                return;
-
-            // autofire buttons
-            if (Pressed(8)) latch |= 0x01;
-            if (Pressed(9)) latch |= 0x02;
         }
     }
 }

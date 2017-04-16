@@ -4,6 +4,22 @@ namespace Beta.Platform.Input
 {
     public class InputBackend
     {
+        protected enum HostButton
+        {
+            DPadUp = (int)GamepadButtonFlags.DPadUp,
+            DPadDown = (int)GamepadButtonFlags.DPadDown,
+            DPadLeft = (int)GamepadButtonFlags.DPadLeft,
+            DPadRight = (int)GamepadButtonFlags.DPadRight,
+            Start = (int)GamepadButtonFlags.Start,
+            Select = (int)GamepadButtonFlags.Back,
+            LeftShoulder = (int)GamepadButtonFlags.LeftShoulder,
+            RightShoulder = (int)GamepadButtonFlags.RightShoulder,
+            A = (int)GamepadButtonFlags.A,
+            B = (int)GamepadButtonFlags.B,
+            X = (int)GamepadButtonFlags.X,
+            Y = (int)GamepadButtonFlags.Y,
+        }
+
         private readonly Controller controller;
         private readonly GamepadButtonFlags[] buttons;
 
@@ -15,26 +31,9 @@ namespace Beta.Platform.Input
             buttons = new GamepadButtonFlags[numberOfButtons];
         }
 
-        protected void Map(int index, string button)
+        protected void Map(HostButton hostButton, int guestButton)
         {
-            switch (button)
-            {
-            case "A": buttons[index] = GamepadButtonFlags.A; break;
-            case "B": buttons[index] = GamepadButtonFlags.B; break;
-            case "X": buttons[index] = GamepadButtonFlags.X; break;
-            case "Y": buttons[index] = GamepadButtonFlags.Y; break;
-
-            case "Back": buttons[index] = GamepadButtonFlags.Back; break;
-            case "Menu": buttons[index] = GamepadButtonFlags.Start; break;
-
-            case "DPad-U": buttons[index] = GamepadButtonFlags.DPadUp; break;
-            case "DPad-D": buttons[index] = GamepadButtonFlags.DPadDown; break;
-            case "DPad-L": buttons[index] = GamepadButtonFlags.DPadLeft; break;
-            case "DPad-R": buttons[index] = GamepadButtonFlags.DPadRight; break;
-
-            case "L-Shoulder": buttons[index] = GamepadButtonFlags.LeftShoulder; break;
-            case "R-Shoulder": buttons[index] = GamepadButtonFlags.RightShoulder; break;
-            }
+            buttons[guestButton] = (GamepadButtonFlags)((int)hostButton);
         }
 
         protected bool Pressed(int index)

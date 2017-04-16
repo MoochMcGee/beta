@@ -4,8 +4,6 @@ namespace Beta.Famicom.Input
 {
     public abstract class Joypad : InputBackend
     {
-        public static bool AutofireState;
-
         protected Joypad(int index, int buttons)
             : base(index, buttons)
         {
