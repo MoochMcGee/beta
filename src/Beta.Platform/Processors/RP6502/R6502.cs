@@ -47,34 +47,34 @@ namespace Beta.Platform.Processors.RP6502
             OpBeq_m, OpSbc_m, OpJam_i, OpIsc_m, OpDop_i, OpSbc_m, OpInc_m, OpIsc_m, OpSed_i, OpSbc_m, OpNop_i, OpIsc_m, OpTop_i, OpSbc_m, OpInc_m, OpIsc_m  // f
         };
 
-        static void Branch(R6502State e, bool flag)
+        static void branch(R6502State e, bool flag)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
             var data = e.data;
 
             if (flag)
             {
-                Read(e, e.regs.pc);
-                e.regs.pcl = ALU.Add(e.regs.pcl, data);
+                read(e, e.regs.pc);
+                e.regs.pcl = ALU.add(e.regs.pcl, data);
 
                 switch (data >> 7)
                 {
-                case 0: if (ALU.c == 1) { Read(e, e.regs.pc, true); e.regs.pch += 0x01; } break; // unsigned, pcl+data carried
-                case 1: if (ALU.c == 0) { Read(e, e.regs.pc, true); e.regs.pch += 0xff; } break; //   signed, pcl-data borrowed
+                case 0: if (ALU.c == 1) { read(e, e.regs.pc, true); e.regs.pch += 0x01; } break; // unsigned, pcl+data carried
+                case 1: if (ALU.c == 0) { read(e, e.regs.pc, true); e.regs.pch += 0xff; } break; //   signed, pcl-data borrowed
                 }
             }
         }
 
         #region ALU
 
-        static byte Mov(R6502State e, byte data)
+        static byte mov(R6502State e, byte data)
         {
             e.flags.n = (data >> 7);
             e.flags.z = (data == 0) ? 1 : 0;
             return data;
         }
 
-        static void Adc(R6502State e, byte data)
+        static void adc(R6502State e, byte data)
         {
             var temp = (byte)((e.regs.a + data) + e.flags.c);
             var bits = (byte)((e.regs.a ^ temp) & ~(e.regs.a ^ data));
@@ -82,54 +82,54 @@ namespace Beta.Platform.Processors.RP6502
             e.flags.v = (bits) >> 7;
             e.flags.c = (bits ^ e.regs.a ^ data ^ temp) >> 7;
 
-            e.regs.a = Mov(e, temp);
+            e.regs.a = mov(e, temp);
         }
 
-        static void Sbc(R6502State e, byte data)
+        static void sbc(R6502State e, byte data)
         {
-            Adc(e, (byte)(~data));
+            adc(e, (byte)(~data));
         }
 
-        static byte Cmp(R6502State e, byte left, byte data)
+        static byte cmp(R6502State e, byte left, byte data)
         {
             var temp = (left - data);
 
             e.flags.c = (~temp >> 8) & 1;
 
-            return Mov(e, (byte)(temp));
+            return mov(e, (byte)(temp));
         }
 
-        static void And(R6502State e, byte data)
+        static void and(R6502State e, byte data)
         {
-            Mov(e, e.regs.a &= data);
+            mov(e, e.regs.a &= data);
         }
 
-        static void Eor(R6502State e, byte data)
+        static void eor(R6502State e, byte data)
         {
-            Mov(e, e.regs.a ^= data);
+            mov(e, e.regs.a ^= data);
         }
 
-        static void Ora(R6502State e, byte data)
+        static void ora(R6502State e, byte data)
         {
-            Mov(e, e.regs.a |= data);
+            mov(e, e.regs.a |= data);
         }
 
-        static byte Shl(R6502State e, byte data, int carry)
+        static byte shl(R6502State e, byte data, int carry)
         {
             e.flags.c = (data >> 7);
 
             data = (byte)((data << 1) | (carry << 0));
 
-            return Mov(e, data);
+            return mov(e, data);
         }
 
-        static byte Shr(R6502State e, byte data, int carry)
+        static byte shr(R6502State e, byte data, int carry)
         {
             e.flags.c = (data & 1);
 
             data = (byte)((data >> 1) | (carry << 7));
 
-            return Mov(e, data);
+            return mov(e, data);
         }
 
         #endregion
@@ -138,65 +138,65 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpAsl_a(R6502State e)
         {
-            e.regs.a = Shl(e, e.regs.a, 0);
+            e.regs.a = shl(e, e.regs.a, 0);
         }
 
         static void OpLsr_a(R6502State e)
         {
-            e.regs.a = Shr(e, e.regs.a, 0);
+            e.regs.a = shr(e, e.regs.a, 0);
         }
 
         static void OpRol_a(R6502State e)
         {
-            e.regs.a = Shl(e, e.regs.a, e.flags.c);
+            e.regs.a = shl(e, e.regs.a, e.flags.c);
         }
 
         static void OpRor_a(R6502State e)
         {
-            e.regs.a = Shr(e, e.regs.a, e.flags.c);
+            e.regs.a = shr(e, e.regs.a, e.flags.c);
         }
 
         static void OpAdc_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            Adc(e, e.data);
+            adc(e, e.data);
         }
 
         static void OpAnd_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            And(e, e.data);
+            and(e, e.data);
         }
 
         static void OpAsl_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             var data = e.data;
-            Write(e, e.regs.ea, data);
-            Write(e, e.regs.ea, Shl(e, data, 0), true);
+            write(e, e.regs.ea, data);
+            write(e, e.regs.ea, shl(e, data, 0), true);
         }
 
         static void OpBcc_m(R6502State e)
         {
-            Branch(e, e.flags.c == 0);
+            branch(e, e.flags.c == 0);
         }
 
         static void OpBcs_m(R6502State e)
         {
-            Branch(e, e.flags.c != 0);
+            branch(e, e.flags.c != 0);
         }
 
         static void OpBeq_m(R6502State e)
         {
-            Branch(e, e.flags.z != 0);
+            branch(e, e.flags.z != 0);
         }
 
         static void OpBit_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
             var data = e.data;
 
@@ -207,17 +207,17 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpBmi_m(R6502State e)
         {
-            Branch(e, e.flags.n != 0);
+            branch(e, e.flags.n != 0);
         }
 
         static void OpBne_m(R6502State e)
         {
-            Branch(e, e.flags.z == 0);
+            branch(e, e.flags.z == 0);
         }
 
         static void OpBpl_m(R6502State e)
         {
-            Branch(e, e.flags.n == 0);
+            branch(e, e.flags.n == 0);
         }
 
         static void OpBrk_i(R6502State e)
@@ -225,43 +225,43 @@ namespace Beta.Platform.Processors.RP6502
             const ushort dec = 0xffff;
             const ushort inc = 0x0001;
 
-            Read(e, e.regs.pc);
+            read(e, e.regs.pc);
             e.regs.pc += (e.ints.int_available == 1) ? dec : inc;
 
             if (e.ints.res == 1)
             {
-                Read(e, e.regs.sp); e.regs.spl--;
-                Read(e, e.regs.sp); e.regs.spl--;
-                Read(e, e.regs.sp); e.regs.spl--;
+                read(e, e.regs.sp); e.regs.spl--;
+                read(e, e.regs.sp); e.regs.spl--;
+                read(e, e.regs.sp); e.regs.spl--;
             }
             else
             {
-                var flag = (byte)(Flags.PackFlags(e.flags) & ~(e.ints.int_available << 4));
+                var flag = (byte)(Flag.packFlags(e.flags) & ~(e.ints.int_available << 4));
 
-                Write(e, e.regs.sp, e.regs.pch); e.regs.spl--;
-                Write(e, e.regs.sp, e.regs.pcl); e.regs.spl--;
-                Write(e, e.regs.sp, flag); e.regs.spl--;
+                write(e, e.regs.sp, e.regs.pch); e.regs.spl--;
+                write(e, e.regs.sp, e.regs.pcl); e.regs.spl--;
+                write(e, e.regs.sp, flag); e.regs.spl--;
             }
 
-            var vector = Interrupts.GetVector(e.ints);
+            var vector = Interrupt.getVector(e.ints);
 
             e.flags.i = 1;
 
-            Read(e, (ushort)(vector + 0));
+            read(e, (ushort)(vector + 0));
             e.regs.pcl = e.data;
 
-            Read(e, (ushort)(vector + 1), true);
+            read(e, (ushort)(vector + 1), true);
             e.regs.pch = e.data;
         }
 
         static void OpBvc_m(R6502State e)
         {
-            Branch(e, e.flags.v == 0);
+            branch(e, e.flags.v == 0);
         }
 
         static void OpBvs_m(R6502State e)
         {
-            Branch(e, e.flags.v != 0);
+            branch(e, e.flags.v != 0);
         }
 
         static void OpClc_i(R6502State e)
@@ -286,215 +286,215 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpCmp_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            Cmp(e, e.regs.a, e.data);
+            cmp(e, e.regs.a, e.data);
         }
 
         static void OpCpx_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            Cmp(e, e.regs.x, e.data);
+            cmp(e, e.regs.x, e.data);
         }
 
         static void OpCpy_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            Cmp(e, e.regs.y, e.data);
+            cmp(e, e.regs.y, e.data);
         }
 
         static void OpDec_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Mov(e, --data);
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); mov(e, --data);
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpDex_i(R6502State e)
         {
-            Mov(e, --e.regs.x);
+            mov(e, --e.regs.x);
         }
 
         static void OpDey_i(R6502State e)
         {
-            Mov(e, --e.regs.y);
+            mov(e, --e.regs.y);
         }
 
         static void OpEor_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            Eor(e, e.data);
+            eor(e, e.data);
         }
 
         static void OpInc_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Mov(e, ++data);
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); mov(e, ++data);
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpInx_i(R6502State e)
         {
-            Mov(e, ++e.regs.x);
+            mov(e, ++e.regs.x);
         }
 
         static void OpIny_i(R6502State e)
         {
-            Mov(e, ++e.regs.y);
+            mov(e, ++e.regs.y);
         }
 
         static void OpJmi_m(R6502State e)
         {
-            Read(e, e.regs.ea); e.regs.eal++; // Emulate the JMP ($nnnn) bug
+            read(e, e.regs.ea); e.regs.eal++; // Emulate the JMP ($nnnn) bug
             e.regs.pcl = e.data;
 
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
             e.regs.pch = e.data;
         }
 
         static void OpJmp_m(R6502State e)
         {
-            Read(e, e.regs.ea++);
+            read(e, e.regs.ea++);
             e.regs.pcl = e.data;
 
-            Read(e, e.regs.ea++, true);
+            read(e, e.regs.ea++, true);
             e.regs.pch = e.data;
         }
 
         static void OpJsr_m(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.sp);
-            Write(e, e.regs.sp, e.regs.pch); e.regs.spl--;
-            Write(e, e.regs.sp, e.regs.pcl); e.regs.spl--;
+            read(e, e.regs.sp);
+            write(e, e.regs.sp, e.regs.pch); e.regs.spl--;
+            write(e, e.regs.sp, e.regs.pcl); e.regs.spl--;
 
-            Read(e, e.regs.pc++, true);
+            read(e, e.regs.pc++, true);
             e.regs.pch = e.data;
             e.regs.pcl = e.regs.eal;
         }
 
         static void OpLda_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
-            e.regs.a = Mov(e, e.data);
+            read(e, e.regs.ea, true);
+            e.regs.a = mov(e, e.data);
         }
 
         static void OpLdx_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
-            e.regs.x = Mov(e, e.data);
+            read(e, e.regs.ea, true);
+            e.regs.x = mov(e, e.data);
         }
 
         static void OpLdy_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
-            e.regs.y = Mov(e, e.data);
+            read(e, e.regs.ea, true);
+            e.regs.y = mov(e, e.data);
         }
 
         static void OpLsr_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); data = Shr(e, data, 0);
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); data = shr(e, data, 0);
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpOra_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
-            Ora(e, e.data);
+            read(e, e.regs.ea, true);
+            ora(e, e.data);
         }
 
         static void OpNop_i(R6502State e) { }
 
         static void OpPha_i(R6502State e)
         {
-            Write(e, e.regs.sp, e.regs.a, true);
+            write(e, e.regs.sp, e.regs.a, true);
             e.regs.spl--;
         }
 
         static void OpPhp_i(R6502State e)
         {
-            Write(e, e.regs.sp, Flags.PackFlags(e.flags), true);
+            write(e, e.regs.sp, Flag.packFlags(e.flags), true);
             e.regs.spl--;
         }
 
         static void OpPla_i(R6502State e)
         {
-            Read(e, e.regs.sp);
+            read(e, e.regs.sp);
             e.regs.spl++;
 
-            Read(e, e.regs.sp, true);
-            e.regs.a = Mov(e, e.data);
+            read(e, e.regs.sp, true);
+            e.regs.a = mov(e, e.data);
         }
 
         static void OpPlp_i(R6502State e)
         {
-            Read(e, e.regs.sp);
+            read(e, e.regs.sp);
             e.regs.spl++;
 
-            Read(e, e.regs.sp, true);
-            Flags.UnpackFlags(e.flags, e.data);
+            read(e, e.regs.sp, true);
+            Flag.unpackFlags(e.flags, e.data);
         }
 
         static void OpRol_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data);
-            Write(e, e.regs.ea, Shl(e, data, e.flags.c), true);
+            write(e, e.regs.ea, data);
+            write(e, e.regs.ea, shl(e, data, e.flags.c), true);
         }
 
         static void OpRor_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data);
-            Write(e, e.regs.ea, Shr(e, data, e.flags.c), true);
+            write(e, e.regs.ea, data);
+            write(e, e.regs.ea, shr(e, data, e.flags.c), true);
         }
 
         static void OpRti_i(R6502State e)
         {
-            Read(e, e.regs.sp); e.regs.spl++;
+            read(e, e.regs.sp); e.regs.spl++;
 
-            Read(e, e.regs.sp);
-            Flags.UnpackFlags(e.flags, e.data); e.regs.spl++;
+            read(e, e.regs.sp);
+            Flag.unpackFlags(e.flags, e.data); e.regs.spl++;
 
-            Read(e, e.regs.sp); e.regs.spl++;
+            read(e, e.regs.sp); e.regs.spl++;
             e.regs.pcl = e.data;
 
-            Read(e, e.regs.sp, true);
+            read(e, e.regs.sp, true);
             e.regs.pch = e.data;
         }
 
         static void OpRts_i(R6502State e)
         {
-            Read(e, e.regs.sp); e.regs.spl++;
-            Read(e, e.regs.sp); e.regs.spl++;
+            read(e, e.regs.sp); e.regs.spl++;
+            read(e, e.regs.sp); e.regs.spl++;
             e.regs.pcl = e.data;
 
-            Read(e, e.regs.sp);
+            read(e, e.regs.sp);
             e.regs.pch = e.data;
 
-            Read(e, e.regs.pc++, true);
+            read(e, e.regs.pc++, true);
         }
 
         static void OpSbc_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
-            Sbc(e, e.data);
+            read(e, e.regs.ea, true);
+            sbc(e, e.data);
         }
 
         static void OpSec_i(R6502State e)
@@ -514,37 +514,37 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpSta_m(R6502State e)
         {
-            Write(e, e.regs.ea, e.regs.a, true);
+            write(e, e.regs.ea, e.regs.a, true);
         }
 
         static void OpStx_m(R6502State e)
         {
-            Write(e, e.regs.ea, e.regs.x, true);
+            write(e, e.regs.ea, e.regs.x, true);
         }
 
         static void OpSty_m(R6502State e)
         {
-            Write(e, e.regs.ea, e.regs.y, true);
+            write(e, e.regs.ea, e.regs.y, true);
         }
 
         static void OpTax_i(R6502State e)
         {
-            Mov(e, e.regs.x = e.regs.a);
+            mov(e, e.regs.x = e.regs.a);
         }
 
         static void OpTay_i(R6502State e)
         {
-            Mov(e, e.regs.y = e.regs.a);
+            mov(e, e.regs.y = e.regs.a);
         }
 
         static void OpTsx_i(R6502State e)
         {
-            Mov(e, e.regs.x = e.regs.spl);
+            mov(e, e.regs.x = e.regs.spl);
         }
 
         static void OpTxa_i(R6502State e)
         {
-            Mov(e, e.regs.a = e.regs.x);
+            mov(e, e.regs.a = e.regs.x);
         }
 
         static void OpTxs_i(R6502State e)
@@ -554,29 +554,29 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpTya_i(R6502State e)
         {
-            Mov(e, e.regs.a = e.regs.y);
+            mov(e, e.regs.a = e.regs.y);
         }
 
         // Unofficial codes
         static void OpAax_m(R6502State e)
         {
-            Write(e, e.regs.ea, (byte)(e.regs.a & e.regs.x), true);
+            write(e, e.regs.ea, (byte)(e.regs.a & e.regs.x), true);
         }
 
         static void OpAnc_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            And(e, e.data);
+            and(e, e.data);
             e.flags.c = (e.regs.a >> 7);
         }
 
         static void OpArr_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            And(e, e.data);
-            e.regs.a = Shr(e, e.regs.a, e.flags.c);
+            and(e, e.data);
+            e.regs.a = shr(e, e.regs.a, e.flags.c);
 
             e.flags.c = (e.regs.a >> 6) & 1;
             e.flags.v = (e.regs.a >> 5 ^ e.flags.c) & 1;
@@ -584,49 +584,49 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpAsr_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            And(e, e.data);
-            e.regs.a = Shr(e, e.regs.a, 0);
+            and(e, e.data);
+            e.regs.a = shr(e, e.regs.a, 0);
         }
 
         static void OpAxa_m(R6502State e)
         {
-            Write(e, e.regs.ea, (byte)(e.regs.a & e.regs.x & 7), true);
+            write(e, e.regs.ea, (byte)(e.regs.a & e.regs.x & 7), true);
         }
 
         static void OpAxs_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            e.regs.x = Cmp(e, (byte)(e.regs.a & e.regs.x), e.data);
+            e.regs.x = cmp(e, (byte)(e.regs.a & e.regs.x), e.data);
         }
 
         static void OpDcp_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Mov(e, --data);
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); mov(e, --data);
+            write(e, e.regs.ea, data, true);
 
-            Cmp(e, e.regs.a, data);
+            cmp(e, e.regs.a, data);
         }
 
         static void OpDop_i(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
         }
 
         static void OpIsc_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Mov(e, ++data);
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); mov(e, ++data);
+            write(e, e.regs.ea, data, true);
 
-            Sbc(e, data);
+            sbc(e, data);
         }
 
         static void OpJam_i(R6502State e)
@@ -636,52 +636,52 @@ namespace Beta.Platform.Processors.RP6502
 
         static void OpLar_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            e.regs.a = e.regs.x = Mov(e, e.regs.spl &= e.data);
+            e.regs.a = e.regs.x = mov(e, e.regs.spl &= e.data);
         }
 
         static void OpLax_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            e.regs.a = e.regs.x = Mov(e, e.data);
+            e.regs.a = e.regs.x = mov(e, e.data);
         }
 
         static void OpRla_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); And(e, data = Shl(e, data, e.flags.c));
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); and(e, data = shl(e, data, e.flags.c));
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpRra_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Adc(e, data = Shr(e, data, e.flags.c));
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); adc(e, data = shr(e, data, e.flags.c));
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpSlo_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Ora(e, data = Shl(e, data, 0));
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); ora(e, data = shl(e, data, 0));
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpSre_m(R6502State e)
         {
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             var data = e.data;
 
-            Write(e, e.regs.ea, data); Eor(e, data = Shr(e, data, 0));
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data); eor(e, data = shr(e, data, 0));
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpSxa_m(R6502State e)
@@ -689,14 +689,14 @@ namespace Beta.Platform.Processors.RP6502
             var data = (byte)(e.regs.x & (e.regs.eah + 1));
 
             e.regs.eal += e.regs.y;
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             if (e.regs.eal < e.regs.y)
             {
                 e.regs.eah = data;
             }
 
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpSya_m(R6502State e)
@@ -704,33 +704,33 @@ namespace Beta.Platform.Processors.RP6502
             var data = (byte)(e.regs.y & (e.regs.eah + 1));
 
             e.regs.eal += e.regs.x;
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             if (e.regs.eal < e.regs.x)
             {
                 e.regs.eah = data;
             }
 
-            Write(e, e.regs.ea, data, true);
+            write(e, e.regs.ea, data, true);
         }
 
         static void OpTop_i(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
         }
 
         static void OpXaa_m(R6502State e)
         {
-            Read(e, e.regs.ea, true);
+            read(e, e.regs.ea, true);
 
-            e.regs.a = Mov(e, (byte)(e.regs.x & e.data));
+            e.regs.a = mov(e, (byte)(e.regs.x & e.data));
         }
 
         static void OpXas_m(R6502State e)
         {
             e.regs.spl = (byte)(e.regs.a & e.regs.x);
 
-            Write(e, e.regs.ea, (byte)(e.regs.spl & (e.regs.eah + 1)), true);
+            write(e, e.regs.ea, (byte)(e.regs.spl & (e.regs.eah + 1)), true);
         }
 
         #endregion
@@ -741,41 +741,41 @@ namespace Beta.Platform.Processors.RP6502
 
         static void AmAbs_a(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eah = e.data;
         }
 
         static void AmAbx_r(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.x;
 
             if (e.regs.eal < e.regs.x)
             {
-                Read(e, e.regs.ea);
+                read(e, e.regs.ea);
                 e.regs.eah++;
             }
         }
 
         static void AmAbx_w(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.x;
 
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             if (e.regs.eal < e.regs.x)
             {
@@ -785,32 +785,32 @@ namespace Beta.Platform.Processors.RP6502
 
         static void AmAby_r(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.y;
 
             if (e.regs.eal < e.regs.y)
             {
-                Read(e, e.regs.ea);
+                read(e, e.regs.ea);
                 e.regs.eah++;
             }
         }
 
         static void AmAby_w(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
 
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.y;
 
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             if (e.regs.eal < e.regs.y)
             {
@@ -825,58 +825,58 @@ namespace Beta.Platform.Processors.RP6502
 
         static void AmImp_a(R6502State e)
         {
-            Read(e, e.regs.pc, true);
+            read(e, e.regs.pc, true);
         }
 
         static void AmInx_a(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             var pointer = e.data;
 
-            Read(e, e.regs.pc);
+            read(e, e.regs.pc);
             pointer += e.regs.x;
 
-            Read(e, pointer++);
+            read(e, pointer++);
             e.regs.eal = e.data;
 
-            Read(e, pointer);
+            read(e, pointer);
             e.regs.eah = e.data;
         }
 
         static void AmIny_r(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             var pointer = e.data;
 
-            Read(e, pointer++);
+            read(e, pointer++);
             e.regs.eal = e.data;
 
-            Read(e, pointer);
+            read(e, pointer);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.y;
 
             if (e.regs.eal < e.regs.y)
             {
-                Read(e, e.regs.ea);
+                read(e, e.regs.ea);
                 e.regs.eah++;
             }
         }
 
         static void AmIny_w(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             var pointer = e.data;
 
-            Read(e, pointer++);
+            read(e, pointer++);
             e.regs.eal = e.data;
 
-            Read(e, pointer);
+            read(e, pointer);
             e.regs.eah = e.data;
 
             e.regs.eal += e.regs.y;
 
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
 
             if (e.regs.eal < e.regs.y)
             {
@@ -886,34 +886,34 @@ namespace Beta.Platform.Processors.RP6502
 
         static void AmZpg_a(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
             e.regs.eah = 0;
         }
 
         static void AmZpx_a(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
             e.regs.eah = 0;
 
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             e.regs.eal += e.regs.x;
         }
 
         static void AmZpy_a(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.regs.eal = e.data;
             e.regs.eah = 0;
 
-            Read(e, e.regs.ea);
+            read(e, e.regs.ea);
             e.regs.eal += e.regs.y;
         }
 
         #endregion
 
-        public static void ResetHard(R6502State e)
+        public static void resetHard(R6502State e)
         {
             e.regs.ea = 0x0000;
             e.regs.pc = 0x0000;
@@ -922,23 +922,23 @@ namespace Beta.Platform.Processors.RP6502
             e.regs.a = 0;
             e.regs.x = 0;
             e.regs.y = 0;
-            Flags.UnpackFlags(e.flags, 0);
+            Flag.unpackFlags(e.flags, 0);
 
             e.ints.res = 1;
-            Interrupts.Poll(e.ints, e.flags.i);
+            Interrupt.poll(e.ints, e.flags.i);
         }
 
-        public static void ResetSoft(R6502State e)
+        public static void resetSoft(R6502State e)
         {
             e.regs.ea = 0x0000;
 
             e.ints.res = 1;
-            Interrupts.Poll(e.ints, e.flags.i);
+            Interrupt.poll(e.ints, e.flags.i);
         }
 
-        public static void Update(R6502State e)
+        public static void update(R6502State e)
         {
-            Read(e, e.regs.pc++);
+            read(e, e.regs.pc++);
             e.code = e.data;
 
             if (e.ints.int_available == 1)
@@ -950,18 +950,18 @@ namespace Beta.Platform.Processors.RP6502
             codes[e.code](e);
         }
 
-        static void Read(R6502State e, ushort address, bool last = false)
+        public static void read(R6502State e, ushort address, bool last = false)
         {
             e.address = address;
             e.read = true;
 
             if (last)
             {
-                Interrupts.Poll(e.ints, e.flags.i);
+                Interrupt.poll(e.ints, e.flags.i);
             }
         }
 
-        static void Write(R6502State e, ushort address, byte data, bool last = false)
+        public static void write(R6502State e, ushort address, byte data, bool last = false)
         {
             e.address = address;
             e.data = data;
@@ -969,7 +969,7 @@ namespace Beta.Platform.Processors.RP6502
 
             if (last)
             {
-                Interrupts.Poll(e.ints, e.flags.i);
+                Interrupt.poll(e.ints, e.flags.i);
             }
         }
     }

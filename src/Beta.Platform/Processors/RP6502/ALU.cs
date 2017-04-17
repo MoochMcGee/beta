@@ -5,7 +5,7 @@
         public static int c;
         public static int v;
 
-        public static byte Add(byte a, byte b, int carry = 0)
+        public static byte add(byte a, byte b, int carry = 0)
         {
             var temp = (byte)((a + b) + carry);
             var bits = (byte)((a ^ temp) & ~(a ^ b));
@@ -16,10 +16,10 @@
             return temp;
         }
 
-        public static byte Sub(byte a, byte b, int carry = 1)
+        public static byte sub(byte a, byte b, int carry = 1)
         {
             b ^= 0xff;
-            return Add(a, b, carry);
+            return add(a, b, carry);
         }
     }
 }

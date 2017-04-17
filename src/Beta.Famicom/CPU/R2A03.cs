@@ -6,57 +6,49 @@ namespace Beta.Famicom.CPU
 {
     public static class R2A03
     {
-        private static void ReadInternal(int address, ref byte data)
+        public static void irq(R2A03State e, int signal)
         {
+            Interrupt.irq(e.r6502.ints, signal);
         }
 
-        private static void WriteInternal(int address, byte data)
+        public static void nmi(R2A03State e, int signal)
         {
+            Interrupt.nmi(e.r6502.ints, signal);
         }
 
-        public static void Update(R2A03State e)
+        public static void tick(R2A03State e)
         {
-            R6502.Update(e.r6502);
+            R6502.update(e.r6502);
 
             if (e.dma_trigger)
             {
                 e.dma_trigger = false;
 
-                var address = e.dma_segment << 8;
+                var address = (ushort)(e.dma_segment << 8);
                 var data = default(byte);
 
                 for (var i = 0; i < 256; i++)
                 {
-                    ReadInternal(address, ref data);
-                    WriteInternal(0x2004, data);
+                    R6502.read(e.r6502, address);
+                    R6502.write(e.r6502, 0x2004, data);
 
                     address++;
                 }
             }
         }
 
-        public static void IRQ(R2A03State e, int signal)
-        {
-            Interrupts.IRQ(e.r6502.ints, signal);
-        }
-
-        public static void NMI(R2A03State e, int signal)
-        {
-            Interrupts.NMI(e.r6502.ints, signal);
-        }
-
-        public static void Tick(R2A03State e, IAudioBackend audio)
+        public static void tick(R2A03State e, IAudioBackend audio)
         {
             if (e.sequence_mode == 0)
             {
                 switch (e.sequence_time)
                 {
-                case     0: /*             */ /*             */ SequencerInterrupt(e); break;
-                case  7457: QuadFrameTick(e); /*             */ break;
-                case 14913: QuadFrameTick(e); HalfFrameTick(e); break;
-                case 22371: QuadFrameTick(e); /*             */ break;
-                case 29828: /*             */ /*             */ SequencerInterrupt(e); break;
-                case 29829: QuadFrameTick(e); HalfFrameTick(e); SequencerInterrupt(e); break;
+                case     0: /*             */ /*             */ sequencerInterrupt(e); break;
+                case  7457: quadFrameTick(e); /*             */ break;
+                case 14913: quadFrameTick(e); halfFrameTick(e); break;
+                case 22371: quadFrameTick(e); /*             */ break;
+                case 29828: /*             */ /*             */ sequencerInterrupt(e); break;
+                case 29829: quadFrameTick(e); halfFrameTick(e); sequencerInterrupt(e); break;
                 }
 
                 e.sequence_time++;
@@ -69,11 +61,11 @@ namespace Beta.Famicom.CPU
             {
                 switch (e.sequence_time)
                 {
-                case  7457: QuadFrameTick(e); /*             */ break;
-                case 14913: QuadFrameTick(e); HalfFrameTick(e); break;
-                case 22371: QuadFrameTick(e); /*             */ break;
+                case  7457: quadFrameTick(e); /*             */ break;
+                case 14913: quadFrameTick(e); halfFrameTick(e); break;
+                case 22371: quadFrameTick(e); /*             */ break;
                 case 29829: /*             */ /*             */ break;
-                case 37281: QuadFrameTick(e); HalfFrameTick(e); break;
+                case 37281: quadFrameTick(e); halfFrameTick(e); break;
                 }
 
                 e.sequence_time++;
@@ -92,16 +84,16 @@ namespace Beta.Famicom.CPU
             Mixer.Tick(e, audio);
         }
 
-        public static void SequencerInterrupt(R2A03State e)
+        public static void sequencerInterrupt(R2A03State e)
         {
             if (e.sequence_irq_enabled)
             {
                 e.sequence_irq_pending = true;
-                IRQ(e, 1);
+                irq(e, 1);
             }
         }
 
-        public static void HalfFrameTick(R2A03State e)
+        public static void halfFrameTick(R2A03State e)
         {
             Duration.tick(e.sq1.duration);
             Duration.tick(e.sq2.duration);
@@ -115,7 +107,7 @@ namespace Beta.Famicom.CPU
             sq2.period = Sweep.Tick(sq2.sweep, sq2.period, -sq2.period);
         }
 
-        public static void QuadFrameTick(R2A03State e)
+        public static void quadFrameTick(R2A03State e)
         {
             Envelope.tick(e.sq1.envelope);
             Envelope.tick(e.sq2.envelope);
