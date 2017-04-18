@@ -5,9 +5,9 @@ namespace Beta.Famicom.Database
     public class Chip : IC
     {
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string type { get; set; }
 
         [XmlAttribute("battery")]
-        public bool Battery { get; set; }
+        public bool battery { get; set; }
     }
 }

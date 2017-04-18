@@ -16,7 +16,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x8000) == 0x8000)
             {
-                this.image.prg.Read(MapR2A03Address(address), ref data);
+                this.image.prg.read(mapR2A03Address(address), ref data);
             }
         }
 
@@ -28,7 +28,7 @@ namespace Beta.Famicom.Boards.Discrete
             }
         }
 
-        private int MapR2A03Address(int address)
+        private int mapR2A03Address(int address)
         {
             return (address & 0xc000) == 0x8000
                 ? (address & 0x3fff) | (prg_page << 14)
@@ -40,7 +40,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(address, ref data);
+                image.chr.read(address, ref data);
             }
         }
 
@@ -48,7 +48,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Write(address, data);
+                image.chr.write(address, data);
             }
         }
 

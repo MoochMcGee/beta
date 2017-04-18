@@ -23,7 +23,7 @@ namespace Beta.GameBoy
             broker.Link<ClockSignal>(container.GetInstance<Ppu>().Consume);
         }
 
-        public IDriver Create(byte[] binary)
+        public IDriver create(byte[] binary)
         {
             var state = container.GetInstance<State>();
             var board = BoardFactory.Create(binary);

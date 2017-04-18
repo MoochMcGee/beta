@@ -5,6 +5,6 @@ namespace Beta.Famicom.Database
     public class Cic
     {
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string type { get; set; }
     }
 }

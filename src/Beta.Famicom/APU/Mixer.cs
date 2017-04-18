@@ -3,23 +3,23 @@ using Beta.Platform.Audio;
 
 namespace Beta.Famicom.APU
 {
-    public sealed class Mixer
+    public static class Mixer
     {
-        private const int SAMPLE_STEP = 528000; // 11 * 48,000
-        private const int SAMPLE_PERIOD = 19687500; // 11 * 1,789,772.72~
+        const int SAMPLE_STEP = 528000; // 11 * 48,000
+        const int SAMPLE_PERIOD = 19687500; // 11 * 1,789,772.72~
 
-        public static void Tick(R2A03State e, IAudioBackend audio)
+        public static void tick(R2A03State e, IAudioBackend audio)
         {
             e.sample_prescaler += SAMPLE_STEP;
 
             if (e.sample_prescaler >= SAMPLE_PERIOD)
             {
                 e.sample_prescaler -= SAMPLE_PERIOD;
-                Sample(e, audio);
+                sample(e, audio);
             }
         }
 
-        private static void Sample(R2A03State e, IAudioBackend audio)
+        static void sample(R2A03State e, IAudioBackend audio)
         {
             var sq1 = Sq1.getOutput(e.sq1);
             var sq2 = Sq2.getOutput(e.sq2);
@@ -27,12 +27,12 @@ namespace Beta.Famicom.APU
             var noi = Noi.getOutput(e.noi);
             var dmc = Dmc.getOutput(e.dmc);
 
-            var output = MixSamples(sq1, sq2, tri, noi, dmc);
+            var output = mixSamples(sq1, sq2, tri, noi, dmc);
 
             audio.Render(output);
         }
 
-        private static int MixSamples(int sq1, int sq2, int tri, int noi, int dmc)
+        static int mixSamples(int sq1, int sq2, int tri, int noi, int dmc)
         {
             const double sqr_base = 95.52;
             const double sqr_div = 8128.0;

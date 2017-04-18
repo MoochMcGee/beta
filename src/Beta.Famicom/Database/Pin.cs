@@ -5,9 +5,9 @@ namespace Beta.Famicom.Database
     public class Pin
     {
         [XmlAttribute("number")]
-        public int Number { get; set; }
+        public int number { get; set; }
 
         [XmlAttribute("function")]
-        public string Function { get; set; }
+        public string function { get; set; }
     }
 }

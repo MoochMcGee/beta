@@ -5,20 +5,20 @@ namespace Beta.Famicom
 {
     public static class Palette
     {
-        public static readonly int[] Lookup = Generator.Generate();
+        public static readonly int[] Lookup = Generator.generate();
 
         private static class Generator
         {
-            public static int[] Generate()
+            public static int[] generate()
             {
                 var linq =
                     from i in Enumerable.Range(0, 64 * 8)
-                    select GenerateColor(i);
+                    select generateColor(i);
 
                 return linq.ToArray();
             }
 
-            private static int GenerateColor(int pixel)
+            private static int generateColor(int pixel)
             {
                 const double tau = Math.PI * 2;
 
@@ -47,11 +47,11 @@ namespace Beta.Famicom
 
                 for (var p = 0; p < 12; p++)
                 {
-                    var spot = loAndHi[Wave(p, color) ? 1 : 0];
+                    var spot = loAndHi[wave(p, color) ? 1 : 0];
 
-                    if (((pixel & (1 << 6)) != 0 && Wave(p, 0)) ||
-                        ((pixel & (1 << 7)) != 0 && Wave(p, 4)) ||
-                        ((pixel & (1 << 8)) != 0 && Wave(p, 8)))
+                    if (((pixel & (1 << 6)) != 0 && wave(p, 0)) ||
+                        ((pixel & (1 << 7)) != 0 && wave(p, 4)) ||
+                        ((pixel & (1 << 8)) != 0 && wave(p, 8)))
                     {
                         spot *= attenuation;
                     }
@@ -63,19 +63,19 @@ namespace Beta.Famicom
                     q += (v / 12) * Math.Sin((tau / 12) * p);
                 }
 
-                var r = Gamma(y + 0.946882 * i + 0.623557 * q);
-                var g = Gamma(y - 0.274788 * i - 0.635691 * q);
-                var b = Gamma(y - 1.108545 * i + 1.709007 * q);
+                var r = gamma(y + 0.946882 * i + 0.623557 * q);
+                var g = gamma(y - 0.274788 * i - 0.635691 * q);
+                var b = gamma(y - 1.108545 * i + 1.709007 * q);
 
                 return (r << 16) | (g << 8) | (b << 0);
             }
 
-            private static bool Wave(int phase, int color)
+            private static bool wave(int phase, int color)
             {
                 return (color + phase + 8) % 12 < 6;
             }
 
-            private static byte Gamma(double value)
+            private static byte gamma(double value)
             {
                 const double gamma = 2.2 / 1.8;
 
@@ -85,11 +85,11 @@ namespace Beta.Famicom
                 }
                 else
                 {
-                    return Clamp(255 * Math.Pow(value, gamma));
+                    return clamp(255 * Math.Pow(value, gamma));
                 }
             }
 
-            private static byte Clamp(double value)
+            private static byte clamp(double value)
             {
                 value = Math.Min(value, 255);
                 value = Math.Max(value, 0);

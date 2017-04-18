@@ -80,7 +80,7 @@ namespace Beta
         {
             try
             {
-                driver.Main();
+                driver.main();
             }
             catch (ThreadAbortException) { }
         }
@@ -89,7 +89,7 @@ namespace Beta
         {
             var binary = File.ReadAllBytes(fileName);
 
-            driver = driverFactory.Create(binary);
+            driver = driverFactory.create(binary);
 
             StartEmulation();
         }
@@ -134,7 +134,7 @@ namespace Beta
                 driverThread = null;
             }
 
-            driverThread = new Thread(driver.Main);
+            driverThread = new Thread(driver.main);
             driverThread.Start();
 
             playButton.Enabled = false;

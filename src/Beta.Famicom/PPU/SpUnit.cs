@@ -4,12 +4,12 @@ namespace Beta.Famicom.PPU
 {
     public static class SpUnit
     {
-        public static void Evaluation0(R2C02State e)
+        public static void evaluation0(R2C02State e)
         {
             e.spLatch = (byte)(e.h < 64 ? 0xff : e.oam[e.oam_address]);
         }
 
-        public static void Evaluation1(R2C02State e)
+        public static void evaluation1(R2C02State e)
         {
             if (e.h < 64)
             {
@@ -128,7 +128,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static void EvaluationBegin(R2C02State e)
+        public static void evaluationBegin(R2C02State e)
         {
             e.oam_address = 0;
 
@@ -137,9 +137,9 @@ namespace Beta.Famicom.PPU
             e.spPhase = 0;
         }
 
-        public static void EvaluationReset(R2C02State e)
+        public static void evaluationReset(R2C02State e)
         {
-            EvaluationBegin(e);
+            evaluationBegin(e);
 
             for (var i = 0; i < 0x100; i++)
             {
@@ -147,7 +147,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static void PointBit0(R2C02State e)
+        public static void pointBit0(R2C02State e)
         {
             var sprite = e.spFound[(e.h >> 3) & 7];
             var raster = e.v - sprite.Y;
@@ -169,16 +169,16 @@ namespace Beta.Famicom.PPU
             e.fetch_address |= 0;
         }
 
-        public static void PointBit1(R2C02State e)
+        public static void pointBit1(R2C02State e)
         {
             e.fetch_address |= 8;
         }
 
-        public static void FetchBit0(R2C02State e)
+        public static void fetchBit0(R2C02State e)
         {
             var sprite = e.spFound[(e.h >> 3) & 7];
 
-            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit0);
+            R2C02MemoryMap.read(e.fetch_address, ref e.fetch_bit0);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -190,11 +190,11 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static void FetchBit1(R2C02State e)
+        public static void fetchBit1(R2C02State e)
         {
             var sprite = e.spFound[(e.h >> 3) & 7];
 
-            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit1);
+            R2C02MemoryMap.read(e.fetch_address, ref e.fetch_bit1);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -206,7 +206,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static void InitializeSprite(R2C02State e)
+        public static void initializeSprite(R2C02State e)
         {
             for (var i = 0; i < 8; i++)
             {
@@ -219,7 +219,7 @@ namespace Beta.Famicom.PPU
             e.spPhase = 0;
         }
 
-        public static void Synthesize(R2C02State e)
+        public static void synthesize(R2C02State e)
         {
             if (e.v == 261)
             {
@@ -245,7 +245,7 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static int GetPixel(R2C02State e)
+        public static int getPixel(R2C02State e)
         {
             if (e.obj_enabled == false)
             {

@@ -7,21 +7,21 @@ namespace Beta.Famicom.Database
     public sealed class DatabaseInstance
     {
         [XmlAttribute("version")]
-        public string Version { get; set; }
+        public string version { get; set; }
 
         [XmlAttribute("conformance")]
-        public string Conformance { get; set; }
+        public string conformance { get; set; }
 
         [XmlAttribute("author")]
-        public string Author { get; set; }
+        public string author { get; set; }
 
         [XmlAttribute("agent")]
-        public string Agent { get; set; }
+        public string agent { get; set; }
 
         [XmlAttribute("timestamp")]
-        public string Timestamp { get; set; }
+        public string timestamp { get; set; }
 
         [XmlElement("game")]
-        public List<Game> Games { get; set; }
+        public List<Game> games { get; set; }
     }
 }

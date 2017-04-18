@@ -12,7 +12,7 @@ namespace Beta.GameBoy
             this.cpu = cpu;
         }
 
-        public void Main()
+        public void main()
         {
             while (true)
             {

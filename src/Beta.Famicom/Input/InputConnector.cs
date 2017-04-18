@@ -1,6 +1,4 @@
-﻿using Beta.Famicom.Messaging;
-
-namespace Beta.Famicom.Input
+﻿namespace Beta.Famicom.Input
 {
     public static class InputConnector
     {
@@ -8,27 +6,27 @@ namespace Beta.Famicom.Input
         private static IJoypad joypad2;
         private static int strobe;
 
-        public static void ConnectJoypad1(IJoypad joypad)
+        public static void connectJoypad1(IJoypad joypad)
         {
             InputConnector.joypad1 = joypad;
         }
 
-        public static void ConnectJoypad2(IJoypad joypad)
+        public static void connectJoypad2(IJoypad joypad)
         {
             InputConnector.joypad2 = joypad;
         }
 
-        public static byte ReadJoypad1()
+        public static byte readJoypad1()
         {
             return joypad1.getData(strobe);
         }
 
-        public static byte ReadJoypad2()
+        public static byte readJoypad2()
         {
             return joypad2.getData(strobe);
         }
 
-        public static void Write(byte data)
+        public static void write(byte data)
         {
             strobe = (data & 1);
 
@@ -39,7 +37,7 @@ namespace Beta.Famicom.Input
             }
         }
 
-        public static void Consume(FrameSignal e)
+        public static void update()
         {
             joypad1.update();
             joypad2.update();

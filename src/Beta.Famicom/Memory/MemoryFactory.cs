@@ -2,12 +2,12 @@
 {
     public static class MemoryFactory
     {
-        public static IMemory CreateRam(int capacity)
+        public static IMemory createRam(int capacity)
         {
             return new Ram(capacity);
         }
 
-        public static IMemory CreateRom(byte[] image)
+        public static IMemory createRom(byte[] image)
         {
             return new Rom(image);
         }

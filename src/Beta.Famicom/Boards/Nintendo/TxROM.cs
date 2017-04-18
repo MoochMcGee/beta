@@ -32,7 +32,7 @@ namespace Beta.Famicom.Boards.Nintendo
             prg_page[2] = ~1 << 13;
             prg_page[3] = ~0 << 13;
 
-            broker.Link<ClockSignal>(this.Consume);
+            broker.Link<ClockSignal>(this.consume);
         }
 
         public void applyImage(CartridgeImage image)
@@ -44,12 +44,12 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             if ((address & 0xe000) == 0x6000)
             {
-                image.wram.Read(address, ref data);
+                image.wram.read(address, ref data);
             }
 
             if ((address & 0x8000) == 0x8000)
             {
-                image.prg.Read(MapR2A03Address(address), ref data);
+                image.prg.read(mapR2A03Address(address), ref data);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Beta.Famicom.Boards.Nintendo
         {
             if ((address & 0xe000) == 0x6000)
             {
-                image.wram.Write(address, data);
+                image.wram.write(address, data);
             }
 
             switch (address & 0xe001)
@@ -115,7 +115,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        private int MapR2A03Address(int address)
+        private int mapR2A03Address(int address)
         {
             address ^= prg_mode & ~(address << 1);
 
@@ -126,25 +126,25 @@ namespace Beta.Famicom.Boards.Nintendo
 
         public void r2c02Read(int address, ref byte data)
         {
-            ScanlineCounter(address);
+            scanlineCounter(address);
 
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(MapR2C02Address(address), ref data);
+                image.chr.read(mapR2C02Address(address), ref data);
             }
         }
 
         public void r2c02Write(int address, byte data)
         {
-            ScanlineCounter(address);
+            scanlineCounter(address);
 
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Write(MapR2C02Address(address), data);
+                image.chr.write(mapR2C02Address(address), data);
             }
         }
 
-        private int MapR2C02Address(int address)
+        private int mapR2C02Address(int address)
         {
             address ^= chr_mode;
 
@@ -153,7 +153,7 @@ namespace Beta.Famicom.Boards.Nintendo
             return (address & 0x3ff) | (chr_page[page] & 0x3fc00);
         }
 
-        private void ScanlineCounter(int address)
+        private void scanlineCounter(int address)
         {
             if ((irq_address & 0x1000) < (address & 0x1000))
             {
@@ -194,7 +194,7 @@ namespace Beta.Famicom.Boards.Nintendo
             throw new CompilerPleasingException();
         }
 
-        public void Consume(ClockSignal e)
+        public void consume(ClockSignal e)
         {
             irq_timer++;
         }

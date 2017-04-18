@@ -6,33 +6,33 @@ namespace Beta.Famicom.Database
     public class Board
     {
         [XmlAttribute("type")]
-        public string Type { get; set; }
+        public string type { get; set; }
 
         [XmlAttribute("pcb")]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         [XmlAttribute("mapper")]
-        public int Mapper { get; set; }
+        public int mapper { get; set; }
 
         [XmlElement("prg")]
-        public List<Rom> Prg { get; set; }
+        public List<Rom> prg { get; set; }
 
         [XmlElement("chr")]
-        public List<Rom> Chr { get; set; }
+        public List<Rom> chr { get; set; }
 
         [XmlElement("wram")]
-        public List<Ram> Wram { get; set; }
+        public List<Ram> wram { get; set; }
 
         [XmlElement("vram")]
-        public List<Ram> Vram { get; set; }
+        public List<Ram> vram { get; set; }
 
         [XmlElement("chip")]
-        public List<Chip> Chip { get; set; }
+        public List<Chip> chip { get; set; }
 
         [XmlElement("cic")]
-        public List<Cic> Cic { get; set; }
+        public List<Cic> cic { get; set; }
 
         [XmlElement("pad")]
-        public Pad SolderPad { get; set; }
+        public Pad solderPad { get; set; }
     }
 }

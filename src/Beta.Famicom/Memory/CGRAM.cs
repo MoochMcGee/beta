@@ -4,17 +4,17 @@ namespace Beta.Famicom.Memory
 {
     public static class CGRAM
     {
-        public static byte Read(R2C02State e, int address)
+        public static byte read(R2C02State e, int address)
         {
-            return e.cgram[MapAddress(address)];
+            return e.cgram[mapAddress(address)];
         }
 
-        public static void Write(R2C02State e, int address, byte data)
+        public static void write(R2C02State e, int address, byte data)
         {
-            e.cgram[MapAddress(address)] = data;
+            e.cgram[mapAddress(address)] = data;
         }
 
-        private static int MapAddress(int address)
+        private static int mapAddress(int address)
         {
             return (address & 3) == 0
                 ? address & 0x000c

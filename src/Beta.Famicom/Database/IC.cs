@@ -6,6 +6,6 @@ namespace Beta.Famicom.Database
     public class IC
     {
         [XmlElement("pin")]
-        public List<Pin> Pins { get; set; }
+        public List<Pin> pins { get; set; }
     }
 }

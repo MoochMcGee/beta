@@ -2,6 +2,6 @@
 {
     public interface IDriver
     {
-        void Main();
+        void main();
     }
 }

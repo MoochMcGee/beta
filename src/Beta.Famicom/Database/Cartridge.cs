@@ -10,34 +10,34 @@ namespace Beta.Famicom.Database
         private int crc;
 
         [XmlAttribute("system")]
-        public string System { get; set; }
+        public string system { get; set; }
 
         [XmlAttribute("revision")]
-        public string Revision { get; set; }
+        public string revision { get; set; }
 
         [XmlAttribute("prototype")]
-        public string Prototype { get; set; }
+        public string prototype { get; set; }
 
         [XmlAttribute("dumper")]
-        public string Dumper { get; set; }
+        public string dumper { get; set; }
 
         [XmlAttribute("datedumped")]
-        public string DateDumped { get; set; }
+        public string dateDumped { get; set; }
 
         [XmlAttribute("dump")]
-        public string Dump { get; set; }
+        public string dump { get; set; }
 
         [XmlAttribute("crc")]
-        public string CrcString
+        public string crcString
         {
             get { return crc.ToString("X8"); }
             set { crc = int.Parse(value, NumberStyles.HexNumber); }
         }
 
         [XmlAttribute("sha1")]
-        public string Sha1 { get; set; }
+        public string sha1 { get; set; }
 
         [XmlElement("board")]
-        public List<Board> Boards { get; set; }
+        public List<Board> boards { get; set; }
     }
 }

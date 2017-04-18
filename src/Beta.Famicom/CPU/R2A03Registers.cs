@@ -5,7 +5,7 @@ namespace Beta.Famicom.CPU
 {
     public static class R2A03Registers
     {
-        public static void Read(R2A03State e, int address, ref byte data)
+        public static void read(R2A03State e, int address, ref byte data)
         {
             // switch (address & ~3)
             // {
@@ -33,17 +33,17 @@ namespace Beta.Famicom.CPU
             if (address == 0x4016)
             {
                 data &= 0xe0;
-                data |= InputConnector.ReadJoypad1();
+                data |= InputConnector.readJoypad1();
             }
 
             if (address == 0x4017)
             {
                 data &= 0xe0;
-                data |= InputConnector.ReadJoypad2();
+                data |= InputConnector.readJoypad2();
             }
         }
 
-        public static void Write(R2A03State e, int address, byte data)
+        public static void write(R2A03State e, int address, byte data)
         {
             switch (address & ~3)
             {
@@ -75,7 +75,7 @@ namespace Beta.Famicom.CPU
 
             if (address == 0x4016)
             {
-                InputConnector.Write(data);
+                InputConnector.write(data);
             }
 
             if (address == 0x4017)

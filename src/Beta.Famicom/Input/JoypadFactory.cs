@@ -2,7 +2,7 @@
 {
     public static class JoypadFactory
     {
-        public static IJoypad Create(int index)
+        public static IJoypad create(int index)
         {
             return new StandardController(index);
         }

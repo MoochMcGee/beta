@@ -5,6 +5,6 @@ namespace Beta.Famicom.Database
     public class Ram : Rom
     {
         [XmlAttribute("battery")]
-        public bool Battery { get; set; }
+        public bool battery { get; set; }
     }
 }

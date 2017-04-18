@@ -2,8 +2,8 @@
 {
     public interface IMemory
     {
-        void Read(int address, ref byte data);
+        void read(int address, ref byte data);
 
-        void Write(int address, byte data);
+        void write(int address, byte data);
     }
 }

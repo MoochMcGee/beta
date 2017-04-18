@@ -5,9 +5,9 @@ namespace Beta.Famicom.Database
     public class Pad
     {
         [XmlAttribute("h")]
-        public int H { get; set; }
+        public int h { get; set; }
 
         [XmlAttribute("v")]
-        public int V { get; set; }
+        public int v { get; set; }
     }
 }

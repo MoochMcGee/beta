@@ -8,9 +8,9 @@ namespace Beta.Famicom.CPU
     {
         static readonly byte[] wram = new byte[0x800];
         
-        public static void Read(State e, int address, ref byte data)
+        public static void read(State e, int address, ref byte data)
         {
-            CartridgeConnector.R2A03Read(address, ref data);
+            CartridgeConnector.r2a03Read(address, ref data);
 
             if (address <= 0x1fff)
             {
@@ -18,7 +18,7 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x3fff)
             {
-                R2C02Registers.Read(e.r2c02, address, ref data);
+                R2C02Registers.read(e.r2c02, address, ref data);
 
                 Interrupt.nmi(
                     e.r2a03.r6502.ints,
@@ -27,7 +27,7 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x4017)
             {
-                R2A03Registers.Read(e.r2a03, address, ref data);
+                R2A03Registers.read(e.r2a03, address, ref data);
 
                 Interrupt.irq(
                     e.r2a03.r6502.ints,
@@ -35,9 +35,9 @@ namespace Beta.Famicom.CPU
             }
         }
 
-        public static void Write(State e, int address, byte data)
+        public static void write(State e, int address, byte data)
         {
-            CartridgeConnector.R2A03Write(address, data);
+            CartridgeConnector.r2a03Write(address, data);
 
             if (address <= 0x1fff)
             {
@@ -45,7 +45,7 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x3fff)
             {
-                R2C02Registers.Write(e.r2c02, address, data);
+                R2C02Registers.write(e.r2c02, address, data);
 
                 Interrupt.nmi(
                     e.r2a03.r6502.ints,
@@ -54,7 +54,7 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x4017)
             {
-                R2A03Registers.Write(e.r2a03, address, data);
+                R2A03Registers.write(e.r2a03, address, data);
 
                 Interrupt.irq(
                     e.r2a03.r6502.ints,

@@ -21,7 +21,7 @@ namespace Beta.SuperFamicom
             this.broker = broker;
         }
 
-        public IDriver Create(byte[] binary)
+        public IDriver create(byte[] binary)
         {
             var driver = container.GetInstance<Driver>();
 

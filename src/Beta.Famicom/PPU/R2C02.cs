@@ -1,180 +1,148 @@
 ﻿using Beta.Famicom.Memory;
-using Beta.Famicom.Messaging;
-using Beta.Platform.Messaging;
 using Beta.Platform.Video;
 
 namespace Beta.Famicom.PPU
 {
-    public sealed class R2C02
+    public static class R2C02
     {
-        private readonly R2C02State state;
-        private readonly IProducer<FrameSignal> frame;
-        private readonly IProducer<VblSignal> vbl;
-        private readonly IVideoBackend video;
+        static int[] raster;
 
-        private int cycles;
-        private int[] raster;
-
-        public R2C02(
-            State state,
-            IProducer<FrameSignal> frame,
-            IProducer<VblSignal> vbl,
-            IVideoBackend video)
+        static bool rendering(R2C02State e)
         {
-            this.state = state.r2c02;
-            this.frame = frame;
-            this.vbl = vbl;
-            this.video = video;
-
-            raster = video.GetRaster(0);
-
-            SpUnit.EvaluationReset(this.state);
-            SpUnit.InitializeSprite(this.state);
+            return (e.bkg_enabled || e.obj_enabled) && e.v < 240;
         }
 
-        private bool Rendering()
+        static void activeCycle(R2C02State e)
         {
-            return (state.bkg_enabled || state.obj_enabled) && state.v < 240;
-        }
-
-        private void VBL()
-        {
-            var signal = state.vbl_flag & state.vbl_enabled;
-
-            vbl.Produce(new VblSignal(signal));
-        }
-
-        private void ActiveCycle()
-        {
-            var h = state.h;
+            var h = e.h;
 
             if ((h & 0x100) == 0x000)
             {
-                BgTick(h & 7);
-                RenderPixel();
-                EvaluationTick();
+                bgTick(e, h & 7);
+                renderPixel(e);
+                evaluationTick(e);
             }
-            else if ((h & 0x1c0) == 0x100) { SpTick(h & 7); }
-            else if ((h & 0x1f0) == 0x140) { BgTick(h & 7); }
-            else if ((h & 0x1fc) == 0x150) { BgTick(h & 1); }
+            else if ((h & 0x1c0) == 0x100) { spTick(e, h & 7); }
+            else if ((h & 0x1f0) == 0x140) { bgTick(e, h & 7); }
+            else if ((h & 0x1fc) == 0x150) { bgTick(e, h & 1); }
 
-            ScrollTick();
+            scrollTick(e);
         }
 
-        private void EvaluationTick()
+        static void evaluationTick(R2C02State e)
         {
-            switch (state.h & 1)
+            switch (e.h & 1)
             {
-            case 0: SpUnit.Evaluation0(state); break;
-            case 1: SpUnit.Evaluation1(state); break;
+            case 0: SpUnit.evaluation0(e); break;
+            case 1: SpUnit.evaluation1(e); break;
             }
 
-            if (state.h == 0x3f) SpUnit.EvaluationBegin(state);
-            if (state.h == 0xff) SpUnit.EvaluationReset(state);
+            if (e.h == 0x3f) SpUnit.evaluationBegin(e);
+            if (e.h == 0xff) SpUnit.evaluationReset(e);
         }
 
-        private void BufferCycle()
+        static void bufferCycle(R2C02State e)
         {
-            var h = state.h;
+            var h = e.h;
 
-            if ((h & 0x100) == 0x000) { BgTick(h & 7); }
-            else if ((h & 0x1c0) == 0x100) { SpTick(h & 7); }
-            else if ((h & 0x1f0) == 0x140) { BgTick(h & 7); }
-            else if ((h & 0x1fc) == 0x150) { BgTick(h & 1); }
+            if ((h & 0x100) == 0x000) { bgTick(e, h & 7); }
+            else if ((h & 0x1c0) == 0x100) { spTick(e, h & 7); }
+            else if ((h & 0x1f0) == 0x140) { bgTick(e, h & 7); }
+            else if ((h & 0x1fc) == 0x150) { bgTick(e, h & 1); }
 
-            ScrollTick();
+            scrollTick(e);
 
-            if (h == 337 && state.field)
+            if (h == 337 && e.field)
             {
-                Tick();
+                tickCounter(e);
             }
         }
 
-        private void BgTick(int step)
+        static void bgTick(R2C02State e, int step)
         {
             switch (step)
             {
-            case 0: BgUnit.PointName(state); break;
-            case 1: BgUnit.FetchName(state); break;
-            case 2: BgUnit.PointAttr(state); break;
-            case 3: BgUnit.FetchAttr(state); break;
-            case 4: BgUnit.PointBit0(state); break;
-            case 5: BgUnit.FetchBit0(state); break;
-            case 6: BgUnit.PointBit1(state); break;
-            case 7: BgUnit.FetchBit1(state); BgUnit.Synthesize(state); break;
+            case 0: BgUnit.pointName(e); break;
+            case 1: BgUnit.fetchName(e); break;
+            case 2: BgUnit.pointAttr(e); break;
+            case 3: BgUnit.fetchAttr(e); break;
+            case 4: BgUnit.pointBit0(e); break;
+            case 5: BgUnit.fetchBit0(e); break;
+            case 6: BgUnit.pointBit1(e); break;
+            case 7: BgUnit.fetchBit1(e); BgUnit.synthesize(e); break;
             }
         }
 
-        private void SpTick(int step)
+        static void spTick(R2C02State e, int step)
         {
             switch (step)
             {
-            case 0: BgUnit.PointName(state); break;
-            case 1: BgUnit.FetchName(state); break;
-            case 2: BgUnit.PointAttr(state); break;
-            case 3: BgUnit.FetchAttr(state); break;
-            case 4: SpUnit.PointBit0(state); break;
-            case 5: SpUnit.FetchBit0(state); break;
-            case 6: SpUnit.PointBit1(state); break;
-            case 7: SpUnit.FetchBit1(state); SpUnit.Synthesize(state); break;
+            case 0: BgUnit.pointName(e); break;
+            case 1: BgUnit.fetchName(e); break;
+            case 2: BgUnit.pointAttr(e); break;
+            case 3: BgUnit.fetchAttr(e); break;
+            case 4: SpUnit.pointBit0(e); break;
+            case 5: SpUnit.fetchBit0(e); break;
+            case 6: SpUnit.pointBit1(e); break;
+            case 7: SpUnit.fetchBit1(e); SpUnit.synthesize(e); break;
             }
         }
 
-        private void ScrollTick()
+        static void scrollTick(R2C02State e)
         {
-            if ((state.h & 0x107) == 0x007 ||
-                (state.h & 0x1f7) == 0x147)
+            if ((e.h & 0x107) == 0x007 ||
+                (e.h & 0x1f7) == 0x147)
             {
-                ClockX();
+                clockX(e);
             }
 
-            if (state.h == 255) { ClockY(); }
-            if (state.h == 256) { ResetX(); }
+            if (e.h == 255) { clockY(e); }
+            if (e.h == 256) { resetX(e); }
 
-            if (state.v == 261 && (state.h >= 280 && state.h <= 304))
+            if (e.v == 261 && (e.h >= 280 && e.h <= 304))
             {
-                ResetY();
+                resetY(e);
             }
         }
 
-        private void ForcedBlankCycle()
+        static void forcedBlankCycle(R2C02State e)
         {
-            if (state.v >= 240) return;
-            if (state.h >= 256) return;
+            if (e.v >= 240) return;
+            if (e.h >= 256) return;
 
-            var pixel = ForcedBlankPixel();
-            var color = CGRAM.Read(state, pixel);
+            var pixel = forcedBlankPixel(e);
+            var color = CGRAM.read(e, pixel);
 
-            raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
+            raster[e.h] = Palette.Lookup[(color & e.clipping) | e.emphasis];
         }
 
-        private int ForcedBlankPixel()
+        static int forcedBlankPixel(R2C02State e)
         {
-            return (state.scroll_address & 0x3f00) == 0x3f00
-                ? state.scroll_address
+            return (e.scroll_address & 0x3f00) == 0x3f00
+                ? e.scroll_address
                 : 0
                 ;
         }
 
-        private void RenderPixel()
+        static void renderPixel(R2C02State e)
         {
-            var pixel = ColorMultiplexer();
-            var color = CGRAM.Read(state, pixel);
+            var pixel = colorMultiplexer(e);
+            var color = CGRAM.read(e, pixel);
 
-            raster[state.h] = Palette.Lookup[(color & state.clipping) | state.emphasis];
+            raster[e.h] = Palette.Lookup[(color & e.clipping) | e.emphasis];
         }
 
-        private int ColorMultiplexer()
+        static int colorMultiplexer(R2C02State e)
         {
-            int bkg = BgUnit.GetPixel(state);
-            int obj = SpUnit.GetPixel(state);
+            int bkg = BgUnit.getPixel(e);
+            int obj = SpUnit.getPixel(e);
 
             if ((bkg & 3) == 0) { return obj; }
             if ((obj & 3) == 0) { return bkg; }
 
             if ((obj & 0x4000) != 0)
             {
-                state.obj_zero_hit = true;
+                e.obj_zero_hit = true;
             }
 
             return (obj & 0x8000) != 0
@@ -183,119 +151,112 @@ namespace Beta.Famicom.PPU
                 ;
         }
 
-        private void Tick()
+        static void tickCounter(R2C02State e)
         {
-            if (state.v == 240 && state.h == 340) { state.vbl_hold = 1; }
-            if (state.v == 241 && state.h ==   0) { state.vbl_flag = state.vbl_hold; }
-            if (state.v == 241 && state.h ==   2) { VBL(); }
+            if (e.v == 240 && e.h == 340) { e.vbl_hold = 1; }
+            if (e.v == 241 && e.h == 0) { e.vbl_flag = e.vbl_hold; }
+            //  if (e.v == 241 && e.h ==   2) { VBL(); }
 
-            if (state.v == 260 && state.h == 340)
+            if (e.v == 260 && e.h == 340)
             {
-                state.obj_overflow = false;
-                state.obj_zero_hit = false;
+                e.obj_overflow = false;
+                e.obj_zero_hit = false;
             }
 
-            if (state.v == 260 && state.h == 340) { state.vbl_hold = 0; }
-            if (state.v == 261 && state.h ==   0) { state.vbl_flag = state.vbl_hold; }
-            if (state.v == 261 && state.h ==   2) { VBL(); }
+            if (e.v == 260 && e.h == 340) { e.vbl_hold = 0; }
+            if (e.v == 261 && e.h == 0) { e.vbl_flag = e.vbl_hold; }
+            //  if (e.v == 261 && e.h ==   2) { VBL(); }
 
-            state.h++;
+            e.h++;
         }
 
-        public void Consume(ClockSignal e)
+        static void clockX(R2C02State e)
         {
-            const int single = 44;
-
-            for (cycles += e.Cycles; cycles >= single; cycles -= single)
+            if ((e.scroll_address & 0x001f) == 0x001f)
             {
-                Update();
-            }
-        }
-
-        private void Update()
-        {
-            if (state.bkg_enabled || state.obj_enabled)
-            {
-                if (state.v <  240) { ActiveCycle(); }
-                if (state.v == 261) { BufferCycle(); }
+                e.scroll_address ^= 0x041f;
             }
             else
             {
-                ForcedBlankCycle();
-            }
-
-            Tick();
-
-            if (state.h == 341)
-            {
-                state.h = 0;
-                state.v++;
-
-                if (state.v == 261)
-                {
-                    state.field ^= true;
-                }
-
-                if (state.v == 262)
-                {
-                    state.v = 0;
-
-                    frame.Produce(null);
-
-                    video.Render();
-                }
-
-                if (state.v < 240)
-                {
-                    raster = video.GetRaster(state.v);
-                }
+                e.scroll_address += 0x0001;
             }
         }
 
-        private void ClockX()
+        static void clockY(R2C02State e)
         {
-            if ((state.scroll_address & 0x001f) == 0x001f)
+            if ((e.scroll_address & 0x7000) == 0x7000)
             {
-                state.scroll_address ^= 0x041f;
-            }
-            else
-            {
-                state.scroll_address += 0x0001;
-            }
-        }
+                e.scroll_address ^= 0x7000;
 
-        private void ClockY()
-        {
-            if ((state.scroll_address & 0x7000) == 0x7000)
-            {
-                state.scroll_address ^= 0x7000;
-
-                switch (state.scroll_address & 0x3e0)
+                switch (e.scroll_address & 0x3e0)
                 {
-                case 0x3a0: state.scroll_address ^= 0xba0; break;
-                case 0x3e0: state.scroll_address ^= 0x3e0; break;
+                case 0x3a0: e.scroll_address ^= 0xba0; break;
+                case 0x3e0: e.scroll_address ^= 0x3e0; break;
 
                 default:
-                    state.scroll_address += 0x20;
+                    e.scroll_address += 0x20;
                     break;
                 }
             }
             else
             {
-                state.scroll_address += 0x1000;
+                e.scroll_address += 0x1000;
             }
         }
 
-        private void ResetX()
+        static void resetX(R2C02State e)
         {
-            state.scroll_address &= 0x7be0;
-            state.scroll_address |= state.scroll_temp & 0x041f;
+            e.scroll_address &= 0x7be0;
+            e.scroll_address |= e.scroll_temp & 0x041f;
         }
 
-        private void ResetY()
+        static void resetY(R2C02State e)
         {
-            state.scroll_address &= 0x041f;
-            state.scroll_address |= state.scroll_temp & 0x7be0;
+            e.scroll_address &= 0x041f;
+            e.scroll_address |= e.scroll_temp & 0x7be0;
+        }
+
+        public static void init(R2C02State e, IVideoBackend video)
+        {
+            raster = video.GetRaster(0);
+        }
+
+        public static void tick(R2C02State e, IVideoBackend video)
+        {
+            if (e.bkg_enabled || e.obj_enabled)
+            {
+                if (e.v < 240) { activeCycle(e); }
+                if (e.v == 261) { bufferCycle(e); }
+            }
+            else
+            {
+                forcedBlankCycle(e);
+            }
+
+            tickCounter(e);
+
+            if (e.h == 341)
+            {
+                e.h = 0;
+                e.v++;
+
+                if (e.v == 261)
+                {
+                    e.field ^= true;
+                }
+
+                if (e.v == 262)
+                {
+                    e.v = 0;
+
+                    video.Render();
+                }
+
+                if (e.v < 240)
+                {
+                    raster = video.GetRaster(e.v);
+                }
+            }
         }
     }
 }

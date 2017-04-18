@@ -5,28 +5,28 @@ namespace Beta.Famicom.Database
     public class Rom : IC
     {
         [XmlIgnore]
-        public int Size { get; private set; }
+        public int size { get; private set; }
 
         [XmlAttribute("id")]
-        public int Id { get; set; }
+        public int id { get; set; }
 
         [XmlAttribute("name")]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         [XmlAttribute("size")]
-        public string SizeString
+        public string sizeString
         {
-            get { return (Size / 1024) + "k"; }
-            set { Size = int.Parse(value.Substring(0, value.Length - 1)) * 1024; }
+            get { return (size / 1024) + "k"; }
+            set { size = int.Parse(value.Substring(0, value.Length - 1)) * 1024; }
         }
 
         [XmlAttribute("file")]
-        public string File { get; set; }
+        public string file { get; set; }
 
         [XmlAttribute("crc")]
-        public string Crc { get; set; }
+        public string crc { get; set; }
 
         [XmlAttribute("sha1")]
-        public string Sha1 { get; set; }
+        public string sha1 { get; set; }
     }
 }

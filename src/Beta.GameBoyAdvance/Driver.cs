@@ -47,7 +47,7 @@ namespace Beta.GameBoyAdvance
             broker.Link<FrameSignal>(pad.Consume);
         }
 
-        public void Main()
+        public void main()
         {
             cpu.Initialize();
 

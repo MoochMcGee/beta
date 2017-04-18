@@ -9,7 +9,7 @@ namespace Beta.Famicom.Boards
     {
         public static IBoard getBoard(byte[] binary)
         {
-            var info = CartridgeFactory.Create(binary);
+            var info = CartridgeFactory.create(binary);
             var type = getBoardType(info.mapper);
 
             type.applyImage(info);

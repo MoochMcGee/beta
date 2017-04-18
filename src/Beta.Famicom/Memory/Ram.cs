@@ -11,12 +11,12 @@
             mask = capacity - 1;
         }
 
-        public void Read(int address, ref byte data)
+        public void read(int address, ref byte data)
         {
             data = buffer[address & mask];
         }
 
-        public void Write(int address, byte data)
+        public void write(int address, byte data)
         {
             buffer[address & mask] = data;
         }

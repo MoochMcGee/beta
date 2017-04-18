@@ -25,7 +25,7 @@ namespace Beta.SuperFamicom
             this.Smp = smp;
         }
 
-        public void Main()
+        public void main()
         {
             while (true)
             {

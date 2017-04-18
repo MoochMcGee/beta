@@ -1,6 +1,8 @@
 ﻿using Beta.Famicom.APU;
+using Beta.Famicom.PPU;
 using Beta.Platform.Audio;
 using Beta.Platform.Processors.RP6502;
+using Beta.Platform.Video;
 
 namespace Beta.Famicom.CPU
 {
@@ -16,27 +18,35 @@ namespace Beta.Famicom.CPU
             Interrupt.nmi(e.r6502.ints, signal);
         }
 
-        public static void tick(R2A03State e, IAudioBackend audio)
+        public static void tick(State e, IAudioBackend audio, IVideoBackend video)
         {
-            R6502.update(e.r6502);
+            R6502.update(e.r2a03.r6502);
 
-            if (e.dma_trigger)
+            if (e.r2a03.dma_trigger)
             {
-                e.dma_trigger = false;
+                e.r2a03.dma_trigger = false;
 
-                var address = (ushort)(e.dma_segment << 8);
+                var address = (ushort)(e.r2a03.dma_segment << 8);
                 var data = default(byte);
 
                 for (var i = 0; i < 256; i++)
                 {
-                    R6502.read(e.r6502, address);
-                    R6502.write(e.r6502, 0x2004, data);
+                    R6502.read(e.r2a03.r6502, address);
+                    R6502.write(e.r2a03.r6502, 0x2004, data);
 
                     address++;
                 }
             }
 
-            tickR2A03(e, audio);
+            tickR2A03(e.r2a03, audio);
+
+            R2C02.tick(e.r2c02, video);
+            R2C02.tick(e.r2c02, video);
+            R2C02.tick(e.r2c02, video);
+
+            Interrupt.nmi(
+                e.r2a03.r6502.ints,
+                e.r2c02.vbl_enabled & e.r2c02.vbl_flag);
         }
 
         public static void tickR2A03(R2A03State e, IAudioBackend audio)
@@ -83,7 +93,7 @@ namespace Beta.Famicom.CPU
             Noi.tick(e.noi);
             Dmc.tick(e.dmc);
 
-            Mixer.Tick(e, audio);
+            Mixer.tick(e, audio);
         }
 
         public static void sequencerInterrupt(R2A03State e)
@@ -103,10 +113,10 @@ namespace Beta.Famicom.CPU
             Duration.tick(e.noi.duration);
 
             var sq1 = e.sq1;
-            sq1.period = Sweep.Tick(sq1.sweep, sq1.period, ~sq1.period);
+            sq1.period = Sweep.tick(sq1.sweep, sq1.period, ~sq1.period);
 
             var sq2 = e.sq2;
-            sq2.period = Sweep.Tick(sq2.sweep, sq2.period, -sq2.period);
+            sq2.period = Sweep.tick(sq2.sweep, sq2.period, -sq2.period);
         }
 
         public static void quadFrameTick(R2A03State e)

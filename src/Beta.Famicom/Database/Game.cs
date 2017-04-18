@@ -6,36 +6,36 @@ namespace Beta.Famicom.Database
     public class Game
     {
         [XmlAttribute("name")]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         [XmlAttribute("altname")]
-        public string AltName { get; set; }
+        public string altName { get; set; }
 
         [XmlAttribute("class")]
-        public string Class { get; set; }
+        public string @class { get; set; }
 
         [XmlAttribute("subclass")]
-        public string Subclass { get; set; }
+        public string subclass { get; set; }
 
         [XmlAttribute("catalog")]
-        public string Catalog { get; set; }
+        public string catalog { get; set; }
 
         [XmlAttribute("publisher")]
-        public string Publisher { get; set; }
+        public string publisher { get; set; }
 
         [XmlAttribute("developer")]
-        public string Developer { get; set; }
+        public string developer { get; set; }
 
         [XmlAttribute("portdeveloper")]
-        public string PortDeveloper { get; set; }
+        public string portDeveloper { get; set; }
 
         [XmlAttribute("players")]
-        public int Players { get; set; }
+        public int players { get; set; }
 
         [XmlAttribute("date")]
-        public string Date { get; set; }
+        public string date { get; set; }
 
         [XmlElement("cartridge")]
-        public List<Cartridge> Cartridges { get; set; }
+        public List<Cartridge> cartridges { get; set; }
     }
 }

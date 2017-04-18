@@ -15,7 +15,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x8000) == 0x8000)
             {
-                image.prg.Read(address, ref data);
+                image.prg.read(address, ref data);
             }
         }
 
@@ -25,7 +25,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(address, ref data);
+                image.chr.read(address, ref data);
             }
         }
 
@@ -33,7 +33,7 @@ namespace Beta.Famicom.Boards.Discrete
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(address, ref data);
+                image.chr.read(address, ref data);
             }
         }
 

@@ -20,7 +20,7 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x8000) == 0x8000)
             {
-                image.prg.Read(MapR2A03Address(address), ref data);
+                image.prg.read(mapR2A03Address(address), ref data);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Beta.Famicom.Boards.Konami
             }
         }
 
-        private int MapR2A03Address(int address)
+        private int mapR2A03Address(int address)
         {
             switch (address & 0xe000)
             {
@@ -94,7 +94,7 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Read(MapR2C02Address(address), ref data);
+                image.chr.read(mapR2C02Address(address), ref data);
             }
         }
 
@@ -102,11 +102,11 @@ namespace Beta.Famicom.Boards.Konami
         {
             if ((address & 0x2000) == 0x0000)
             {
-                image.chr.Write(MapR2C02Address(address), data);
+                image.chr.write(mapR2C02Address(address), data);
             }
         }
 
-        private int MapR2C02Address(int address)
+        private int mapR2C02Address(int address)
         {
             const int chr_shift = 10;
 

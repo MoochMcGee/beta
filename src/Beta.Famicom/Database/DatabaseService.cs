@@ -21,33 +21,33 @@ namespace Beta.Famicom.Database
             }
         }
 
-        public static Board Find(byte[] data)
+        public static Board find(byte[] data)
         {
             var hash = sha1Provider.ComputeHash(data, 16, data.Length - 16);
             var sha1 = BitConverter.ToString(hash).Replace("-", "");
-            var linq = from game in database.Games
-                       from cartridge in game.Cartridges
-                       where cartridge.Sha1 == sha1
-                       select cartridge.Boards[0];
+            var linq = from game in database.games
+                       from cartridge in game.cartridges
+                       where cartridge.sha1 == sha1
+                       select cartridge.boards[0];
 
             var result = linq.FirstOrDefault();
             if (result == null)
             {
                 return new Board
                 {
-                    SolderPad = new Pad { H = 0, V = 0 },
-                    Chip = new System.Collections.Generic.List<Chip>(),
-                    Vram = new System.Collections.Generic.List<Ram>(),
-                    Wram = new System.Collections.Generic.List<Ram>(),
-                    Chr = new System.Collections.Generic.List<Rom>
+                    solderPad = new Pad { h = 0, v = 0 },
+                    chip = new System.Collections.Generic.List<Chip>(),
+                    vram = new System.Collections.Generic.List<Ram>(),
+                    wram = new System.Collections.Generic.List<Ram>(),
+                    chr = new System.Collections.Generic.List<Rom>
                     {
-                        new Rom { SizeString = "8k" }
+                        new Rom { sizeString = "8k" }
                     },
-                    Prg = new System.Collections.Generic.List<Rom>
+                    prg = new System.Collections.Generic.List<Rom>
                     {
-                        new Rom { SizeString= "32k" }
+                        new Rom { sizeString= "32k" }
                     },
-                    Type = "NES-SxROM"
+                    type = "NES-SxROM"
                 };
             }
 

@@ -2,7 +2,7 @@
 {
     public static class Sweep
     {
-        public static int Tick(SweepState e, int period, int negate)
+        public static int tick(SweepState e, int period, int negate)
         {
             if (e.reload)
             {
