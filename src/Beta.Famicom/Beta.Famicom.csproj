@@ -53,7 +53,6 @@
     <Compile Include="Boards\Discrete\UxROM.cs" />
     <Compile Include="Boards\IBoard.cs" />
     <Compile Include="Boards\BoardFactory.cs" />
-    <Compile Include="Boards\BoardNameAttribute.cs" />
     <Compile Include="Boards\Discrete\NROM.cs" />
     <Compile Include="Boards\Konami\VRC1.cs" />
     <Compile Include="Boards\Konami\VRC2.cs" />
@@ -88,7 +87,6 @@
     <Compile Include="Database\DatabaseService.cs" />
     <Compile Include="Database\Game.cs" />
     <Compile Include="Database\IC.cs" />
-    <Compile Include="Database\IDatabase.cs" />
     <Compile Include="Database\Pad.cs" />
     <Compile Include="Database\Pin.cs" />
     <Compile Include="Database\Ram.cs" />
@@ -97,20 +95,16 @@
     <Compile Include="Formats\CartridgeImage.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverFactory.cs" />
-    <Compile Include="Input\IJoypadFactory.cs" />
     <Compile Include="Input\InputConnector.cs" />
     <Compile Include="Input\JoypadFactory.cs" />
     <Compile Include="Memory\CartridgeConnector.cs" />
     <Compile Include="Memory\CGRAM.cs" />
     <Compile Include="Memory\IMemory.cs" />
-    <Compile Include="Memory\IMemoryFactory.cs" />
     <Compile Include="Memory\MemoryFactory.cs" />
     <Compile Include="Memory\Ram.cs" />
     <Compile Include="Memory\Rom.cs" />
     <Compile Include="Messaging\FrameSignal.cs" />
-    <Compile Include="Messaging\HalfFrameSignal.cs" />
     <Compile Include="Messaging\IrqSignal.cs" />
-    <Compile Include="Messaging\QuadFrameSignal.cs" />
     <Compile Include="Messaging\VblSignal.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Input\IJoypad.cs" />

@@ -7,7 +7,6 @@ namespace Beta.Famicom.PPU
 {
     public sealed class R2C02
     {
-        private readonly R2C02MemoryMap memory;
         private readonly R2C02State state;
         private readonly IProducer<FrameSignal> frame;
         private readonly IProducer<VblSignal> vbl;
@@ -17,13 +16,11 @@ namespace Beta.Famicom.PPU
         private int[] raster;
 
         public R2C02(
-            R2C02MemoryMap memory,
             State state,
             IProducer<FrameSignal> frame,
             IProducer<VblSignal> vbl,
             IVideoBackend video)
         {
-            this.memory = memory;
             this.state = state.r2c02;
             this.frame = frame;
             this.vbl = vbl;
@@ -98,13 +95,13 @@ namespace Beta.Famicom.PPU
             switch (step)
             {
             case 0: BgUnit.PointName(state); break;
-            case 1: BgUnit.FetchName(state, memory); break;
+            case 1: BgUnit.FetchName(state); break;
             case 2: BgUnit.PointAttr(state); break;
-            case 3: BgUnit.FetchAttr(state, memory); break;
+            case 3: BgUnit.FetchAttr(state); break;
             case 4: BgUnit.PointBit0(state); break;
-            case 5: BgUnit.FetchBit0(state, memory); break;
+            case 5: BgUnit.FetchBit0(state); break;
             case 6: BgUnit.PointBit1(state); break;
-            case 7: BgUnit.FetchBit1(state, memory); BgUnit.Synthesize(state); break;
+            case 7: BgUnit.FetchBit1(state); BgUnit.Synthesize(state); break;
             }
         }
 
@@ -113,13 +110,13 @@ namespace Beta.Famicom.PPU
             switch (step)
             {
             case 0: BgUnit.PointName(state); break;
-            case 1: BgUnit.FetchName(state, memory); break;
+            case 1: BgUnit.FetchName(state); break;
             case 2: BgUnit.PointAttr(state); break;
-            case 3: BgUnit.FetchAttr(state, memory); break;
+            case 3: BgUnit.FetchAttr(state); break;
             case 4: SpUnit.PointBit0(state); break;
-            case 5: SpUnit.FetchBit0(state, memory); break;
+            case 5: SpUnit.FetchBit0(state); break;
             case 6: SpUnit.PointBit1(state); break;
-            case 7: SpUnit.FetchBit1(state, memory); SpUnit.Synthesize(state); break;
+            case 7: SpUnit.FetchBit1(state); SpUnit.Synthesize(state); break;
             }
         }
 

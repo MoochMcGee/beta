@@ -3,7 +3,6 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.Famicom.Boards.Konami
 {
-    [BoardName("KONAMI-VRC-2")]
     public sealed class VRC2 : IBoard
     {
         private CartridgeImage image;
@@ -12,12 +11,12 @@ namespace Beta.Famicom.Boards.Konami
         private int[] chr_page = new int[8];
         private int[] prg_page = new int[2];
 
-        public void ApplyImage(CartridgeImage image)
+        public void applyImage(CartridgeImage image)
         {
             this.image = image;
         }
 
-        public void R2A03Read(int address, ref byte data)
+        public void r2a03Read(int address, ref byte data)
         {
             if ((address & 0x8000) == 0x8000)
             {
@@ -25,7 +24,7 @@ namespace Beta.Famicom.Boards.Konami
             }
         }
 
-        public void R2A03Write(int address, byte data)
+        public void r2a03Write(int address, byte data)
         {
             const int a0_shift = 0;
             const int a1_shift = 1;
@@ -91,7 +90,7 @@ namespace Beta.Famicom.Boards.Konami
             throw new CompilerPleasingException();
         }
 
-        public void R2C02Read(int address, ref byte data)
+        public void r2c02Read(int address, ref byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -99,7 +98,7 @@ namespace Beta.Famicom.Boards.Konami
             }
         }
 
-        public void R2C02Write(int address, byte data)
+        public void r2c02Write(int address, byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -126,7 +125,7 @@ namespace Beta.Famicom.Boards.Konami
             throw new CompilerPleasingException();
         }
 
-        public bool VRAM(int address, out int a10)
+        public bool vram(int address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;

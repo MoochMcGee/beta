@@ -3,7 +3,6 @@ using Beta.Platform.Exceptions;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
-    [BoardName("NES-S(.+)ROM")]
     public sealed class SxROM : IBoard
     {
         private CartridgeImage image;
@@ -21,12 +20,12 @@ namespace Beta.Famicom.Boards.Nintendo
         private int latch;
         private int shift;
 
-        public void ApplyImage(CartridgeImage image)
+        public void applyImage(CartridgeImage image)
         {
             this.image = image;
         }
 
-        public void R2A03Read(int address, ref byte data)
+        public void r2a03Read(int address, ref byte data)
         {
             if ((address & 0x8000) == 0x8000)
             {
@@ -34,7 +33,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2A03Write(int address, byte data)
+        public void r2a03Write(int address, byte data)
         {
             if ((address & 0x8000) != 0x8000)
             {
@@ -102,7 +101,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Read(int address, ref byte data)
+        public void r2c02Read(int address, ref byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -110,7 +109,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Write(int address, byte data)
+        public void r2c02Write(int address, byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -133,7 +132,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public bool VRAM(int address, out int a10)
+        public bool vram(int address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;

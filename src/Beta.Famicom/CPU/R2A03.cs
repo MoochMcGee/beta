@@ -16,7 +16,7 @@ namespace Beta.Famicom.CPU
             Interrupt.nmi(e.r6502.ints, signal);
         }
 
-        public static void tick(R2A03State e)
+        public static void tick(R2A03State e, IAudioBackend audio)
         {
             R6502.update(e.r6502);
 
@@ -35,9 +35,11 @@ namespace Beta.Famicom.CPU
                     address++;
                 }
             }
+
+            tickR2A03(e, audio);
         }
 
-        public static void tick(R2A03State e, IAudioBackend audio)
+        public static void tickR2A03(R2A03State e, IAudioBackend audio)
         {
             if (e.sequence_mode == 0)
             {

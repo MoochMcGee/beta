@@ -2,38 +2,38 @@
 
 namespace Beta.Famicom.Memory
 {
-    public sealed class CartridgeConnector
+    public static class CartridgeConnector
     {
-        private IBoard board;
+        private static IBoard board;
 
-        public void InsertCartridge(IBoard board)
+        public static void InsertCartridge(IBoard board)
         {
-            this.board = board;
+            CartridgeConnector.board = board;
         }
 
-        public void R2C02Read(int address, ref byte data)
+        public static void R2C02Read(int address, ref byte data)
         {
-            board.R2C02Read(address, ref data);
+            board.r2c02Read(address, ref data);
         }
 
-        public void R2C02Write(int address, byte data)
+        public static void R2C02Write(int address, byte data)
         {
-            board.R2C02Write(address, data);
+            board.r2c02Write(address, data);
         }
 
-        public void R2A03Read(int address, ref byte data)
+        public static void R2A03Read(int address, ref byte data)
         {
-            board.R2A03Read(address, ref data);
+            board.r2a03Read(address, ref data);
         }
 
-        public void R2A03Write(int address, byte data)
+        public static void R2A03Write(int address, byte data)
         {
-            board.R2A03Write(address, data);
+            board.r2a03Write(address, data);
         }
 
-        public bool VRAM(int address, out int a10)
+        public static bool VRAM(int address, out int a10)
         {
-            return board.VRAM(address, out a10);
+            return board.vram(address, out a10);
         }
     }
 }

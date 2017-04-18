@@ -2,18 +2,17 @@
 
 namespace Beta.Famicom.Boards.Discrete
 {
-    [BoardName("U(.+)ROM")]
     public sealed class UxROM : IBoard
     {
         private CartridgeImage image;
         private int prg_page;
 
-        public void ApplyImage(CartridgeImage image)
+        public void applyImage(CartridgeImage image)
         {
             this.image = image;
         }
 
-        public void R2A03Read(int address, ref byte data)
+        public void r2a03Read(int address, ref byte data)
         {
             if ((address & 0x8000) == 0x8000)
             {
@@ -21,7 +20,7 @@ namespace Beta.Famicom.Boards.Discrete
             }
         }
 
-        public void R2A03Write(int address, byte data)
+        public void r2a03Write(int address, byte data)
         {
             if ((address & 0x8000) == 0x8000)
             {
@@ -37,7 +36,7 @@ namespace Beta.Famicom.Boards.Discrete
                 ;
         }
 
-        public void R2C02Read(int address, ref byte data)
+        public void r2c02Read(int address, ref byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -45,7 +44,7 @@ namespace Beta.Famicom.Boards.Discrete
             }
         }
 
-        public void R2C02Write(int address, byte data)
+        public void r2c02Write(int address, byte data)
         {
             if ((address & 0x2000) == 0x0000)
             {
@@ -53,7 +52,7 @@ namespace Beta.Famicom.Boards.Discrete
             }
         }
 
-        public bool VRAM(int address, out int a10)
+        public bool vram(int address, out int a10)
         {
             var x = (address >> 10) & image.h;
             var y = (address >> 11) & image.v;

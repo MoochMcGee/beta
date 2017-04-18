@@ -1,13 +1,13 @@
 ﻿namespace Beta.Famicom.Memory
 {
-    public sealed class MemoryFactory : IMemoryFactory
+    public static class MemoryFactory
     {
-        public IMemory CreateRam(int capacity)
+        public static IMemory CreateRam(int capacity)
         {
             return new Ram(capacity);
         }
 
-        public IMemory CreateRom(byte[] image)
+        public static IMemory CreateRom(byte[] image)
         {
             return new Rom(image);
         }

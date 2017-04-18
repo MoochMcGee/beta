@@ -2,33 +2,33 @@
 
 namespace Beta.Famicom.Input
 {
-    public sealed class InputConnector
+    public static class InputConnector
     {
-        private IJoypad joypad1;
-        private IJoypad joypad2;
-        private int strobe;
+        private static IJoypad joypad1;
+        private static IJoypad joypad2;
+        private static int strobe;
 
-        public void ConnectJoypad1(IJoypad joypad)
+        public static void ConnectJoypad1(IJoypad joypad)
         {
-            this.joypad1 = joypad;
+            InputConnector.joypad1 = joypad;
         }
 
-        public void ConnectJoypad2(IJoypad joypad)
+        public static void ConnectJoypad2(IJoypad joypad)
         {
-            this.joypad2 = joypad;
+            InputConnector.joypad2 = joypad;
         }
 
-        public byte ReadJoypad1()
+        public static byte ReadJoypad1()
         {
             return joypad1.getData(strobe);
         }
 
-        public byte ReadJoypad2()
+        public static byte ReadJoypad2()
         {
             return joypad2.getData(strobe);
         }
 
-        public void Write(byte data)
+        public static void Write(byte data)
         {
             strobe = (data & 1);
 
@@ -39,7 +39,7 @@ namespace Beta.Famicom.Input
             }
         }
 
-        public void Consume(FrameSignal e)
+        public static void Consume(FrameSignal e)
         {
             joypad1.update();
             joypad2.update();

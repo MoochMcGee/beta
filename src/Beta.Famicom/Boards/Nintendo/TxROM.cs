@@ -5,7 +5,6 @@ using Beta.Platform.Messaging;
 
 namespace Beta.Famicom.Boards.Nintendo
 {
-    [BoardName("NES-T(.+)ROM")]
     public sealed class TxROM : IBoard
     {
         private readonly IProducer<IrqSignal> irq;
@@ -36,12 +35,12 @@ namespace Beta.Famicom.Boards.Nintendo
             broker.Link<ClockSignal>(this.Consume);
         }
 
-        public void ApplyImage(CartridgeImage image)
+        public void applyImage(CartridgeImage image)
         {
             this.image = image;
         }
 
-        public void R2A03Read(int address, ref byte data)
+        public void r2a03Read(int address, ref byte data)
         {
             if ((address & 0xe000) == 0x6000)
             {
@@ -54,7 +53,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2A03Write(int address, byte data)
+        public void r2a03Write(int address, byte data)
         {
             if ((address & 0xe000) == 0x6000)
             {
@@ -125,7 +124,7 @@ namespace Beta.Famicom.Boards.Nintendo
             return (address & 0x1fff) | (prg_page[page] & 0x1fe000);
         }
 
-        public void R2C02Read(int address, ref byte data)
+        public void r2c02Read(int address, ref byte data)
         {
             ScanlineCounter(address);
 
@@ -135,7 +134,7 @@ namespace Beta.Famicom.Boards.Nintendo
             }
         }
 
-        public void R2C02Write(int address, byte data)
+        public void r2c02Write(int address, byte data)
         {
             ScanlineCounter(address);
 
@@ -181,7 +180,7 @@ namespace Beta.Famicom.Boards.Nintendo
             irq_address = address;
         }
 
-        public bool VRAM(int address, out int a10)
+        public bool vram(int address, out int a10)
         {
             var x = (address >> 10) & 1;
             var y = (address >> 11) & 1;

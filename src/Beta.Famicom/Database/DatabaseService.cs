@@ -6,14 +6,14 @@ using System.Xml.Serialization;
 
 namespace Beta.Famicom.Database
 {
-    public class DatabaseService : IDatabase
+    public static class DatabaseService
     {
         private static SHA1 sha1Provider = SHA1.Create();
         private static XmlSerializer serializer = new XmlSerializer(typeof(DatabaseInstance));
 
         private static DatabaseInstance database;
 
-        public DatabaseService()
+        static DatabaseService()
         {
             using (var reader = File.OpenText("drivers/fc.sys/db.xml"))
             {
@@ -21,7 +21,7 @@ namespace Beta.Famicom.Database
             }
         }
 
-        public Board Find(byte[] data)
+        public static Board Find(byte[] data)
         {
             var hash = sha1Provider.ComputeHash(data, 16, data.Length - 16);
             var sha1 = BitConverter.ToString(hash).Replace("-", "");

@@ -1,8 +1,8 @@
 ﻿namespace Beta.Famicom.Input
 {
-    public sealed class JoypadFactory : IJoypadFactory
+    public static class JoypadFactory
     {
-        public IJoypad Create(int index)
+        public static IJoypad Create(int index)
         {
             return new StandardController(index);
         }

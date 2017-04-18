@@ -1,27 +1,16 @@
 ﻿using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
+using Beta.Platform.Processors.RP6502;
 
 namespace Beta.Famicom.CPU
 {
-    public sealed class R2A03MemoryMap
+    public static class R2A03MemoryMap
     {
-        private readonly CartridgeConnector cartridge;
-        private readonly R2A03Registers r2a03;
-        private readonly R2C02Registers r2c02;
-        private readonly byte[] wram;
-
-        public R2A03MemoryMap(CartridgeConnector cartridge, R2A03Registers r2a03, R2C02Registers r2c02)
+        static readonly byte[] wram = new byte[0x800];
+        
+        public static void Read(State e, int address, ref byte data)
         {
-            this.cartridge = cartridge;
-            this.r2a03 = r2a03;
-            this.r2c02 = r2c02;
-
-            this.wram = new byte[0x800];
-        }
-
-        public void Read(int address, ref byte data)
-        {
-            cartridge.R2A03Read(address, ref data);
+            CartridgeConnector.R2A03Read(address, ref data);
 
             if (address <= 0x1fff)
             {
@@ -29,17 +18,26 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x3fff)
             {
-                r2c02.Read(address, ref data);
+                R2C02Registers.Read(e.r2c02, address, ref data);
+
+                Interrupt.nmi(
+                    e.r2a03.r6502.ints,
+                    e.r2c02.vbl_enabled & e.r2c02.vbl_flag
+                );
             }
             else if (address <= 0x4017)
             {
-                r2a03.Read(address, ref data);
+                R2A03Registers.Read(e.r2a03, address, ref data);
+
+                Interrupt.irq(
+                    e.r2a03.r6502.ints,
+                    e.r2a03.sequence_irq_pending ? 1 : 0);
             }
         }
 
-        public void Write(int address, byte data)
+        public static void Write(State e, int address, byte data)
         {
-            cartridge.R2A03Write(address, data);
+            CartridgeConnector.R2A03Write(address, data);
 
             if (address <= 0x1fff)
             {
@@ -47,11 +45,20 @@ namespace Beta.Famicom.CPU
             }
             else if (address <= 0x3fff)
             {
-                r2c02.Write(address, data);
+                R2C02Registers.Write(e.r2c02, address, data);
+
+                Interrupt.nmi(
+                    e.r2a03.r6502.ints,
+                    e.r2c02.vbl_enabled & e.r2c02.vbl_flag
+                );
             }
             else if (address <= 0x4017)
             {
-                r2a03.Write(address, data);
+                R2A03Registers.Write(e.r2a03, address, data);
+
+                Interrupt.irq(
+                    e.r2a03.r6502.ints,
+                    e.r2a03.sequence_irq_pending ? 1 : 0);
             }
         }
     }

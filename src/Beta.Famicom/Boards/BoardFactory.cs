@@ -1,50 +1,42 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
+﻿using Beta.Famicom.Boards.Discrete;
+using Beta.Famicom.Boards.Konami;
+using Beta.Famicom.Boards.Nintendo;
 using Beta.Famicom.Formats;
-using SimpleInjector;
 
 namespace Beta.Famicom.Boards
 {
-    public sealed class BoardFactory
+    public static class BoardFactory
     {
-        private readonly CartridgeFactory factory;
-        private readonly Container container;
-
-        public BoardFactory(Container container, CartridgeFactory factory)
+        public static IBoard getBoard(byte[] binary)
         {
-            this.container = container;
-            this.factory = factory;
+            var info = CartridgeFactory.Create(binary);
+            var type = getBoardType(info.mapper);
+
+            type.applyImage(info);
+
+            return type;
         }
 
-        public IBoard GetBoard(byte[] binary)
+        static IBoard getBoardType(string boardType)
         {
-            var info = factory.Create(binary);
-            var type = GetBoardType(info.mapper);
-
-            var instance = (IBoard)container.GetInstance(type);
-            instance.ApplyImage(info);
-
-            return instance;
-        }
-
-        private Type GetBoardType(string boardType)
-        {
-            var linq =
-                from type in typeof(IBoard).Assembly.GetTypes()
-                where typeof(IBoard).IsAssignableFrom(type)
-                from attribute in type.GetCustomAttributes<BoardNameAttribute>()
-                where Regex.IsMatch(boardType, attribute.Pattern)
-                select type;
-
-            var match = linq.FirstOrDefault();
-            if (match == null)
+            switch (boardType)
             {
-                throw new NotSupportedException($"Mapper '{boardType}' isn't supported.");
-            }
+            case "HVC-NROM-128": return new NROM();
+            case "HVC-NROM-256": return new NROM();
+            case "NES-NROM-128": return new NROM();
+            case "NES-NROM-256": return new NROM();
 
-            return match;
+            case "UNROM": return new UxROM();
+            case "UOROM": return new UxROM();
+
+            case "KONAMI-VRC-1": return new VRC1();
+            case "KONAMI-VRC-2": return new VRC2();
+
+            case "NES-S(.+)ROM": return new SxROM();
+            case "NES-T(.+)ROM": return new TxROM(null, null);
+            }
+            
+            return null;
         }
     }
 }

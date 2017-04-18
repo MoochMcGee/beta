@@ -4,16 +4,16 @@ namespace Beta.Famicom.Boards
 {
     public interface IBoard
     {
-        void ApplyImage(CartridgeImage image);
+        void applyImage(CartridgeImage image);
 
-        void R2C02Read(int address, ref byte data);
+        void r2c02Read(int address, ref byte data);
 
-        void R2C02Write(int address, byte data);
+        void r2c02Write(int address, byte data);
 
-        void R2A03Read(int address, ref byte data);
+        void r2a03Read(int address, ref byte data);
 
-        void R2A03Write(int address, byte data);
+        void r2a03Write(int address, byte data);
 
-        bool VRAM(int address, out int a10);
+        bool vram(int address, out int a10);
     }
 }

@@ -29,14 +29,14 @@
             e.fetch_address = e.bkg_address | (e.fetch_name << 4) | 8 | line;
         }
 
-        public static void FetchName(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchName(R2C02State e)
         {
-            memory.Read(e.fetch_address, ref e.fetch_name);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_name);
         }
 
-        public static void FetchAttr(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchAttr(R2C02State e)
         {
-            memory.Read(e.fetch_address, ref e.fetch_attr);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_attr);
 
             var x = (e.scroll_address >> 0) & 2;
             var y = (e.scroll_address >> 5) & 2;
@@ -45,14 +45,14 @@
             e.fetch_attr = (byte)(e.fetch_attr >> shift);
         }
 
-        public static void FetchBit0(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchBit0(R2C02State e)
         {
-            memory.Read(e.fetch_address, ref e.fetch_bit0);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit0);
         }
 
-        public static void FetchBit1(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchBit1(R2C02State e)
         {
-            memory.Read(e.fetch_address, ref e.fetch_bit1);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit1);
         }
 
         public static void Synthesize(R2C02State e)

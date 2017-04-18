@@ -22,7 +22,7 @@ namespace Beta.Famicom
 
             while (true)
             {
-                R2A03.tick(state);
+                R2A03.tick(state, audio);
             }
         }
     }

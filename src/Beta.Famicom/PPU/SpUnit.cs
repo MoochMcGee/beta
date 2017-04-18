@@ -174,11 +174,11 @@ namespace Beta.Famicom.PPU
             e.fetch_address |= 8;
         }
 
-        public static void FetchBit0(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchBit0(R2C02State e)
         {
             var sprite = e.spFound[(e.h >> 3) & 7];
 
-            memory.Read(e.fetch_address, ref e.fetch_bit0);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit0);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
@@ -190,11 +190,11 @@ namespace Beta.Famicom.PPU
             }
         }
 
-        public static void FetchBit1(R2C02State e, R2C02MemoryMap memory)
+        public static void FetchBit1(R2C02State e)
         {
             var sprite = e.spFound[(e.h >> 3) & 7];
 
-            memory.Read(e.fetch_address, ref e.fetch_bit1);
+            R2C02MemoryMap.Read(e.fetch_address, ref e.fetch_bit1);
 
             if (sprite.X == 255 || sprite.Y == 255)
             {
