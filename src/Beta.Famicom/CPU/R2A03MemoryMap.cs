@@ -1,6 +1,6 @@
 ﻿using Beta.Famicom.Memory;
 using Beta.Famicom.PPU;
-using Beta.Platform.Processors.RP6502;
+using Beta.R6502;
 
 namespace Beta.Famicom.CPU
 {
@@ -22,7 +22,7 @@ namespace Beta.Famicom.CPU
 
                 Interrupt.nmi(
                     e.r2a03.r6502.ints,
-                    e.r2c02.vbl_enabled & e.r2c02.vbl_flag
+                    (byte)(e.r2c02.vbl_enabled & e.r2c02.vbl_flag)
                 );
             }
             else if (address <= 0x4017)
@@ -31,7 +31,8 @@ namespace Beta.Famicom.CPU
 
                 Interrupt.irq(
                     e.r2a03.r6502.ints,
-                    e.r2a03.sequence_irq_pending ? 1 : 0);
+                    (byte)(e.r2a03.sequence_irq_pending ? 1 : 0)
+                );
             }
         }
 
@@ -49,7 +50,7 @@ namespace Beta.Famicom.CPU
 
                 Interrupt.nmi(
                     e.r2a03.r6502.ints,
-                    e.r2c02.vbl_enabled & e.r2c02.vbl_flag
+                    (byte)(e.r2c02.vbl_enabled & e.r2c02.vbl_flag)
                 );
             }
             else if (address <= 0x4017)
@@ -58,7 +59,8 @@ namespace Beta.Famicom.CPU
 
                 Interrupt.irq(
                     e.r2a03.r6502.ints,
-                    e.r2a03.sequence_irq_pending ? 1 : 0);
+                    (byte)(e.r2a03.sequence_irq_pending ? 1 : 0)
+                );
             }
         }
     }

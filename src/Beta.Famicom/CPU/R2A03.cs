@@ -1,8 +1,8 @@
 ﻿using Beta.Famicom.APU;
 using Beta.Famicom.PPU;
 using Beta.Platform.Audio;
-using Beta.Platform.Processors.RP6502;
 using Beta.Platform.Video;
+using Beta.R6502;
 
 namespace Beta.Famicom.CPU
 {
@@ -10,17 +10,17 @@ namespace Beta.Famicom.CPU
     {
         public static void irq(R2A03State e, int signal)
         {
-            Interrupt.irq(e.r6502.ints, signal);
+            Interrupt.irq(e.r6502.ints, (byte)signal);
         }
 
         public static void nmi(R2A03State e, int signal)
         {
-            Interrupt.nmi(e.r6502.ints, signal);
+            Interrupt.nmi(e.r6502.ints, (byte)signal);
         }
 
         public static void tick(State e, IAudioBackend audio, IVideoBackend video)
         {
-            R6502.update(e.r2a03.r6502);
+            e.r2a03.r6502 = Core.tick(e.r2a03.r6502);
 
             if (e.r2a03.dma_trigger)
             {
@@ -31,8 +31,8 @@ namespace Beta.Famicom.CPU
 
                 for (var i = 0; i < 256; i++)
                 {
-                    R6502.read(e.r2a03.r6502, address);
-                    R6502.write(e.r2a03.r6502, 0x2004, data);
+                    Common.read(e.r2a03.r6502, address);
+                    Common.write(e.r2a03.r6502, 0x2004, data);
 
                     address++;
                 }
@@ -46,7 +46,8 @@ namespace Beta.Famicom.CPU
 
             Interrupt.nmi(
                 e.r2a03.r6502.ints,
-                e.r2c02.vbl_enabled & e.r2c02.vbl_flag);
+                (byte)(e.r2c02.vbl_enabled & e.r2c02.vbl_flag)
+            );
         }
 
         public static void tickR2A03(R2A03State e, IAudioBackend audio)

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta", "src\Beta\Beta.csproj", "{CBC94BDB-D30B-45E2-BF90-76F42E87CDD0}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.GameBoyAdvance", "src\Beta.GameBoyAdvance\Beta.GameBoyAdvance.csproj", "{515C37BE-A8A6-48DE-A152-51BB3A1896F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beta.Platform", "src\Beta.Platform\Beta.Platform.csproj", "{5C784D99-14AF-4650-B4EB-756BBFF0E61A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Beta.R6502", "src\Beta.R6502\Beta.R6502.fsproj", "{310A464D-B645-4355-8425-5A6EB4A8DADE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C784D99-14AF-4650-B4EB-756BBFF0E61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{310A464D-B645-4355-8425-5A6EB4A8DADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{310A464D-B645-4355-8425-5A6EB4A8DADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{310A464D-B645-4355-8425-5A6EB4A8DADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{310A464D-B645-4355-8425-5A6EB4A8DADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

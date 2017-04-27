@@ -3,8 +3,8 @@ using Beta.Famicom.Input;
 using Beta.Famicom.PPU;
 using Beta.Platform;
 using Beta.Platform.Audio;
-using Beta.Platform.Processors.RP6502;
 using Beta.Platform.Video;
+using Beta.R6502;
 
 namespace Beta.Famicom
 {
@@ -25,8 +25,6 @@ namespace Beta.Famicom
 
             SpUnit.evaluationReset(state.r2c02);
             SpUnit.initializeSprite(state.r2c02);
-
-            R6502.resetHard(state.r2a03.r6502);
 
             while (true)
             {

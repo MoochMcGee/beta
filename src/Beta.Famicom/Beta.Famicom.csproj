@@ -123,6 +123,10 @@
       <Name>Beta.Platform</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Beta.R6502\Beta.R6502.fsproj">
+      <Project>{310a464d-b645-4355-8425-5a6eb4a8dade}</Project>
+      <Name>Beta.R6502</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
